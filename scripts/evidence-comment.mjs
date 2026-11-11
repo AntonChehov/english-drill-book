@@ -1,15 +1,21 @@
 #!/usr/bin/env node
-// Writes the one sticky comment of a pull request that shows its evidence (C-18, items 3
-// and 4): the numbers against `main` and the screenshots, changed views side by side.
+// Writes the one sticky comment of a pull request that shows its evidence (C-18, items 2 – 4):
+// the state of the review, the numbers against `main` and the screenshots, changed views side
+// by side.
 // Usage: node scripts/evidence-comment.mjs --metrics metrics.json --main-metrics main/metrics.json
 //          --comparison comparison.json --evidence-commit <sha> --evidence-path pr-7/<sha>
-//          --main-commit <sha> [--dry-run]
+//          --main-commit <sha> [--change <name>] [--dry-run]
+// The change is read from the pull request's description unless --change names it.
 // Environment: GITHUB_REPOSITORY, PR_NUMBER, EVIDENCE_TOKEN, BOT_LOGIN, GITHUB_SERVER_URL,
 // GITHUB_RUN_ID (optional, for the link to the run).
-import { existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { isMain, readJson, requireEnv } from "./common.mjs";
 import { createGithub } from "./github.mjs";
+import { reviewHash } from "./review-hash.mjs";
+import { changeNamedIn, parseRecord, recordPath, reviewLine } from "./review-record.mjs";
 import { formatKb } from "./size.mjs";
 
 export const marker = "<!-- pr-evidence";
@@ -127,13 +133,14 @@ export function screenshotSection(comparison, urls) {
 }
 
 /** The whole comment for the head commit of a pull request. */
-export function renderComment({ sha, metrics, mainMetrics, comparison, urls, runUrl }) {
+export function renderComment({ sha, metrics, mainMetrics, comparison, urls, runUrl, review }) {
   return [
     markerFor(sha),
     `## Evidence for ${sha.slice(0, 7)}`,
     "",
     `Made by CI from the production build of \`${sha}\`${runUrl ? ` in [this run](${runUrl})` : ""}. A new commit replaces it.`,
     "",
+    ...(review ? ["### Review", "", review, ""] : []),
     "### Numbers",
     "",
     ...numberRows(metrics, mainMetrics),
@@ -143,6 +150,20 @@ export function renderComment({ sha, metrics, mainMetrics, comparison, urls, run
     ...screenshotSection(comparison, urls),
     "",
   ].join("\n");
+}
+
+/**
+ * The line on the review of `change` at `sha`: its last round, verdict and hash, and the
+ * hash of the commit's content. Undefined when no change is named or it does not exist.
+ */
+export function reviewOfChange(root, change, sha) {
+  if (!change || !existsSync(join(root, "openspec", "changes", change))) return undefined;
+  const path = join(root, recordPath(change));
+  return reviewLine({
+    change,
+    record: existsSync(path) ? parseRecord(readFileSync(path, "utf8")) : undefined,
+    current: reviewHash(root, { change, head: sha }).short,
+  });
 }
 
 /** Creates the comment, or updates the bot's earlier one. Returns the comment's URL. */
@@ -170,6 +191,7 @@ async function main() {
       "evidence-commit": { type: "string" },
       "evidence-path": { type: "string" },
       "main-commit": { type: "string", default: "" },
+      change: { type: "string" },
       "dry-run": { type: "boolean", default: false },
     },
   });
@@ -185,6 +207,17 @@ async function main() {
   const server = process.env["GITHUB_SERVER_URL"] ?? "https://github.com";
   const runId = process.env["GITHUB_RUN_ID"];
 
+  const github = values["dry-run"]
+    ? undefined
+    : createGithub({ token: requireEnv("EVIDENCE_TOKEN"), apiUrl: process.env["GITHUB_API_URL"] });
+  const number = values["dry-run"] ? undefined : requireEnv("PR_NUMBER");
+  const change =
+    values.change ??
+    (github
+      ? changeNamedIn((await github.request("GET", `/repos/${repository}/pulls/${number}`)).body)
+      : undefined);
+  const root = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim();
+
   const body = renderComment({
     sha: metrics.sha,
     metrics,
@@ -195,22 +228,13 @@ async function main() {
       before: (file) => rawUrl(repository, values["main-commit"], "main", file),
     },
     runUrl: runId ? `${server}/${repository}/actions/runs/${runId}` : undefined,
+    review: reviewOfChange(root, change, metrics.sha),
   });
-  if (values["dry-run"]) {
+  if (!github) {
     console.log(body);
     return;
   }
-  const github = createGithub({
-    token: requireEnv("EVIDENCE_TOKEN"),
-    apiUrl: process.env["GITHUB_API_URL"],
-  });
-  const url = await upsertComment(
-    github,
-    repository,
-    requireEnv("PR_NUMBER"),
-    requireEnv("BOT_LOGIN"),
-    body,
-  );
+  const url = await upsertComment(github, repository, number, requireEnv("BOT_LOGIN"), body);
   console.log(`Evidence comment: ${url}`);
 }
 

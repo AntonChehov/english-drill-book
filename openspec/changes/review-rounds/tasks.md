@@ -12,7 +12,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 - [x] 2.1 Parse the record of design D2 in `scripts/pr-evidence.mjs`, with unit tests over fixture records for every rule of D3 failing alone and for a record with one, two and three rounds passing; verify the unit tests pass
 - [x] 2.2 Replace check 4 with "Reviewed content" (D3) and remove the rule on commits after the review with its tests; verify the report table shows the two checks separately
 - [x] 2.3 Write the messages of design D4, each stating the fact and the action, with a unit test that no message names a particular skill; verify the tests pass
-- [ ] 2.4 Show the round, the verdict and the hash in the job summary and in the evidence comment; verify with the unit tests of the comment
+- [x] 2.4 Show the round, the verdict and the hash in the job summary and in the evidence comment; verify with the unit tests of the comment
 
 ## 3. Documents
 
