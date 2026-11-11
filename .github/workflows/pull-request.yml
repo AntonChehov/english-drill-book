@@ -1,0 +1,126 @@
+# Every pull request to main: the gates of the constitution, then the evidence of C-18
+# (design D7, D8, D9). `evidence` is the check branch protection requires.
+name: Pull request
+
+on:
+  pull_request:
+    branches: [main]
+    # `edited`: the evidence check reads the description, so editing it runs the check again.
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+# A newer commit cancels the running pipeline of the older one (C-19).
+concurrency:
+  group: pull-request-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+      commitlint-from: ${{ github.event.pull_request.base.sha }}
+
+  evidence:
+    name: evidence
+    needs: checks
+    # Runs even when a check failed, so that the required check reports a failure
+    # instead of being skipped, which branch protection would count as passing.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # scripts/duration.mjs reads when the run started.
+      actions: read
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      EVIDENCE_PATH: pr-${{ github.event.pull_request.number }}/${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Require every check to pass
+        if: ${{ needs.checks.result != 'success' }}
+        env:
+          RESULT: ${{ needs.checks.result }}
+        run: |
+          echo "::error::The checks of this commit did not pass (result: $RESULT)."
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # The evidence check reads the commits of the pull request.
+          fetch-depth: 0
+          persist-credentials: false
+
+      # The scripts use Node's standard library only, so nothing is installed.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Bot token
+        id: bot
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          # The App's client ID is public; its private key is the secret (design D11).
+          client-id: Iv23ligy0dokJrSNvEjs
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: artifacts
+
+      - name: Duration
+        id: duration
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          # A warning while the pipeline settles in; enforced from the fourth pull request (D7).
+          ENFORCE_DURATION_BUDGET: ${{ github.event.pull_request.number > 3 }}
+        run: node scripts/duration.mjs
+
+      - name: Numbers
+        env:
+          SECONDS_TAKEN: ${{ steps.duration.outputs.seconds }}
+        run: |
+          mkdir -p evidence
+          cp artifacts/screenshots/*.png evidence/
+          node scripts/metrics.mjs --artifacts artifacts --metrics evidence/metrics.json \
+            --sha "$HEAD_SHA" --duration "$SECONDS_TAKEN"
+
+      - name: Screenshots and numbers of main
+        id: main
+        env:
+          EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
+        run: node scripts/evidence-branch.mjs fetch --path main --into main-evidence
+
+      - name: Compare the screenshots with main
+        run: node scripts/screenshots.mjs evidence main-evidence --out evidence/comparison.json
+
+      - name: Publish to the evidence branch
+        id: published
+        env:
+          EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
+        run: node scripts/evidence-branch.mjs publish --path "$EVIDENCE_PATH" --from evidence
+
+      - name: Evidence comment
+        env:
+          EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
+          BOT_LOGIN: ${{ steps.bot.outputs.app-slug }}[bot]
+          EVIDENCE_COMMIT: ${{ steps.published.outputs.commit }}
+          MAIN_COMMIT: ${{ steps.main.outputs.commit }}
+        run: |
+          node scripts/evidence-comment.mjs --metrics evidence/metrics.json \
+            --main-metrics main-evidence/metrics.json --comparison evidence/comparison.json \
+            --evidence-commit "$EVIDENCE_COMMIT" --evidence-path "$EVIDENCE_PATH" \
+            --main-commit "$MAIN_COMMIT"
+
+      - name: Evidence check (C-18)
+        env:
+          EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
+          BOT_LOGIN: ${{ steps.bot.outputs.app-slug }}[bot]
+        run: node scripts/pr-evidence.mjs --metrics evidence/metrics.json --comparison evidence/comparison.json

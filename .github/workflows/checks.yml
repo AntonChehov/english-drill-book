@@ -1,0 +1,219 @@
+# The gates of the constitution for one commit (design D7), shared by the pull request
+# and main workflows. Jobs run in parallel; the browser jobs run in the Playwright image,
+# so no browser is downloaded per run. Every job leaves its results as an artifact for the
+# evidence job: unit, size, dist, e2e-<browser>, lighthouse, screenshots.
+name: Checks
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: The commit to check.
+        type: string
+        required: true
+      commitlint-from:
+        description: The commit before the first one to lint; empty skips commitlint.
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+  OPENSPEC_TELEMETRY: "0"
+
+jobs:
+  static:
+    name: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          # commitlint reads the commits of the pull request. The depth is a string:
+          # with a number, `cond && 0 || 1` would always give 1, since 0 is falsy.
+          fetch-depth: ${{ inputs.commitlint-from != '' && '0' || '1' }}
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Types
+        run: pnpm typecheck
+      - name: Lint
+        if: ${{ !cancelled() }}
+        run: pnpm lint
+      - name: Format
+        if: ${{ !cancelled() }}
+        run: pnpm format:check
+      - name: OpenSpec
+        if: ${{ !cancelled() }}
+        run: pnpm spec
+      - name: Traceability
+        if: ${{ !cancelled() }}
+        run: pnpm trace
+      - name: Advisories
+        if: ${{ !cancelled() }}
+        run: pnpm audit
+      - name: Commit messages
+        if: ${{ !cancelled() && inputs.commitlint-from != '' }}
+        env:
+          FROM: ${{ inputs.commitlint-from }}
+          TO: ${{ inputs.ref }}
+        run: pnpm commitlint --from "$FROM" --to "$TO"
+
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Unit tests with coverage of src/domain
+        run: pnpm test:coverage
+      - name: Summary
+        if: ${{ !cancelled() }}
+        run: node scripts/junit.mjs "Unit tests" reports/unit-junit.xml
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: unit
+          path: |
+            reports/unit-junit.xml
+            reports/coverage/coverage-summary.json
+          if-no-files-found: error
+          retention-days: 7
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Production build
+        run: pnpm build
+      - name: Bundle budgets
+        run: pnpm size
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist
+          # dist/.vite/manifest.json is read by scripts/size.mjs.
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: size
+          path: metrics.json
+          if-no-files-found: error
+          retention-days: 7
+
+  e2e:
+    name: e2e (${{ matrix.project }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
+      options: --user 1001 --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+      - name: End-to-end tests
+        env:
+          PROJECT: ${{ matrix.project }}
+          E2E_JUNIT_FILE: reports/e2e-${{ matrix.project }}.xml
+        run: pnpm exec playwright test --project="$PROJECT"
+      - name: Summary
+        if: ${{ !cancelled() }}
+        run: node scripts/junit.mjs "End-to-end tests (${{ matrix.project }})" "reports/e2e-${{ matrix.project }}.xml"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: e2e-${{ matrix.project }}
+          path: reports/e2e-${{ matrix.project }}.xml
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ failure() }}
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: reports/playwright
+          retention-days: 7
+
+  lighthouse:
+    name: lighthouse
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
+      options: --user 1001 --ipc=host
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+      - name: Lighthouse, mobile profile
+        run: pnpm lhci
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: lighthouse
+          # manifest.json holds the scores; the HTML reports are for people.
+          path: reports/lighthouse
+          if-no-files-found: error
+          retention-days: 7
+
+  screenshots:
+    name: screenshots
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
+      options: --user 1001 --ipc=host
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+      - name: Screenshots of every view, both themes, two widths
+        env:
+          SCREENSHOTS_DIR: screenshots
+        run: pnpm screenshots
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: screenshots
+          path: screenshots
+          if-no-files-found: error
+          retention-days: 7

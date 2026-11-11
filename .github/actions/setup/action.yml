@@ -1,0 +1,43 @@
+name: Set up Node and pnpm
+description: >
+  Node from .nvmrc, pnpm through Corepack at the version of package.json#packageManager,
+  the pnpm store cached by the lockfile's hash (C-19), and the dependencies installed.
+inputs:
+  install:
+    description: Install the dependencies; "false" sets up Node and pnpm only.
+    default: "true"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version-file: .nvmrc
+        # The store is cached below; pnpm does not exist yet when this step runs.
+        package-manager-cache: false
+
+    - name: Enable pnpm through Corepack
+      shell: bash
+      env:
+        COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      run: |
+        corepack enable
+        pnpm --version
+
+    - name: Locate the pnpm store
+      if: inputs.install == 'true'
+      id: store
+      shell: bash
+      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache the pnpm store
+      if: inputs.install == 'true'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.store.outputs.path }}
+        key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-store-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Install dependencies
+      if: inputs.install == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile --prefer-offline

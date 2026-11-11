@@ -1,0 +1,120 @@
+# Every merge to main: the same checks, the screenshots and numbers of main that pull
+# requests are compared with (design D8), the demo on GitHub Pages and the release pull
+# request (design D10, constitution C-16).
+name: Main
+
+on:
+  push:
+    branches: [main]
+
+# Deploys of main are never interrupted; a newer push waits for the running one.
+concurrency:
+  group: main
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+    with:
+      ref: ${{ github.sha }}
+
+  evidence:
+    name: evidence of main
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Bot token
+        id: bot
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: Iv23ligy0dokJrSNvEjs
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          permission-contents: write
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: artifacts
+      - name: Duration
+        id: duration
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/duration.mjs
+      - name: Numbers
+        env:
+          SECONDS_TAKEN: ${{ steps.duration.outputs.seconds }}
+        run: |
+          mkdir -p evidence
+          cp artifacts/screenshots/*.png evidence/
+          node scripts/metrics.mjs --artifacts artifacts --metrics evidence/metrics.json \
+            --sha "$GITHUB_SHA" --duration "$SECONDS_TAKEN"
+      - name: Publish as main to the evidence branch
+        env:
+          EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
+        run: node scripts/evidence-branch.mjs publish --path main --from evidence
+
+  deploy:
+    name: deploy
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Pages settings
+        id: pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Build for the Pages address
+        env:
+          # e.g. /english-drill-book/ ; vite needs the trailing slash.
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+        run: pnpm build
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  release:
+    name: release
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Bot token
+        id: bot
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: Iv23ligy0dokJrSNvEjs
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+      # Opened by the bot, the release pull request runs the pull request workflow,
+      # which a pull request opened with GITHUB_TOKEN would not.
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.bot.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

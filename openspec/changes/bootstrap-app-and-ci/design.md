@@ -53,7 +53,11 @@ Unit tests sit next to the code as `*.test.ts`. Why: the layers are the constitu
 | Traceability | `scripts/traceability.mjs`: IDs in requirement titles under `openspec/` against `@req` in tests | C-11 |
 | Advisories | `pnpm audit --audit-level=high` | C-12 |
 
+The audit found one high advisory at implementation time (GHSA-c475-qrg2-pj4r in `basic-ftp`, reached only through Lighthouse CI's `proxy-agent`, with no fixed release of the packages in between). `pnpm-workspace.yaml` overrides it to the patched version; the override is removed once upstream depends on a fixed release.
+
 If oxlint cannot express the layer or network rule, `dependency-cruiser` is added for that rule alone (decision 0004). The first task of the lint group settles this with a failing example for each rule.
+
+Outcome of the first lint task: oxlint expresses both rules (per-directory `no-restricted-imports`, `no-restricted-globals` and `no-restricted-properties`, applied to `.vue` files too), so `dependency-cruiser` is not added. The only file allowed to use the network is `src/storage/static-files.ts`.
 
 Prettier over the oxc formatter: Vue single-file components must be formatted, and Prettier's support for them is settled.
 
@@ -66,7 +70,7 @@ Prettier over the oxc formatter: Vue single-file components must be formatted, a
 
 ### D6. Budgets
 
-`scripts/size.mjs` gzips the built entry chunk and CSS and compares them with C-06 (120 kB, 20 kB); it writes `metrics.json`. Lighthouse CI runs against the preview with the mobile profile and asserts performance ≥ 90 and accessibility ≥ 95.
+`scripts/size.mjs` gzips the built entry chunk and CSS and compares them with C-06 (120 kB, 20 kB); it writes `metrics.json`. "Initial" means the entries of Vite's manifest and the chunks they import statically; chunks loaded by dynamic import are outside the budget. Lighthouse CI runs against the preview with the mobile profile and asserts performance ≥ 90 and accessibility ≥ 95 on the median of three runs. It drives the Chromium that Playwright installs, so no second browser is downloaded in CI.
 
 ### D7. Pipeline
 
@@ -84,6 +88,8 @@ build ───┼─ e2e (chromium | firefox | webkit) ─┐
 - Browser jobs run in the official Playwright container image, so no browser is downloaded per run. This is what makes the 3-minute budget reachable.
 - Test results are written as JUnit and summarised in the job summary.
 - Each run reports its wall-clock duration; a run over 3 minutes fails the `evidence` job once the pipeline is stable (a warning until the first three pull requests have run).
+
+As implemented: the jobs from `static` to `screenshots` are one reusable workflow, `checks.yml`, called by the pull request workflow and by the workflow of `main`, so both run the same gates. Every job checks out the head commit of the pull request, not GitHub's merge commit, so screenshots and numbers belong to the commit the evidence names. `evidence` runs even when a check failed and then fails itself, because a skipped required check counts as passed. The duration budget is enforced from pull request #4 on, by its number. pnpm comes from Corepack in CI as well; its store is cached with `actions/cache`, keyed by the lockfile's hash.
 
 ### D8. Screenshots as proof
 
@@ -132,13 +138,19 @@ Reviewed commit: <sha>
 
 A review with no findings has `## Findings` followed by `none`.
 
+The release pull request of D10 implements no change. It is exempt from the six checks when the bot opened it from a `release-please--` branch and it changes only `CHANGELOG.md`, `package.json` and `.release-please-manifest.json`.
+
 ### D10. Deploy and releases
 
 On push to `main`: build with the Pages base path, upload, deploy (`actions/deploy-pages`). `release-please` maintains a release pull request with the version and changelog from Conventional Commits (C-16).
 
+As implemented: the workflow of `main` runs the checks first; the deploy, the release pull request and the publication of `main/` on the `evidence` branch wait for them. The base path comes from `actions/configure-pages`. `release-please` runs with the bot's token, so its pull request runs the pull request workflow (one opened with `GITHUB_TOKEN` would not). Its configuration is `release-please-config.json` with `.release-please-manifest.json`, and `CHANGELOG.md` is left to it and out of Prettier.
+
+Owner steps before the first run: GitHub Pages with the source "GitHub Actions", and the repository secret `BOT_PRIVATE_KEY` holding the App's private key. The App's client ID is not secret and is written in the workflows.
+
 ### D11. Bot identity
 
-A GitHub App installed on this repository only, with permissions: contents (write), pull requests (write), commit statuses (write). `scripts/bot-token.mjs` signs a JWT with Node's `crypto` from the App ID and a private key whose path comes from the environment, and exchanges it for a one-hour installation token. The key is kept outside the repository. In workflows the same token comes from `actions/create-github-app-token`.
+A GitHub App installed on this repository only, with permissions: contents (write), pull requests (write), commit statuses (write), workflows (write). The last is needed because GitHub rejects a push that adds or changes a file under `.github/workflows/` from an App without it, and agents push such changes. `scripts/bot-token.mjs` signs a JWT with Node's `crypto` from the App ID (`BOT_APP_ID`) and a private key whose path comes from the environment (`BOT_PRIVATE_KEY_PATH`), and exchanges it for a one-hour installation token (`BOT_INSTALLATION_ID` is optional while the App has one installation). The key is kept outside the repository. In workflows the same token comes from `actions/create-github-app-token`.
 
 Branch protection on `main`: pull request required, the `evidence` check required, conversations resolved, approval by the owner, no direct pushes. It is switched on after this change is merged, because the required check does not exist before.
 
@@ -146,16 +158,16 @@ Branch protection on `main`: pull request required, the `evidence` check require
 
 | Package | Replaces | Size (gzip) |
 | --- | --- | --- |
-| `vue` | hand-written DOM updates across six screens | about 35 kB |
-| `vue-router` | hand-written hash routing and guards | about 10 kB |
+| `vue` | hand-written DOM updates across six screens | 24.3 kB |
+| `vue-router` | hand-written hash routing and guards | 9.5 kB |
 
-Sizes are measured by `scripts/size.mjs` once the project builds and corrected here if they differ.
+Sizes measured on the first build, each package split into its own chunk and gzipped at level 9 (the first estimates were 35 kB and 10 kB). Together with the shell the initial JavaScript is 34.6 kB gzip, as `scripts/size.mjs` reports it.
 
 ## Risks / Trade-offs
 
 - [oxlint cannot express the layer or network rule] → settled by the first lint task; `dependency-cruiser` for that rule only.
 - [The 3-minute budget is missed] → the budget is a warning for the first three pull requests; if still missed, split end-to-end tests into shards before relaxing C-19.
-- [Screenshots differ between runs without a real change] → one container image for all browser jobs, system font stack, animations disabled in the spec; a comparison threshold of 0.1 % of pixels.
+- [Screenshots differ between runs without a real change] → one container image for all browser jobs, system font stack, animations disabled in the spec; a comparison threshold of 0.01 % of pixels. (First set at 0.1 %; measured during implementation, two runs of the same build differ in no pixel, while a changed link colour alters only 0.07 % of a 1280 px screenshot, so 0.1 % would hide real changes.)
 - [The `evidence` branch grows] → scheduled pruning of closed pull requests' directories.
 - [This change cannot pass a gate it introduces] → it is the one change merged before branch protection exists; its own evidence is still produced and checked by its own pipeline run.
 - [The owner-only steps block the agent] → they are grouped first in `tasks.md`; everything else can be built and run locally before them.

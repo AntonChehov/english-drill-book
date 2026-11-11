@@ -2,7 +2,9 @@
 
 > An offline-first trainer for Russian speakers learning English from grammar workbooks: one window, pluggable content packs, automatic answer checking, progress by topic and CEFR level.
 
-**Status: specification phase.** No application code exists yet. See [`docs/roadmap.md`](docs/roadmap.md).
+**Status: milestone 1 in progress.** The app shell, the quality gates and the deployment exist; the exercises do not yet. See [`docs/roadmap.md`](docs/roadmap.md).
+
+**Demo:** <https://antonchehov.github.io/english-drill-book/>, deployed from `main` on every merge.
 
 ## What it is
 
@@ -28,6 +30,34 @@ The full process, the roles and its honest limits are in [`docs/process.md`](doc
 ## Stack
 
 Vue 3, TypeScript, Vite, Vitest, Playwright, oxlint; deployed as a static PWA. Reasons are recorded in [`docs/decisions/`](docs/decisions/).
+
+## Commands
+
+Node 22 (see `.nvmrc`) and pnpm through Corepack:
+
+```sh
+corepack enable
+pnpm install
+pnpm exec playwright install chromium firefox webkit
+```
+
+| Command                       | What it does                                                                                  |
+| ----------------------------- | --------------------------------------------------------------------------------------------- |
+| `pnpm dev`                    | development server with hot reload                                                            |
+| `pnpm build`                  | production build into `dist/`                                                                 |
+| `pnpm preview`                | serves the production build at <http://localhost:4173/>                                       |
+| `pnpm check`                  | types, lint, formatting, OpenSpec validation, requirement traceability, dependency advisories |
+| `pnpm test`                   | unit tests                                                                                    |
+| `pnpm test:coverage`          | unit tests with the coverage thresholds of `src/domain`                                       |
+| `pnpm e2e`                    | builds, then runs the end-to-end tests on Chromium, Firefox and WebKit                        |
+| `pnpm size`                   | initial JavaScript and CSS of the last build against the budgets; writes `metrics.json`       |
+| `pnpm lhci`                   | Lighthouse on the last build, mobile profile                                                  |
+| `pnpm screenshots`            | screenshots of the last build: every view, both themes, two widths, into `screenshots/`       |
+| `pnpm verify`                 | `check`, `test:coverage`, `e2e`, `size` and `lhci` in turn: the gates CI runs, locally        |
+| `pnpm format`                 | formats the code with Prettier                                                                |
+| `pnpm commitlint --from main` | checks the messages of the branch's commits                                                   |
+
+On every pull request CI runs the same gates, publishes screenshots and numbers in a comment and checks the evidence the constitution asks for (C-18); see `.github/workflows/`.
 
 ## Licence
 

@@ -1,0 +1,6 @@
+# Settings of pnpm for this single-package repository.
+overrides:
+  # GHSA-c475-qrg2-pj4r: basic-ftp <= 6.2.0, reached only through Lighthouse CI's
+  # proxy-agent for ftp:// addresses, which the pipeline never uses. Remove once
+  # get-uri depends on a patched version.
+  basic-ftp: 6.2.6
