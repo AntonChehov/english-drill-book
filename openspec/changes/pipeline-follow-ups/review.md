@@ -20,6 +20,7 @@ The code-review skill was run at effort `high` with every finding reported, on t
 
 ### F4 The last task of a change cannot be ticked before its own archive pull request has run
 - Where: docs/process.md:31
+- Outcome: fixed in e2f9d1e
 
 ### F5 Unticked tasks written as `+ [ ]`, `1. [ ]` or `-  [ ]` are not counted
 - Where: scripts/pr-evidence.mjs:91
