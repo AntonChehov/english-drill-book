@@ -32,8 +32,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.ref }}
-          # commitlint reads the commits of the pull request.
-          fetch-depth: ${{ inputs.commitlint-from != '' && 0 || 1 }}
+          # commitlint reads the commits of the pull request. The depth is a string:
+          # with a number, `cond && 0 || 1` would always give 1, since 0 is falsy.
+          fetch-depth: ${{ inputs.commitlint-from != '' && '0' || '1' }}
           persist-credentials: false
       - uses: ./.github/actions/setup
       - name: Types
