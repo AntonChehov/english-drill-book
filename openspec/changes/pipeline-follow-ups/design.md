@@ -22,6 +22,8 @@ It is exempt from the six checks when all of these hold:
 
 The jobs before `evidence` (types, lint, tests, OpenSpec validation, traceability) still run and must pass: the archive is what puts requirements into `openspec/specs`, and traceability is measured there.
 
+As implemented (`archiveProblems` in `scripts/pr-evidence.mjs`), conditions 3 – 5 are stated more precisely after the review (findings F1 – F3, F8): the files are `docs/roadmap.md` and those under `openspec/changes/` and `openspec/specs/` (not `openspec/config.yaml`); each moved change goes from `openspec/changes/<name>/` to a new `openspec/changes/archive/<date>-<name>/` and leaves no file behind; no other change in flight is added, edited or deleted, and nothing already in the archive is edited or deleted; living specs are added or changed only for capabilities whose delta specs the moved changes carry, and none is deleted. The contents of a living spec are not re-derived from the delta specs: `openspec archive` writes them and the owner approves the pull request.
+
 Alternative considered: archiving as the last commit of the feature pull request. Rejected: `docs/process.md` archives after the merge on purpose, so that `openspec/specs` only ever describes what is on `main`, and check 4 of the evidence would have to allow writes outside the change's directory after the review.
 
 Alternative considered: carrying the archive of one change in the pull request of the next. Used once here for the bootstrap, because the exemption does not exist yet; rejected as the rule because it ties two unrelated changes together.
@@ -36,7 +38,7 @@ C-14 says a pull request implements exactly one change; C-18 says no pull reques
 
 Why it proposed `1.0.0`: the manifest holds `0.0.0`, which release-please reads as "never released", and its default first version is `1.0.0`.
 
-As implemented: the configuration also held `bump-patch-for-minor-pre-major`, under which a feature raises only the patch version below `1.0.0`, against the rule above. It is removed, so `feat` gives `0.2.0` after `0.1.0`, `fix` gives `0.1.1`, and a breaking change raises the minor version (`bump-minor-pre-major`).
+As implemented: the configuration also held `bump-patch-for-minor-pre-major`, under which a feature raises only the patch version below `1.0.0`, against the rule above. It is removed. Below `1.0.0` a feature then raises the minor version by release-please's default, not because of `bump-minor-pre-major`, which only keeps a breaking change from releasing `1.0.0` (finding F14): `feat` gives `0.2.0` after `0.1.0`, `fix` gives `0.1.1`, a breaking change `0.2.0`.
 
 ### D4. Showing the refusals of bootstrap task 7.4
 
