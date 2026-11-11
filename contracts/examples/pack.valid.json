@@ -1,0 +1,52 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "example-present-simple",
+  "version": "1.0.0",
+  "title": "Example: present simple",
+  "language": "en",
+  "instructionLanguage": "en",
+  "original": true,
+  "license": "CC-BY-4.0",
+  "units": [
+    {
+      "id": "u1",
+      "title": "Present simple: negatives",
+      "theory": "## Negatives\n\nUse **do not** (*don't*) or **does not** (*doesn't*) before the verb.\n\n| Subject | Negative |\n| --- | --- |\n| I, you, we, they | do not work |\n| he, she, it | does not work |\n",
+      "exercises": [
+        {
+          "id": "u1.1",
+          "type": "items",
+          "task": "Make the sentence negative.",
+          "items": [
+            { "id": "1", "prompt": "Our printer works on Mondays.", "accept": ["Our printer [does not|doesn't] work on Mondays"] },
+            { "id": "2", "prompt": "The two cats share a bowl.", "accept": ["The (two) cats do not share a bowl"] },
+            { "id": "3", "prompt": "It rains much here.", "accept": ["It does not rain much here", "It does not rain a lot here"] }
+          ]
+        },
+        {
+          "id": "u1.2",
+          "type": "items",
+          "task": "Choose the correct form.",
+          "items": [
+            { "id": "1", "prompt": "My neighbour ___ own a car.", "accept": ["doesn't"], "choices": ["don't", "doesn't", "isn't"] },
+            { "id": "2", "prompt": "Bakeries here ___ open before six.", "accept": ["don't"], "choices": ["don't", "doesn't", "aren't"] }
+          ]
+        },
+        {
+          "id": "u1.3",
+          "type": "text",
+          "task": "Rewrite the note so that every sentence is negative.",
+          "prompt": "The lift works. We use the stairs.",
+          "model": "The lift does not work. We do not use the stairs."
+        },
+        {
+          "id": "u1.4",
+          "type": "open",
+          "task": "Write three things you do not do at weekends.",
+          "sample": "I do not set an alarm. I do not check my work mail. I do not cook."
+        }
+      ]
+    }
+  ]
+}

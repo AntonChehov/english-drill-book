@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+*.log
+.DS_Store
+.env*
+
+# Private content never belongs here (constitution C-01)
+/private/
+*.pdf
+!public/demo/*.pdf
+!tests/fixtures/**/*.pdf
+*.mp3

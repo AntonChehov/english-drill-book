@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:english-drill-book:schema:program:1",
+  "title": "English Drill Book study program, format 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "schemaVersion", "id", "version", "title", "scale", "goal", "requires", "topics"],
+  "properties": {
+    "kind": { "const": "program" },
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "#/$defs/slug" },
+    "version": { "$ref": "#/$defs/semver" },
+    "title": { "$ref": "#/$defs/line" },
+    "scale": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/level" },
+      "description": "Level names, lowest first."
+    },
+    "goal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "$ref": "#/$defs/level" },
+        "to": { "$ref": "#/$defs/level" }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "levelThreshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "default": 0.9 },
+        "plusThreshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "default": 0.5 },
+        "supplementMin": { "type": "integer", "minimum": 0, "default": 2 }
+      }
+    },
+    "requires": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pack", "major"],
+        "properties": {
+          "pack": { "$ref": "#/$defs/slug" },
+          "major": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "topics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "level", "lead"],
+        "properties": {
+          "id": { "$ref": "#/$defs/localId" },
+          "title": { "$ref": "#/$defs/line" },
+          "level": { "$ref": "#/$defs/level" },
+          "lead": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pack", "unit"],
+            "properties": {
+              "pack": { "$ref": "#/$defs/slug" },
+              "unit": { "$ref": "#/$defs/localId" }
+            }
+          },
+          "supplements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["pack", "exercise"],
+              "properties": {
+                "pack": { "$ref": "#/$defs/slug" },
+                "exercise": { "$ref": "#/$defs/localId" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dailyBlocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "$ref": "#/$defs/localId" },
+          "title": { "$ref": "#/$defs/line" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 64 },
+    "localId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "maxLength": 32 },
+    "semver": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
+    "line": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "level": { "type": "string", "minLength": 1, "maxLength": 16 }
+  }
+}

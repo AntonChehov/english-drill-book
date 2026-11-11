@@ -1,0 +1,24 @@
+{
+  "kind": "program",
+  "schemaVersion": 1,
+  "id": "example-program",
+  "version": "1.0.0",
+  "title": "Example program",
+  "scale": ["A1", "A2", "B1", "B2"],
+  "goal": { "from": "A1", "to": "A2" },
+  "rules": { "levelThreshold": 0.9, "plusThreshold": 0.5, "supplementMin": 2 },
+  "requires": [{ "pack": "example-present-simple", "major": 1 }],
+  "topics": [
+    {
+      "id": "t1",
+      "title": "Present simple: negatives",
+      "level": "A1",
+      "lead": { "pack": "example-present-simple", "unit": "u1" },
+      "supplements": []
+    }
+  ],
+  "dailyBlocks": [
+    { "id": "listening", "title": "Listening" },
+    { "id": "reading", "title": "Reading" }
+  ]
+}

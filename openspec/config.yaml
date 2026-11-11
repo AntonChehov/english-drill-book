@@ -1,0 +1,33 @@
+schema: spec-driven
+
+context: |
+  English Drill Book is a static, offline-first PWA (Vue 3, TypeScript, Vite) for Russian speakers
+  learning English from grammar workbooks they own. Interface text is Russian; repository
+  text, specs and code are English.
+
+  Before drafting any artifact read docs/process.md, docs/constitution.md and the files in
+  docs/product/ that the change touches. Requirements are taken from docs/product/ and keep
+  their IDs. Decisions already made are in docs/decisions/.
+
+  The repository must never contain text from a published textbook (constitution C-01).
+
+rules:
+  proposal:
+    - List the requirement IDs from docs/product/ that the change delivers, and state what is deliberately left for later changes.
+    - One change is one pull request; if it cannot be reviewed in one sitting, split it.
+  specs:
+    - 'Start every requirement title with its ID, for example "### Requirement: CHK-005 Correct answer".'
+    - Use the wording of docs/product/ for the requirement; put examples and edge cases into scenarios.
+  design:
+    - State which constitution constraints the change touches and how each will be measured.
+    - Record every new runtime dependency with what it replaces and its size (C-12).
+  tasks:
+    - Every task group lands its own tests; tests name the requirement IDs they verify (@req ID).
+    - End with a group "Review and evidence" containing the code review, review.md and the checks of C-18.
+
+operations:
+  apply:
+    guidance:
+      - Keep the layering of constitution C-08; put logic in src/domain as pure functions.
+      - Do not edit docs/product/, docs/constitution.md, contracts/ or openspec/specs/ unless a task says so.
+      - Commit in small steps with Conventional Commits messages.

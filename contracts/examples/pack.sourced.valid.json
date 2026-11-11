@@ -1,0 +1,45 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "sample-workbook-2e",
+  "version": "2.0.0",
+  "title": "Sample Workbook, 2nd edition (fictional)",
+  "language": "en",
+  "original": false,
+  "source": {
+    "title": "Sample Workbook",
+    "authors": ["A. N. Author"],
+    "edition": "2nd",
+    "year": 2020,
+    "isbn": "978-0-00-000000-2",
+    "documents": [
+      { "role": "book", "sha256": "0000000000000000000000000000000000000000000000000000000000000001", "pages": 120 },
+      { "role": "key", "sha256": "0000000000000000000000000000000000000000000000000000000000000002", "pages": 24 }
+    ]
+  },
+  "migrations": [
+    { "fromMajor": 1, "exercises": { "1.1": "1.1", "1.2": "1.3" }, "items": { "1.2": { "a": "1" } } }
+  ],
+  "units": [
+    {
+      "id": "1",
+      "title": "Unit 1",
+      "pages": [{ "document": "book", "from": 10, "to": 11 }],
+      "exercises": [
+        {
+          "id": "1.1",
+          "type": "items",
+          "task": "Exercise 1.1",
+          "pages": [{ "document": "book", "from": 11, "to": 11 }, { "document": "key", "from": 3, "to": 3 }],
+          "items": [{ "id": "1", "accept": ["placeholder answer"] }]
+        },
+        {
+          "id": "1.3",
+          "type": "items",
+          "task": "Exercise 1.3",
+          "items": [{ "id": "1", "accept": ["another placeholder"] }]
+        }
+      ]
+    }
+  ]
+}

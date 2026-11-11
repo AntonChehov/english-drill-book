@@ -1,0 +1,21 @@
+{
+  "kind": "export",
+  "formatVersion": 1,
+  "exportedAt": "2026-11-10T18:00:00Z",
+  "appVersion": "0.1.0",
+  "attempts": [
+    {
+      "id": "3f0c2a1e-5b7d-4c8e-9a10-2b3c4d5e6f70",
+      "at": "2026-11-10T17:41:12.250Z",
+      "pack": "example-present-simple",
+      "packVersion": "1.0.0",
+      "exercise": "u1.1",
+      "action": "check",
+      "answers": { "1": "Our printer doesn't work on Mondays", "2": "The cats do not share bowl" },
+      "results": { "1": "ok", "2": "bad" },
+      "complete": false
+    }
+  ],
+  "days": { "2026-11-10": ["listening"] },
+  "settings": { "theme": "system", "activeProgram": "example-program" }
+}

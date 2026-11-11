@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:english-drill-book:schema:pack:1",
+  "title": "English Drill Book content pack, format 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "schemaVersion", "id", "version", "title", "language", "original", "units"],
+  "properties": {
+    "kind": { "const": "pack" },
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "#/$defs/slug", "description": "One edition of one work. A different edition has a different id." },
+    "version": { "$ref": "#/$defs/semver" },
+    "title": { "$ref": "#/$defs/line" },
+    "language": { "$ref": "#/$defs/languageTag", "description": "Language being learned; selects normalisation rules." },
+    "instructionLanguage": { "$ref": "#/$defs/languageTag" },
+    "original": { "type": "boolean", "description": "True when all content was written for this pack." },
+    "license": { "type": "string", "minLength": 1, "maxLength": 64, "description": "SPDX identifier." },
+    "source": { "$ref": "#/$defs/source" },
+    "migrations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/migration" }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/unit" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "original": { "const": true } } },
+      "then": { "required": ["license"], "not": { "required": ["source"] } },
+      "else": { "required": ["source"] }
+    }
+  ],
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 64 },
+    "localId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "maxLength": 32 },
+    "semver": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
+    "languageTag": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$" },
+    "line": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "edition"],
+      "properties": {
+        "title": { "$ref": "#/$defs/line" },
+        "authors": { "type": "array", "items": { "$ref": "#/$defs/line" } },
+        "publisher": { "$ref": "#/$defs/line" },
+        "edition": { "$ref": "#/$defs/line" },
+        "year": { "type": "integer", "minimum": 1800, "maximum": 2100 },
+        "isbn": { "type": "string", "pattern": "^[0-9Xx-]{10,17}$" },
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["role", "sha256", "pages"],
+            "properties": {
+              "role": { "$ref": "#/$defs/localId" },
+              "title": { "$ref": "#/$defs/line" },
+              "sha256": { "$ref": "#/$defs/sha256" },
+              "pages": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "pageRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document", "from", "to"],
+      "properties": {
+        "document": { "$ref": "#/$defs/localId", "description": "A role from source.documents." },
+        "from": { "type": "integer", "minimum": 1 },
+        "to": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fromMajor", "exercises"],
+      "properties": {
+        "fromMajor": { "type": "integer", "minimum": 0 },
+        "exercises": {
+          "type": "object",
+          "description": "Old exercise id -> new exercise id. Item ids are assumed unchanged unless listed in items.",
+          "additionalProperties": { "$ref": "#/$defs/localId" }
+        },
+        "items": {
+          "type": "object",
+          "description": "Old exercise id -> { old item id -> new item id }.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/$defs/localId" }
+          }
+        }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "exercises"],
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "title": { "$ref": "#/$defs/line" },
+        "theory": { "type": "string", "maxLength": 20000, "description": "Markdown, safe subset (PACK-007)." },
+        "pages": { "type": "array", "items": { "$ref": "#/$defs/pageRef" } },
+        "exercises": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/itemsExercise" },
+              { "$ref": "#/$defs/textExercise" },
+              { "$ref": "#/$defs/openExercise" }
+            ]
+          }
+        }
+      }
+    },
+    "itemsExercise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "task", "items"],
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "type": { "const": "items" },
+        "task": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "pages": { "type": "array", "items": { "$ref": "#/$defs/pageRef" } },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "accept"],
+            "properties": {
+              "id": { "$ref": "#/$defs/localId" },
+              "prompt": { "type": "string", "maxLength": 1000 },
+              "accept": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "maxLength": 500 },
+                "description": "Key patterns (CHK-001)."
+              },
+              "choices": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 8,
+                "uniqueItems": true,
+                "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "textExercise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "task", "model"],
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "type": { "const": "text" },
+        "task": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "pages": { "type": "array", "items": { "$ref": "#/$defs/pageRef" } },
+        "prompt": { "type": "string", "maxLength": 5000 },
+        "model": { "type": "string", "minLength": 1, "maxLength": 5000 }
+      }
+    },
+    "openExercise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "task"],
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "type": { "const": "open" },
+        "task": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "pages": { "type": "array", "items": { "$ref": "#/$defs/pageRef" } },
+        "prompt": { "type": "string", "maxLength": 5000 },
+        "sample": { "type": "string", "maxLength": 5000 }
+      }
+    }
+  }
+}
