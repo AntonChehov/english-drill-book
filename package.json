@@ -19,6 +19,7 @@
     "format:check": "prettier --check .",
     "spec": "openspec validate --all --strict --no-interactive",
     "trace": "node scripts/traceability.mjs",
+    "review:hash": "node scripts/review-hash.mjs",
     "audit": "pnpm audit --audit-level=high",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm spec && pnpm trace && pnpm audit",
     "test": "vitest run",

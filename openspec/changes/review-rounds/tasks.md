@@ -4,7 +4,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 ## 1. Hash
 
-- [ ] 1.1 Write `scripts/review-hash.mjs` as in design D1 with unit tests over a temporary repository: the hash changes when a changed file is edited, added or deleted; it does not change when only `review.md` or `tasks.md` of the change is edited, when a commit message is amended, or when the branch is brought up to date with a `main` that touched other files; verify the unit tests pass
+- [x] 1.1 Write `scripts/review-hash.mjs` as in design D1 with unit tests over a temporary repository: the hash changes when a changed file is edited, added or deleted; it does not change when only `review.md` or `tasks.md` of the change is edited, when a commit message is amended, or when the branch is brought up to date with a `main` that touched other files; verify the unit tests pass
 - [ ] 1.2 Add `pnpm review:hash`; verify it prints the same value locally and in a CI run for the same commit
 
 ## 2. Record and check
