@@ -140,7 +140,7 @@ On push to `main`: build with the Pages base path, upload, deploy (`actions/depl
 
 ### D11. Bot identity
 
-A GitHub App installed on this repository only, with permissions: contents (write), pull requests (write), commit statuses (write). `scripts/bot-token.mjs` signs a JWT with Node's `crypto` from the App ID and a private key whose path comes from the environment, and exchanges it for a one-hour installation token. The key is kept outside the repository. In workflows the same token comes from `actions/create-github-app-token`.
+A GitHub App installed on this repository only, with permissions: contents (write), pull requests (write), commit statuses (write), workflows (write). The last is needed because GitHub rejects a push that adds or changes a file under `.github/workflows/` from an App without it, and agents push such changes. `scripts/bot-token.mjs` signs a JWT with Node's `crypto` from the App ID (`BOT_APP_ID`) and a private key whose path comes from the environment (`BOT_PRIVATE_KEY_PATH`), and exchanges it for a one-hour installation token (`BOT_INSTALLATION_ID` is optional while the App has one installation). The key is kept outside the repository. In workflows the same token comes from `actions/create-github-app-token`.
 
 Branch protection on `main`: pull request required, the `evidence` check required, conversations resolved, approval by the owner, no direct pushes. It is switched on after this change is merged, because the required check does not exist before.
 
