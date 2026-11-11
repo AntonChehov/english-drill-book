@@ -6,7 +6,8 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 - [x] 1.1 Tick tasks 7.2, 7.5, 8.1, 8.2 and 9.3 of `bootstrap-app-and-ci`, each with the run or address that showed it; tick 7.4 with the note of design D5; record the protection settings in its design D11; verify with `gh` that each named run succeeded and that the protection of `main` reads as recorded
   - Verified with `gh`: runs 43072179823, 43072602012 (pull request), 43077073059 (Main) and 43077854070 (Prune evidence, its log says "Removed: pr-1") concluded `success`; the evidence comment on #1 is one comment, updated in place for e32aa45; pull request #2 is the bot's, from `release-please--branches--main--components--english-drill-book`, every check green; the `evidence` branch holds `main` and `pr-2`; `GET …/branches/main/protection` reads as recorded in D11. The demo was opened in Chromium. Taken from the owner's brief, not verifiable through the API: that the protection was switched on by the owner's assistant.
-- [ ] 1.2 Archive `bootstrap-app-and-ci` with `openspec archive`; verify `openspec/specs/app-shell/spec.md` carries PROD-001 and PROD-008 and that `pnpm check` passes
+- [x] 1.2 Archive `bootstrap-app-and-ci` with `openspec archive`; verify `openspec/specs/app-shell/spec.md` carries PROD-001 and PROD-008 and that `pnpm check` passes
+  - Archived as `openspec/changes/archive/2026-11-11-bootstrap-app-and-ci/`; `openspec/specs/app-shell/spec.md` holds PROD-001 and PROD-008; `pnpm check` passes (traceability: 2 requirements, each named by a test). The evidence check lists changes under `openspec/changes/` without `archive`, so this pull request still names exactly one change.
 - [ ] 1.3 Update `docs/roadmap.md`: slice 1.1 done, what is next; verify the demo address in it answers
 
 ## 2. Archive pull request
