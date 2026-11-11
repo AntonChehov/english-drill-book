@@ -58,7 +58,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 ## 9. Review and evidence
 
-- [ ] 9.1 Run the code-review skill on the whole diff, fix or decline each finding, and commit `review.md` in this change's directory in the format of design D9
+- [x] 9.1 Run the code-review skill on the whole diff, fix or decline each finding, and commit `review.md` in this change's directory in the format of design D9
 - [ ] 9.2 Open the pull request as the bot with the description sections of design D9; verify the `evidence` check is green
 - [ ] 9.3 **(owner)** After merge, switch on branch protection for `main` as in design D11; verify a direct push to `main` is rejected
 
