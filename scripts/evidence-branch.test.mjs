@@ -10,6 +10,7 @@ import {
   pullRequestDirectories,
   remoteUrl,
   updateBranch,
+  authEnvironment,
 } from "./evidence-branch.mjs";
 
 let root;
@@ -127,14 +128,33 @@ describe("pullRequestDirectories", () => {
 });
 
 describe("remoteUrl", () => {
-  it("authenticates with the token over HTTPS", () => {
+  it("is the repository over HTTPS, without credentials", () => {
     expect(remoteUrl({ EVIDENCE_TOKEN: "secret", GITHUB_REPOSITORY: "owner/repo" })).toBe(
-      "https://x-access-token:secret@github.com/owner/repo.git",
+      "https://github.com/owner/repo.git",
     );
   });
 
   it("can be replaced, and names what is missing", () => {
     expect(remoteUrl({ EVIDENCE_REMOTE: "/tmp/r.git" })).toBe("/tmp/r.git");
-    expect(() => remoteUrl({ GITHUB_REPOSITORY: "o/r" })).toThrow("Set EVIDENCE_TOKEN");
+    expect(() => remoteUrl({})).toThrow("Set GITHUB_REPOSITORY");
+  });
+});
+
+describe("authEnvironment", () => {
+  it("passes the token to git as a header of the server's origin", () => {
+    const environment = authEnvironment("secret", "https://github.com");
+    expect(environment).toEqual({
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
+      GIT_CONFIG_VALUE_0: `AUTHORIZATION: basic ${Buffer.from("x-access-token:secret").toString("base64")}`,
+    });
+  });
+
+  it("is what git reads as its configuration", () => {
+    const value = execFileSync("git", ["config", "--get", "http.https://github.com/.extraheader"], {
+      env: { ...process.env, ...authEnvironment("secret") },
+      encoding: "utf8",
+    }).trim();
+    expect(value).toMatch(/^AUTHORIZATION: basic /);
   });
 });

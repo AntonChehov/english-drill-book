@@ -9,7 +9,7 @@
 //   node scripts/evidence-branch.mjs prune
 // Environment: GITHUB_REPOSITORY, EVIDENCE_TOKEN (contents: write; pull requests: read for
 // prune), GITHUB_SERVER_URL and GITHUB_API_URL (optional). EVIDENCE_REMOTE replaces the
-// remote URL, for tests. Each command prints and sets the output `commit`: the commit of
+// remote URL, for tests. The token reaches git through its environment, never the URL. Each command prints and sets the output `commit`: the commit of
 // the branch it read or wrote.
 import { execFileSync } from "node:child_process";
 import {
@@ -40,9 +40,30 @@ Made by CI, not by hand: screenshots and numbers of each pull request commit
 \`bootstrap-app-and-ci\`. Directories of closed pull requests are pruned on a schedule.
 `;
 
+/** Extra environment of every git command: the credentials, set by `useToken`. */
+let gitEnvironment = {};
+
+/**
+ * Authenticates git through its environment instead of the remote URL, so the token
+ * never appears in a command line or in the message of a failed command.
+ */
+export function authEnvironment(token, serverUrl = "https://github.com") {
+  const basic = Buffer.from(`x-access-token:${token}`).toString("base64");
+  return {
+    GIT_CONFIG_COUNT: "1",
+    GIT_CONFIG_KEY_0: `http.${new URL(serverUrl).origin}/.extraheader`,
+    GIT_CONFIG_VALUE_0: `AUTHORIZATION: basic ${basic}`,
+  };
+}
+
+export function useToken(token, serverUrl) {
+  gitEnvironment = authEnvironment(token, serverUrl);
+}
+
 function git(cwd, ...args) {
   return execFileSync("git", args, {
     cwd,
+    env: { ...process.env, ...gitEnvironment },
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   }).trim();
@@ -174,12 +195,11 @@ export async function prune(remote, isClosed) {
   return { commit, removed: closed };
 }
 
+/** The repository's address, without credentials. */
 export function remoteUrl(env = process.env) {
   if (env["EVIDENCE_REMOTE"]) return env["EVIDENCE_REMOTE"];
   const server = new URL(env["GITHUB_SERVER_URL"] ?? "https://github.com");
-  server.username = "x-access-token";
-  server.password = requireEnv("EVIDENCE_TOKEN", env);
-  return `${server.href}${requireEnv("GITHUB_REPOSITORY", env)}.git`;
+  return `${server.origin}/${requireEnv("GITHUB_REPOSITORY", env)}.git`;
 }
 
 async function main() {
@@ -189,6 +209,8 @@ async function main() {
   });
   const [command] = positionals;
   const remote = remoteUrl();
+  if (!process.env["EVIDENCE_REMOTE"])
+    useToken(requireEnv("EVIDENCE_TOKEN"), process.env["GITHUB_SERVER_URL"]);
   let commit;
   if (command === "fetch" && values.path && values.into) {
     commit = fetchPath(remote, values.path, values.into);
