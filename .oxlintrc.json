@@ -54,6 +54,10 @@
           { "name": "localStorage", "message": "src/domain has no storage (C-08)." },
           { "name": "sessionStorage", "message": "src/domain has no storage (C-08)." },
           { "name": "indexedDB", "message": "src/domain has no storage (C-08)." },
+          {
+            "name": "Date",
+            "message": "src/domain has no clock (C-08): take the time as a parameter. oxlint cannot tell new Date() from new Date(value), so the global is closed."
+          },
           { "name": "fetch", "message": "No network use outside the static-file loader (C-03)." },
           {
             "name": "XMLHttpRequest",
