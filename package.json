@@ -27,7 +27,8 @@
     "size": "node scripts/size.mjs",
     "lhci": "lhci autorun",
     "commitlint": "commitlint --verbose",
-    "verify": "pnpm check && pnpm test:coverage && pnpm e2e && pnpm size && pnpm lhci"
+    "verify": "pnpm check && pnpm test:coverage && pnpm e2e && pnpm size && pnpm lhci",
+    "screenshots": "playwright test --project=screenshots"
   },
   "dependencies": {
     "vue": "3.5.45",
