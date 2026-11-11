@@ -62,3 +62,42 @@ Verdict: changes requested
 
 - Where: scripts/review-record.mjs:100
 - Problem: `fence` matches any line that starts with three backticks, while CommonMark (and GitHub) does not take a backtick fence whose info string holds a backtick, so a line such as ``` ``` `x` ``` ``` in a finding renders as inline code. The parser opens a block there, reads the rest of the file as text and reports `unclosedFence` ("never closed, so everything after it is read as text") and, for the round that approves after it, "the last round, round 1, requests changes" (run: round 1 with that line in F1, round 2 approving with `- F1: fixed`). A correct record is refused with a message about a block the reviewer never opened. The fence should not open when a backtick fence is followed by text containing a backtick.
+
+## Round 3
+
+Reviewed: 8ddbb30657a2
+Verdict: approved
+
+- F2: fixed
+  - Ran `parseRecord` on round 2's cases: `### F2 <title>` and `Verdict: changes requested` under `## Requirement coverage` are reported (heading in a closing section, a round's line in a closing section), and `- F1: fixed` followed by `- F1: declined — <reason>` is reported as stated twice.
+  - Neighbours reported too: a quoted `> Verdict:` line, `1. F2: not fixed` in a closing section, a setext heading under a line of text, a `### F2` heading inside `<details>`, a round after the closing sections, a repeated `### Notes`.
+- F8: fixed
+  - An approving round with `### Notes`, a blank line and indented text under `- F1: fixed`, and a nested list item under it passes; a `not fixed — <what remains>` wrapped onto an indented second line is read as one reason.
+  - A line before the first subsection now gets a message naming `### Notes`, which an approving round may follow; an indented `Verdict:` or outcome is still reported. This round is written in that form.
+- F9: fixed
+  - Round 2's case (round 1 with a line of inline code starting with three backticks, round 2 approving) passes; `~~~` with a backtick in its info string still opens a block; a four-backtick fence holding a three-backtick line and a heading stays one block; a fence opened with a backtick in its info string is not a fence, and the bare fence after it is reported as never closed, as GitHub renders it.
+
+### Notes
+
+- Range read: `git diff b089832..HEAD` in full, with `scripts/review-record.mjs` and its tests re-read whole; the code-review skill ran at effort high on that range, its points are weighed below. `pnpm vitest run scripts/` passes (288 tests).
+- Hash: `pnpm review:hash review-rounds` prints `8ddbb30657a2` at c1e5d73; the `evidence` job of run 43108612754 on the same commit reports the same value.
+- Not raised, for the owner: the design says "HTML comments are not read", but the parser reads the lines inside them as the record. A whole approving round can be put inside a multi-line `<!-- … -->` under `### Notes` and the check passes on a round that GitHub's rendered view hides (run); an honest record does not do this, and the source diff of the pull request shows it, but either reporting `<!--` outside fences or rewording that sentence would close it.
+- Not raised: a line of backticks indented four spaces or more opens a fence in the parser, where CommonMark outside a list sees indented code; an indented fence under an outcome may enclose unindented lines; a setext underline indented under a list item, and the first indented line under an outcome, are not checked for a setext heading. Each can only hide text from the check in a record built for it.
+- Not raised: requirement IDs in a `|` line inside a fenced block in `## Requirement coverage` count as covered; nobody fences the coverage table.
+- Not raised: `- F1: declined` with the reason only on the indented next line passes; the design allows it ("they continue the reason"), though `CLAUDE.md` says "exactly".
+- Not raised: a quoted line directly followed by `---` is refused as a setext heading where CommonMark sees a thematic break; prettier puts a blank line between them, after which it passes.
+- Not raised: a bold `**Verdict:** changes requested` or a bulleted `- Verdict: …` in free text passes; the design lists only the plain and quoted forms, and the round's own verdict line is still the one read.
+- The code-review skill also suggested parsing the record with a CommonMark parser instead of a line scanner, which would close the gaps above at once, and pointed at duplicated dispatch of `forbiddenInText`; neither changes what the check decides today.
+
+## Requirement coverage
+
+| ID  | Implemented in | Test |
+| --- | -------------- | ---- |
+
+The pull request lists no requirement (Requirements: none).
+
+## Outside the listed requirements
+
+- The evidence check: `scripts/review-hash.mjs` (new, `pnpm review:hash`), `scripts/review-record.mjs` (new), `scripts/pr-evidence.mjs`, `scripts/evidence-comment.mjs`, `scripts/common.mjs`, their tests, `package.json` and `.github/workflows/pull-request.yml` (full history for the `evidence` job).
+- Process documents: `docs/constitution.md` C-18 item 2, `docs/process.md` step 4 and roles, `CLAUDE.md`, `README.md`, `openspec/config.yaml`.
+- The change's own proposal, design, tasks and this record.
