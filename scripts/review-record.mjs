@@ -42,19 +42,29 @@ export const messages = {
   repeatedSection: (title) =>
     `\`review.md\` has the section \`## ${quote(title)}\` more than once. Keep one.`,
   textBeforeRounds: (line) =>
-    `\`review.md\` has the line \`${quote(line)}\` before its first round. Before \`## Round 1\` the record holds only its title, \`# Review\`: move the line into a finding of a round.`,
+    `\`review.md\` has the line \`${quote(line)}\` before its first round. Before \`## Round 1\` the record holds only its title, \`# Review\`: move the line under \`### Notes\` of a round, which any round may have.`,
   unclosedFence: (line) =>
     `\`review.md\` has a fenced block, opened on line ${line}, that is never closed, so everything after it is read as text. Close it with a line that repeats its opening fence.`,
   repeatedLine: (round, name) =>
     `Round ${round} has more than one line \`${name}:\`. Keep one: a round has one hash and one verdict.`,
   unknownLine: (round, line) =>
-    `Round ${round} has the line \`${quote(line)}\`, which the record does not know. Before its first finding a round holds only \`Reviewed: <hash>\`, \`Verdict:\` and one line \`- F<n>: <outcome>\` per open finding; write anything else under a finding \`### F<n> <title>\`.`,
+    `Round ${round} has the line \`${quote(line)}\`, which the record does not know. Before its first \`###\` subsection a round holds only \`Reviewed: <hash>\`, \`Verdict:\` and lines \`- F<n>: <outcome>\`, each of which may be followed by lines indented under it; put other text under \`### Notes\`, which any round may have, or under a finding.`,
   unknownHeading: (round, heading) =>
-    `Round ${round} has the heading \`${quote(heading)}\`, which the record does not know. Write a finding as \`### F<n> <title>\`; inside a finding use paragraphs and list items, not headings.`,
-  misplacedLine: (round, id, line) =>
-    `Round ${round} has the line \`${quote(line)}\` under finding ${quote(id)}. The lines \`Reviewed:\`, \`Verdict:\` and \`- F<n>: <outcome>\` go at the start of the round, before its first finding.`,
+    `Round ${round} has the heading \`${quote(heading)}\`, which the record does not know. A round's only headings are its findings \`### F<n> <title>\` and one \`### Notes\`; inside them use paragraphs and list items, not headings.`,
+  misplacedLine: (round, where, line) =>
+    `Round ${round} has the line \`${quote(line)}\` ${where}. The lines \`Reviewed:\`, \`Verdict:\` and \`- F<n>: <outcome>\` stand unindented at the start of the round, before its first \`###\` subsection; elsewhere say it in words.`,
   notAFinding: (round, heading) =>
-    `Round ${round} has a heading \`### ${quote(heading)}\` that is not a finding. Write each finding as \`### F<n> <title>\`, numbered through the whole record.`,
+    `Round ${round} has a heading \`### ${quote(heading)}\` that is neither a finding nor \`### Notes\`. Write a finding as \`### F<n> <title>\`, numbered through the whole record, and other text under \`### Notes\`.`,
+  repeatedNotes: (round) =>
+    `Round ${round} has \`### Notes\` more than once. Keep one and put all the round's notes there.`,
+  statedTwice: (round, id) =>
+    `Round ${round} states the outcome of ${id} more than once. Keep one line \`- ${id}: <outcome>\`: a round gives each finding one outcome.`,
+  roundAfterClosing: (round) =>
+    `\`## Round ${round}\` comes after the closing sections. Rounds come first: move it above \`## Requirement coverage\` and \`## Outside the listed requirements\`.`,
+  misplacedInClosing: (section, line) =>
+    `\`## ${section}\` has the line \`${quote(line)}\`, which belongs to a round. \`Reviewed:\`, \`Verdict:\` and \`- F<n>: <outcome>\` stand at the start of a round, above the closing sections; here say it in words.`,
+  headingInClosing: (section, heading) =>
+    `\`## ${section}\` has the heading \`${quote(heading)}\`. The closing sections hold text and tables, not headings: a finding goes in a round as \`### F<n> <title>\`, notes as \`### Notes\`.`,
   raisedTwice: (id, first, second) =>
     `${id} is raised twice, in round ${first} and in round ${second}. Number the findings through the whole record: give the later one the next free number.`,
   unknownFinding: (round, id) =>
@@ -97,10 +107,39 @@ export const messages = {
 
 const requirementId = /\b[A-Z][A-Z0-9]*-\d{3}\b/g;
 const closingSections = ["Requirement coverage", "Outside the listed requirements"];
-const fence = /^\s{0,3}(`{3,}|~{3,})/;
-const headingLine = /^(#{1,6})\s+(.*?)\s*$/;
+/** A fence as CommonMark has it: three or more backticks with no backtick after, or tildes. */
+const fenceLine = /^\s*(`{3,}(?=[^`]*$)|~{3,})/;
+/** An ATX heading of up to three spaces' indentation. */
+const headingLine = /^ {0,3}(#{1,6})(?:[ \t]+(.*?))?[ \t]*$/;
 const outcomeLine = /^[-*+]\s+F(\d+)\s*:\s*(.*?)\s*$/;
 const fieldLine = /^(Reviewed|Verdict)\s*:\s*(.*?)\s*$/i;
+/** Indented under the line before it: two spaces or a tab, as a list item's content is. */
+const indented = /^(?: {2,}|\t)\S/;
+
+/**
+ * Whether a line, wherever it stands, reads as one of a round's own lines: `Reviewed:`,
+ * `Verdict:` or an outcome in any list form. Free text may not hold one.
+ */
+const looksLikeRoundLine = (trimmed) =>
+  fieldLine.test(trimmed) || /^(?:[-*+]|\d+[.)])\s+F\d+\s*:/.test(trimmed);
+const isHeading = (trimmed) => /^#{1,6}(?:[ \t]|$)/.test(trimmed);
+
+/**
+ * What free text may not hold: a heading, also one in a block quote or underlined (a setext
+ * heading, made of the free line before it), or one of a round's own lines, also quoted.
+ * @param {string} trimmed  the line without its indentation
+ * @param {string | undefined} previous  the line before, when it was free text of the same place
+ * @returns {{ heading: string } | { roundLine: true } | undefined}
+ */
+function forbiddenInText(trimmed, previous) {
+  const inner = trimmed.replace(/^(?:>\s*)+/, "");
+  if (isHeading(inner)) return { heading: trimmed };
+  const underlinesListItem = previous !== undefined && /^(?:[-*+]|\d+[.)])\s/.test(previous);
+  if (previous !== undefined && !underlinesListItem && /^(?:=+|-+)$/.test(inner))
+    return { heading: previous };
+  if (looksLikeRoundLine(inner)) return { roundLine: true };
+  return undefined;
+}
 
 /** An outcome exactly as D2 writes it, or undefined. */
 function parseOutcome(text) {
@@ -111,12 +150,12 @@ function parseOutcome(text) {
 }
 
 /**
- * Reads a review record in rounds, line by line. Everything in it is either recognised or
- * reported: a record the parser cannot read is never passed by skipping what it does not
- * know (round 1 of the review of review-rounds, F2). Inside a finding, paragraphs, list
- * items and fenced blocks are free text. `problems` lists, as messages of check 3, what
- * breaks a rule of design D2 or D3 other than the coverage of listed requirements, which
- * needs the description and is checked by the caller.
+ * Reads a review record in rounds, line by line, by the grammar of design D2 as clarified
+ * (rounds 1 and 2 of the review of review-rounds, F2 and F8). Everything in it is either
+ * recognised or reported; free text has three places only: indented under an outcome, under
+ * a finding and under a round's `### Notes`, plus the two closing sections. `problems`
+ * lists, as messages of check 3, what breaks a rule of design D2 or D3 other than the
+ * coverage of listed requirements, which needs the description and is checked by the caller.
  * @returns {{ rounds: object[], last: object | undefined, open: string[],
  *   coveredIds: Set<string>, problems: string[] }}
  */
@@ -124,43 +163,51 @@ export function parseRecord(markdown) {
   const problems = [];
   const rounds = [];
   const closing = new Map();
-  /** Where the line being read belongs: before the rounds, a round, or a closing section. */
+  /**
+   * Where the line being read belongs: `preamble`, `round` (its `part` is `head` before the
+   * first `###`, else the subsection), `closing` or `unknown`.
+   */
   let place = { kind: "preamble", titled: false };
   /** The fence of the open fenced block and the line it opened on, while one is open. */
   let openFence;
 
+  /** The previous line, when it was free text: a setext underline makes it a heading. */
+  let lastFree;
+
   for (const [index, line] of (markdown ?? "").split(/\r?\n/).entries()) {
+    const trimmed = line.trim();
     const round = place.kind === "round" ? place.round : undefined;
-    const finding = round?.raised.at(-1);
-    const marker = fence.exec(line)?.[1];
-    if (openFence || marker) {
-      if (!openFence) {
-        openFence = { marker, line: index + 1 };
-        // A fenced block is text of a finding or of a closing section, and nothing else.
-        if (place.kind !== "closing" && !finding)
-          problems.push(
-            round ? messages.unknownLine(round.number, line) : messages.textBeforeRounds(line),
-          );
-      } else if (
-        marker &&
-        marker[0] === openFence.marker[0] &&
-        marker.length >= openFence.marker.length &&
-        line.trim() === marker
-      ) {
+    const previous = lastFree;
+    lastFree = undefined;
+
+    // Fenced blocks: free text wherever free text may stand, and nothing else.
+    if (openFence) {
+      const close = /^\s*(`{3,}|~{3,})\s*$/.exec(line)?.[1];
+      if (close && close[0] === openFence.marker[0] && close.length >= openFence.marker.length)
         openFence = undefined;
-      }
       if (place.kind === "closing") place.content.push(line);
+      continue;
+    }
+    const marker = fenceLine.exec(line)?.[1];
+    if (marker) {
+      openFence = { marker, line: index + 1 };
+      if (place.kind === "preamble") problems.push(messages.textBeforeRounds(line));
+      else if (round && round.part === "head") {
+        if (!(indented.test(line) && round.outcome))
+          problems.push(messages.unknownLine(round.number, line));
+      } else if (place.kind === "closing") place.content.push(line);
       continue;
     }
 
     const heading = headingLine.exec(line);
     if (heading?.[1] === "##") {
-      const title = heading[2];
+      const title = heading[2] ?? "";
       const number = /^Round\s+(\d+)$/i.exec(title)?.[1];
       if (number !== undefined) {
         const expected = rounds.length + 1;
         if (Number(number) !== expected)
           problems.push(messages.roundOrder(Number(number), expected));
+        if (closing.size > 0) problems.push(messages.roundAfterClosing(Number(number)));
         const next = {
           number: Number(number),
           reviewed: undefined,
@@ -168,6 +215,9 @@ export function parseRecord(markdown) {
           raised: [],
           stated: [],
           seen: new Set(),
+          part: "head",
+          outcome: undefined,
+          notes: false,
         };
         rounds.push(next);
         place = { kind: "round", round: next };
@@ -175,18 +225,30 @@ export function parseRecord(markdown) {
         if (closing.has(title)) problems.push(messages.repeatedSection(title));
         const content = [];
         closing.set(title, content);
-        place = { kind: "closing", content };
+        place = { kind: "closing", title, content };
       } else {
         problems.push(messages.unknownSection(title));
         place = { kind: "unknown" };
       }
       continue;
     }
-    if (place.kind === "closing") {
-      place.content.push(line);
+    if (place.kind === "unknown") continue;
+    if (trimmed === "") {
+      if (place.kind === "closing") place.content.push(line);
       continue;
     }
-    if (place.kind === "unknown" || line.trim() === "") continue;
+
+    if (place.kind === "closing") {
+      const forbidden = forbiddenInText(trimmed, previous);
+      if (forbidden?.heading)
+        problems.push(messages.headingInClosing(place.title, forbidden.heading));
+      else if (forbidden) problems.push(messages.misplacedInClosing(place.title, trimmed));
+      else {
+        place.content.push(line);
+        lastFree = trimmed;
+      }
+      continue;
+    }
 
     if (place.kind === "preamble") {
       if (heading?.[1] === "#" && !place.titled) place.titled = true;
@@ -194,30 +256,59 @@ export function parseRecord(markdown) {
       continue;
     }
 
-    // In a round.
+    // In a round: its subsections first.
     if (heading?.[1] === "###") {
-      const parsed = /^F(\d+)[:.]?\s+(\S.*)$/.exec(heading[2]);
-      if (parsed) round.raised.push({ id: `F${Number(parsed[1])}`, title: parsed[2] });
-      else {
-        problems.push(messages.notAFinding(round.number, heading[2]));
-        // Its text is not read as the round's own lines.
-        round.raised.push({ id: undefined, title: heading[2] });
+      const title = heading[2] ?? "";
+      const finding = /^F(\d+)[:.]?\s+(\S.*)$/.exec(title);
+      if (finding) {
+        const id = `F${Number(finding[1])}`;
+        round.raised.push({ id, title: finding[2] });
+        round.part = `under finding ${id}`;
+      } else if (title === "Notes") {
+        if (round.notes) problems.push(messages.repeatedNotes(round.number));
+        round.notes = true;
+        round.part = "under `### Notes`";
+      } else {
+        problems.push(messages.notAFinding(round.number, title));
+        round.part = `under \`### ${quote(title)}\``;
       }
       continue;
     }
-    if (heading) {
-      problems.push(messages.unknownHeading(round.number, line.trim()));
+    if (isHeading(trimmed)) {
+      problems.push(messages.unknownHeading(round.number, trimmed));
       continue;
     }
-    const field = fieldLine.exec(line);
-    const outcome = outcomeLine.exec(line);
-    if (finding) {
-      if (field || outcome)
+    if (round.part !== "head") {
+      const forbidden = forbiddenInText(trimmed, previous);
+      if (forbidden?.heading)
+        problems.push(messages.unknownHeading(round.number, forbidden.heading));
+      else if (forbidden) problems.push(messages.misplacedLine(round.number, round.part, trimmed));
+      else lastFree = trimmed;
+      continue;
+    }
+
+    // The head of a round: its own lines, and the lines indented under an outcome.
+    if (indented.test(line)) {
+      const forbidden = round.outcome && forbiddenInText(trimmed, previous);
+      if (!round.outcome) problems.push(messages.unknownLine(round.number, trimmed));
+      else if (forbidden?.heading)
+        problems.push(messages.unknownHeading(round.number, forbidden.heading));
+      else if (forbidden)
         problems.push(
-          messages.misplacedLine(round.number, finding.id ?? finding.title, line.trim()),
+          messages.misplacedLine(
+            round.number,
+            `indented under the outcome of ${round.outcome.id}`,
+            trimmed,
+          ),
         );
+      else {
+        round.outcome.lines.push(trimmed);
+        lastFree = trimmed;
+      }
       continue;
     }
+    round.outcome = undefined;
+    const field = fieldLine.exec(line);
     if (field) {
       const name = field[1].toLowerCase() === "reviewed" ? "Reviewed" : "Verdict";
       if (round.seen.has(name)) {
@@ -232,22 +323,36 @@ export function parseRecord(markdown) {
       }
       continue;
     }
+    const outcome = outcomeLine.exec(line);
     if (outcome) {
       const id = `F${Number(outcome[1])}`;
       const parsed = parseOutcome(outcome[2]);
-      if (parsed) round.stated.push({ id, ...parsed });
-      else problems.push(messages.badOutcome(round.number, id, outcome[2]));
+      // Lines indented under it belong to it, whatever it is.
+      round.outcome = { id, lines: [] };
+      if (round.stated.some((entry) => entry.id === id)) {
+        problems.push(messages.statedTwice(round.number, id));
+      } else if (!parsed) {
+        problems.push(messages.badOutcome(round.number, id, outcome[2]));
+      } else {
+        round.outcome = { id, ...parsed, lines: [] };
+        round.stated.push(round.outcome);
+      }
       continue;
     }
-    problems.push(messages.unknownLine(round.number, line.trim()));
+    problems.push(messages.unknownLine(round.number, trimmed));
   }
 
   if (openFence) problems.push(messages.unclosedFence(openFence.line));
   for (const round of rounds) {
     if (!round.reviewed) problems.push(messages.noHash(round.number));
     if (!round.verdict) problems.push(messages.noVerdict(round.number));
-    round.raised = round.raised.filter((entry) => entry.id !== undefined);
-    delete round.seen;
+    // The lines indented under an outcome extend its reason, or note how a fix was checked.
+    round.stated = round.stated.map(({ id, outcome, note, lines }) => ({
+      id,
+      outcome,
+      note: [note, ...lines].filter(Boolean).join("\n"),
+    }));
+    for (const key of ["seen", "part", "outcome", "notes"]) delete round[key];
   }
   if (rounds.length === 0) problems.push(messages.noRound());
 

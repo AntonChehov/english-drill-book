@@ -330,7 +330,12 @@ describe("the messages of checks 3 and 4", () => {
     repeatedLine: [2, "Verdict"],
     unknownLine: [2, "Looks good to me."],
     unknownHeading: [2, "#### F1 Hidden"],
-    misplacedLine: [2, "F1", "Verdict: approved"],
+    misplacedLine: [2, "under finding F1", "Verdict: approved"],
+    repeatedNotes: [2],
+    statedTwice: [2, "F1"],
+    roundAfterClosing: [3],
+    misplacedInClosing: ["Requirement coverage", "- F1: fixed"],
+    headingInClosing: ["Outside the listed requirements", "### F2 Hidden"],
     unclosedFence: [12],
   };
 

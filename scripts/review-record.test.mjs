@@ -201,8 +201,8 @@ describe("the form of the record", () => {
   });
 
   it("writes findings as F<n> headings and outcomes as one of three", () => {
-    expect(parseRecord(record(round(1, h1, "Verdict: approved", "### Notes"))).problems).toEqual([
-      messages.notAFinding(1, "Notes"),
+    expect(parseRecord(record(round(1, h1, "Verdict: approved", "### Remarks"))).problems).toEqual([
+      messages.notAFinding(1, "Remarks"),
     ]);
     expect(after(round(2, h2, "Verdict: approved", "- F1: later", "- F2: fixed"))).toEqual([
       messages.badOutcome(2, "F1", "later"),
@@ -355,7 +355,7 @@ describe("ways through the gate closed in round 1 of the review of review-rounds
       late,
     );
     expect(parseRecord(misplaced).problems).toEqual([
-      messages.misplacedLine(1, "F2", "Verdict: approved"),
+      messages.misplacedLine(1, "under finding F2", "Verdict: approved"),
     ]);
     expect(
       parseRecord(`Notes first.\n${record(round(1, h1, "Verdict: approved"))}`).problems,
@@ -415,6 +415,236 @@ describe("ways through the gate closed in round 1 of the review of review-rounds
     );
     expect(reviewLine({ change: "c", record: parsed, current: h1 })).toBe(
       `Review: round 2, approved, records no hash; the content of this commit is \`${h1}\`, so nothing was compared.`,
+    );
+  });
+});
+
+/** The two closing sections, with the given lines added to the coverage or the outside one. */
+const closingWith = (section, ...lines) =>
+  section === "coverage"
+    ? [
+        "## Requirement coverage",
+        "",
+        "| ID | Implemented in | Test |",
+        "| --- | --- | --- |",
+        ...lines,
+        "",
+        "## Outside the listed requirements",
+        "",
+        "none",
+        "",
+      ]
+    : [
+        "## Requirement coverage",
+        "",
+        "",
+        "## Outside the listed requirements",
+        "",
+        "none",
+        ...lines,
+        "",
+      ];
+
+/** A record of the given parts, closing sections included. */
+const withClosing = (...parts) => ["# Review", "", ...parts.flat()].join("\n");
+
+describe("round 2 of the review of review-rounds", () => {
+  const approvedOne = round(1, h1, "Verdict: approved");
+
+  it("F2: a round's own lines in a closing section are reported", () => {
+    for (const [section, title] of [
+      ["coverage", "Requirement coverage"],
+      ["outside", "Outside the listed requirements"],
+    ]) {
+      expect(
+        parseRecord(withClosing(approvedOne, closingWith(section, "Verdict: changes requested")))
+          .problems,
+      ).toEqual([messages.misplacedInClosing(title, "Verdict: changes requested")]);
+      expect(
+        parseRecord(withClosing(approvedOne, closingWith(section, "- F1: fixed"))).problems,
+      ).toEqual([messages.misplacedInClosing(title, "- F1: fixed")]);
+      expect(
+        parseRecord(withClosing(approvedOne, closingWith(section, "### F2 Hidden"))).problems,
+      ).toEqual([messages.headingInClosing(title, "### F2 Hidden")]);
+    }
+  });
+
+  it("F2: a finding stated twice in one round is reported", () => {
+    expect(
+      after(round(2, h2, "Verdict: approved", "- F1: fixed", "- F1: declined — x", "- F2: fixed")),
+    ).toEqual([messages.statedTwice(2, "F1")]);
+  });
+
+  it("F2: a round after the closing sections is reported", () => {
+    const late =
+      record(roundOne) +
+      "\n" +
+      round(2, h2, "Verdict: approved", "- F1: fixed", "- F2: fixed").join("\n");
+    expect(parseRecord(late).problems).toEqual([messages.roundAfterClosing(2)]);
+  });
+
+  it("F8: a round may carry notes, approving rounds included", () => {
+    const notes = [
+      "### Notes",
+      "",
+      "Checked F1 against a stale origin/main in a scratch clone.",
+      "",
+      "- also ran the tests",
+    ];
+    expect(
+      after(round(2, h2, "Verdict: approved", "- F1: fixed", "- F2: fixed", ...notes)),
+    ).toEqual([]);
+    expect(
+      after(round(2, h2, "Verdict: approved", "- F1: fixed", "- F2: fixed", ...notes, ...notes)),
+    ).toEqual([messages.repeatedNotes(2)]);
+    expect(
+      after(
+        round(
+          2,
+          h2,
+          "Verdict: approved",
+          "- F1: fixed",
+          "- F2: fixed",
+          "### Notes",
+          "",
+          "#### Detail",
+        ),
+      ),
+    ).toEqual([messages.unknownHeading(2, "#### Detail")]);
+    expect(
+      after(
+        round(
+          2,
+          h2,
+          "Verdict: approved",
+          "- F1: fixed",
+          "- F2: fixed",
+          "### Notes",
+          "",
+          "Verdict: changes requested",
+        ),
+      ),
+    ).toEqual([messages.misplacedLine(2, "under `### Notes`", "Verdict: changes requested")]);
+  });
+
+  it("F8: an outcome may be followed by indented lines of its own", () => {
+    const result = parseRecord(
+      record(
+        roundOne,
+        round(
+          2,
+          h2,
+          "Verdict: changes requested",
+          "- F1: fixed",
+          "  - checked with a test that fails before the fix",
+          "",
+          "  and by hand.",
+          "- F2: not fixed —",
+          "  the name is still vague",
+        ),
+        round(3, h3, "Verdict: approved", "- F2: declined — the design", "  names it so."),
+      ),
+    );
+    expect(result.problems).toEqual([]);
+    expect(result.rounds[1].stated).toEqual([
+      {
+        id: "F1",
+        outcome: "fixed",
+        note: "- checked with a test that fails before the fix\nand by hand.",
+      },
+      { id: "F2", outcome: "not fixed", note: "the name is still vague" },
+    ]);
+  });
+
+  it("F8: an indented line never counts as a round's line, and is reported when it looks like one", () => {
+    expect(after(round(2, h2, "Verdict: approved", "- F1: fixed", "  - F2: fixed"))).toEqual([
+      messages.misplacedLine(2, "indented under the outcome of F1", "- F2: fixed"),
+      messages.notStated(2, "F2"),
+    ]);
+    expect(
+      after(
+        round(2, h2, "Verdict: approved", "  a note under nothing", "- F1: fixed", "- F2: fixed"),
+      ),
+    ).toEqual([messages.unknownLine(2, "a note under nothing")]);
+  });
+
+  it("F8: the message for an unknown line names places that every round may use", () => {
+    const text = messages.unknownLine(2, "x");
+    expect(text).toContain("`### Notes`");
+    expect(text).toContain("indented");
+    expect(messages.textBeforeRounds("x")).toContain("`### Notes`");
+    expect(messages.notAFinding(2, "x")).toContain("`### Notes`");
+  });
+
+  it("F2: a setext heading or a quoted round line in free text is reported", () => {
+    const notes = (...lines) =>
+      after(
+        round(2, h2, "Verdict: approved", "- F1: fixed", "- F2: fixed", "### Notes", "", ...lines),
+      );
+    expect(notes("Round 3", "=======")).toEqual([messages.unknownHeading(2, "Round 3")]);
+    expect(notes("Summary", "---")).toEqual([messages.unknownHeading(2, "Summary")]);
+    expect(notes("Summary", "", "---")).toEqual([]);
+    expect(notes("> Verdict: changes requested")).toEqual([
+      messages.misplacedLine(2, "under `### Notes`", "> Verdict: changes requested"),
+    ]);
+    expect(notes("> ## Round 3")).toEqual([messages.unknownHeading(2, "> ## Round 3")]);
+    expect(
+      parseRecord(
+        withClosing(round(1, h1, "Verdict: approved"), closingWith("outside", "Extra", "===")),
+      ).problems,
+    ).toEqual([messages.headingInClosing("Outside the listed requirements", "Extra")]);
+  });
+
+  it("F9: a line of inline code that starts with backticks is not a fence", () => {
+    const inline = round(
+      1,
+      h1,
+      "Verdict: changes requested",
+      ...finding("F1", "Inline"),
+      "``` ``` `x` ``` ```",
+    );
+    expect(
+      parseRecord(record(inline, round(2, h2, "Verdict: approved", "- F1: fixed"))).problems,
+    ).toEqual([]);
+  });
+
+  it("F9: fences open and close as CommonMark says", () => {
+    const tilde = round(
+      1,
+      h1,
+      "Verdict: changes requested",
+      ...finding("F1", "Fences"),
+      "~~~~",
+      "~~~",
+      "```",
+      "## Round 9",
+      "~~~~~",
+    );
+    expect(
+      parseRecord(record(tilde, round(2, h2, "Verdict: approved", "- F1: fixed"))).problems,
+    ).toEqual([]);
+    const short = round(
+      1,
+      h1,
+      "Verdict: changes requested",
+      ...finding("F1", "Short"),
+      "````js",
+      "```",
+      "````",
+    );
+    expect(
+      parseRecord(record(short, round(2, h2, "Verdict: approved", "- F1: fixed"))).problems,
+    ).toEqual([]);
+    const withText = round(
+      1,
+      h1,
+      "Verdict: changes requested",
+      ...finding("F1", "Text"),
+      "```",
+      "``` not a close",
+    );
+    expect(parseRecord(bare(withText)).problems[0]).toBe(
+      messages.unclosedFence(bare(withText).split("\n").indexOf("```") + 1),
     );
   });
 });
