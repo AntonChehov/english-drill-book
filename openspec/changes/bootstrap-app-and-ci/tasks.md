@@ -45,24 +45,30 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 ## 7. Evidence
 
 - [x] 7.1 Write the screenshot spec for every route, both themes, two widths; verify the PNG set is produced locally
-- [ ] 7.2 Add the job that publishes screenshots to the `evidence` branch and writes the sticky comment with the comparison against `main`; verify the comment appears on the test pull request and updates on a new commit
+- [x] 7.2 Add the job that publishes screenshots to the `evidence` branch and writes the sticky comment with the comparison against `main`; verify the comment appears on the test pull request and updates on a new commit
+  - Verified on pull request #1: run [43072179823](https://github.com/AntonChehov/english-drill-book/actions/runs/43072179823) wrote the comment for d53a7f5, run [43072602012](https://github.com/AntonChehov/english-drill-book/actions/runs/43072602012) updated the same comment in place for e32aa45 (one comment, created 17:53:34, updated 17:56:05 UTC).
 - [x] 7.3 Write `scripts/pr-evidence.mjs` implementing the six checks of design D9, with unit tests over fixture descriptions and review records covering each way to fail; verify the unit tests pass
-- [ ] 7.4 Add the `evidence` job; verify on the test pull request that it fails without `review.md`, fails with an open finding, and passes with a complete record
-- [ ] 7.5 Add the scheduled pruning of closed pull requests' screenshot directories; verify by a manual run
+- [x] 7.4 Add the `evidence` job; verify on the test pull request that it fails without `review.md`, fails with an open finding, and passes with a complete record
+  - Shown here by the unit tests of `scripts/pr-evidence.mjs` only: pull request #1 already carried a complete record, and it passed ([43072179823](https://github.com/AntonChehov/english-drill-book/actions/runs/43072179823)). The refusals on a real pull request are tasks 4.2 – 4.4 of `pipeline-follow-ups`.
+- [x] 7.5 Add the scheduled pruning of closed pull requests' screenshot directories; verify by a manual run
+  - Run [43077854070](https://github.com/AntonChehov/english-drill-book/actions/runs/43077854070), started by hand: "Removed: pr-1"; the `evidence` branch keeps `main` and `pr-2`.
 
 ## 8. Deploy and releases
 
-- [ ] 8.1 Write the deploy workflow for GitHub Pages; verify the demo address serves the start screen and that reloading a deep link keeps the view
-- [ ] 8.2 Add release-please; verify it opens a release pull request with a changelog after the first merge
+- [x] 8.1 Write the deploy workflow for GitHub Pages; verify the demo address serves the start screen and that reloading a deep link keeps the view
+  - Run [43077073059](https://github.com/AntonChehov/english-drill-book/actions/runs/43077073059) ("Main", merge commit 63cfde0) deployed the demo. https://antonchehov.github.io/english-drill-book/ answers 200 and renders the start screen; `#/about` reloaded keeps the view (title "О приложении — English Drill Book"), checked in Chromium.
+- [x] 8.2 Add release-please; verify it opens a release pull request with a changelog after the first merge
+  - Run [43077073059](https://github.com/AntonChehov/english-drill-book/actions/runs/43077073059) opened pull request #2 "chore(main): release 1.0.0" as the bot, every check green. The version is corrected to `0.1.0` by `pipeline-follow-ups` (its design D3).
 - [x] 8.3 Update `README.md` with the demo address and the commands; verify each documented command runs as written
 
 ## 9. Review and evidence
 
 - [x] 9.1 Run the code-review skill on the whole diff, fix or decline each finding, and commit `review.md` in this change's directory in the format of design D9
 - [x] 9.2 Open the pull request as the bot with the description sections of design D9; verify the `evidence` check is green
-- [ ] 9.3 **(owner)** After merge, switch on branch protection for `main` as in design D11; verify a direct push to `main` is rejected
+- [x] 9.3 **(owner)** After merge, switch on branch protection for `main` as in design D11; verify a direct push to `main` is rejected
+  - Switched on 2026-11-11 and read back through the API (`GET /repos/AntonChehov/english-drill-book/branches/main/protection`) with the settings recorded in design D11. A direct push was deliberately not attempted; the verification is the read-back, not a rejected push.
 
 ## Workflow follow-up
 
 - Run the holdout scenarios that apply to the shell and attach the validator's report to the pull request.
-- Archive the change after merge.
+- Archive the change after merge: done in `pipeline-follow-ups` (its design D5).

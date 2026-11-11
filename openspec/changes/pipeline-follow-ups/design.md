@@ -44,7 +44,7 @@ The three run links are written into this change's `tasks.md`, which lies inside
 
 ### D5. Closing the bootstrap
 
-Its tasks 7.2, 7.5, 8.1, 8.2 and 9.3 are ticked with the run or address that showed each. Task 7.4 is ticked with a note that the refusals on a real pull request are tasks 5.1 – 5.3 of this change. Its design D11 records the protection as set: administrators included, stale approvals dismissed. Then the change is archived. All of this is committed before the review, because it writes outside this change's directory.
+Its tasks 7.2, 7.5, 8.1, 8.2 and 9.3 are ticked with the run or address that showed each. Task 7.4 is ticked with a note that the refusals on a real pull request are tasks 4.2 – 4.4 of this change. Its design D11 records the protection as set: administrators included, stale approvals dismissed. Then the change is archived. All of this is committed before the review, because it writes outside this change's directory.
 
 ## Risks / Trade-offs
 
