@@ -10,6 +10,8 @@
 //   5. the screenshot comment is for this commit, and a change under src/ui shows a visual
 //      difference or the description says `Visual changes: none`;
 //   6. metrics.json is for this commit and the comment shows every number.
+// Two pull requests implement no change and are exempt: the release pull request
+// (bootstrap design D10) and the archive pull request (pipeline-follow-ups design D1).
 // Usage: node scripts/pr-evidence.mjs [--metrics metrics.json] [--comparison comparison.json]
 // Environment: GITHUB_REPOSITORY, PR_NUMBER, EVIDENCE_TOKEN, BOT_LOGIN, GITHUB_API_URL (optional).
 import { execFileSync } from "node:child_process";
@@ -39,6 +41,60 @@ export function isReleasePullRequest({ headRef, author, botLogin, changedFiles }
     changedFiles.length > 0 &&
     changedFiles.every((file) => releaseFiles.includes(file))
   );
+}
+
+/** The files an archive pull request may change (design D1 of pipeline-follow-ups). */
+export const isArchiveFile = (path) => path.startsWith("openspec/") || path === "docs/roadmap.md";
+
+const inFlight = (path) =>
+  path.startsWith("openspec/changes/") && !path.startsWith("openspec/changes/archive/");
+
+/**
+ * The archive pull request implements no change either: it moves merged changes into
+ * openspec/changes/archive/ and folds their delta specs into openspec/specs/. Returns the
+ * conditions it does not meet; an empty list means it is exempt.
+ * @param {object} input
+ * @param {string} input.headRef
+ * @param {string | undefined} input.author
+ * @param {string} input.botLogin
+ * @param {{ status: string, path: string }[]} input.files  changed files, renames split into
+ *   a deletion and an addition
+ * @param {(path: string) => string | undefined} input.readFile  a file of the head commit
+ */
+export function archiveProblems({ headRef, author, botLogin, files, readFile }) {
+  const problems = [];
+  if (author !== botLogin) problems.push(`it was opened by ${author}, not by the bot`);
+  if (!headRef.startsWith("archive/"))
+    problems.push(`its branch ${headRef} does not start with archive/`);
+  const outside = files.filter((file) => !isArchiveFile(file.path)).map((file) => file.path);
+  if (outside.length > 0)
+    problems.push(`it changes files outside openspec/ and docs/roadmap.md: ${outside.join(", ")}`);
+  const edited = files
+    .filter((file) => inFlight(file.path) && file.status !== "D")
+    .map((file) => file.path);
+  if (edited.length > 0)
+    problems.push(`it adds or edits files of a change in flight: ${edited.join(", ")}`);
+
+  const archived = [
+    ...new Set(
+      files
+        .filter((file) => file.status === "A" && file.path.startsWith("openspec/changes/archive/"))
+        .map((file) => file.path.split("/"))
+        .filter((parts) => parts.length > 4)
+        .map((parts) => parts[3]),
+    ),
+  ];
+  if (archived.length === 0) problems.push("it moves no change into openspec/changes/archive/");
+  for (const name of archived) {
+    const directory = `openspec/changes/archive/${name}`;
+    const tasks = readFile(`${directory}/tasks.md`);
+    const open = tasks?.match(/^\s*[-*] \[ \]/gm)?.length ?? 0;
+    if (tasks === undefined) problems.push(`${directory}/tasks.md does not exist`);
+    else if (open > 0) problems.push(`${directory}/tasks.md has ${open} unticked task(s)`);
+    if (readFile(`${directory}/review.md`) === undefined)
+      problems.push(`${directory}/review.md does not exist`);
+  }
+  return problems;
 }
 
 /**
@@ -143,10 +199,11 @@ const sameCommit = (a, b) => a.startsWith(b) || b.startsWith(a);
  * @param {object | undefined} input.metrics  metrics.json
  * @param {{ status: string }[] | undefined} input.comparison  comparison.json
  * @param {boolean} [input.release]  the release pull request, which is exempt
+ * @param {boolean} [input.archive]  the archive pull request, which is exempt
  * @returns {{ check: number, problem: string }[]}
  */
 export function checkEvidence(input) {
-  if (input.release) return [];
+  if (input.release || input.archive) return [];
   const problems = [];
   const fail = (check, problem) => problems.push({ check, problem });
 
@@ -274,7 +331,22 @@ export function checkEvidence(input) {
   return problems;
 }
 
-export function report(problems) {
+/** Why a pull request is exempt from the six checks, or undefined when it is not. */
+export function exemption(input) {
+  if (input.release)
+    return "the release pull request of release-please (bootstrap design D10) implements no change";
+  if (input.archive)
+    return "the archive pull request (pipeline-follow-ups design D1) implements no change";
+  return undefined;
+}
+
+/**
+ * The Markdown of the job summary. `notArchive` lists the conditions an `archive/` pull
+ * request does not meet, so its author sees why it was judged by the six checks.
+ */
+export function report(problems, { exempt, notArchive = [] } = {}) {
+  if (exempt)
+    return `### Evidence check (C-18)\n\nExempt: ${exempt}. The six checks do not apply.\n`;
   const names = [
     "Description",
     "Requirements",
@@ -290,6 +362,9 @@ export function report(problems) {
       `| ${index + 1} | ${name} | ${own.length === 0 ? "passed" : own.map((entry) => entry.problem).join("<br>")} |`,
     );
   });
+  if (notArchive.length > 0) {
+    lines.push("", "Not exempt as an archive pull request:", ...notArchive.map((p) => `- ${p}`));
+  }
   return `${lines.join("\n")}\n`;
 }
 
@@ -330,13 +405,26 @@ export async function gather({
   const changesDir = join(root, "openspec", "changes");
   const comments = await github.paginate(`/repos/${repository}/issues/${number}/comments`);
   const changedFiles = git("diff", "--name-only", base, headSha).split("\n").filter(Boolean);
+  const headRef = pull.head.ref ?? "";
+  const notArchive = archiveProblems({
+    headRef,
+    author: pull.user?.login,
+    botLogin,
+    files: git("diff", "--name-status", "--no-renames", base, headSha)
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => {
+        const [status, path] = line.split("\t");
+        return { status, path };
+      }),
+    readFile: (path) =>
+      existsSync(join(root, path)) ? readFileSync(join(root, path), "utf8") : undefined,
+  });
   return {
-    release: isReleasePullRequest({
-      headRef: pull.head.ref ?? "",
-      author: pull.user?.login,
-      botLogin,
-      changedFiles,
-    }),
+    release: isReleasePullRequest({ headRef, author: pull.user?.login, botLogin, changedFiles }),
+    archive: notArchive.length === 0,
+    // Reported only for a pull request that looks like an archive one.
+    notArchive: headRef.startsWith("archive/") ? notArchive : [],
     description: pull.body ?? "",
     headSha,
     latestSha: pull.head.sha,
@@ -387,7 +475,7 @@ async function main() {
     comparisonPath: values.comparison,
   });
   const problems = checkEvidence(input);
-  const markdown = report(problems);
+  const markdown = report(problems, { exempt: exemption(input), notArchive: input.notArchive });
   appendSummary(markdown);
   console.log(markdown);
   if (problems.length > 0) {

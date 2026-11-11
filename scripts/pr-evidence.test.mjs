@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { markerFor, renderComment } from "./evidence-comment.mjs";
 import {
+  archiveProblems,
   checkEvidence,
+  exemption,
   isReleasePullRequest,
   parseDescription,
   parseReview,
@@ -451,6 +453,107 @@ describe("the release pull request", () => {
     expect(isReleasePullRequest({ ...release, headRef: "feat/x" })).toBe(false);
     expect(isReleasePullRequest({ ...release, author: "someone" })).toBe(false);
     expect(isReleasePullRequest({ ...release, changedFiles: [] })).toBe(false);
+  });
+});
+
+describe("the archive pull request", () => {
+  const archived = "openspec/changes/archive/2026-11-12-some-change";
+  const ticked = "# Tasks\n\n- [x] 1.1 Done\n- [x] 1.2 **(owner)** Merge\n";
+  const archive = (overrides = {}) => ({
+    headRef: "archive/some-change",
+    author: "bot[bot]",
+    botLogin: "bot[bot]",
+    files: [
+      { status: "D", path: "openspec/changes/some-change/tasks.md" },
+      { status: "D", path: "openspec/changes/some-change/review.md" },
+      { status: "D", path: "openspec/changes/some-change/specs/shell/spec.md" },
+      { status: "A", path: `${archived}/tasks.md` },
+      { status: "A", path: `${archived}/review.md` },
+      { status: "A", path: `${archived}/specs/shell/spec.md` },
+      { status: "M", path: "openspec/specs/shell/spec.md" },
+      { status: "M", path: "docs/roadmap.md" },
+    ],
+    readFile: (path) =>
+      ({ [`${archived}/tasks.md`]: ticked, [`${archived}/review.md`]: "# Review\n" })[path],
+    ...overrides,
+  });
+
+  /** An archive pull request that misses one condition: judged by the six checks. */
+  const judged = (overrides) => {
+    const notArchive = archiveProblems(archive(overrides));
+    expect(notArchive).toHaveLength(1);
+    const pull = input({ archive: notArchive.length === 0, description: "", comment: undefined });
+    expect(checksOf(pull)).toEqual(expect.arrayContaining([1, 5]));
+    return notArchive[0];
+  };
+
+  it("is exempt from the checks when it meets every condition", () => {
+    expect(archiveProblems(archive())).toEqual([]);
+    expect(checkEvidence({ archive: true })).toEqual([]);
+  });
+
+  it("is judged when someone else opened it", () => {
+    expect(judged({ author: "someone" })).toBe("it was opened by someone, not by the bot");
+  });
+
+  it("is judged when its branch is not an archive/ branch", () => {
+    expect(judged({ headRef: "chore/archive" })).toBe(
+      "its branch chore/archive does not start with archive/",
+    );
+  });
+
+  it("is judged when it changes a file outside openspec/ and the roadmap", () => {
+    const files = [...archive().files, { status: "M", path: "scripts/pr-evidence.mjs" }];
+    expect(judged({ files })).toBe(
+      "it changes files outside openspec/ and docs/roadmap.md: scripts/pr-evidence.mjs",
+    );
+    const docs = [...archive().files, { status: "M", path: "docs/constitution.md" }];
+    expect(judged({ files: docs })).toContain("docs/constitution.md");
+  });
+
+  it("is judged when it starts or edits a change in flight", () => {
+    const files = [...archive().files, { status: "A", path: "openspec/changes/next/tasks.md" }];
+    expect(judged({ files })).toBe(
+      "it adds or edits files of a change in flight: openspec/changes/next/tasks.md",
+    );
+    const edited = [...archive().files, { status: "M", path: "openspec/changes/next/design.md" }];
+    expect(judged({ files: edited })).toContain("openspec/changes/next/design.md");
+  });
+
+  it("is judged when an archived change has an unticked task", () => {
+    const readFile = (path) =>
+      path.endsWith("tasks.md") ? `${ticked}- [ ] 1.3 Later\n` : "# Review\n";
+    expect(judged({ readFile })).toBe(`${archived}/tasks.md has 1 unticked task(s)`);
+  });
+
+  it("is judged when an archived change has no review record or no tasks", () => {
+    const noReview = (path) => (path.endsWith("tasks.md") ? ticked : undefined);
+    expect(judged({ readFile: noReview })).toBe(`${archived}/review.md does not exist`);
+    const noTasks = (path) => (path.endsWith("review.md") ? "# Review\n" : undefined);
+    expect(judged({ readFile: noTasks })).toBe(`${archived}/tasks.md does not exist`);
+  });
+
+  it("is judged when it moves no change into the archive", () => {
+    const files = [{ status: "M", path: "openspec/specs/shell/spec.md" }];
+    expect(judged({ files })).toBe("it moves no change into openspec/changes/archive/");
+  });
+
+  it("names its exemption in the report", () => {
+    expect(exemption({ archive: true })).toContain("archive pull request");
+    expect(exemption({ release: true })).toContain("release pull request");
+    expect(exemption({})).toBeUndefined();
+    expect(report([], { exempt: exemption({ archive: true }) })).toContain(
+      "Exempt: the archive pull request",
+    );
+  });
+
+  it("lists in the report why an archive/ branch is not exempt", () => {
+    const markdown = report([{ check: 1, problem: "x" }], {
+      notArchive: ["it was opened by someone, not by the bot"],
+    });
+    expect(markdown).toContain(
+      "Not exempt as an archive pull request:\n- it was opened by someone, not by the bot",
+    );
   });
 });
 
