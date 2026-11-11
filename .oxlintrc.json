@@ -51,6 +51,14 @@
           { "name": "window", "message": "src/domain has no DOM (C-08)." },
           { "name": "document", "message": "src/domain has no DOM (C-08)." },
           { "name": "navigator", "message": "src/domain has no DOM (C-08)." },
+          {
+            "name": "globalThis",
+            "message": "src/domain reaches no global object; it would bypass the rules of C-03 and C-08."
+          },
+          {
+            "name": "self",
+            "message": "src/domain reaches no global object; it would bypass the rules of C-03 and C-08."
+          },
           { "name": "localStorage", "message": "src/domain has no storage (C-08)." },
           { "name": "sessionStorage", "message": "src/domain has no storage (C-08)." },
           { "name": "indexedDB", "message": "src/domain has no storage (C-08)." },
