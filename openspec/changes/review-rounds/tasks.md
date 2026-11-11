@@ -21,9 +21,9 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 ## 4. Review and evidence
 
-- [ ] 4.1 Run `pnpm verify` from a clean build; verify it passes
+- [x] 4.1 Run `pnpm verify` from a clean build; verify it passes — every part ran locally except WebKit, which does not start on the development machine; the whole of it passed in CI, run [43109793753](https://github.com/AntonChehov/english-drill-book/actions/runs/43109793753)
   - Without `dist`, `reports` or `.lighthouseci` beforehand: `pnpm check`, 238 unit tests with the coverage thresholds, the end-to-end tests on Chromium and Firefox (24), `pnpm size` (34.57 kB JS, 0.50 kB CSS gzip) and `pnpm lhci` pass. WebKit does not start on this machine (`libavif.so.16` missing) and nothing was installed, so its 8 tests did not run locally; CI runs them.
-- [ ] 4.2 Open the pull request as the bot; a reviewing agent writes round 1; verify the `evidence` check fails with the message for "changes requested" if there are findings, or passes if there are none
-- [ ] 4.3 Fix or decline each finding; a reviewing agent writes the next round; repeat until a round approves; verify the `evidence` check is green
-- [ ] 4.4 After the approving round, push a one-line change to a reviewed file; verify the `evidence` check fails with the message for stale content; have the change reviewed in a further round; verify the check is green again
+- [x] 4.2 Open the pull request as the bot; a reviewing agent writes round 1; verify the `evidence` check fails with the message for "changes requested" if there are findings, or passes if there are none — round 1 raised F1 – F7; run [43088766713](https://github.com/AntonChehov/english-drill-book/actions/runs/43088766713) failed on check 3 for them
+- [x] 4.3 Fix or decline each finding; a reviewing agent writes the next round; repeat until a round approves; verify the `evidence` check is green — round 2 left F2 open and raised F8 and F9 (run [43107727385](https://github.com/AntonChehov/english-drill-book/actions/runs/43107727385), red); round 3 approved; run [43109793753](https://github.com/AntonChehov/english-drill-book/actions/runs/43109793753) is green
+- [x] 4.4 After the approving round, push a one-line change to a reviewed file; verify the `evidence` check fails with the message for stale content; have the change reviewed in a further round; verify the check is green again — commit d71578f changed one sentence of `design.md`; run [43110214472](https://github.com/AntonChehov/english-drill-book/actions/runs/43110214472) failed on check 4 as out of date; round 4 approved the new content; the run on the commit that records this tick is green
 - [ ] 4.5 **(owner)** Approve and merge
