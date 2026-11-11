@@ -24,6 +24,23 @@ import { checkTraceability, parseRequirements } from "./traceability.mjs";
 const requirementId = /\b[A-Z][A-Z0-9]*-\d{3}\b/g;
 export const requiredSections = ["Problem", "Solution", "Requirements", "Self-review"];
 
+/** What the release pull request of release-please changes (design D10). */
+export const releaseFiles = ["CHANGELOG.md", "package.json", ".release-please-manifest.json"];
+
+/**
+ * The release pull request implements no OpenSpec change: it only records a version and
+ * the changelog generated from history. It is exempt when the bot opened it from a
+ * release-please branch and it changes nothing else.
+ */
+export function isReleasePullRequest({ headRef, author, botLogin, changedFiles }) {
+  return (
+    headRef.startsWith("release-please--") &&
+    author === botLogin &&
+    changedFiles.length > 0 &&
+    changedFiles.every((file) => releaseFiles.includes(file))
+  );
+}
+
 /** Splits Markdown into sections by heading text: `## Problem` → { Problem: "..." }. */
 export function sections(markdown, level) {
   const result = {};
@@ -123,9 +140,11 @@ const sameCommit = (a, b) => a.startsWith(b) || b.startsWith(a);
  * @param {{ body: string } | undefined} input.comment  the bot's evidence comment
  * @param {object | undefined} input.metrics  metrics.json
  * @param {{ status: string }[] | undefined} input.comparison  comparison.json
+ * @param {boolean} [input.release]  the release pull request, which is exempt
  * @returns {{ check: number, problem: string }[]}
  */
 export function checkEvidence(input) {
+  if (input.release) return [];
   const problems = [];
   const fail = (check, problem) => problems.push({ check, problem });
 
@@ -290,7 +309,14 @@ export async function gather({
     }));
   const changesDir = join(root, "openspec", "changes");
   const comments = await github.paginate(`/repos/${repository}/issues/${number}/comments`);
+  const changedFiles = git("diff", "--name-only", base, headSha).split("\n").filter(Boolean);
   return {
+    release: isReleasePullRequest({
+      headRef: pull.head.ref ?? "",
+      author: pull.user?.login,
+      botLogin,
+      changedFiles,
+    }),
     description: pull.body ?? "",
     headSha,
     changes: existsSync(changesDir)
@@ -308,7 +334,7 @@ export async function gather({
       return existsSync(path) ? readFileSync(path, "utf8") : undefined;
     },
     commits,
-    changedFiles: git("diff", "--name-only", base, headSha).split("\n").filter(Boolean),
+    changedFiles,
     comment: comments.find(
       (comment) => comment.user?.login === botLogin && commentSha(comment.body),
     ),

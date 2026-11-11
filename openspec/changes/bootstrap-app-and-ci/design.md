@@ -89,6 +89,8 @@ build ───┼─ e2e (chromium | firefox | webkit) ─┐
 - Test results are written as JUnit and summarised in the job summary.
 - Each run reports its wall-clock duration; a run over 3 minutes fails the `evidence` job once the pipeline is stable (a warning until the first three pull requests have run).
 
+As implemented: the jobs from `static` to `screenshots` are one reusable workflow, `checks.yml`, called by the pull request workflow and by the workflow of `main`, so both run the same gates. Every job checks out the head commit of the pull request, not GitHub's merge commit, so screenshots and numbers belong to the commit the evidence names. `evidence` runs even when a check failed and then fails itself, because a skipped required check counts as passed. The duration budget is enforced from pull request #4 on, by its number. pnpm comes from Corepack in CI as well; its store is cached with `actions/cache`, keyed by the lockfile's hash.
+
 ### D8. Screenshots as proof
 
 A Playwright spec visits every route in both themes at 1280 px and 390 px and saves a PNG per view. CI pushes them to an orphan branch `evidence` under `pr-<number>/<sha>/` and, for `main`, under `main/`. The `evidence` job compares the pull request's set with `main/` pixel by pixel and writes one sticky comment: changed views side by side (before, after), unchanged views collapsed.
@@ -136,9 +138,15 @@ Reviewed commit: <sha>
 
 A review with no findings has `## Findings` followed by `none`.
 
+The release pull request of D10 implements no change. It is exempt from the six checks when the bot opened it from a `release-please--` branch and it changes only `CHANGELOG.md`, `package.json` and `.release-please-manifest.json`.
+
 ### D10. Deploy and releases
 
 On push to `main`: build with the Pages base path, upload, deploy (`actions/deploy-pages`). `release-please` maintains a release pull request with the version and changelog from Conventional Commits (C-16).
+
+As implemented: the workflow of `main` runs the checks first; the deploy, the release pull request and the publication of `main/` on the `evidence` branch wait for them. The base path comes from `actions/configure-pages`. `release-please` runs with the bot's token, so its pull request runs the pull request workflow (one opened with `GITHUB_TOKEN` would not). Its configuration is `release-please-config.json` with `.release-please-manifest.json`, and `CHANGELOG.md` is left to it and out of Prettier.
+
+Owner steps before the first run: GitHub Pages with the source "GitHub Actions", and the repository secret `BOT_PRIVATE_KEY` holding the App's private key. The App's client ID is not secret and is written in the workflows.
 
 ### D11. Bot identity
 

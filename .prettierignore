@@ -11,3 +11,6 @@ coverage/
 contracts/
 docs/
 openspec/
+
+# Written by release-please (design D10).
+CHANGELOG.md

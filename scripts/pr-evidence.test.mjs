@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { markerFor, renderComment } from "./evidence-comment.mjs";
-import { checkEvidence, parseDescription, parseReview, report, sections } from "./pr-evidence.mjs";
+import {
+  checkEvidence,
+  isReleasePullRequest,
+  parseDescription,
+  parseReview,
+  report,
+  sections,
+} from "./pr-evidence.mjs";
 
 const head = "c".repeat(40);
 const reviewed = "a".repeat(40);
@@ -384,6 +391,29 @@ describe("parsing", () => {
 
   it("ignores the marker of a comment quoted inside another", () => {
     expect(checksOf({ comment: { body: `> ${markerFor(head)}` } })).toEqual([5]);
+  });
+});
+
+describe("the release pull request", () => {
+  const release = {
+    headRef: "release-please--branches--main",
+    author: "bot[bot]",
+    botLogin: "bot[bot]",
+    changedFiles: ["CHANGELOG.md", "package.json", ".release-please-manifest.json"],
+  };
+
+  it("is exempt from the checks", () => {
+    expect(isReleasePullRequest(release)).toBe(true);
+    expect(checkEvidence({ release: true })).toEqual([]);
+  });
+
+  it("is not exempt when it changes anything else, comes from another branch or author", () => {
+    expect(
+      isReleasePullRequest({ ...release, changedFiles: ["CHANGELOG.md", "src/ui/App.vue"] }),
+    ).toBe(false);
+    expect(isReleasePullRequest({ ...release, headRef: "feat/x" })).toBe(false);
+    expect(isReleasePullRequest({ ...release, author: "someone" })).toBe(false);
+    expect(isReleasePullRequest({ ...release, changedFiles: [] })).toBe(false);
   });
 });
 
