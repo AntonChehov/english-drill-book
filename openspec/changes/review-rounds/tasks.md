@@ -16,7 +16,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 ## 3. Documents
 
-- [ ] 3.1 Replace C-18 item 2 in `docs/constitution.md` with the wording of design D6; reword `docs/process.md` (step 4, roles table), `CLAUDE.md` and the tasks rule of `openspec/config.yaml` to match; verify each against what the script checks
+- [x] 3.1 Replace C-18 item 2 in `docs/constitution.md` with the wording of design D6; reword `docs/process.md` (step 4, roles table), `CLAUDE.md` and the tasks rule of `openspec/config.yaml` to match; verify each against what the script checks
 
 ## 4. Review and evidence
 
