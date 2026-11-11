@@ -20,7 +20,8 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 ## 3. First version
 
-- [ ] 3.1 Set the initial version of design D3; verify `pnpm verify` passes
+- [x] 3.1 Set the initial version of design D3; verify `pnpm verify` passes
+  - `"initial-version": "0.1.0"`; `bump-patch-for-minor-pre-major` removed (design D3, as implemented). `pnpm verify` is run in 4.1.
 
 ## 4. Review and evidence
 

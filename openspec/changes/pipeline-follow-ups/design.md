@@ -36,6 +36,8 @@ C-14 says a pull request implements exactly one change; C-18 says no pull reques
 
 Why it proposed `1.0.0`: the manifest holds `0.0.0`, which release-please reads as "never released", and its default first version is `1.0.0`.
 
+As implemented: the configuration also held `bump-patch-for-minor-pre-major`, under which a feature raises only the patch version below `1.0.0`, against the rule above. It is removed, so `feat` gives `0.2.0` after `0.1.0`, `fix` gives `0.1.1`, and a breaking change raises the minor version (`bump-minor-pre-major`).
+
 ### D4. Showing the refusals of bootstrap task 7.4
 
 The pull request of this change is opened as soon as the code and its tests are pushed, before the review. The `evidence` check is then expected to fail for the missing record. The review record is first committed with one finding that has no outcome yet, and the check is expected to fail for it; then the record is completed and the check is expected to pass. If the review produces no finding, a finding titled "Demonstration of the gate" is recorded without an outcome and removed in the completing commit; `review.md` says so.
