@@ -1,5 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { coverageFromSummary, lighthouseFromManifest } from "./metrics.mjs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import { artifactPaths, coverageFromSummary, lighthouseFromManifest } from "./metrics.mjs";
 
 describe("coverageFromSummary", () => {
   it("takes the percentages of the total", () => {
@@ -40,5 +43,47 @@ describe("lighthouseFromManifest", () => {
   it("falls back to the first run and refuses an empty manifest", () => {
     expect(lighthouseFromManifest([run(0.5, false)]).performance).toBe(50);
     expect(() => lighthouseFromManifest([])).toThrow("lists no run");
+  });
+});
+
+describe("artifactPaths", () => {
+  let directory;
+  afterEach(() => directory && rmSync(directory, { recursive: true, force: true }));
+
+  function artifacts(files) {
+    directory = mkdtempSync(join(tmpdir(), "artifacts-"));
+    for (const file of files) {
+      mkdirSync(dirname(join(directory, file)), { recursive: true });
+      writeFileSync(join(directory, file), "x");
+    }
+    return directory;
+  }
+
+  const complete = [
+    "unit/unit-junit.xml",
+    "unit/coverage/coverage-summary.json",
+    "size/metrics.json",
+    "lighthouse/manifest.json",
+    "e2e-webkit/e2e-webkit.xml",
+    "e2e-chromium/e2e-chromium.xml",
+    "dist/index.html",
+  ];
+
+  it("finds every report in the layout of a checks run", () => {
+    const root = artifacts(complete);
+    expect(artifactPaths(root)).toEqual({
+      unit: [join(root, "unit/unit-junit.xml")],
+      e2e: [join(root, "e2e-chromium/e2e-chromium.xml"), join(root, "e2e-webkit/e2e-webkit.xml")],
+      coverage: join(root, "unit/coverage/coverage-summary.json"),
+      lighthouse: join(root, "lighthouse/manifest.json"),
+      size: join(root, "size/metrics.json"),
+    });
+  });
+
+  it("names what is missing", () => {
+    const root = artifacts(
+      complete.filter((file) => !file.startsWith("lighthouse") && !file.startsWith("e2e")),
+    );
+    expect(() => artifactPaths(root)).toThrow(/lighthouse\/manifest\.json, .*e2e-\*/);
   });
 });

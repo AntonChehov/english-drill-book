@@ -58,15 +58,8 @@ jobs:
         run: |
           mkdir -p evidence
           cp artifacts/screenshots/*.png evidence/
-          cp artifacts/size/metrics.json evidence/metrics.json
-          node scripts/metrics.mjs --metrics evidence/metrics.json --sha "$GITHUB_SHA" \
-            --unit artifacts/unit/unit-junit.xml \
-            --e2e artifacts/e2e-chromium/e2e-chromium.xml \
-            --e2e artifacts/e2e-firefox/e2e-firefox.xml \
-            --e2e artifacts/e2e-webkit/e2e-webkit.xml \
-            --coverage artifacts/unit/coverage/coverage-summary.json \
-            --lighthouse artifacts/lighthouse/manifest.json \
-            --duration "$SECONDS_TAKEN"
+          node scripts/metrics.mjs --artifacts artifacts --metrics evidence/metrics.json \
+            --sha "$GITHUB_SHA" --duration "$SECONDS_TAKEN"
       - name: Publish as main to the evidence branch
         env:
           EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
