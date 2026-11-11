@@ -46,7 +46,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 - [ ] 7.1 Write the screenshot spec for every route, both themes, two widths; verify the PNG set is produced locally
 - [ ] 7.2 Add the job that publishes screenshots to the `evidence` branch and writes the sticky comment with the comparison against `main`; verify the comment appears on the test pull request and updates on a new commit
-- [ ] 7.3 Write `scripts/pr-evidence.mjs` implementing the six checks of design D9, with unit tests over fixture descriptions and review records covering each way to fail; verify the unit tests pass
+- [x] 7.3 Write `scripts/pr-evidence.mjs` implementing the six checks of design D9, with unit tests over fixture descriptions and review records covering each way to fail; verify the unit tests pass
 - [ ] 7.4 Add the `evidence` job; verify on the test pull request that it fails without `review.md`, fails with an open finding, and passes with a complete record
 - [ ] 7.5 Add the scheduled pruning of closed pull requests' screenshot directories; verify by a manual run
 
