@@ -14,3 +14,8 @@ test-results/
 !public/demo/*.pdf
 !tests/fixtures/**/*.pdf
 *.mp3
+
+# Outputs of the quality gates
+/reports/
+/metrics.json
+/screenshots/
