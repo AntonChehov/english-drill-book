@@ -154,6 +154,8 @@ A GitHub App installed on this repository only, with permissions: contents (writ
 
 Branch protection on `main`: pull request required, the `evidence` check required, conversations resolved, approval by the owner, no direct pushes. It is switched on after this change is merged, because the required check does not exist before.
 
+As set on 2026-11-11, after the merge, and read back through the API: pull request required with 1 approving review, stale approvals dismissed when a new commit is pushed, the `evidence` check required, conversations resolved, administrators included, no force pushes, no deletions.
+
 ### D12. Runtime dependencies
 
 | Package | Replaces | Size (gzip) |
