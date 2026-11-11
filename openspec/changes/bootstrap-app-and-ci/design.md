@@ -53,6 +53,8 @@ Unit tests sit next to the code as `*.test.ts`. Why: the layers are the constitu
 | Traceability | `scripts/traceability.mjs`: IDs in requirement titles under `openspec/` against `@req` in tests | C-11 |
 | Advisories | `pnpm audit --audit-level=high` | C-12 |
 
+The audit found one high advisory at implementation time (GHSA-c475-qrg2-pj4r in `basic-ftp`, reached only through Lighthouse CI's `proxy-agent`, with no fixed release of the packages in between). `pnpm-workspace.yaml` overrides it to the patched version; the override is removed once upstream depends on a fixed release.
+
 If oxlint cannot express the layer or network rule, `dependency-cruiser` is added for that rule alone (decision 0004). The first task of the lint group settles this with a failing example for each rule.
 
 Prettier over the oxc formatter: Vue single-file components must be formatted, and Prettier's support for them is settled.
