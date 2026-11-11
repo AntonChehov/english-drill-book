@@ -57,7 +57,12 @@ Reviewed: 8a04e6d2c517
 Verdict: approved
 
 - F1: fixed
+  - <optional: how the fix was checked>
 - F2: declined — <reason given by the author, accepted or not by the reviewer>
+
+### Notes
+
+<optional: why the round approves, what was checked beyond the findings>
 
 ## Requirement coverage
 
@@ -129,7 +134,13 @@ Within the intent of the decisions above; listed so that the owner can check the
 
 - **D1, the merge base.** Both sides take the merge base of the head commit with `origin/main`, or with a local `main` where there is no `origin/main`. A stale `origin/main` would give the reviewer a hash CI never computes, so `pnpm review:hash` fetches `main` from `origin` first and prints nothing when it cannot; `--offline` prints the hash with a warning that it may differ from CI's, and so does `--base <ref>` (round 1 of the review, F3). The checkout of the `evidence` job fetches every branch with its history (`fetch-depth: 0`), so `origin/main` is there and is the current `main`. The other parts of the evidence check, the exemptions included, keep the merge base with the pull request's base commit as before.
 - **D1, the input of the hash.** For each file, its path, a NUL, its mode (empty for a deleted file), a NUL, its blob ID or `deleted`, a NUL; sorted by path. The mode is in it so that making a reviewed file executable, or turning it into a link, makes the approval stale (F6). `pnpm review:hash <change>` prints the 12 characters; without `<change>` it takes the one in-flight change whose directory the branch touches. A name that is not a directory under `openspec/changes/` at the head is refused with the names that are (F4). It hashes the commit, not the working tree, and warns about files not committed.
-- **D2, the form of the record.** The record is read line by line, and anything it does not recognise is reported with the form expected, never skipped (F2). Before `## Round 1` it holds only its title. Its level-two sections are `## Round <n>`, numbered 1, 2, 3 in order, and once each `## Requirement coverage` and `## Outside the listed requirements`. Before its first finding a round holds only one line `Reviewed:` with exactly the 12 characters, one line `Verdict:` and its outcome lines; then come its findings, `### F<n> <title>`, numbered through the whole record, whose text is free but holds no heading and none of the round's own lines. A fenced block is text, and one that is never closed is reported.
+- **D2, the form of the record.** The record is read line by line, and what it does not recognise is reported with the form expected, never read as something else (rounds 1 and 2 of the review, F2 and F8). The grammar:
+  - Before `## Round 1`: only one title line `# …`.
+  - Level-two sections: `## Round <n>`, numbered 1, 2, 3 in order, then once each `## Requirement coverage` and `## Outside the listed requirements`. A round after a closing section is reported; so is any other level-two section, whose content is then not read further.
+  - The head of a round, before its first level-three heading: exactly one line `Reviewed:` with the 12 characters, exactly one line `Verdict:`, and at most one outcome line `- F<n>: …` per finding, each unindented. Lines indented under an outcome by two spaces or a tab, blank lines between them included, belong to it: for `not fixed` and `declined` they continue the reason, for `fixed` they say how the fix was checked. Any other line of the head is reported.
+  - The subsections of a round: its findings `### F<n> <title>`, numbered through the whole record, and at most one `### Notes`, which any round may have, an approving one included. Any other heading in a round is reported.
+  - Free text, that is a finding's body, `### Notes`, the lines indented under an outcome and the two closing sections, holds no heading (an ATX heading, a setext heading made by a line of `=` or `-` under a line of text, and either inside a block quote) and none of a round's own lines (`Reviewed:`, `Verdict:` or an outcome in any list form, also quoted); each is reported with where it belongs.
+  - Fences are read as CommonMark reads them: three or more backticks with no backtick in the rest of the line, or three or more tildes; a block closes on a line of the same character, at least as long, and nothing else. A fenced block is text where free text may stand, and reported elsewhere; one that is never closed is reported. HTML comments are not read.
 - **D2, outcomes.** An outcome line is `- F<n>:` followed by exactly `fixed`, `not fixed — <what remains>` or `declined — <reason>`, with an em dash, an en dash or a hyphen; any other text, such as words after `fixed`, is reported (F5). It is stated only for a finding raised in an earlier round, since it answers the author: in the round that raised the finding it closes nothing and is reported. `not fixed` without what remains is reported, like `declined` without a reason. A round after the first that omits an open finding is reported (D2: it "carries one line for every finding not yet closed").
 - **D3, rule 4.** The last round must say `Verdict: approved`, checked on its own and not only through the findings it leaves open (F1).
 - **D2, coverage.** `Requirement coverage` and `Outside the listed requirements` are required only once the last round approves, since the approving round writes them.
