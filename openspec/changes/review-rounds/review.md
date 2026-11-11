@@ -39,3 +39,26 @@ Verdict: changes requested
 
 - Where: scripts/pr-evidence.mjs:274
 - Problem: when the description names no change, or a change that does not exist, `review` is undefined and the table shows check 4 "Reviewed content" as `passed` (run with `report`). The clarification of D3 says that the table "never shows the content as checked when nothing was compared". When the last round lacks `Reviewed:` but an earlier round has it, check 4 says "No round of the review records a hash", which is false, and the summary line (scripts/review-record.mjs:195) says "different, so the review is out of date" though nothing is out of date (run). The reader is sent to re-run the review instead of adding the missing line. Check 4 should fail whenever no hash was compared, and these two texts should name the last round's missing line.
+
+## Round 2
+
+Reviewed: 3376e5df377e
+Verdict: changes requested
+
+- F1: fixed
+- F2: not fixed — the round's own lines and findings are still skipped inside the closing sections: with round 1 approved, a `### F2 <title>` and a line `Verdict: changes requested` written under `## Requirement coverage` or `## Outside the listed requirements` pass with no problem (run), though they render as a finding and a verdict; and two outcomes for one finding in one round, `- F1: fixed` then `- F1: declined — <reason>`, pass without a word, like the repeated `Verdict:` line round 1 named. The clarification of D2 ("anything it does not recognise is reported with the form expected, never skipped") and `CLAUDE.md` ("any other section, line or heading fails it") say more than the parser does.
+- F3: fixed
+- F4: fixed
+- F5: fixed
+- F6: fixed
+- F7: fixed
+
+### F8 The message for a line before the first finding sends an approving round to a finding it may not have
+
+- Where: scripts/review-record.mjs:51
+- Problem: `unknownLine` tells the reviewer to "write anything else under a finding `### F<n> <title>`". In an approving round that advice cannot be followed: a round that approves raises no finding, so a reviewer who moves a sentence such as "F3 checked against a stale origin/main in a scratch clone" under `### F9 Notes` gets `approvedButRaises` and must turn the approval into `changes requested`, which costs another round for nothing (both run with `parseRecord`). The only place an approving round may write text is `## Outside the listed requirements`, which no message or document names for this. The same holds for an outcome: a nested list item under `- F1: fixed` that says how the fix was checked, or a `not fixed — <what remains>` wrapped onto a second line, is refused with this same message (run). The owner asked that every failure tell the reader what to do; here the instruction leads to the next failure. The message should depend on the round: for an approving round, name the place its notes may go (or let a round carry free text after its outcome lines), and `CLAUDE.md` should say where a reviewer's explanation goes.
+
+### F9 A line that starts with three backticks but is inline code opens a fenced block
+
+- Where: scripts/review-record.mjs:100
+- Problem: `fence` matches any line that starts with three backticks, while CommonMark (and GitHub) does not take a backtick fence whose info string holds a backtick, so a line such as ``` ``` `x` ``` ``` in a finding renders as inline code. The parser opens a block there, reads the rest of the file as text and reports `unclosedFence` ("never closed, so everything after it is read as text") and, for the round that approves after it, "the last round, round 1, requests changes" (run: round 1 with that line in F1, round 2 approving with `- F1: fixed`). A correct record is refused with a message about a block the reviewer never opened. The fence should not open when a backtick fence is followed by text containing a backtick.
