@@ -27,7 +27,8 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 - [x] 4.1 Run `pnpm verify` from a clean build; verify it passes
   - Passed in 1 min 0 s after removing `dist`, `reports`, `test-results`, `screenshots`, `.lighthouseci` and `metrics.json`: 148 unit tests, coverage of `src/domain` 100 %, 32 end-to-end tests on Chromium, Firefox and WebKit, initial JS 34.57 kB and CSS 0.50 kB gzip, Lighthouse assertions met. WebKit ran with three system libraries it lacks on this machine preloaded from a scratch directory; nothing was installed. `commitlint --from main` passes.
-- [ ] 4.2 Open the pull request as the bot before any review record exists; verify the `evidence` check fails and names the missing `review.md`; record the run here
+- [x] 4.2 Open the pull request as the bot before any review record exists; verify the `evidence` check fails and names the missing `review.md`; record the run here
+  - Pull request #3, opened by `app/english-drill-book-bot` at ed1e4fa. Run [43081006507](https://github.com/AntonChehov/english-drill-book/actions/runs/43081006507): every job of `checks` green, `evidence` failed with one problem, check 3 "openspec/changes/pipeline-follow-ups/review.md does not exist"; checks 1, 2, 4, 5 and 6 passed.
 - [ ] 4.3 Run the code-review skill on the whole diff and commit `review.md` with one finding still without an outcome (design D4); verify the `evidence` check fails and names that finding; record the run here
 - [ ] 4.4 Fix or decline each finding and complete `review.md`; verify the `evidence` check is green; record the run here
 - [ ] 4.5 **(owner)** Approve and merge
