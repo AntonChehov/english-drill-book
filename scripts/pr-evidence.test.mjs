@@ -456,6 +456,9 @@ describe("the release pull request", () => {
   });
 });
 
+/** The files of an archived change that has a review record and no tasks. */
+const noTasks = (path) => (path.endsWith("review.md") ? "# Review\n" : undefined);
+
 describe("the archive pull request", () => {
   const archived = "openspec/changes/archive/2026-11-12-some-change";
   const ticked = "# Tasks\n\n- [x] 1.1 Done\n- [x] 1.2 **(owner)** Merge\n";
@@ -520,16 +523,17 @@ describe("the archive pull request", () => {
     expect(judged({ files: edited })).toContain("openspec/changes/next/design.md");
   });
 
+  // Files of the archived change with one thing wrong.
+  const unticked = (path) =>
+    path.endsWith("tasks.md") ? `${ticked}- [ ] 1.3 Later\n` : "# Review\n";
+  const noReview = (path) => (path.endsWith("tasks.md") ? ticked : undefined);
+
   it("is judged when an archived change has an unticked task", () => {
-    const readFile = (path) =>
-      path.endsWith("tasks.md") ? `${ticked}- [ ] 1.3 Later\n` : "# Review\n";
-    expect(judged({ readFile })).toBe(`${archived}/tasks.md has 1 unticked task(s)`);
+    expect(judged({ readFile: unticked })).toBe(`${archived}/tasks.md has 1 unticked task(s)`);
   });
 
   it("is judged when an archived change has no review record or no tasks", () => {
-    const noReview = (path) => (path.endsWith("tasks.md") ? ticked : undefined);
     expect(judged({ readFile: noReview })).toBe(`${archived}/review.md does not exist`);
-    const noTasks = (path) => (path.endsWith("review.md") ? "# Review\n" : undefined);
     expect(judged({ readFile: noTasks })).toBe(`${archived}/tasks.md does not exist`);
   });
 
