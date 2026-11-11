@@ -70,7 +70,7 @@ Prettier over the oxc formatter: Vue single-file components must be formatted, a
 
 ### D6. Budgets
 
-`scripts/size.mjs` gzips the built entry chunk and CSS and compares them with C-06 (120 kB, 20 kB); it writes `metrics.json`. Lighthouse CI runs against the preview with the mobile profile and asserts performance ≥ 90 and accessibility ≥ 95.
+`scripts/size.mjs` gzips the built entry chunk and CSS and compares them with C-06 (120 kB, 20 kB); it writes `metrics.json`. "Initial" means the entries of Vite's manifest and the chunks they import statically; chunks loaded by dynamic import are outside the budget. Lighthouse CI runs against the preview with the mobile profile and asserts performance ≥ 90 and accessibility ≥ 95 on the median of three runs. It drives the Chromium that Playwright installs, so no second browser is downloaded in CI.
 
 ### D7. Pipeline
 
@@ -150,10 +150,10 @@ Branch protection on `main`: pull request required, the `evidence` check require
 
 | Package | Replaces | Size (gzip) |
 | --- | --- | --- |
-| `vue` | hand-written DOM updates across six screens | about 35 kB |
-| `vue-router` | hand-written hash routing and guards | about 10 kB |
+| `vue` | hand-written DOM updates across six screens | 24.3 kB |
+| `vue-router` | hand-written hash routing and guards | 9.5 kB |
 
-Sizes are measured by `scripts/size.mjs` once the project builds and corrected here if they differ.
+Sizes measured on the first build, each package split into its own chunk and gzipped at level 9 (the first estimates were 35 kB and 10 kB). Together with the shell the initial JavaScript is 34.6 kB gzip, as `scripts/size.mjs` reports it.
 
 ## Risks / Trade-offs
 
