@@ -89,6 +89,18 @@ Verdict: approved
 - Not raised: a bold `**Verdict:** changes requested` or a bulleted `- Verdict: …` in free text passes; the design lists only the plain and quoted forms, and the round's own verdict line is still the one read.
 - The code-review skill also suggested parsing the record with a CommonMark parser instead of a line scanner, which would close the gaps above at once, and pointed at duplicated dispatch of `forbiddenInText`; neither changes what the check decides today.
 
+## Round 4
+
+Reviewed: 769012884d9b
+Verdict: approved
+
+### Notes
+
+- Scope: this round reads only what changed since the content round 3 approved. `git diff 622dd77..HEAD`, leaving out this record and `tasks.md`, is one line of `design.md` (d71578f), the sentence on HTML comments in the clarification "D2, the form of the record"; no other file changed. Rounds 1 to 3 read the whole diff, no finding is open, and a sentence of the design cannot change what the check decides, so a full re-review would read the same content again.
+- The new sentence says an HTML comment is not recognised and the lines inside one are read like any other line. That is what `scripts/review-record.mjs` does: nothing in it mentions `<!--`. Run on throwaway records outside the worktree: a `## Round 2` heading inside a multi-line comment opens a round (reported as out of order), a `Verdict: approved` line inside a comment under `### Notes` is reported as a round's line in free text, and the `-->` line ending a comment in a round's head is reported as an unknown line; a whole approving round inside a comment opened under `### Notes` passes as the last round, which is the case round 3 noted and which the sentence now describes truthfully, with where it can be seen.
+- No document disagrees with it: `CLAUDE.md` and `docs/process.md` step 4 say nothing about HTML comments, and `CLAUDE.md` points to these clarifications for the full grammar. The closing sections below remain true.
+- Hash: `pnpm review:hash review-rounds` prints `769012884d9b` at d71578f; the `evidence` job of run 43110214472 on the same commit reports the same value for this commit's content and `8ddbb30657a2` for round 3's.
+
 ## Requirement coverage
 
 | ID  | Implemented in | Test |
