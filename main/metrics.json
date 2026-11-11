@@ -17,7 +17,7 @@
       "budget": 20000
     }
   },
-  "sha": "f523da73a50c4c2124a1d864bcb299b62107c95e",
+  "sha": "ae1c56a906f06647c4e58430724c048fad5cc54c",
   "tests": {
     "unit": {
       "tests": 159,
@@ -45,6 +45,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 110
+    "seconds": 115
   }
 }
