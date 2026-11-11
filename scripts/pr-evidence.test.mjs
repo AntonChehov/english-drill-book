@@ -207,15 +207,17 @@ describe("3. review record", () => {
   it("fails without review.md", () => {
     expect(problemsOf({ readReview: () => undefined })).toEqual([
       { check: 3, problem: messages.noRecord(change) },
-      { check: 4, problem: messages.nothingToCompare({ current, change }) },
+      { check: 4, problem: messages.noRoundToCompare({ current, change }) },
     ]);
   });
 
   it("fails on a record in the format before rounds", () => {
     const old = `# Review\n\nReviewed commit: ${head}\n\n## Findings\n\nnone\n`;
     expect(problemsOf({ readReview: () => old })).toEqual([
+      { check: 3, problem: messages.textBeforeRounds(`Reviewed commit: ${head}`) },
+      { check: 3, problem: messages.unknownSection("Findings") },
       { check: 3, problem: messages.noRound() },
-      { check: 4, problem: messages.nothingToCompare({ current, change }) },
+      { check: 4, problem: messages.noRoundToCompare({ current, change }) },
     ]);
   });
 
@@ -271,17 +273,25 @@ describe("4. reviewed content", () => {
     );
   });
 
-  it("fails when the last round records no hash, apart from the review record", () => {
+  it("fails when the last round records no hash, naming that round's missing line (F7)", () => {
     const last = "## Round 2\n\nVerdict: approved\n\n- F1: fixed\n- F2: declined — fine.\n";
-    expect(checksOf(withReview({ last }))).toEqual([3, 4]);
-    expect(problemsOf(withReview({ last }))).toContainEqual({
-      check: 4,
-      problem: messages.nothingToCompare({ current, change }),
-    });
+    expect(problemsOf(withReview({ last }))).toEqual([
+      { check: 3, problem: messages.noHash(2) },
+      { check: 4, problem: messages.lastRoundNoHash({ round: 2, current, change }) },
+    ]);
   });
 
-  it("is not checked while the description names no known change", () => {
-    expect(checksOf({ description: description({ change: "" }) })).toEqual([1]);
+  it("fails, as check 3 does, when the description names no known change (F7)", () => {
+    for (const line of ["", "Change: no-such\n"]) {
+      const problems = problemsOf({ description: description({ change: line }) });
+      expect(problems.filter((entry) => entry.check !== 1)).toEqual([
+        { check: 3, problem: messages.noChangeRecord() },
+        { check: 4, problem: messages.noChangeContent() },
+      ]);
+    }
+    const markdown = report(problemsOf({ description: description({ change: "" }) }));
+    expect(markdown).not.toContain("| 4 | Reviewed content | passed |");
+    expect(markdown).not.toContain("| 3 | Review record | passed |");
   });
 });
 
@@ -297,7 +307,7 @@ describe("the messages of checks 3 and 4", () => {
     raisedTwice: ["F2", 1, 2],
     unknownFinding: [2, "F7"],
     badOutcome: [2, "F1", "later"],
-    fixedInOwnRound: [1, "F1"],
+    outcomeInOwnRound: [1, "F1"],
     declinedWithoutReason: [2, "F2"],
     notFixedWithoutWhat: [2, "F1"],
     notStated: [3, "F1"],
@@ -309,7 +319,19 @@ describe("the messages of checks 3 and 4", () => {
     noOutside: [],
     notCovered: ["PROD-001"],
     stale: [{ round: 2, reviewed: earlier, current, change }],
-    nothingToCompare: [{ current, change }],
+    noChangeRecord: [],
+    noChangeContent: [],
+    noRoundToCompare: [{ current, change }],
+    lastRoundNoHash: [{ round: 2, current, change }],
+    lastNotApproved: [2],
+    unknownSection: ["Round 2 (again)"],
+    repeatedSection: ["Requirement coverage"],
+    textBeforeRounds: ["Notes `with` a | pipe"],
+    repeatedLine: [2, "Verdict"],
+    unknownLine: [2, "Looks good to me."],
+    unknownHeading: [2, "#### F1 Hidden"],
+    misplacedLine: [2, "F1", "Verdict: approved"],
+    unclosedFence: [12],
   };
 
   it("are all sampled here", () => {

@@ -258,31 +258,27 @@ export function checkEvidence(input) {
     if (!input.testedIds.has(id)) fail(2, `${id} is named by no test (@req ${id})`);
   }
 
-  // 3. Review record, and 4. reviewed content
+  // 3. Review record, and 4. reviewed content. Neither shows "passed" unless something was
+  // read and compared.
   const review = known ? reviewOf(input, change) : undefined;
-  if (review && review.record === undefined) {
-    fail(3, messages.noRecord(change));
-  } else if (review) {
-    for (const problem of review.record.problems) fail(3, problem);
-    if (review.record.last?.verdict === "approved") {
+  const last = review?.record?.last;
+  if (!review) {
+    fail(3, messages.noChangeRecord());
+    fail(4, messages.noChangeContent());
+  } else {
+    if (review.record === undefined) fail(3, messages.noRecord(change));
+    for (const problem of review.record?.problems ?? []) fail(3, problem);
+    if (last?.verdict === "approved") {
       for (const id of description.requirementIds) {
         if (!review.record.coveredIds.has(id)) fail(3, messages.notCovered(id));
       }
     }
-  }
-  const reviewed = review?.record?.last?.reviewed;
-  if (review && !reviewed) {
-    fail(4, messages.nothingToCompare({ current: review.current, change }));
-  } else if (review && reviewed !== review.current) {
-    fail(
-      4,
-      messages.stale({
-        round: review.record.last.number,
-        reviewed,
-        current: review.current,
-        change,
-      }),
-    );
+    const { current } = review;
+    if (!last) fail(4, messages.noRoundToCompare({ current, change }));
+    else if (!last.reviewed)
+      fail(4, messages.lastRoundNoHash({ round: last.number, current, change }));
+    else if (last.reviewed !== current)
+      fail(4, messages.stale({ round: last.number, reviewed: last.reviewed, current, change }));
   }
 
   // 5. Screenshots
