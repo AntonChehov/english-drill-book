@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { gzipSync } from "node:zlib";
-import { isMain, mergeMetrics } from "./metrics-file.mjs";
+import { isMain, mergeMetrics } from "./common.mjs";
 
 /** Budgets of C-06 in kilobytes (1 kB = 1000 bytes) of gzip. */
 export const budgets = { js: 120, css: 20 };

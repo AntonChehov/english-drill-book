@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { mergeMetrics, readMetrics } from "./metrics-file.mjs";
+import { mergeMetrics, readMetrics } from "./common.mjs";
 import { formatKb, gzipSize, initialFiles, measure } from "./size.mjs";
 
 const manifest = {
