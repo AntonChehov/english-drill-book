@@ -4,7 +4,7 @@
 // Usage: node scripts/traceability.mjs [repository root]
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { pathToFileURL } from "node:url";
+import { isMain } from "./common.mjs";
 
 const requirementTitle = /^###\s+Requirement:\s*(.*)$/gm;
 const idAtStart = /^([A-Z][A-Z0-9]*-\d{3})\b/;
@@ -94,4 +94,4 @@ function main() {
   console.log(`Traceability: ${required.length} requirements, each named by a test.`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();
+if (isMain(import.meta.url)) main();

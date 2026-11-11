@@ -8,9 +8,8 @@
 // Usage: GH_TOKEN=$(node scripts/bot-token.mjs) gh api /installation/repositories
 import { createPrivateKey, sign } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
-
-const api = "https://api.github.com";
+import { isMain } from "./common.mjs";
+import { createGithub } from "./github.mjs";
 
 function base64url(value) {
   return Buffer.from(value).toString("base64url");
@@ -41,28 +40,13 @@ export function readConfig(env) {
   };
 }
 
-async function request(path, jwt, method = "GET") {
-  const response = await fetch(`${api}${path}`, {
-    method,
-    headers: {
-      accept: "application/vnd.github+json",
-      authorization: `Bearer ${jwt}`,
-      "x-github-api-version": "2022-11-28",
-      "user-agent": "english-drill-book-bot-token",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`${method} ${path}: ${response.status} ${await response.text()}`);
-  }
-  return response.json();
-}
-
 /** Exchanges the App's JWT for an installation token. */
 export async function installationToken(config, now = Math.floor(Date.now() / 1000)) {
   const jwt = appJwt(config.appId, readFileSync(config.privateKeyPath, "utf8"), now);
+  const github = createGithub({ token: jwt });
   let installationId = config.installationId;
   if (!installationId) {
-    const installations = await request("/app/installations", jwt);
+    const installations = await github.request("GET", "/app/installations");
     if (installations.length !== 1) {
       throw new Error(
         `The App has ${installations.length} installations; set BOT_INSTALLATION_ID.`,
@@ -70,10 +54,9 @@ export async function installationToken(config, now = Math.floor(Date.now() / 10
     }
     installationId = installations[0].id;
   }
-  const { token } = await request(
-    `/app/installations/${installationId}/access_tokens`,
-    jwt,
+  const { token } = await github.request(
     "POST",
+    `/app/installations/${installationId}/access_tokens`,
   );
   return token;
 }
@@ -87,4 +70,4 @@ async function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
+if (isMain(import.meta.url)) await main();
