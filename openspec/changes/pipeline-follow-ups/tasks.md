@@ -15,7 +15,8 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 - [x] 2.1 Add the exemption of design D1 to `scripts/pr-evidence.mjs` with unit tests in which each of the five conditions fails alone and the pull request is then judged by the six checks; verify the unit tests pass
   - `archiveProblems` returns the conditions not met; the job summary says "Exempt: …" for an exempt pull request and lists the unmet conditions for an `archive/` branch that is not. `scripts/pr-evidence.test.mjs`: 59 tests pass, one per failing condition (5 has three: an unticked task, no `review.md`, no `tasks.md`), plus a pull request that moves no change into the archive.
-- [ ] 2.2 Amend `docs/constitution.md` (C-14, C-18) and `docs/process.md` (step 8) as in design D2; verify the wording against what the script checks
+- [x] 2.2 Amend `docs/constitution.md` (C-14, C-18) and `docs/process.md` (step 8) as in design D2; verify the wording against what the script checks
+  - Each condition in C-18 matches one in `isReleasePullRequest` or `archiveProblems`: author, branch prefix, the files changed, no file of a change in flight added or edited, at least one change archived, its tasks all ticked and its `review.md` present. C-18 states them in full and C-14 points to it, rather than to a design that moves into the archive.
 
 ## 3. First version
 

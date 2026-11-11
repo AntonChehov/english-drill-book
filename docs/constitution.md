@@ -45,7 +45,7 @@ These constraints apply to every change. Each names its measurement; a constrain
 
 ## Process
 
-- **C-14 Specification first.** Work is done as OpenSpec changes. A change has a proposal, a design where one is warranted, tasks, and delta specs for any change in behaviour, and the owner approves these before implementation starts. A pull request implements exactly one change.
+- **C-14 Specification first.** Work is done as OpenSpec changes. A change has a proposal, a design where one is warranted, tasks, and delta specs for any change in behaviour, and the owner approves these before implementation starts. A pull request implements exactly one change. Two pull requests implement none and name none: the release pull request that release-please opens, and the archive pull request of step 8 of `docs/process.md`; the evidence check recognises them by the conditions stated in C-18.
   *Measured by:* `openspec validate --strict` in CI; the evidence check (C-18) requires the pull request to name its change.
 - **C-15 History.** Conventional Commits. `main` is protected: changes arrive by pull request, with every required check green, every review thread resolved, and the approval of the repository owner. One pull request delivers one slice of requirements.
   *Measured by:* commit lint in CI; branch protection.
@@ -57,6 +57,7 @@ These constraints apply to every change. Each names its measurement; a constrain
   3. *That it builds and runs* — screenshots of every screen, taken by CI from the production build of that commit, in both themes, attached to the pull request. When files under `src/ui` change, the screenshots that differ from `main` are shown side by side with the previous ones, or the description states that there is no visual change.
   4. *The numbers* — test results, coverage of `src/domain`, bundle sizes and Lighthouse scores, each with its change against `main`.
   A new commit invalidates items 2 – 4 until they are produced again.
+  Two pull requests are exempt from items 1 – 4 because they implement no change (C-14); the other checks of the pipeline still run on them and must pass. The *release pull request*: opened by the bot from a `release-please--` branch, changing only `CHANGELOG.md`, `package.json` and `.release-please-manifest.json`. The *archive pull request*: opened by the bot from an `archive/` branch, changing only files under `openspec/` and `docs/roadmap.md`, adding or editing no file of a change in flight, and moving into `openspec/changes/archive/` at least one change, each with every task ticked and a `review.md`. A pull request that misses any condition is judged by items 1 – 4.
   *Measured by:* a required `pr-evidence` check in CI that reads the pull request and fails when any item is missing or belongs to an older commit.
 - **C-19 Pipeline hygiene.** A newer commit cancels the running pipeline of the older one. Dependencies are cached by the lockfile's hash. Test results are published in a machine-readable format and summarised on the pull request. The checks of a pull request finish within 3 minutes, and the fast ones (types, lint, unit tests) within 1 minute.
   *Measured by:* the workflow configuration; pipeline duration reported on each run.
