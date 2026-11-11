@@ -39,8 +39,8 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 ## 6. Pipeline
 
-- [ ] 6.1 Write the pull request workflow with the jobs of design D7, caching, cancellation, the Playwright container and JUnit summaries; verify a run is green on a test pull request
-- [ ] 6.2 Add the duration report; verify the job summary shows wall-clock time and that it is under 3 minutes, or record the measured time and the plan in design D7
+- [x] 6.1 Write the pull request workflow with the jobs of design D7, caching, cancellation, the Playwright container and JUnit summaries; verify a run is green on a test pull request
+- [x] 6.2 Add the duration report; verify the job summary shows wall-clock time and that it is under 3 minutes, or record the measured time and the plan in design D7
 
 ## 7. Evidence
 
@@ -59,7 +59,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 ## 9. Review and evidence
 
 - [x] 9.1 Run the code-review skill on the whole diff, fix or decline each finding, and commit `review.md` in this change's directory in the format of design D9
-- [ ] 9.2 Open the pull request as the bot with the description sections of design D9; verify the `evidence` check is green
+- [x] 9.2 Open the pull request as the bot with the description sections of design D9; verify the `evidence` check is green
 - [ ] 9.3 **(owner)** After merge, switch on branch protection for `main` as in design D11; verify a direct push to `main` is rejected
 
 ## Workflow follow-up
