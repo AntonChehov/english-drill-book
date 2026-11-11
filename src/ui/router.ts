@@ -1,4 +1,9 @@
-import { createRouter, createWebHashHistory, type RouteRecordRaw, type RouterHistory } from "vue-router";
+import {
+  createRouter,
+  createWebHashHistory,
+  type RouteRecordRaw,
+  type RouterHistory,
+} from "vue-router";
 import { documentTitle } from "../domain/document-title";
 import AboutView from "./views/AboutView.vue";
 import NotFoundView from "./views/NotFoundView.vue";

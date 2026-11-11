@@ -26,7 +26,11 @@ export default defineConfig({
   },
   projects: [
     // Everything runs on Chromium; Firefox and WebKit run the demo flow (constitution C-13).
-    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: /screenshots\.spec\.ts/ },
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: /screenshots\.spec\.ts/,
+    },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
@@ -40,7 +44,11 @@ export default defineConfig({
       testIgnore: /screenshots\.spec\.ts/,
     },
     // Evidence for pull requests (design D8); run on its own with `pnpm screenshots`.
-    { name: "screenshots", use: { ...devices["Desktop Chrome"] }, testMatch: /screenshots\.spec\.ts/ },
+    {
+      name: "screenshots",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: /screenshots\.spec\.ts/,
+    },
   ],
   webServer: {
     command: `pnpm exec vite preview --port ${port} --strictPort --host 127.0.0.1`,
