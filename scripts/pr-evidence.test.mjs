@@ -220,6 +220,32 @@ describe("3. review record", () => {
     });
   });
 
+  it("fails on an open finding that shares its title with a fixed one", () => {
+    const findings = `## Findings\n\n### Missing test\n- Where: a.ts:1\n\n### Missing test\n- Where: b.ts:1\n- Outcome: fixed in ${fix.slice(0, 7)}\n`;
+    expect(problemsOf(withReview({ findings }))).toContainEqual({
+      check: 3,
+      problem: 'finding "Missing test" has no outcome (fixed in <sha> or declined)',
+    });
+  });
+
+  it("does not take the next line as an empty reason", () => {
+    const findings =
+      "## Findings\n\n### F1 Style\n- Where: a.ts:1\n- Outcome: declined\n- Reason:\nnext line\n";
+    expect(problemsOf(withReview({ findings }))).toContainEqual({
+      check: 3,
+      problem: 'finding "F1 Style" is declined without a reason',
+    });
+  });
+
+  it("fails on a fix that is not a commit of the pull request", () => {
+    const findings = "## Findings\n\n### F1 Bug\n- Where: a.ts:1\n- Outcome: fixed in deadbeef\n";
+    expect(problemsOf(withReview({ findings }))).toContainEqual({
+      check: 3,
+      problem:
+        'finding "F1 Bug" names the fix deadbeef, which is not a commit of this pull request',
+    });
+  });
+
   it("fails without the reviewed commit", () => {
     expect(problemsOf(withReview({ reviewed: "" }))).toContainEqual({
       check: 3,
@@ -299,6 +325,16 @@ describe("5. screenshots", () => {
     });
   });
 
+  it("fails when a newer commit was pushed during the run", () => {
+    expect(problemsOf({ latestSha: "f".repeat(40) })).toEqual([
+      {
+        check: 5,
+        problem: "a newer commit fffffff was pushed; this run's evidence is for ccccccc",
+      },
+    ]);
+    expect(problemsOf({ latestSha: head })).toEqual([]);
+  });
+
   it("fails without screenshots", () => {
     expect(checksOf({ comparison: undefined })).toEqual([5]);
     expect(checksOf({ comparison: [] })).toEqual([5]);
@@ -358,10 +394,11 @@ describe("6. numbers", () => {
 
 describe("parsing", () => {
   it("splits Markdown into sections of one heading level", () => {
-    expect(sections("intro\n## A\none\n### A1\ntwo\n## B\nthree", 2)).toEqual({
-      A: "one\n### A1\ntwo\n",
-      B: "three\n",
-    });
+    expect(sections("intro\n## A\none\n### A1\ntwo\n## B\nthree\n## A\nfour", 2)).toEqual([
+      { title: "A", content: "one\n### A1\ntwo\n" },
+      { title: "B", content: "three\n" },
+      { title: "A", content: "four\n" },
+    ]);
   });
 
   it("reads a description written with level-three headings and a quoted change name", () => {

@@ -41,29 +41,31 @@ export function isReleasePullRequest({ headRef, author, botLogin, changedFiles }
   );
 }
 
-/** Splits Markdown into sections by heading text: `## Problem` → { Problem: "..." }. */
+/**
+ * Splits Markdown into sections at headings of one level, in order:
+ * `## Problem` → [{ title: "Problem", content: "..." }]. Repeated titles stay separate.
+ */
 export function sections(markdown, level) {
-  const result = {};
+  const result = [];
   const heading = new RegExp(`^${"#".repeat(level)}\\s+(.+?)\\s*$`);
-  let current;
   for (const line of (markdown ?? "").split(/\r?\n/)) {
     const match = heading.exec(line);
-    if (match) {
-      current = match[1];
-      result[current] = "";
-    } else if (current !== undefined) {
-      result[current] += `${line}\n`;
-    }
+    if (match) result.push({ title: match[1], content: "" });
+    else if (result.length > 0) result[result.length - 1].content += `${line}\n`;
   }
+  return result;
+}
+
+/** Section contents by title; when a title repeats, its contents are joined. */
+function byTitle(list) {
+  const result = {};
+  for (const { title, content } of list) result[title] = (result[title] ?? "") + content;
   return result;
 }
 
 /** The parts of a pull request description that the check reads. */
 export function parseDescription(body) {
-  const found = {};
-  for (const level of [2, 3]) {
-    for (const [title, content] of Object.entries(sections(body, level))) found[title] ??= content;
-  }
+  const found = { ...byTitle(sections(body, 3)), ...byTitle(sections(body, 2)) };
   const requirements = found["Requirements"] ?? "";
   return {
     missingSections: requiredSections.filter((name) => !(found[name] ?? "").trim()),
@@ -80,20 +82,19 @@ export function parseReview(markdown) {
   const reviewedCommit = /^Reviewed commit:\s*`?([0-9a-f]{7,40})`?\s*$/m.exec(markdown)?.[1];
   if (!reviewedCommit) problems.push("review.md has no line `Reviewed commit: <sha>`");
 
-  const top = sections(markdown, 2);
+  const top = byTitle(sections(markdown, 2));
   const findingsText = top["Findings"];
   const findings = [];
   if (findingsText === undefined) {
     problems.push("review.md has no section `## Findings`");
   } else {
     const blocks = sections(findingsText, 3);
-    const titles = Object.keys(blocks);
-    if (titles.length === 0 && !/^\s*none\.?\s*$/i.test(findingsText)) {
+    if (blocks.length === 0 && !/^\s*none\.?\s*$/i.test(findingsText)) {
       problems.push("`## Findings` lists no finding and does not say `none`");
     }
-    for (const title of titles) {
+    for (const { title, content } of blocks) {
       const field = (name) =>
-        new RegExp(`^-\\s*${name}:\\s*(.*?)\\s*$`, "mi").exec(blocks[title])?.[1] ?? "";
+        new RegExp(`^-[ \\t]*${name}:[ \\t]*(.*?)[ \\t]*$`, "mi").exec(content)?.[1] ?? "";
       const outcome = field("Outcome");
       const reason = field("Reason");
       const finding = { title, where: field("Where"), outcome, reason };
@@ -130,7 +131,8 @@ const sameCommit = (a, b) => a.startsWith(b) || b.startsWith(a);
  * Runs the six checks. Every input is plain data, gathered by `gather` in CI:
  * @param {object} input
  * @param {string} input.description  the pull request's body
- * @param {string} input.headSha
+ * @param {string} input.headSha  the commit this run checked out and measured
+ * @param {string} [input.latestSha]  the pull request's head commit now, from the API
  * @param {string[]} input.changes  directory names under openspec/changes/, archive excluded
  * @param {(change: string) => string[]} input.deltaSpecIds  requirement IDs of a change's delta specs
  * @param {Set<string>} input.testedIds  IDs named by `@req` in the app's tests
@@ -183,6 +185,19 @@ export function checkEvidence(input) {
     }
   }
 
+  // A fix must be a commit of this pull request, or "fixed" closes nothing.
+  for (const finding of review?.findings ?? []) {
+    if (
+      finding.fixedIn &&
+      !input.commits.some((commit) => sameCommit(commit.sha, finding.fixedIn))
+    ) {
+      fail(
+        3,
+        `finding "${finding.title}" names the fix ${finding.fixedIn}, which is not a commit of this pull request`,
+      );
+    }
+  }
+
   // 4. Nothing changed after the review but fixes and the record itself
   if (review?.reviewedCommit) {
     const index = input.commits.findIndex((commit) =>
@@ -210,6 +225,12 @@ export function checkEvidence(input) {
   }
 
   // 5. Screenshots
+  if (input.latestSha && !sameCommit(input.latestSha, input.headSha)) {
+    fail(
+      5,
+      `a newer commit ${input.latestSha.slice(0, 7)} was pushed; this run's evidence is for ${input.headSha.slice(0, 7)}`,
+    );
+  }
   const commentFor = commentSha(input.comment?.body);
   if (!commentFor) fail(5, "the evidence comment with the screenshots does not exist");
   else if (!sameCommit(commentFor, input.headSha))
@@ -292,20 +313,19 @@ export async function gather({
   repository,
   number,
   botLogin,
+  headSha,
   metricsPath,
   comparisonPath,
 }) {
   const pull = await github.request("GET", `/repos/${repository}/pulls/${number}`);
-  const headSha = pull.head.sha;
   const base = git("merge-base", pull.base.sha, headSha);
   const commits = git("rev-list", "--reverse", `${base}..${headSha}`)
     .split("\n")
     .filter(Boolean)
     .map((sha) => ({
       sha,
-      files: git("diff-tree", "--no-commit-id", "--name-only", "-r", "--root", sha)
-        .split("\n")
-        .filter(Boolean),
+      // Against the first parent: diff-tree would list nothing for a merge commit.
+      files: git("diff", "--name-only", `${sha}^1`, sha).split("\n").filter(Boolean),
     }));
   const changesDir = join(root, "openspec", "changes");
   const comments = await github.paginate(`/repos/${repository}/issues/${number}/comments`);
@@ -319,6 +339,7 @@ export async function gather({
     }),
     description: pull.body ?? "",
     headSha,
+    latestSha: pull.head.sha,
     changes: existsSync(changesDir)
       ? readdirSync(changesDir, { withFileTypes: true })
           .filter((entry) => entry.isDirectory() && entry.name !== "archive")
@@ -360,6 +381,8 @@ async function main() {
     repository: requireEnv("GITHUB_REPOSITORY"),
     number: requireEnv("PR_NUMBER"),
     botLogin: requireEnv("BOT_LOGIN"),
+    // The commit this run checked out and measured, not whatever the branch points at now.
+    headSha: git("rev-parse", "HEAD"),
     metricsPath: values.metrics,
     comparisonPath: values.comparison,
   });
