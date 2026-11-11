@@ -159,7 +159,7 @@ Sizes measured on the first build, each package split into its own chunk and gzi
 
 - [oxlint cannot express the layer or network rule] → settled by the first lint task; `dependency-cruiser` for that rule only.
 - [The 3-minute budget is missed] → the budget is a warning for the first three pull requests; if still missed, split end-to-end tests into shards before relaxing C-19.
-- [Screenshots differ between runs without a real change] → one container image for all browser jobs, system font stack, animations disabled in the spec; a comparison threshold of 0.1 % of pixels.
+- [Screenshots differ between runs without a real change] → one container image for all browser jobs, system font stack, animations disabled in the spec; a comparison threshold of 0.01 % of pixels. (First set at 0.1 %; measured during implementation, two runs of the same build differ in no pixel, while a changed link colour alters only 0.07 % of a 1280 px screenshot, so 0.1 % would hide real changes.)
 - [The `evidence` branch grows] → scheduled pruning of closed pull requests' directories.
 - [This change cannot pass a gate it introduces] → it is the one change merged before branch protection exists; its own evidence is still produced and checked by its own pipeline run.
 - [The owner-only steps block the agent] → they are grouped first in `tasks.md`; everything else can be built and run locally before them.
