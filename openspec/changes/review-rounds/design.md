@@ -122,3 +122,15 @@ The reviewing agent is not shown the holdout scenarios, like the implementer.
 - [The agent writes an approval without reviewing] → not preventable by CI (see Non-Goals); the separate role and the owner's reading are the control.
 - [Bringing the branch up to date changes the hash] → only when `main` changed a file the pull request also changes (D1), which is exactly when a second look is warranted.
 - [This change's own pull request] → it is judged by its own version of the script, so its record is written in rounds from the start.
+
+## Clarifications made in implementation
+
+Within the intent of the decisions above; listed so that the owner can check them.
+
+- **D1, the merge base.** Both sides take the merge base of the head commit with `origin/main`, or with a local `main` where there is no `origin/main`; the reviewer fetches `main` first. The checkout of the `evidence` job fetches every branch with its history (`fetch-depth: 0`), so `origin/main` is there and is the current `main`. The other parts of the evidence check, the exemptions included, keep the merge base with the pull request's base commit as before.
+- **D1, the input of the hash.** For each file, its path, a NUL, its blob ID or `deleted`, a NUL; sorted by path. `pnpm review:hash <change>` prints the 12 characters; without `<change>` it takes the one in-flight change whose directory the branch touches. It hashes the commit, not the working tree, and warns about files not committed.
+- **D2, the form of a round.** `Reviewed:` holds exactly the 12 characters. Rounds are numbered 1, 2, 3 in order and findings through the whole record; a level-three heading in a round must be a finding `### F<n> <title>`; an outcome line is `- F<n>:` followed by `fixed`, `not fixed — <what remains>` or `declined — <reason>`, with an em dash, an en dash or a hyphen, and only for a finding raised in an earlier round (or, for `declined`, in the same one, which D3 does not forbid). `not fixed` without what remains is reported, like `declined` without a reason. A round after the first that omits an open finding is reported (D2: it "carries one line for every finding not yet closed").
+- **D2, coverage.** `Requirement coverage` and `Outside the listed requirements` are required only once the last round approves, since the approving round writes them.
+- **D3, check 4 without a hash.** When there is no record or its last round has no hash, check 4 fails too and shows the current hash, so the table never shows the content as checked when nothing was compared.
+- **Where the code lives.** The record is parsed in `scripts/review-record.mjs`, not in `scripts/pr-evidence.mjs` itself, because the evidence comment needs it too and `pr-evidence.mjs` already imports from `evidence-comment.mjs`.
+- **D6, the rest of C-18.** The sentence "A new commit invalidates items 2 – 4" now says that a new commit invalidates items 3 and 4, and item 2 when it changes the reviewed content, which is what the hash enforces. `README.md` no longer says that agents review their own diff.
