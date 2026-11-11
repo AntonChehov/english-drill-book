@@ -56,7 +56,7 @@ pnpm exec playwright install chromium firefox webkit
 | `pnpm verify`                 | `check`, `test:coverage`, `e2e`, `size` and `lhci` in turn: the gates CI runs, locally        |
 | `pnpm format`                 | formats the code with Prettier                                                                |
 | `pnpm commitlint --from main` | checks the messages of the branch's commits                                                   |
-| `pnpm review:hash <change>`   | the hash of the content a review reads, for its line `Reviewed:`                              |
+| `pnpm review:hash <change>`   | the hash of the content a review reads, for its line `Reviewed:`; fetches `main` first        |
 
 On every pull request CI runs the same gates, publishes screenshots and numbers in a comment and checks the evidence the constitution asks for (C-18); see `.github/workflows/`.
 
