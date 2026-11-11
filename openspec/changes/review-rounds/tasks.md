@@ -5,8 +5,8 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 ## 1. Hash
 
 - [x] 1.1 Write `scripts/review-hash.mjs` as in design D1 with unit tests over a temporary repository: the hash changes when a changed file is edited, added or deleted; it does not change when only `review.md` or `tasks.md` of the change is edited, when a commit message is amended, or when the branch is brought up to date with a `main` that touched other files; verify the unit tests pass
-- [ ] 1.2 Add `pnpm review:hash`; verify it prints the same value locally and in a CI run for the same commit
-  - Added. Locally it prints the same value in this worktree and in a fresh clone of the branch (`56815f762984` for e71bf41), and the evidence check computes the same through the same module. Not yet seen in a CI run: that needs the pull request (4.2), where the summary line `Review:` shows the hash CI computed.
+- [x] 1.2 Add `pnpm review:hash`; verify it prints the same value locally and in a CI run for the same commit
+  - A local clone and the `evidence` job of run 43087987806 computed the same hash, `4deab9156879`, for the head of pull request #6 at round 1 of the review. The hash has since gained the file mode (round 1, F6), so its values differ from then on, on both sides alike.
 
 ## 2. Record and check
 
