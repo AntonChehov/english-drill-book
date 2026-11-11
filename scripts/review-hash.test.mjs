@@ -1,7 +1,8 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   changeOfPaths,
@@ -104,7 +105,7 @@ describe("the review hash", () => {
     repo.commit("refactor: drop b");
     expect(repo.hash()).not.toBe(before);
     const { files } = reviewHash(repo.root, { change, base: "main" });
-    expect(files).toContainEqual({ path: "scripts/b.mjs", blob: "deleted" });
+    expect(files).toContainEqual({ path: "scripts/b.mjs", mode: "", blob: "deleted" });
   });
 
   it("changes when another change's record is edited", () => {
@@ -204,5 +205,81 @@ describe("changeOfPaths", () => {
     expect(changeOfPaths(["openspec/changes/archive/2026-01-01-old/review.md"])).toBeUndefined();
     expect(changeOfPaths(["openspec/changes/a/x.md", "openspec/changes/b/x.md"])).toBeUndefined();
     expect(excludedFiles(change)).toEqual([record, tasks]);
+  });
+});
+
+const script = fileURLToPath(new URL("./review-hash.mjs", import.meta.url));
+/** Runs `pnpm review:hash` as a reviewer would, in `cwd`. */
+function command(cwd, ...args) {
+  const result = spawnSync(process.execPath, [script, ...args], { cwd, env, encoding: "utf8" });
+  return { status: result.status, stdout: result.stdout.trim(), stderr: result.stderr };
+}
+
+/** A reviewer's clone of `repo` whose origin/main is behind main after main moved on. */
+function staleClone(repo) {
+  const clone = mkdtempSync(join(tmpdir(), "review-hash-clone-"));
+  roots.push(clone);
+  execFileSync("git", ["clone", "--quiet", repo.root, clone], { env, stdio: "pipe" });
+  const git = (...args) =>
+    execFileSync("git", args, { cwd: clone, env, encoding: "utf8", stdio: "pipe" }).trim();
+  repo.git("switch", "--quiet", "main");
+  repo.write("scripts/b.mjs", "b, edited on main\n");
+  repo.commit("fix: b");
+  repo.git("switch", "--quiet", "feature");
+  repo.git("merge", "--quiet", "--no-edit", "--no-verify", "main");
+  // Only the branch is brought over, as when someone else updated it with main.
+  git("fetch", "--quiet", "origin", "+refs/heads/feature:refs/heads/updated");
+  git("switch", "--quiet", "updated");
+  expect(git("rev-parse", "origin/main")).not.toBe(repo.git("rev-parse", "main"));
+  return { clone, git };
+}
+
+describe("round 1 of the review of review-rounds", () => {
+  it("F6: the hash changes when only the mode of a changed file changes", () => {
+    const repo = repository();
+    const before = repo.hash();
+    repo.git("update-index", "--chmod=+x", "scripts/a.mjs");
+    repo.git("commit", "--quiet", "--no-verify", "-m", "chore: make a executable");
+    expect(repo.hash()).not.toBe(before);
+    const { files } = reviewHash(repo.root, { change, base: "main" });
+    expect(files).toContainEqual(
+      expect.objectContaining({ path: "scripts/a.mjs", mode: "100755" }),
+    );
+  });
+
+  it("F4: a change that does not exist is refused, naming the ones that do", () => {
+    const repo = repository();
+    expect(() => reviewHash(repo.root, { change: "some-chang", base: "main" })).toThrow(
+      "There is no change `some-chang` in openspec/changes/ at HEAD. The changes there: some-change.",
+    );
+    expect(() => reviewHash(repo.root, { change: "archive", base: "main" })).toThrow("archive");
+    const result = command(repo.root, "some-chang", "--offline");
+    expect(result.status).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("There is no change `some-chang`");
+  });
+
+  it("F3: the command fetches main first, so a stale origin/main gives the hash CI computes", () => {
+    const repo = repository();
+    const { clone, git } = staleClone(repo);
+    const ci = repo.hash();
+    const stale = reviewHash(clone, { change }).short;
+    expect(stale).not.toBe(ci);
+    expect(command(clone, change)).toMatchObject({ status: 0, stdout: ci });
+    expect(git("rev-parse", "origin/main")).toBe(repo.git("rev-parse", "main"));
+  });
+
+  it("F3: without a fetch it prints nothing, unless told to work offline, and then warns", () => {
+    const repo = repository();
+    const { clone, git } = staleClone(repo);
+    git("remote", "set-url", "origin", join(clone, "no-such-remote"));
+    const refused = command(clone, change);
+    expect(refused.status).toBe(1);
+    expect(refused.stdout).toBe("");
+    expect(refused.stderr).toContain("Could not fetch main from origin");
+    const offline = command(clone, change, "--offline");
+    expect(offline.status).toBe(0);
+    expect(offline.stdout).toBe(reviewHash(clone, { change }).short);
+    expect(offline.stderr).toContain("may differ from the one CI computes");
   });
 });
