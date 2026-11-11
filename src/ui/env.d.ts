@@ -1,3 +1,4 @@
+// Makes this file a module, so the declaration below augments vue-router instead of replacing it.
 import "vue-router";
 
 declare module "vue-router" {

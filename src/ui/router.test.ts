@@ -6,7 +6,7 @@ import { createAppRouter, routes } from "./router";
 describe("router", () => {
   it("lists every route in e2e/views.ts, so screenshots and accessibility checks cover it", () => {
     const routeNames = routes.map((route) => route.name);
-    expect(views.map((view) => view.name).sort()).toEqual([...routeNames].sort());
+    expect(views.map((view) => view.name).toSorted()).toEqual(routeNames.toSorted());
   });
 
   it("resolves the address of each view in e2e/views.ts to that view", () => {

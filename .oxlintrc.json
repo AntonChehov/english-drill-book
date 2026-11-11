@@ -1,0 +1,152 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "vue", "vitest"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "ignorePatterns": ["dist/**", "reports/**", "screenshots/**", "coverage/**", ".lighthouseci/**"],
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-ignore": "allow-with-description",
+        "ts-expect-error": "allow-with-description",
+        "minimumDescriptionLength": 10
+      }
+    ],
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css", "vue-router"] }]
+  },
+  "overrides": [
+    {
+      "files": ["src/domain/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "vue",
+                  "vue-router",
+                  "@vue/*",
+                  "**/storage",
+                  "**/storage/**",
+                  "**/ui",
+                  "**/ui/**"
+                ],
+                "message": "src/domain is pure TypeScript: no Vue, storage or UI (constitution C-08)."
+              }
+            ]
+          }
+        ],
+        "no-restricted-globals": [
+          "error",
+          { "name": "window", "message": "src/domain has no DOM (C-08)." },
+          { "name": "document", "message": "src/domain has no DOM (C-08)." },
+          { "name": "navigator", "message": "src/domain has no DOM (C-08)." },
+          { "name": "localStorage", "message": "src/domain has no storage (C-08)." },
+          { "name": "sessionStorage", "message": "src/domain has no storage (C-08)." },
+          { "name": "indexedDB", "message": "src/domain has no storage (C-08)." },
+          { "name": "fetch", "message": "No network use outside the static-file loader (C-03)." },
+          {
+            "name": "XMLHttpRequest",
+            "message": "No network use outside the static-file loader (C-03)."
+          },
+          {
+            "name": "WebSocket",
+            "message": "No network use outside the static-file loader (C-03)."
+          },
+          {
+            "name": "EventSource",
+            "message": "No network use outside the static-file loader (C-03)."
+          }
+        ],
+        "no-restricted-properties": [
+          "error",
+          {
+            "object": "Date",
+            "property": "now",
+            "message": "src/domain has no clock; pass the time in (C-08)."
+          },
+          {
+            "object": "performance",
+            "property": "now",
+            "message": "src/domain has no clock; pass the time in (C-08)."
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/storage/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["vue", "vue-router", "@vue/*", "**/ui", "**/ui/**"],
+                "message": "src/storage may depend on src/domain only; nothing depends on src/ui (constitution C-08)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/storage/**", "src/ui/**"],
+      "excludeFiles": ["src/storage/static-files.ts"],
+      "rules": {
+        "no-restricted-globals": [
+          "error",
+          {
+            "name": "fetch",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "name": "XMLHttpRequest",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "name": "WebSocket",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "name": "EventSource",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          }
+        ],
+        "no-restricted-properties": [
+          "error",
+          { "object": "navigator", "property": "sendBeacon", "message": "No network use (C-03)." },
+          {
+            "object": "window",
+            "property": "fetch",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "object": "globalThis",
+            "property": "fetch",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "object": "self",
+            "property": "fetch",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          }
+        ]
+      }
+    },
+    {
+      "files": ["scripts/**", "*.config.ts", "e2e/**"],
+      "env": { "node": true },
+      "rules": { "no-console": "off" }
+    }
+  ]
+}
