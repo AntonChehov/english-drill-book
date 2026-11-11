@@ -1,0 +1,50 @@
+{
+  "size": {
+    "js": {
+      "files": [
+        "assets/index-BqdNt_ic.js"
+      ],
+      "bytes": 90396,
+      "gzip": 34569,
+      "budget": 120000
+    },
+    "css": {
+      "files": [
+        "assets/index-ITsgfRqq.css"
+      ],
+      "bytes": 1035,
+      "gzip": 500,
+      "budget": 20000
+    }
+  },
+  "sha": "63cfde03eb4d11a9d74261e6fdff543cd1fe1ac9",
+  "tests": {
+    "unit": {
+      "tests": 138,
+      "passed": 138,
+      "failed": 0,
+      "skipped": 0
+    },
+    "e2e": {
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "coverage": {
+    "lines": 100,
+    "branches": 100,
+    "functions": 100,
+    "statements": 100
+  },
+  "lighthouse": {
+    "performance": 100,
+    "accessibility": 100,
+    "best-practices": 100,
+    "seo": 91
+  },
+  "pipeline": {
+    "seconds": 119
+  }
+}
