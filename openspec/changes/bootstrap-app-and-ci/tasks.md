@@ -44,7 +44,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 ## 7. Evidence
 
-- [ ] 7.1 Write the screenshot spec for every route, both themes, two widths; verify the PNG set is produced locally
+- [x] 7.1 Write the screenshot spec for every route, both themes, two widths; verify the PNG set is produced locally
 - [ ] 7.2 Add the job that publishes screenshots to the `evidence` branch and writes the sticky comment with the comparison against `main`; verify the comment appears on the test pull request and updates on a new commit
 - [x] 7.3 Write `scripts/pr-evidence.mjs` implementing the six checks of design D9, with unit tests over fixture descriptions and review records covering each way to fail; verify the unit tests pass
 - [ ] 7.4 Add the `evidence` job; verify on the test pull request that it fails without `review.md`, fails with an open finding, and passes with a complete record
@@ -54,7 +54,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 
 - [ ] 8.1 Write the deploy workflow for GitHub Pages; verify the demo address serves the start screen and that reloading a deep link keeps the view
 - [ ] 8.2 Add release-please; verify it opens a release pull request with a changelog after the first merge
-- [ ] 8.3 Update `README.md` with the demo address and the commands; verify each documented command runs as written
+- [x] 8.3 Update `README.md` with the demo address and the commands; verify each documented command runs as written
 
 ## 9. Review and evidence
 
