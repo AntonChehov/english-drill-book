@@ -35,7 +35,7 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 ## 5. Budgets
 
 - [x] 5.1 Write `scripts/size.mjs` producing `metrics.json` with unit tests; verify it fails when the budget is set below the current size, and correct the sizes in design D12
-- [ ] 5.2 Configure Lighthouse CI with the assertions of design D6; verify the run passes locally against the preview
+- [x] 5.2 Configure Lighthouse CI with the assertions of design D6; verify the run passes locally against the preview
 
 ## 6. Pipeline
 
