@@ -2,7 +2,7 @@
 
 ## Now
 
-**M0 — Specification.** Under review by the author, file by file. Nothing is implemented.
+**M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Next: slice 1.2, the answer checker.
 
 ## Milestones
 
@@ -48,3 +48,4 @@ Placement test (find the learner's level and the topics to skip). Own exercise b
 - 2026-11-10 — first draft of the specification, contracts, constitution, factory graph, role prompts, holdout scenarios.
 - 2026-11-11 — model changed after review: the app knows supported books through built-in profiles and reads the learner's own PDFs; programs are built in and join books; Russian-only interface; demo is two original PDF books.
 - 2026-11-11 — process moved to OpenSpec: the whole-app description became `docs/product/`, the living specification starts empty and grows change by change.
+- 2026-11-11 — slice 1.1 (`bootstrap-app-and-ci`, pull request #1): the app shell with PROD-001 and PROD-008, the gates of the constitution, the pull request evidence check, deploy of the demo, release-please; branch protection on `main`. Archived; `openspec/specs/app-shell` holds its requirements.
