@@ -5,32 +5,32 @@ Tasks marked **(owner)** need the owner's GitHub account and cannot be done by a
 ## 1. Repository and identity
 
 - [x] 1.1 **(owner)** Confirm the project name and the licences; verify `LICENSE` exists with the chosen text
-- [ ] 1.2 **(owner)** Create the public repository and the private holdout repository; verify both are reachable with `gh repo view`
-- [ ] 1.3 **(owner)** Create the GitHub App with the permissions of design D11, install it on the public repository, store the private key outside the repository; verify the App appears under the repository's installed apps
-- [ ] 1.4 Write `scripts/bot-token.mjs` and verify it prints a token with which `gh api /installation/repositories` lists exactly this repository
-- [ ] 1.5 Commit the documents and the OpenSpec setup as the baseline of `main` and push; verify the repository shows them
+- [x] 1.2 **(owner)** Create the public repository and the private holdout repository; verify both are reachable with `gh repo view`
+- [x] 1.3 **(owner)** Create the GitHub App with the permissions of design D11, install it on the public repository, store the private key outside the repository; verify the App appears under the repository's installed apps
+- [x] 1.4 Write `scripts/bot-token.mjs` and verify it prints a token with which `gh api /installation/repositories` lists exactly this repository
+- [x] 1.5 Commit the documents and the OpenSpec setup as the baseline of `main` and push; verify the repository shows them
 
 ## 2. Project scaffold
 
-- [ ] 2.1 Create the Vite + Vue 3 + TypeScript project with pnpm, Node pinned, and the directories of design D1; verify `pnpm build` succeeds
-- [ ] 2.2 Add the router in hash mode with the start screen and the not-found view, interface text in Russian, `lang="ru"`; verify with end-to-end tests named `@req PROD-001` and `@req PROD-008` covering every scenario of the delta spec
-- [ ] 2.3 Add light and dark styles that follow the system setting, as a base for the screenshot themes; verify both render in the end-to-end run
-- [ ] 2.4 Add the `Content-Security-Policy` meta tag; verify the built page loads with no console violation
+- [x] 2.1 Create the Vite + Vue 3 + TypeScript project with pnpm, Node pinned, and the directories of design D1; verify `pnpm build` succeeds
+- [x] 2.2 Add the router in hash mode with the start screen and the not-found view, interface text in Russian, `lang="ru"`; verify with end-to-end tests named `@req PROD-001` and `@req PROD-008` covering every scenario of the delta spec
+- [x] 2.3 Add light and dark styles that follow the system setting, as a base for the screenshot themes; verify both render in the end-to-end run
+- [x] 2.4 Add the `Content-Security-Policy` meta tag; verify the built page loads with no console violation
 
 ## 3. Static gates
 
-- [ ] 3.1 Configure oxlint with zero warnings, the layer rule and the network rule; verify each rule with a deliberately failing file that is then removed, and record the outcome in design D4 if a second tool is needed
-- [ ] 3.2 Configure `vue-tsc` in strict mode and Prettier in check mode; verify `pnpm check` runs types, lint and format and fails on a seeded error of each kind
-- [ ] 3.3 Add commitlint over a commit range; verify it rejects a non-conventional message
-- [ ] 3.4 Write `scripts/traceability.mjs` with unit tests; verify it fails when a requirement ID in `openspec/` has no `@req` in tests
-- [ ] 3.5 Add `openspec validate --all --strict` and the dependency audit to `pnpm check`; verify both pass
+- [x] 3.1 Configure oxlint with zero warnings, the layer rule and the network rule; verify each rule with a deliberately failing file that is then removed, and record the outcome in design D4 if a second tool is needed
+- [x] 3.2 Configure `vue-tsc` in strict mode and Prettier in check mode; verify `pnpm check` runs types, lint and format and fails on a seeded error of each kind
+- [x] 3.3 Add commitlint over a commit range; verify it rejects a non-conventional message
+- [x] 3.4 Write `scripts/traceability.mjs` with unit tests; verify it fails when a requirement ID in `openspec/` has no `@req` in tests
+- [x] 3.5 Add `openspec validate --all --strict` and the dependency audit to `pnpm check`; verify both pass
 
 ## 4. Test gates
 
-- [ ] 4.1 Configure Vitest with coverage thresholds on `src/domain`; verify the thresholds fail on an uncovered seeded function that is then removed
-- [ ] 4.2 Configure Playwright against the preview of the production build with the three projects of design D5; verify `pnpm e2e` passes on all three
-- [ ] 4.3 Add the third-party request fixture; verify it fails a test that loads a seeded external image, then remove the seed
-- [ ] 4.4 Add the axe check on every route in both themes; verify it fails on a seeded contrast error, then remove the seed
+- [x] 4.1 Configure Vitest with coverage thresholds on `src/domain`; verify the thresholds fail on an uncovered seeded function that is then removed
+- [x] 4.2 Configure Playwright against the preview of the production build with the three projects of design D5; verify `pnpm e2e` passes on all three
+- [x] 4.3 Add the third-party request fixture; verify it fails a test that loads a seeded external image, then remove the seed
+- [x] 4.4 Add the axe check on every route in both themes; verify it fails on a seeded contrast error, then remove the seed
 
 ## 5. Budgets
 

@@ -57,6 +57,8 @@ The audit found one high advisory at implementation time (GHSA-c475-qrg2-pj4r in
 
 If oxlint cannot express the layer or network rule, `dependency-cruiser` is added for that rule alone (decision 0004). The first task of the lint group settles this with a failing example for each rule.
 
+Outcome of the first lint task: oxlint expresses both rules (per-directory `no-restricted-imports`, `no-restricted-globals` and `no-restricted-properties`, applied to `.vue` files too), so `dependency-cruiser` is not added. The only file allowed to use the network is `src/storage/static-files.ts`.
+
 Prettier over the oxc formatter: Vue single-file components must be formatted, and Prettier's support for them is settled.
 
 ### D5. Tests
