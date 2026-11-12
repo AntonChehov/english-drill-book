@@ -23,7 +23,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 4. Product description
 
-- [ ] 4.1 Make the four clarifications of design D8 in `docs/product/03-answer-checking.md`; verify the delta spec and the text state the same rules
+- [x ] 4.1 Make the four clarifications of design D8 in `docs/product/03-answer-checking.md`; verify the delta spec and the text state the same rules — the example of the Purpose, CHK-002, step 5 of CHK-003 and CHK-014 read against the delta spec requirement by requirement
 
 ## 5. Review and evidence
 

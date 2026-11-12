@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A learner who writes `I don't know` where the key says `I do not know` is right. A learner who writes `I do not no` made a typo, and one who left out the article made a grammar mistake. The checker must tell these apart, deterministically and without a network.
+A learner who writes `I don't know` where the key says `I do not know` is right. A learner who writes `I do not knaw` made a typo, and one who left out the article made a grammar mistake. The checker must tell these apart, deterministically and without a network.
 
 The checker is a pure function library with no dependency on the UI or the browser.
 
@@ -16,7 +16,7 @@ Each gradable item has `accept`: a non-empty list of patterns. An answer is corr
   - `a / b` — a loose alternative, as printed in book keys, where the key does not say how many words each side covers: every split of 1 to 4 words on the left against 1 to 4 words on the right is tried. Why: `I have / I've got a car` and `a few / some people` look the same, and only trying the splits covers both. This accepts some answers a teacher would not; readers use `[a|b]` instead wherever the key's layout makes the boundaries certain;
   - groups do not nest; the characters `( ) [ ] |` and a spaced `/` have no literal meaning in a pattern;
   - an empty pattern `""` means that leaving the field blank is correct.
-- **CHK-002 [M1]** A pattern is invalid if a group is unclosed or nested, or if it expands to more than 4000 variants.
+- **CHK-002 [M1]** A pattern is invalid if a group is unclosed or nested, if `)`, `]` or `|` stands outside a group or `|` inside `( )`, if a loose alternative has no word on one of its sides, or if it expands to more than 4000 variants. An invalid pattern is reported with its reason and is not used for checking.
 
 ## Normalisation
 
@@ -25,7 +25,7 @@ Each gradable item has `accept`: a non-empty list of patterns. An answer is corr
   2. `ё` → `е`;
   3. typographic apostrophes and quotes → ASCII; `…` → `...`;
   4. contractions expanded: `won't` → `will not`, `can't` and `cannot` → `can not`, `shan't` → `shall not`, `n't` → ` not`, `'m` → ` am`, `'re` → ` are`, `'ve` → ` have`, `'ll` → ` will`;
-  5. `'s` yields three readings (`'s`, ` is`, ` has`) and `'d` yields two (` would`, ` had`); a string with both yields every combination;
+  5. `'s` yields three readings (`'s`, ` is`, ` has`) and `'d` yields two (` would`, ` had`); the first four occurrences in a string are read independently, so a string with both yields every combination, and later ones take the reading of the fourth. Why the bound: a string has at most 81 readings;
   6. everything except letters, digits and apostrophes is removed, including spaces.
 - **CHK-004 [M1]** "Letters" means Latin and Cyrillic letters. Why: some exercises are answered in Russian or mix both.
 
@@ -46,4 +46,4 @@ Each gradable item has `accept`: a non-empty list of patterns. An answer is corr
 
 - **CHK-012 [M1]** Every variant of every pattern is `ok` against its own pattern.
 - **CHK-013 [M1]** Checking is deterministic and does not depend on locale or time.
-- **CHK-014 [M1]** Checking one item takes under 5 ms on the reference machine for any valid pattern (constraint C-06).
+- **CHK-014 [M1]** Checking one item against its prepared key takes under 5 ms on the reference machine for any valid pattern (constraint C-06). Preparing the key of an item is done once per exercise; its time is reported, not bounded by the 5 ms.
