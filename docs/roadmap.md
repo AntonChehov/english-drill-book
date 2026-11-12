@@ -2,7 +2,7 @@
 
 ## Now
 
-**M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Next: slice 1.2, the answer checker.
+**M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Slice 1.2 is done: the answer checker is in `src/domain/checking`, not yet called by any screen. Next: slice 1.3, the demo books and their reader.
 
 ## Milestones
 
@@ -49,3 +49,5 @@ Placement test (find the learner's level and the topics to skip). Own exercise b
 - 2026-11-11 — model changed after review: the app knows supported books through built-in profiles and reads the learner's own PDFs; programs are built in and join books; Russian-only interface; demo is two original PDF books.
 - 2026-11-11 — process moved to OpenSpec: the whole-app description became `docs/product/`, the living specification starts empty and grows change by change.
 - 2026-11-11 — slice 1.1 (`bootstrap-app-and-ci`, pull request #1): the app shell with PROD-001 and PROD-008, the gates of the constitution, the pull request evidence check, deploy of the demo, release-please; branch protection on `main`. Archived; `openspec/specs/app-shell` holds its requirements.
+- 2026-11-12 — `review-rounds` (pull request #6): the review record is kept in rounds bound to a hash of the reviewed content. Archived.
+- 2026-11-12 — slice 1.2 (`answer-checker`, pull request #8): key patterns, normalisation and the verdicts `ok`, `near` and `bad`, CHK-001 – CHK-009 and CHK-012 – CHK-014, with limits on the size of a pattern, a key and an answer. Archived; `openspec/specs/answer-checking` holds its requirements.
