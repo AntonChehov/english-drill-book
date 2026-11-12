@@ -28,6 +28,6 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 ## 5. Review and evidence
 
 - [x ] 5.1 Run `pnpm verify` from a clean build; verify it passes, coverage of `src/domain` is at least 95 % of lines and branches, and `pnpm size` shows the bundle unchanged — run without `dist`, `reports` and `.lighthouseci`: `pnpm check`, `pnpm test:coverage` (392 tests; `src/domain` 100 % lines, 96.96 % branches) and Lighthouse CI passed; the end-to-end tests passed on Chromium and Firefox (24), while WebKit does not start on this machine (missing `libavif.so.16`), so `pnpm e2e` failed on WebKit only; `pnpm size` gave 34.57 kB of JS and 0.50 kB of CSS gzip, with the same file hashes as the build before this change, and no checker code in `dist`
-- [ ] 5.2 Open the pull request as the bot with the sections of C-18 item 1, stating that there is no visual change; verify every check but `evidence` is green
+- [x] 5.2 Open the pull request as the bot with the sections of C-18 item 1, stating that there is no visual change; verify every check but `evidence` is green — pull request [#8](https://github.com/AntonChehov/english-drill-book/pull/8); on its first commit every check but `evidence` was green
 - [ ] 5.3 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; a reviewing agent writes the next round; repeat until a round approves the latest content; verify the `evidence` check is green
 - [ ] 5.4 **(owner)** Read the pull request and the declined findings, approve and merge
