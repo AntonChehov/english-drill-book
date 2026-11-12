@@ -11,6 +11,7 @@ function verdict(
   return checkAnswer(compiled.key, answer, options);
 }
 
+const LEFT_SINGLE_QUOTE = String.fromCodePoint(0x2018);
 const RIGHT_SINGLE_QUOTE = String.fromCodePoint(0x2019);
 const COMBINING_ACUTE = String.fromCodePoint(0x0301);
 const E_ACUTE = String.fromCodePoint(0x00e9);
@@ -65,6 +66,25 @@ describe("checkAnswer", () => {
 
     it("@req CHK-003 accepts a typographic apostrophe", () => {
       expect(verdict(["it isn't cold"], `it isn${RIGHT_SINGLE_QUOTE}t cold`)).toBe("ok");
+    });
+
+    it("@req CHK-003 ignores single quotation marks around direct speech", () => {
+      const key = ["He said, 'I'm tired.'"];
+      expect(verdict(key, "He said, I'm tired.")).toBe("ok");
+      expect(verdict(key, `He said, "I'm tired."`)).toBe("ok");
+      expect(verdict([`He said, "I'm tired."`], "He said, 'I'm tired.'")).toBe("ok");
+      expect(verdict(["'Yes,' she said"], "Yes, she said")).toBe("ok");
+      expect(verdict(["'he runs'"], "he runs")).toBe("ok");
+    });
+
+    it("@req CHK-003 expands a contraction before a closing quotation mark", () => {
+      const quoted = `${LEFT_SINGLE_QUOTE}I can${RIGHT_SINGLE_QUOTE}t${RIGHT_SINGLE_QUOTE}`;
+      expect(verdict([quoted], "I cannot")).toBe("ok");
+    });
+
+    it("@req CHK-003 keeps the apostrophe of a plural possessive", () => {
+      expect(verdict(["the boys' room"], "the boys' room")).toBe("ok");
+      expect(verdict(["the boys' room"], "the boys room")).toBe("near");
     });
 
     it("@req CHK-003 reads 's as is, has and a possessive", () => {

@@ -39,25 +39,94 @@ const S_OR_D = new RegExp(String.raw`'([sd])(?!${KEPT})`, "gu");
 const S_READINGS = [" is", " has", "'s"] as const;
 const D_READINGS = [" would", " had"] as const;
 
+const WORD_CHARACTER = /[\p{L}\p{M}\p{N}]/u;
+
+/**
+ * Step 3 of CHK-003, second half: removes the apostrophes that work as single quotation marks.
+ * One before a word opens a quote; one after a word closes the open quote, or is kept as the
+ * apostrophe of a plural possessive (`the boys' room`) when no quote is open. One between two
+ * letters or digits is always kept; one with no letter or digit on either side is removed.
+ */
+function removeSingleQuotes(text: string): string {
+  if (!text.includes("'")) return text;
+  const characters = [...text];
+  let open = 0;
+  let result = "";
+  for (const [index, character] of characters.entries()) {
+    if (character !== "'") {
+      result += character;
+      continue;
+    }
+    const afterWord = WORD_CHARACTER.test(characters[index - 1] ?? "");
+    const beforeWord = WORD_CHARACTER.test(characters[index + 1] ?? "");
+    if (beforeWord) {
+      if (afterWord) result += character;
+      else open += 1;
+    } else if (open > 0) {
+      open -= 1;
+    } else if (afterWord) {
+      result += character;
+    }
+  }
+  return result;
+}
+
 /** Steps 1 – 4 of CHK-003, on the text with its spaces. */
 function prepare(text: string): string {
-  return text
+  const marks = text
     .normalize("NFC")
     .toLowerCase()
     .replaceAll("ё", "е")
     .replace(APOSTROPHES, "'")
     .replace(QUOTES, '"')
-    .replaceAll("…", "...")
-    .replace(CONTRACTION, (match) => CONTRACTIONS.get(match) ?? match);
+    .replaceAll("…", "...");
+  return removeSingleQuotes(marks).replace(
+    CONTRACTION,
+    (match) => CONTRACTIONS.get(match) ?? match,
+  );
 }
 
-/** Step 6 of CHK-003: the kept characters of each word, and the number of words left. */
-function read(text: string): Reading {
-  const pieces = text
-    .split(/\s+/u)
-    .map((piece) => piece.match(KEPT_CHARACTER)?.join("") ?? "")
-    .filter((piece) => piece !== "");
-  return { text: pieces.join(""), words: pieces.length };
+/**
+ * A piece of a text, read once however many readings it takes part in: its kept characters
+ * (step 6 of CHK-003), and for each run between white space whether it keeps any character.
+ */
+interface Part {
+  readonly kept: string;
+  readonly runs: readonly boolean[];
+}
+
+const KEPT_ANY = new RegExp(KEPT, "u");
+
+function part(text: string): Part {
+  return {
+    kept: text.match(KEPT_CHARACTER)?.join("") ?? "",
+    runs: text.split(/\s+/u).map((run) => KEPT_ANY.test(run)),
+  };
+}
+
+const S_PARTS = S_READINGS.map(part);
+const D_PARTS = D_READINGS.map(part);
+
+/**
+ * The reading of parts written one after another. Where two parts meet without white space,
+ * the last run of one and the first run of the next are one word.
+ */
+function read(parts: readonly Part[]): Reading {
+  let text = "";
+  let words = 0;
+  let open = false;
+  for (const { kept, runs } of parts) {
+    text += kept;
+    for (const [index, keeps] of runs.entries()) {
+      if (index === 0) {
+        open ||= keeps;
+        continue;
+      }
+      if (open) words += 1;
+      open = keeps;
+    }
+  }
+  return { text, words: open ? words + 1 : words };
 }
 
 /**
@@ -67,31 +136,31 @@ function read(text: string): Reading {
  */
 export function readings(text: string): readonly Reading[] {
   const prepared = prepare(text);
-  const fixed: string[] = [];
-  const kinds: (typeof S_READINGS | typeof D_READINGS)[] = [];
+  const fixed: Part[] = [];
+  const kinds: (typeof S_PARTS)[] = [];
   let last = 0;
   for (const match of prepared.matchAll(S_OR_D)) {
-    fixed.push(prepared.slice(last, match.index));
-    kinds.push(match[1] === "s" ? S_READINGS : D_READINGS);
+    fixed.push(part(prepared.slice(last, match.index)));
+    kinds.push(match[1] === "s" ? S_PARTS : D_PARTS);
     last = match.index + match[0].length;
   }
-  fixed.push(prepared.slice(last));
+  fixed.push(part(prepared.slice(last)));
 
-  const independent = kinds.slice(0, INDEPENDENT_READINGS);
   let choices: number[][] = [[]];
-  for (const kind of independent) {
+  for (const kind of kinds.slice(0, INDEPENDENT_READINGS)) {
     choices = choices.flatMap((chosen) => kind.map((_, index) => [...chosen, index]));
   }
 
   const found = new Map<string, Reading>();
   for (const chosen of choices) {
     const fourth = chosen.at(-1) ?? 0;
-    let combined = fixed[0] ?? "";
-    for (const [index, kind] of kinds.entries()) {
-      const choice = chosen[index] ?? Math.min(fourth, kind.length - 1);
-      combined += (kind[choice] ?? "") + (fixed[index + 1] ?? "");
-    }
-    const reading = read(combined);
+    const parts = fixed.flatMap((fixedPart, index) => {
+      const kind = kinds[index];
+      if (kind === undefined) return [fixedPart];
+      const slot = kind[chosen[index] ?? Math.min(fourth, kind.length - 1)];
+      return slot === undefined ? [fixedPart] : [fixedPart, slot];
+    });
+    const reading = read(parts);
     found.set(`${reading.words}:${reading.text}`, reading);
   }
   return [...found.values()];

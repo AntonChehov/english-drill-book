@@ -69,6 +69,23 @@ describe("readings", () => {
       expect(only("“yes” «no»")).toEqual({ text: "yesno", words: 2 });
     });
 
+    it("@req CHK-003 removes single quotation marks and keeps apostrophes inside words", () => {
+      expect(only("he said, 'I'm tired.'")).toEqual({ text: "hesaidiamtired", words: 5 });
+      expect(only("'yes,' she said")).toEqual({ text: "yesshesaid", words: 3 });
+      expect(only("rock 'n' roll")).toEqual({ text: "rocknroll", words: 3 });
+      expect(only("'a 'b' c'")).toEqual({ text: "abc", words: 3 });
+      expect(only("' - ''")).toEqual({ text: "", words: 0 });
+    });
+
+    it("@req CHK-003 keeps an apostrophe after a word when no quotation is open", () => {
+      expect(only("the boys' room")).toEqual({ text: "theboys'room", words: 3 });
+      expect(only("'the boys' room'")).toEqual({ text: "theboysroom'", words: 3 });
+    });
+
+    it("@req CHK-003 removes an apostrophe at the start of a word, as in 'tis", () => {
+      expect(only("'tis")).toEqual({ text: "tis", words: 1 });
+    });
+
     it("@req CHK-003 reads a composed and a decomposed letter alike", () => {
       expect(only(`caf${E_ACUTE}`)).toEqual(only(`cafe${COMBINING_ACUTE}`));
     });
