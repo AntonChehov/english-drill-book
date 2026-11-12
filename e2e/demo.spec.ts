@@ -113,6 +113,23 @@ test.describe("PACK-003 The demo book", () => {
   );
 
   test(
+    "@req PACK-001 @req PACK-003 a demo book that cannot be read is refused, not shown",
+    { tag: "@demo" },
+    async ({ page }) => {
+      await page.route(drillsPdf, (route) =>
+        route.fulfill({ contentType: "application/pdf", body: "%PDF-1.7 this is not a book" }),
+      );
+      await page.goto(addressOf("/"));
+      await startButton(page).click();
+
+      await expect(page.getByRole("alert")).toHaveText(
+        "Демо-книгу «Everyday Grammar: Demo Drills» не удалось прочитать: файл повреждён или не той версии. Попробуйте ещё раз, а если не поможет, обновите страницу.",
+      );
+      await expect(page.getByRole("heading", { level: 3 })).toHaveCount(0);
+    },
+  );
+
+  test(
     "@req PACK-003 trying again when the network is back adds the demo without reloading the page",
     { tag: "@demo" },
     async ({ page, allowConsoleError }) => {
