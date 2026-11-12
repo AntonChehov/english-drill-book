@@ -648,3 +648,208 @@ describe("round 2 of the review of review-rounds", () => {
     );
   });
 });
+
+/** The number of the first line of a record that equals the given one. */
+const lineOf = (text, line) => text.split("\n").indexOf(line) + 1;
+const approvedTwo = (...lines) =>
+  round(2, h2, "Verdict: approved", "- F1: fixed", "- F2: fixed", ...lines);
+
+/** A valid record whose approving round 1 has the given lines under `### Notes`. */
+const inNotes = (...lines) => record(round(1, h1, "Verdict: approved", "### Notes", "", ...lines));
+
+describe("HTML comments (review-follow-ups D2)", () => {
+  it("reports a comment before the first round, besides the line itself", () => {
+    const text = record(
+      ["<!-- written before the review -->", ""],
+      round(1, h1, "Verdict: approved"),
+    );
+    expect(parseRecord(text).problems).toEqual([
+      messages.htmlComment(3),
+      messages.textBeforeRounds("<!-- written before the review -->"),
+    ]);
+  });
+
+  it("reports a comment among a round's own lines, besides the line itself", () => {
+    const text = record(roundOne, approvedTwo()).replace(
+      "- F1: fixed",
+      "<!-- Verdict: changes requested -->\n- F1: fixed",
+    );
+    expect(parseRecord(text).problems).toEqual([
+      messages.htmlComment(lineOf(text, "<!-- Verdict: changes requested -->")),
+      messages.unknownLine(2, "<!-- Verdict: changes requested -->"),
+    ]);
+  });
+
+  it("reports a comment indented under an outcome", () => {
+    const text = record(roundOne, approvedTwo()).replace(
+      "- F1: fixed",
+      "- F1: fixed\n  <!-- not really -->",
+    );
+    const result = parseRecord(text);
+    expect(result.problems).toEqual([messages.htmlComment(lineOf(text, "  <!-- not really -->"))]);
+    expect(result.rounds[1].stated[0]).toEqual({
+      id: "F1",
+      outcome: "fixed",
+      note: "<!-- not really -->",
+    });
+  });
+
+  it("reports a comment under a finding", () => {
+    const text = record(
+      round(1, h1, "Verdict: changes requested", ...finding("F1", "Loop"), "<!-- hidden -->"),
+      round(2, h2, "Verdict: approved", "- F1: fixed"),
+    );
+    expect(parseRecord(text).problems).toEqual([
+      messages.htmlComment(lineOf(text, "<!-- hidden -->")),
+    ]);
+  });
+
+  it("reports a comment under ### Notes, also one that closes on the same line", () => {
+    const line = "Checked by hand. <!-- Verdict: approved -->";
+    const text = record(roundOne, approvedTwo("### Notes", "", line));
+    expect(parseRecord(text).problems).toEqual([messages.htmlComment(lineOf(text, line))]);
+  });
+
+  it("reports a comment that hides a round, and reads the lines in it as before", () => {
+    const hidden = [
+      "### Notes",
+      "",
+      "<!--",
+      "## Round 3",
+      "",
+      `Reviewed: ${h3}`,
+      "Verdict: approved",
+      "-->",
+    ];
+    const text = record(roundOne, approvedTwo(...hidden));
+    expect(parseRecord(text).problems).toEqual([
+      messages.htmlComment(lineOf(text, "<!--")),
+      messages.unknownLine(3, "-->"),
+    ]);
+  });
+
+  it("reports a comment in a closing section, and still reads the section", () => {
+    for (const section of ["coverage", "outside"]) {
+      const text = withClosing(
+        round(1, h1, "Verdict: approved"),
+        closingWith(section, "<!-- | PROD-002 | src/b.ts | src/b.test.ts | -->"),
+      );
+      const result = parseRecord(text);
+      expect(result.problems).toEqual([
+        messages.htmlComment(lineOf(text, "<!-- | PROD-002 | src/b.ts | src/b.test.ts | -->")),
+      ]);
+      const without = text.replace("<!-- | PROD-002 | src/b.ts | src/b.test.ts | -->", "text");
+      expect(result.coveredIds).toEqual(parseRecord(without).coveredIds);
+      expect(result.coveredIds.has("PROD-002")).toBe(false);
+    }
+  });
+
+  it("reports a comment on a heading, which is read as before", () => {
+    const text = record(roundOne, approvedTwo()).replace("## Round 2", "## Round 2 <!-- x -->");
+    const problems = parseRecord(text).problems;
+    expect(problems[0]).toBe(messages.htmlComment(lineOf(text, "## Round 2 <!-- x -->")));
+    expect(problems).toContain(messages.unknownSection("Round 2 <!-- x -->"));
+  });
+
+  it("reports every line with a comment, each by its number", () => {
+    const text = record(roundOne, approvedTwo("### Notes", "", "<!-- a -->", "", "<!-- b -->"));
+    expect(parseRecord(text).problems).toEqual([
+      messages.htmlComment(lineOf(text, "<!-- a -->")),
+      messages.htmlComment(lineOf(text, "<!-- b -->")),
+    ]);
+  });
+
+  it("reports a comment inside a fenced block, in a round or a closing section", () => {
+    const quoted = ["```html", "<!-- Verdict: approved -->", "```"];
+    const notes = inNotes(...quoted);
+    expect(parseRecord(notes).problems).toEqual([
+      messages.htmlComment(lineOf(notes, "<!-- Verdict: approved -->")),
+    ]);
+    const tilde = record(roundOne.concat(["~~~", "<!--", "~~~", ""]), approvedTwo());
+    expect(parseRecord(tilde).problems).toEqual([messages.htmlComment(lineOf(tilde, "<!--"))]);
+    const closing = withClosing(
+      round(1, h1, "Verdict: approved"),
+      closingWith("outside", ...quoted),
+    );
+    expect(parseRecord(closing).problems).toEqual([
+      messages.htmlComment(lineOf(closing, "<!-- Verdict: approved -->")),
+    ]);
+  });
+
+  // The inputs of F1 of round 1 of the review of review-follow-ups: each is a fence to the
+  // parser and none is to GitHub, so the comment after it is hidden on the page.
+  it("F1: reports a comment after a fence indented four spaces or a tab", () => {
+    for (const fence of ["    ```", "\t```"]) {
+      const text = inNotes(
+        "Checked by hand.",
+        "",
+        fence,
+        "<!-- hidden text, invisible",
+        "```",
+        "-->",
+      );
+      expect(parseRecord(text).problems).toEqual([
+        messages.htmlComment(lineOf(text, "<!-- hidden text, invisible")),
+      ]);
+    }
+  });
+
+  it("F1: reports a comment after a fence inside a list item", () => {
+    const text = inNotes("- checked by hand", "  ```", "<!-- hidden text, invisible", "```", "-->");
+    expect(parseRecord(text).problems).toEqual([
+      messages.htmlComment(lineOf(text, "<!-- hidden text, invisible")),
+    ]);
+  });
+
+  it("F1: reports a comment after a fence inside a raw HTML block", () => {
+    const text = inNotes(
+      "Checked by hand.",
+      "",
+      "<div>",
+      "```",
+      "<!--",
+      "hidden text, invisible",
+      "```",
+      "-->",
+      "</div>",
+    );
+    expect(parseRecord(text).problems).toEqual([messages.htmlComment(lineOf(text, "<!--"))]);
+  });
+
+  it("F1: reports a comment after a lone carriage return, on the line the parser counts", () => {
+    const text = inNotes("~~~\r~~~", "<!--", "hidden text, invisible", "~~~", "-->");
+    expect(parseRecord(text).problems).toEqual([messages.htmlComment(lineOf(text, "<!--"))]);
+    // A comment on the same line as a lone carriage return is on that line.
+    const same = inNotes("Checked by hand.\r<!--", "hidden", "-->");
+    expect(parseRecord(same).problems).toEqual([
+      messages.htmlComment(lineOf(same, "Checked by hand.\r<!--")),
+    ]);
+  });
+
+  it("counts lines with CRLF endings as the rest of the parser does", () => {
+    const text = inNotes("Checked by hand.", "<!-- x -->").replaceAll("\n", "\r\n");
+    expect(parseRecord(text).problems).toEqual([
+      messages.htmlComment(text.split("\r\n").indexOf("<!-- x -->") + 1),
+    ]);
+  });
+
+  it("accepts the characters written with an entity, anywhere", () => {
+    expect(
+      parseRecord(inNotes("Write `&lt;!--` for the characters &lt;!-- themselves.")).problems,
+    ).toEqual([]);
+    expect(parseRecord(inNotes("```", "&lt;!-- quoted", "```")).problems).toEqual([]);
+    expect(
+      parseRecord(
+        withClosing(round(1, h1, "Verdict: approved"), closingWith("outside", "&lt;!-- x")),
+      ).problems,
+    ).toEqual([]);
+  });
+
+  it("says what to do and where, with the line number", () => {
+    const text = messages.htmlComment(7);
+    expect(text).toContain("line 7");
+    expect(text).toContain("`### Notes`");
+    expect(text).toContain("`&lt;!--`");
+    expect(text).not.toContain("fenced block");
+  });
+});
