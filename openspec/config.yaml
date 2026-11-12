@@ -23,7 +23,7 @@ rules:
     - Record every new runtime dependency with what it replaces and its size (C-12).
   tasks:
     - Every task group lands its own tests; tests name the requirement IDs they verify (@req ID).
-    - End with a group "Review and evidence" containing the code review, review.md and the checks of C-18.
+    - End with a group "Review and evidence" containing the review rounds of C-18 item 2, made by a reviewing agent in review.md until a round approves the latest content, and the other checks of C-18.
 
 operations:
   apply:

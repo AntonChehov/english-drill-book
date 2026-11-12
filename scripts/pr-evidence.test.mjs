@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { sections } from "./common.mjs";
 import { markerFor, renderComment } from "./evidence-comment.mjs";
+import { messages } from "./review-record.mjs";
 import {
   archiveProblems,
   checkEvidence,
@@ -8,16 +10,15 @@ import {
   isReleasePullRequest,
   parseDescription,
   parseNameStatus,
-  parseReview,
   report,
-  sections,
+  reviewOf,
 } from "./pr-evidence.mjs";
 
 const head = "c".repeat(40);
-const reviewed = "a".repeat(40);
-const fix = "b".repeat(40);
 const change = "bootstrap-app-and-ci";
-const changeDir = `openspec/changes/${change}`;
+/** The review hash of the head commit's content. */
+const current = "8a04e6d2c517";
+const earlier = "3f9c2a71b0de";
 
 const description = (overrides = {}) => {
   const parts = {
@@ -32,21 +33,35 @@ const description = (overrides = {}) => {
   return Object.values(parts).join("\n");
 };
 
+/** A record of two rounds: the first raises two findings, the second approves. */
 const review = (overrides = {}) => {
   const parts = {
     title: "# Review\n",
-    reviewed: `Reviewed commit: ${reviewed}\n`,
-    findings: [
-      "## Findings",
+    first: [
+      "## Round 1",
+      "",
+      `Reviewed: ${earlier}`,
+      "Verdict: changes requested",
       "",
       "### F1 Retry loop never ends",
+      "",
       "- Where: scripts/evidence-branch.mjs:70",
-      `- Outcome: fixed in ${fix.slice(0, 7)}`,
+      "- Problem: the loop has no limit.",
       "",
       "### F2 Rename a variable",
+      "",
       "- Where: scripts/size.mjs:12",
-      "- Outcome: declined",
-      "- Reason: the name matches the design.",
+      "- Problem: the name is vague.",
+      "",
+    ].join("\n"),
+    last: [
+      "## Round 2",
+      "",
+      `Reviewed: ${current}`,
+      "Verdict: approved",
+      "",
+      "- F1: fixed",
+      "- F2: declined — the name matches the design.",
       "",
     ].join("\n"),
     coverage: [
@@ -96,12 +111,7 @@ function input(overrides = {}) {
     deltaSpecIds: (name) => (name === change ? ["PROD-001", "PROD-008"] : ["CHK-001"]),
     testedIds: new Set(["PROD-001", "PROD-008", "CHK-001"]),
     readReview: (name) => (name === change ? review() : undefined),
-    commits: [
-      { sha: "1".repeat(40), files: ["src/ui/App.vue"] },
-      { sha: reviewed, files: ["scripts/size.mjs"] },
-      { sha: fix, files: ["scripts/evidence-branch.mjs"] },
-      { sha: head, files: [`${changeDir}/review.md`, `${changeDir}/tasks.md`] },
-    ],
+    contentHash: (name) => (name === change ? current : "000000000000"),
     changedFiles: ["src/ui/App.vue", "scripts/size.mjs"],
     comment: comment(),
     metrics,
@@ -119,11 +129,9 @@ describe("a complete pull request", () => {
     expect(problemsOf()).toEqual([]);
   });
 
-  it("passes with a review that has no findings", () => {
-    const commits = input().commits.filter((commit) => commit.sha !== fix);
-    expect(problemsOf({ ...withReview({ findings: "## Findings\n\nnone\n" }), commits })).toEqual(
-      [],
-    );
+  it("passes with a review of one round that has no findings", () => {
+    const first = `## Round 1\n\nReviewed: ${current}\nVerdict: approved\n`;
+    expect(problemsOf(withReview({ first, last: "" }))).toEqual([]);
   });
 
   it("passes without requirements when the description says none", () => {
@@ -198,119 +206,156 @@ describe("2. requirements", () => {
 describe("3. review record", () => {
   it("fails without review.md", () => {
     expect(problemsOf({ readReview: () => undefined })).toEqual([
-      { check: 3, problem: `${changeDir}/review.md does not exist` },
+      { check: 3, problem: messages.noRecord(change) },
+      { check: 4, problem: messages.noRoundToCompare({ current, change }) },
     ]);
   });
 
-  it("fails on a finding without an outcome", () => {
-    const findings = "## Findings\n\n### F1 Open\n- Where: a.ts:1\n";
-    expect(problemsOf(withReview({ findings }))).toContainEqual({
-      check: 3,
-      problem: 'finding "F1 Open" has no outcome (fixed in <sha> or declined)',
-    });
+  it("fails on a record in the format before rounds", () => {
+    const old = `# Review\n\nReviewed commit: ${head}\n\n## Findings\n\nnone\n`;
+    expect(problemsOf({ readReview: () => old })).toEqual([
+      { check: 3, problem: messages.textBeforeRounds(`Reviewed commit: ${head}`) },
+      { check: 3, problem: messages.unknownSection("Findings") },
+      { check: 3, problem: messages.noRound() },
+      { check: 4, problem: messages.noRoundToCompare({ current, change }) },
+    ]);
   });
 
-  it("fails on an outcome that is neither fixed nor declined", () => {
-    const findings = "## Findings\n\n### F1 Open\n- Where: a.ts:1\n- Outcome: later\n";
-    expect(checksOf(withReview({ findings }))).toContain(3);
+  it("fails on a problem of the record itself", () => {
+    const last = `## Round 2\n\nReviewed: ${current}\nVerdict: approved\n\n- F1: fixed\n`;
+    expect(problemsOf(withReview({ last }))).toEqual([
+      { check: 3, problem: messages.notStated(2, "F2") },
+    ]);
   });
 
-  it("fails on a declined finding without a reason", () => {
-    const findings =
-      "## Findings\n\n### F1 Style\n- Where: a.ts:1\n- Outcome: declined\n- Reason:\n";
-    expect(problemsOf(withReview({ findings }))).toContainEqual({
-      check: 3,
-      problem: 'finding "F1 Style" is declined without a reason',
-    });
-  });
-
-  it("fails on an open finding that shares its title with a fixed one", () => {
-    const findings = `## Findings\n\n### Missing test\n- Where: a.ts:1\n\n### Missing test\n- Where: b.ts:1\n- Outcome: fixed in ${fix.slice(0, 7)}\n`;
-    expect(problemsOf(withReview({ findings }))).toContainEqual({
-      check: 3,
-      problem: 'finding "Missing test" has no outcome (fixed in <sha> or declined)',
-    });
-  });
-
-  it("does not take the next line as an empty reason", () => {
-    const findings =
-      "## Findings\n\n### F1 Style\n- Where: a.ts:1\n- Outcome: declined\n- Reason:\nnext line\n";
-    expect(problemsOf(withReview({ findings }))).toContainEqual({
-      check: 3,
-      problem: 'finding "F1 Style" is declined without a reason',
-    });
-  });
-
-  it("fails on a fix that is not a commit of the pull request", () => {
-    const findings = "## Findings\n\n### F1 Bug\n- Where: a.ts:1\n- Outcome: fixed in deadbeef\n";
-    expect(problemsOf(withReview({ findings }))).toContainEqual({
-      check: 3,
-      problem:
-        'finding "F1 Bug" names the fix deadbeef, which is not a commit of this pull request',
-    });
-  });
-
-  it("fails without the reviewed commit", () => {
-    expect(problemsOf(withReview({ reviewed: "" }))).toContainEqual({
-      check: 3,
-      problem: "review.md has no line `Reviewed commit: <sha>`",
-    });
-  });
-
-  it("fails without the Findings section, or when it is empty", () => {
-    expect(problemsOf(withReview({ findings: "" }))).toContainEqual({
-      check: 3,
-      problem: "review.md has no section `## Findings`",
-    });
-    expect(problemsOf(withReview({ findings: "## Findings\n\n" }))).toContainEqual({
-      check: 3,
-      problem: "`## Findings` lists no finding and does not say `none`",
-    });
+  it("fails while the last round requests changes, and does not yet ask for coverage", () => {
+    expect(problemsOf(withReview({ last: "", coverage: "", outside: "" }))).toEqual([
+      { check: 3, problem: messages.changesRequested(1, ["F1", "F2"]) },
+      {
+        check: 4,
+        problem: messages.stale({ round: 1, reviewed: earlier, current, change }),
+      },
+    ]);
   });
 
   it("fails when a listed requirement has no coverage row", () => {
     const coverage =
       "## Requirement coverage\n\n| ID | Implemented in | Test |\n| --- | --- | --- |\n| PROD-001 | a | b |\n";
-    expect(problemsOf(withReview({ coverage }))).toContainEqual({
-      check: 3,
-      problem: "review.md does not state where PROD-008 is implemented and tested",
-    });
+    expect(problemsOf(withReview({ coverage }))).toEqual([
+      { check: 3, problem: messages.notCovered("PROD-008") },
+    ]);
   });
 
-  it("fails without the coverage or the outside sections", () => {
-    const problems = problemsOf(withReview({ coverage: "", outside: "" })).map(
-      (entry) => entry.problem,
-    );
-    expect(problems).toContain("review.md has no section `## Requirement coverage`");
-    expect(problems).toContain(
-      "review.md has no section `## Outside the listed requirements` with content",
-    );
+  it("fails without the coverage or the outside sections once approved", () => {
+    expect(problemsOf(withReview({ coverage: "", outside: "" }))).toEqual([
+      { check: 3, problem: messages.noCoverage() },
+      { check: 3, problem: messages.noOutside() },
+      { check: 3, problem: messages.notCovered("PROD-001") },
+      { check: 3, problem: messages.notCovered("PROD-008") },
+    ]);
   });
 });
 
-describe("4. commits after the review", () => {
-  it("fails on a commit after the review that is not a recorded fix", () => {
-    const commits = [...input().commits, { sha: "d".repeat(40), files: ["src/ui/App.vue"] }];
-    expect(problemsOf({ commits, headSha: "d".repeat(40) })).toContainEqual({
-      check: 4,
-      problem: `commit ddddddd after the reviewed commit is neither a recorded fix nor limited to ${changeDir}/`,
-    });
-  });
-
-  it("fails when a commit touches the change's directory and code", () => {
-    const commits = input().commits.map((commit) =>
-      commit.sha === head ? { ...commit, files: [...commit.files, "src/ui/App.vue"] } : commit,
+describe("4. reviewed content", () => {
+  it("fails when the content changed after the last round, naming both hashes", () => {
+    const changed = "1b2c3d4e5f60";
+    expect(problemsOf({ contentHash: () => changed })).toEqual([
+      {
+        check: 4,
+        problem: messages.stale({ round: 2, reviewed: current, current: changed, change }),
+      },
+    ]);
+    expect(messages.stale({ round: 2, reviewed: current, current: changed, change })).toContain(
+      `\`${current}\``,
     );
-    expect(checksOf({ commits })).toEqual([4]);
+    expect(messages.stale({ round: 2, reviewed: current, current: changed, change })).toContain(
+      `\`Reviewed: ${changed}\``,
+    );
   });
 
-  it("fails when the reviewed commit is not in the pull request", () => {
-    const commits = input().commits.filter((commit) => commit.sha !== reviewed);
-    expect(problemsOf({ commits })).toContainEqual({
-      check: 4,
-      problem: `the reviewed commit ${reviewed} is not a commit of this pull request`,
-    });
+  it("fails when the last round records no hash, naming that round's missing line (F7)", () => {
+    const last = "## Round 2\n\nVerdict: approved\n\n- F1: fixed\n- F2: declined — fine.\n";
+    expect(problemsOf(withReview({ last }))).toEqual([
+      { check: 3, problem: messages.noHash(2) },
+      { check: 4, problem: messages.lastRoundNoHash({ round: 2, current, change }) },
+    ]);
   });
+
+  it("fails, as check 3 does, when the description names no known change (F7)", () => {
+    for (const line of ["", "Change: no-such\n"]) {
+      const problems = problemsOf({ description: description({ change: line }) });
+      expect(problems.filter((entry) => entry.check !== 1)).toEqual([
+        { check: 3, problem: messages.noChangeRecord() },
+        { check: 4, problem: messages.noChangeContent() },
+      ]);
+    }
+    const markdown = report(problemsOf({ description: description({ change: "" }) }));
+    expect(markdown).not.toContain("| 4 | Reviewed content | passed |");
+    expect(markdown).not.toContain("| 3 | Review record | passed |");
+  });
+});
+
+describe("the messages of checks 3 and 4", () => {
+  // Checks 3 and 4 give no message but these, so testing each covers them all.
+  const samples = {
+    noRecord: [change],
+    noRound: [],
+    roundOrder: [3, 2],
+    noHash: [2],
+    noVerdict: [2],
+    notAFinding: [1, "Notes"],
+    raisedTwice: ["F2", 1, 2],
+    unknownFinding: [2, "F7"],
+    badOutcome: [2, "F1", "later"],
+    outcomeInOwnRound: [1, "F1"],
+    declinedWithoutReason: [2, "F2"],
+    notFixedWithoutWhat: [2, "F1"],
+    notStated: [3, "F1"],
+    approvedButRaises: [2, ["F3"]],
+    approvedButNotFixed: [2, ["F1"]],
+    requestsWithoutCause: [2],
+    changesRequested: [2, ["F1", "F3"]],
+    noCoverage: [],
+    noOutside: [],
+    notCovered: ["PROD-001"],
+    stale: [{ round: 2, reviewed: earlier, current, change }],
+    noChangeRecord: [],
+    noChangeContent: [],
+    noRoundToCompare: [{ current, change }],
+    lastRoundNoHash: [{ round: 2, current, change }],
+    lastNotApproved: [2],
+    unknownSection: ["Round 2 (again)"],
+    repeatedSection: ["Requirement coverage"],
+    textBeforeRounds: ["Notes `with` a | pipe"],
+    repeatedLine: [2, "Verdict"],
+    unknownLine: [2, "Looks good to me."],
+    unknownHeading: [2, "#### F1 Hidden"],
+    misplacedLine: [2, "under finding F1", "Verdict: approved"],
+    repeatedNotes: [2],
+    statedTwice: [2, "F1"],
+    roundAfterClosing: [3],
+    misplacedInClosing: ["Requirement coverage", "- F1: fixed"],
+    headingInClosing: ["Outside the listed requirements", "### F2 Hidden"],
+    unclosedFence: [12],
+  };
+
+  it("are all sampled here", () => {
+    expect(Object.keys(samples).toSorted()).toEqual(Object.keys(messages).toSorted());
+  });
+
+  for (const [name, args] of Object.entries(samples)) {
+    const text = messages[name](...args);
+
+    it(`name no particular skill: ${name}`, () => {
+      // A skill is named only as "the review skill", never as code-review, /review and the like.
+      expect(text).not.toMatch(/\w-review\b|\/review\b(?!\.md)/);
+      expect(text.replaceAll("the review skill", "")).not.toMatch(/skill/i);
+    });
+
+    it(`keep placeholders in code, so that a summary does not render them as HTML: ${name}`, () => {
+      expect(text.replaceAll(/`[^`]*`/g, "")).not.toMatch(/[<>|]/);
+    });
+  }
 });
 
 describe("5. screenshots", () => {
@@ -412,21 +457,6 @@ describe("parsing", () => {
       missingSections: [],
       change: "c",
       requirementIds: ["PROD-001"],
-    });
-  });
-
-  it("reads the findings of a review record", () => {
-    expect(parseReview(review())).toMatchObject({
-      reviewedCommit: reviewed,
-      findings: [
-        {
-          title: "F1 Retry loop never ends",
-          where: "scripts/evidence-branch.mjs:70",
-          fixedIn: fix.slice(0, 7),
-        },
-        { title: "F2 Rename a variable", declined: true, reason: "the name matches the design." },
-      ],
-      problems: [],
     });
   });
 
@@ -657,6 +687,27 @@ describe("report", () => {
     const markdown = report([{ check: 3, problem: "review.md does not exist" }]);
     expect(markdown).toContain("| 1 | Description | passed |");
     expect(markdown).toContain("| 3 | Review record | review.md does not exist |");
+    expect(markdown).toContain("| 4 | Reviewed content | passed |");
     expect(markdown).toContain("| 6 | Numbers | passed |");
+  });
+
+  it("tells an incomplete review from an out-of-date one", () => {
+    const stale = messages.stale({ round: 2, reviewed: earlier, current, change });
+    const markdown = report(problemsOf({ contentHash: () => "1b2c3d4e5f60" }));
+    expect(markdown).toContain("| 3 | Review record | passed |");
+    expect(markdown).toContain(
+      `| 4 | Reviewed content | ${messages.stale({ round: 2, reviewed: current, current: "1b2c3d4e5f60", change })} |`,
+    );
+    expect(stale).not.toContain("|");
+  });
+
+  it("shows the last round, its verdict and both hashes", () => {
+    const state = reviewOf(input(), change);
+    expect(report([], { review: state })).toContain(
+      `Review: round 2, approved, read \`${current}\`; the content of this commit is \`${current}\`, the same.`,
+    );
+    expect(report([], { review: { ...state, current: "1b2c3d4e5f60" } })).toContain(
+      "the content of this commit is `1b2c3d4e5f60`, different, so the review is out of date.",
+    );
   });
 });

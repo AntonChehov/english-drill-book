@@ -4,9 +4,9 @@
 //   1. the description has the sections Problem, Solution, Requirements and Self-review and a
 //      line `Change: <name>` naming a directory under openspec/changes/;
 //   2. every ID under Requirements is in that change's delta specs and named by a test;
-//   3. openspec/changes/<name>/review.md parses, with no open finding and no declined finding
-//      without a reason;
-//   4. every commit after the reviewed one fixes a finding or touches only the change's directory;
+//   3. openspec/changes/<name>/review.md is a record in rounds whose last round is approved,
+//      with every finding fixed or declined with a reason (review-rounds design D2, D3);
+//   4. the hash the last round reviewed equals the hash of this commit's content (D1, D3);
 //   5. the screenshot comment is for this commit, and a change under src/ui shows a visual
 //      difference or the description says `Visual changes: none`;
 //   6. metrics.json is for this commit and the comment shows every number.
@@ -18,9 +18,11 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { appendSummary, isMain, readJson, requireEnv } from "./common.mjs";
+import { appendSummary, isMain, readJson, requireEnv, sections } from "./common.mjs";
 import { commentSha, rows } from "./evidence-comment.mjs";
 import { createGithub } from "./github.mjs";
+import { reviewHash } from "./review-hash.mjs";
+import { changeNamedIn, messages, parseRecord, reviewLine } from "./review-record.mjs";
 import { checkTraceability, parseRequirements } from "./traceability.mjs";
 
 const requirementId = /\b[A-Z][A-Z0-9]*-\d{3}\b/g;
@@ -177,21 +179,6 @@ export function exemptions({ headRef, author, botLogin, files, readFile, exists 
   };
 }
 
-/**
- * Splits Markdown into sections at headings of one level, in order:
- * `## Problem` → [{ title: "Problem", content: "..." }]. Repeated titles stay separate.
- */
-export function sections(markdown, level) {
-  const result = [];
-  const heading = new RegExp(`^${"#".repeat(level)}\\s+(.+?)\\s*$`);
-  for (const line of (markdown ?? "").split(/\r?\n/)) {
-    const match = heading.exec(line);
-    if (match) result.push({ title: match[1], content: "" });
-    else if (result.length > 0) result[result.length - 1].content += `${line}\n`;
-  }
-  return result;
-}
-
 /** Section contents by title; when a title repeats, its contents are joined. */
 function byTitle(list) {
   const result = {};
@@ -205,63 +192,27 @@ export function parseDescription(body) {
   const requirements = found["Requirements"] ?? "";
   return {
     missingSections: requiredSections.filter((name) => !(found[name] ?? "").trim()),
-    change: /^Change:\s*`?([\w.-]+)`?\s*$/m.exec(body ?? "")?.[1],
+    change: changeNamedIn(body),
     requirementIds: [...new Set(requirements.match(requirementId) ?? [])],
     noRequirements: /^\s*(-\s*)?none\.?\s*$/im.test(requirements),
     noVisualChanges: /^Visual changes:\s*none\.?\s*$/im.test(body ?? ""),
   };
 }
 
-/** Reads a review record in the format of design D9; `problems` lists what is malformed. */
-export function parseReview(markdown) {
-  const problems = [];
-  const reviewedCommit = /^Reviewed commit:\s*`?([0-9a-f]{7,40})`?\s*$/m.exec(markdown)?.[1];
-  if (!reviewedCommit) problems.push("review.md has no line `Reviewed commit: <sha>`");
-
-  const top = byTitle(sections(markdown, 2));
-  const findingsText = top["Findings"];
-  const findings = [];
-  if (findingsText === undefined) {
-    problems.push("review.md has no section `## Findings`");
-  } else {
-    const blocks = sections(findingsText, 3);
-    if (blocks.length === 0 && !/^\s*none\.?\s*$/i.test(findingsText)) {
-      problems.push("`## Findings` lists no finding and does not say `none`");
-    }
-    for (const { title, content } of blocks) {
-      const field = (name) =>
-        new RegExp(`^-[ \\t]*${name}:[ \\t]*(.*?)[ \\t]*$`, "mi").exec(content)?.[1] ?? "";
-      const outcome = field("Outcome");
-      const reason = field("Reason");
-      const finding = { title, where: field("Where"), outcome, reason };
-      const fixed = /^fixed in\s+`?([0-9a-f]{7,40})`?/i.exec(outcome);
-      if (fixed) {
-        finding.fixedIn = fixed[1];
-      } else if (/^declined$/i.test(outcome)) {
-        finding.declined = true;
-        if (!reason) problems.push(`finding "${title}" is declined without a reason`);
-      } else {
-        problems.push(`finding "${title}" has no outcome (fixed in <sha> or declined)`);
-      }
-      findings.push(finding);
-    }
-  }
-
-  const coverage = top["Requirement coverage"];
-  if (coverage === undefined) problems.push("review.md has no section `## Requirement coverage`");
-  const outside = top["Outside the listed requirements"];
-  if (!outside?.trim())
-    problems.push("review.md has no section `## Outside the listed requirements` with content");
-  const coveredIds = new Set(
-    (coverage ?? "")
-      .split("\n")
-      .filter((line) => line.startsWith("|"))
-      .flatMap((line) => line.split("|")[1]?.match(requirementId) ?? []),
-  );
-  return { reviewedCommit, findings, coveredIds, problems };
-}
-
 const sameCommit = (a, b) => a.startsWith(b) || b.startsWith(a);
+
+/**
+ * The review record of a change, parsed, and the hash of the head commit's content.
+ * @returns {{ change: string, record: ReturnType<typeof parseRecord> | undefined, current: string }}
+ */
+export function reviewOf(input, change) {
+  const text = input.readReview(change);
+  return {
+    change,
+    record: text === undefined ? undefined : parseRecord(text),
+    current: input.contentHash(change),
+  };
+}
 
 /**
  * Runs the six checks. Every input is plain data, gathered by `gather` in CI:
@@ -273,7 +224,8 @@ const sameCommit = (a, b) => a.startsWith(b) || b.startsWith(a);
  * @param {(change: string) => string[]} input.deltaSpecIds  requirement IDs of a change's delta specs
  * @param {Set<string>} input.testedIds  IDs named by `@req` in the app's tests
  * @param {(change: string) => string | undefined} input.readReview  review.md of a change
- * @param {{ sha: string, files: string[] }[]} input.commits  of the pull request, oldest first
+ * @param {(change: string) => string} input.contentHash  the review hash of the head commit
+ *   for a change, as `pnpm review:hash` prints it
  * @param {string[]} input.changedFiles  of the whole pull request
  * @param {{ body: string } | undefined} input.comment  the bot's evidence comment
  * @param {object | undefined} input.metrics  metrics.json
@@ -306,59 +258,27 @@ export function checkEvidence(input) {
     if (!input.testedIds.has(id)) fail(2, `${id} is named by no test (@req ${id})`);
   }
 
-  // 3. Review record
-  let review;
-  if (known) {
-    const text = input.readReview(change);
-    if (text === undefined) {
-      fail(3, `openspec/changes/${change}/review.md does not exist`);
-    } else {
-      review = parseReview(text);
-      for (const problem of review.problems) fail(3, problem);
+  // 3. Review record, and 4. reviewed content. Neither shows "passed" unless something was
+  // read and compared.
+  const review = known ? reviewOf(input, change) : undefined;
+  const last = review?.record?.last;
+  if (!review) {
+    fail(3, messages.noChangeRecord());
+    fail(4, messages.noChangeContent());
+  } else {
+    if (review.record === undefined) fail(3, messages.noRecord(change));
+    for (const problem of review.record?.problems ?? []) fail(3, problem);
+    if (last?.verdict === "approved") {
       for (const id of description.requirementIds) {
-        if (!review.coveredIds.has(id))
-          fail(3, `review.md does not state where ${id} is implemented and tested`);
+        if (!review.record.coveredIds.has(id)) fail(3, messages.notCovered(id));
       }
     }
-  }
-
-  // A fix must be a commit of this pull request, or "fixed" closes nothing.
-  for (const finding of review?.findings ?? []) {
-    if (
-      finding.fixedIn &&
-      !input.commits.some((commit) => sameCommit(commit.sha, finding.fixedIn))
-    ) {
-      fail(
-        3,
-        `finding "${finding.title}" names the fix ${finding.fixedIn}, which is not a commit of this pull request`,
-      );
-    }
-  }
-
-  // 4. Nothing changed after the review but fixes and the record itself
-  if (review?.reviewedCommit) {
-    const index = input.commits.findIndex((commit) =>
-      sameCommit(commit.sha, review.reviewedCommit),
-    );
-    if (index === -1) {
-      fail(4, `the reviewed commit ${review.reviewedCommit} is not a commit of this pull request`);
-    } else {
-      const fixes = review.findings
-        .filter((finding) => finding.fixedIn)
-        .map((finding) => finding.fixedIn);
-      for (const commit of input.commits.slice(index + 1)) {
-        const isFix = fixes.some((fix) => sameCommit(commit.sha, fix));
-        const onlyRecord = commit.files.every((file) =>
-          file.startsWith(`openspec/changes/${change}/`),
-        );
-        if (!isFix && !onlyRecord) {
-          fail(
-            4,
-            `commit ${commit.sha.slice(0, 7)} after the reviewed commit is neither a recorded fix nor limited to openspec/changes/${change}/`,
-          );
-        }
-      }
-    }
+    const { current } = review;
+    if (!last) fail(4, messages.noRoundToCompare({ current, change }));
+    else if (!last.reviewed)
+      fail(4, messages.lastRoundNoHash({ round: last.number, current, change }));
+    else if (last.reviewed !== current)
+      fail(4, messages.stale({ round: last.number, reviewed: last.reviewed, current, change }));
   }
 
   // 5. Screenshots
@@ -424,18 +344,20 @@ export function exemption(input) {
  * The Markdown of the job summary. `notArchive` lists the conditions an `archive/` pull
  * request does not meet, so its author sees why it was judged by the six checks.
  */
-export function report(problems, { exempt, notArchive = [] } = {}) {
+export function report(problems, { exempt, notArchive = [], review } = {}) {
   if (exempt)
     return `### Evidence check (C-18)\n\nExempt: ${exempt}. The six checks do not apply.\n`;
   const names = [
     "Description",
     "Requirements",
     "Review record",
-    "Commits after the review",
+    "Reviewed content",
     "Screenshots",
     "Numbers",
   ];
-  const lines = ["### Evidence check (C-18)", "", "| | Check | Result |", "| ---: | --- | --- |"];
+  const lines = ["### Evidence check (C-18)", ""];
+  if (review) lines.push(reviewLine(review), "");
+  lines.push("| | Check | Result |", "| ---: | --- | --- |");
   names.forEach((name, index) => {
     const own = problems.filter((entry) => entry.check === index + 1);
     lines.push(
@@ -474,14 +396,6 @@ export async function gather({
 }) {
   const pull = await github.request("GET", `/repos/${repository}/pulls/${number}`);
   const base = git("merge-base", pull.base.sha, headSha);
-  const commits = git("rev-list", "--reverse", `${base}..${headSha}`)
-    .split("\n")
-    .filter(Boolean)
-    .map((sha) => ({
-      sha,
-      // Against the first parent: diff-tree would list nothing for a merge commit.
-      files: git("diff", "--name-only", `${sha}^1`, sha).split("\n").filter(Boolean),
-    }));
   const changesDir = join(root, "openspec", "changes");
   const comments = await github.paginate(`/repos/${repository}/issues/${number}/comments`);
   // Renames split into a deletion and an addition, so a file moved out of src/ui counts too.
@@ -514,7 +428,8 @@ export async function gather({
       const path = join(changesDir, change, "review.md");
       return existsSync(path) ? readFileSync(path, "utf8") : undefined;
     },
-    commits,
+    // The same module and merge base (origin/main) as `pnpm review:hash` on a clone.
+    contentHash: (change) => reviewHash(root, { change, head: headSha }).short,
     changedFiles,
     comment: comments.find(
       (comment) => comment.user?.login === botLogin && commentSha(comment.body),
@@ -547,7 +462,14 @@ async function main() {
     comparisonPath: values.comparison,
   });
   const problems = checkEvidence(input);
-  const markdown = report(problems, { exempt: exemption(input), notArchive: input.notArchive });
+  const exempt = exemption(input);
+  const change = parseDescription(input.description).change;
+  const markdown = report(problems, {
+    exempt,
+    notArchive: input.notArchive,
+    review:
+      !exempt && change && input.changes.includes(change) ? reviewOf(input, change) : undefined,
+  });
   appendSummary(markdown);
   console.log(markdown);
   if (problems.length > 0) {

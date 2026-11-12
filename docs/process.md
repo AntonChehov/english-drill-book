@@ -20,7 +20,7 @@ English Drill Book is built specification-first with [OpenSpec](https://github.c
 1. **Propose.** The owner names the next slice from `docs/roadmap.md`. The assistant drafts the change: why, which requirements (taken from `docs/product/` with their IDs), the design, the tasks.
 2. **Approve.** The owner reads the proposal, design and tasks and approves or edits them. No code before this.
 3. **Implement.** An implementing agent works through `tasks.md` on a branch, as the bot identity, writing tests that name the requirement IDs.
-4. **Review.** When the tasks are done the same agent runs the code-review skill on the whole diff and commits `review.md`: every finding with its outcome, fixed or declined with a reason.
+4. **Review.** When the tasks are done, a reviewing agent started for this with a fresh context runs the review skill on the whole diff and writes a round into `review.md`: the hash of the content it read (`pnpm review:hash <name>`, which fetches `main` first, as CI does), its findings and a verdict, changes requested or approved. The implementing agent fixes or declines each finding, and a reviewing agent is started again for the next round, which states for every open finding whether it is fixed. This repeats until a round approves. Any later change to the reviewed files changes the hash and needs another round (C-18).
 5. **Pull request.** The bot opens it. CI runs the gates of the constitution and the evidence check (C-18): description, review record, screenshots made by CI, numbers.
 6. **Validate.** A validating agent drives the built app in a browser against the holdout scenarios and reports a score. It sees neither the code nor the specification.
 7. **Merge.** The owner reads the pull request, the declined findings and the validation report, and approves. Merging deploys the demo.
@@ -32,9 +32,10 @@ English Drill Book is built specification-first with [OpenSpec](https://github.c
 | --- | --- | --- |
 | Owner, with an assistant agent | everything | — |
 | Implementing agent | this repository | holdout scenarios |
+| Reviewing agent, which writes its round of `review.md` and edits nothing else | this repository | holdout scenarios |
 | Validating agent | holdout scenarios, the running build | this repository |
 
-Why: an agent that can read the acceptance scenarios will satisfy their letter; an agent that can read the code while validating will fix instead of report.
+Why: an agent that can read the acceptance scenarios will satisfy their letter; an agent that can read the code while validating will fix instead of report; an author reviewing their own change sees what they meant to write.
 
 ## Holdout scenarios
 

@@ -51,7 +51,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          # The evidence check reads the commits of the pull request.
+          # Every branch with its history: the review hash takes the merge base of this
+          # commit with origin/main, as `pnpm review:hash` does on a clone (review-rounds D1).
           fetch-depth: 0
           persist-credentials: false
 

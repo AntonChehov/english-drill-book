@@ -1,10 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterAll, describe, expect, it } from "vitest";
 import {
   commentSha,
   markerFor,
   numberRows,
   rawUrl,
   renderComment,
+  reviewOfChange,
   rows,
   screenshotSection,
   upsertComment,
@@ -117,6 +122,65 @@ describe("renderComment", () => {
     expect(body).toContain("## Evidence for 0123456");
     expect(body).toContain("[this run](https://github.com/o/r/actions/runs/1)");
     for (const label of Object.values(rows)) expect(body).toContain(`| ${label} |`);
+    expect(body).not.toContain("### Review");
+  });
+
+  it("shows the state of the review before the numbers", () => {
+    const review = "Review: round 2, approved, read `8a04e6d2c517`; the content is the same.";
+    const body = renderComment({ sha, metrics, mainMetrics, comparison: [], urls, review });
+    expect(body).toContain(`### Review\n\n${review}\n\n### Numbers`);
+  });
+});
+
+describe("reviewOfChange", () => {
+  // A repository of its own: main, and a branch with a change, its record and a script.
+  const root = mkdtempSync(join(tmpdir(), "evidence-comment-"));
+  afterAll(() => rmSync(root, { recursive: true, force: true }));
+  const env = {
+    ...process.env,
+    GIT_CONFIG_GLOBAL: "/dev/null",
+    GIT_CONFIG_NOSYSTEM: "1",
+    GIT_AUTHOR_NAME: "Test",
+    GIT_AUTHOR_EMAIL: "test@example.com",
+    GIT_COMMITTER_NAME: "Test",
+    GIT_COMMITTER_EMAIL: "test@example.com",
+    GIT_AUTHOR_DATE: "2026-01-01T00:00:00Z",
+    GIT_COMMITTER_DATE: "2026-01-01T00:00:00Z",
+  };
+  const git = (...args) =>
+    execFileSync("git", args, { cwd: root, env, encoding: "utf8", stdio: "pipe" }).trim();
+  const write = (path, text) => {
+    mkdirSync(join(root, path, ".."), { recursive: true });
+    writeFileSync(join(root, path), text);
+  };
+  git("init", "--quiet", "--initial-branch=main");
+  write("a.mjs", "a\n");
+  git("add", "--all");
+  git("commit", "--quiet", "--no-verify", "-m", "chore: start");
+  git("switch", "--quiet", "-c", "feature");
+  write("a.mjs", "a changed\n");
+  write("openspec/changes/c/tasks.md", "- [x] 1.1\n");
+  git("add", "--all");
+  git("commit", "--quiet", "--no-verify", "-m", "feat: a");
+  const head = git("rev-parse", "HEAD");
+
+  it("shows nothing when no change is named or it does not exist", () => {
+    expect(reviewOfChange(root, undefined, head)).toBeUndefined();
+    expect(reviewOfChange(root, "missing", head)).toBeUndefined();
+  });
+
+  it("shows the record's last round against the hash of the commit's content", () => {
+    expect(reviewOfChange(root, "c", head)).toMatch(
+      /^Review: no record in `openspec\/changes\/c\/review\.md`; the content of this commit is `[0-9a-f]{12}`\.$/,
+    );
+    const current = /`([0-9a-f]{12})`\.$/.exec(reviewOfChange(root, "c", head) ?? "")?.[1];
+    write(
+      "openspec/changes/c/review.md",
+      `## Round 1\n\nReviewed: ${current}\nVerdict: approved\n`,
+    );
+    expect(reviewOfChange(root, "c", head)).toBe(
+      `Review: round 1, approved, read \`${current}\`; the content of this commit is \`${current}\`, the same.`,
+    );
   });
 });
 
