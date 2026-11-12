@@ -86,10 +86,9 @@ describe("compileKey", () => {
 
     it("@req CHK-002 refuses variants of more than 100 000 characters together", () => {
       expect(MAX_KEY_VARIANT_CHARACTERS).toBe(100_000);
-      const dots = (count: number) => `${fourThousand} ${".".repeat(count)}`;
       // 4000 variants such as `a b c d .................`, of 8 + 17 characters each.
-      expect(compileKey([dots(17)]).ok).toBe(true);
-      expect(compileKey([dots(18)])).toEqual({
+      expect(compileKey([`${fourThousand} ${".".repeat(17)}`]).ok).toBe(true);
+      expect(compileKey([`${fourThousand} ${".".repeat(18)}`])).toEqual({
         ok: false,
         errors: [{ index: null, reason: "key-too-large" }],
       });

@@ -81,6 +81,14 @@ function measure(name: string, accept: readonly string[], answer: string): numbe
   return checkMedian;
 }
 
+/** The median of three preparations of `accept`, printed under `name`. */
+function timePreparing(name: string, accept: readonly string[]): number {
+  const time = median(Array.from({ length: 3 }, () => timed(() => compileKey(accept))));
+  // oxlint-disable-next-line no-console -- design D7 asks for the medians in the test output
+  console.info(`CHK-014 preparing ${name}: median of 3 ${time.toFixed(2)} ms`);
+  return time;
+}
+
 describe("speed", () => {
   for (const count of [1, 4, 8]) {
     it(`@req CHK-014 checks a bad answer of 81 readings against ${count} long ending(s) in under 5 ms`, () => {
@@ -113,38 +121,65 @@ describe("speed", () => {
     expect(measure("200 000 characters", [accept], pasted)).toBeLessThan(LIMIT_MS);
   });
 
-  it("@req CHK-014 prepares the keys of review round 2 in well under 100 ms", () => {
+  it("@req CHK-014 checks answers of 1000 characters full of 's and 'd in under 5 ms", () => {
+    const { accept } = sharedBeginning(4);
+    const answers: readonly [string, string][] = [
+      ["250 x's", "x's ".repeat(250)],
+      ["four α's and 329 α'd", `${"α's".repeat(4)}${"α'd".repeat(329)}`],
+    ];
+    for (const [name, answer] of answers) {
+      expect(answer.length).toBeLessThanOrEqual(MAX_ANSWER_LENGTH);
+      expect(checkAnswer(keyOf([accept]), answer)).toBe("bad");
+      expect(measure(name, [accept], answer)).toBeLessThan(LIMIT_MS);
+    }
+  });
+
+  it("@req CHK-014 refuses large keys in well under 100 ms", () => {
     const ten = "[a|b|c|d|e|f|g|h|i|j]";
     const equal = `[${Array.from({ length: 4000 }, () => "x").join("|")}]`;
+    const marks = "\u0334\u0327\u0321\u031b\u0315\u0362\u0360\u0345".repeat(50);
     const keys: readonly [string, readonly string[]][] = [
-      ["3999 groups of 4000 equal alternatives", Array.from({ length: 3999 }, () => equal)],
+      [
+        "3999 patterns of 8001 characters, refused unread",
+        Array.from({ length: 3999 }, () => equal),
+      ],
       [
         "200 patterns of four 's before 4000 variants",
         Array.from({ length: 200 }, () => `${FOUR_S} ${ten} ${ten} ${ten} [a|b|c|d]`),
       ],
       ["one pattern of 500 000 words", [Array.from({ length: 500_000 }, () => "a").join(" ")]],
+      ["4000 variants of 400 marks each", [`${ten} ${ten} ${ten} [a|b|c|d] ${marks}`]],
+      ["25 patterns that are invalid", Array.from({ length: 25 }, () => "she (is late")],
     ];
     for (const [name, accept] of keys) {
       expect(compileKey(accept).ok).toBe(false);
-      const preparing = median(Array.from({ length: 3 }, () => timed(() => compileKey(accept))));
-      // oxlint-disable-next-line no-console -- design D7 asks for the medians in the test output
-      console.info(`CHK-014 preparing ${name}: median of 3 ${preparing.toFixed(2)} ms`);
-      expect(preparing).toBeLessThan(100);
+      expect(timePreparing(name, accept)).toBeLessThan(100);
     }
   });
 
-  it("@req CHK-014 prepares the slowest valid key found within a second", () => {
-    // 4000 patterns of 500 characters, the most a key holds: every character is normalised.
-    const accept = Array.from({ length: MAX_KEY_READINGS }, (_, index) =>
-      `${index}`.padEnd(500, "'"),
-    );
-    expect(compileKey(accept).ok).toBe(true);
-    const preparing = median(Array.from({ length: 3 }, () => timed(() => compileKey(accept))));
-    // oxlint-disable-next-line no-console -- design D7 asks for the medians in the test output
-    console.info(
-      `CHK-014 preparing 4000 patterns of 500 characters: median of 3 ${preparing.toFixed(1)} ms`,
-    );
-    expect(preparing).toBeLessThan(1000);
+  it("@req CHK-014 prepares the slowest valid keys found in well under 100 ms", () => {
+    const ten = "[a|b|c|d|e|f|g|h|i|j]";
+    // Marks in reverse canonical order, which NFC must reorder, and then drops.
+    const marks = "\u0334\u0327\u0321\u031b\u0315\u0362\u0360\u0345";
+    const keys: readonly [string, readonly string[]][] = [
+      [
+        "4000 variants with 12 marks each",
+        [`${ten} ${ten} ${ten} [a|b|c|d] ${marks}${marks.slice(0, 4)}`],
+      ],
+      [
+        "40 patterns of 500 marks",
+        Array.from({ length: 40 }, (_, index) => `${index % 10}${marks.repeat(63).slice(0, 499)}`),
+      ],
+      // Counting of design D2: eleven words in a chain of loose alternatives, and a group.
+      [
+        "a chain of ten loose alternatives",
+        [`${Array.from({ length: 11 }, (_, index) => `w${index}`).join(" / ")} (q)`],
+      ],
+    ];
+    for (const [name, accept] of keys) {
+      expect(compileKey(accept).ok).toBe(true);
+      expect(timePreparing(name, accept)).toBeLessThan(100);
+    }
   });
 
   it("@req CHK-014 checks a bad answer against 4000 readings of one shape in under 5 ms", () => {
