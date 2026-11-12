@@ -4,10 +4,10 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 1. Contract and validation
 
-- [ ] 1.1 Change `contracts/pack.schema.json` as in design D7 and add an example of an original pack with documents; add `*.invalid.json` examples with `*.reason.txt` for each rule; verify with `ajv` in a test that valid examples pass and invalid ones fail
-- [ ] 1.2 Write `validatePack` in `src/domain/packs/validate.ts` as in design D6; verify with unit tests named `@req PACK-001` and `@req PACK-002` covering every scenario of the delta spec
-- [ ] 1.3 Add the agreement test of design D6 (examples and generated packs with one defect, the validator against `ajv`); verify it passes with the fixed seed
-- [ ] 1.4 Reword PACK-002 item 2 in `docs/product/02-content-packs.md` to refer to a valid key (CHK-002); verify the delta spec states the same rule
+- [x] 1.1 Change `contracts/pack.schema.json` as in design D7 and add an example of an original pack with documents; add `*.invalid.json` examples with `*.reason.txt` for each rule; verify with `ajv` in a test that valid examples pass and invalid ones fail — `then` no longer forbids `source`; `pack.documents.valid.json` added; 19 invalid examples, one per schema keyword and semantic rule (two for `required`), each reason naming its rule and path; `src/domain/packs/contract.test.ts` with `ajv` 8.20.0: every `*.valid.json` (pack, program, export) passes, every example of a schema keyword is refused for that keyword, every example of a semantic rule passes the schema
+- [x] 1.2 Write `validatePack` in `src/domain/packs/validate.ts` as in design D6; verify with unit tests named `@req PACK-001` and `@req PACK-002` covering every scenario of the delta spec — `validate.test.ts`: each scenario of both requirements, every invalid example refused with exactly the rule and path of its reason, the cap of 100 errors in the schema and in the semantic rules
+- [x] 1.3 Add the agreement test of design D6 (examples and generated packs with one defect, the validator against `ajv`); verify it passes with the fixed seed — `agreement.test.ts`: all pack examples, every value of the valid examples moved to each boundary (over 1000 packs), 1500 packs with one random defect; passes with the fixed seed; a planted off-by-one in the limit of a title, a local ID, a pattern, a page count or a year each made it fail
+- [x] 1.4 Reword PACK-002 item 2 in `docs/product/02-content-packs.md` to refer to a valid key (CHK-002); verify the delta spec states the same rule — item 2 now reads "the `accept` of every item builds a valid key (`CHK-002`)", as rule (2) of the delta spec
 
 ## 2. The demo books
 
