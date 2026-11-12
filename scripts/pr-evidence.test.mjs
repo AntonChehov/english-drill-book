@@ -337,6 +337,7 @@ describe("the messages of checks 3 and 4", () => {
     misplacedInClosing: ["Requirement coverage", "- F1: fixed"],
     headingInClosing: ["Outside the listed requirements", "### F2 Hidden"],
     unclosedFence: [12],
+    htmlComment: [7],
   };
 
   it("are all sampled here", () => {

@@ -43,6 +43,8 @@ export const messages = {
     `\`review.md\` has the section \`## ${quote(title)}\` more than once. Keep one.`,
   textBeforeRounds: (line) =>
     `\`review.md\` has the line \`${quote(line)}\` before its first round. Before \`## Round 1\` the record holds only its title, \`# Review\`: move the line under \`### Notes\` of a round, which any round may have.`,
+  htmlComment: (line) =>
+    `\`review.md\` has an HTML comment on line ${line}. A comment is not shown on the pull request, so the record would hold text its reader cannot see: delete it, or write the text openly under \`### Notes\`; to quote \`<!--\` itself, put it in a fenced block.`,
   unclosedFence: (line) =>
     `\`review.md\` has a fenced block, opened on line ${line}, that is never closed, so everything after it is read as text. Close it with a line that repeats its opening fence.`,
   repeatedLine: (round, name) =>
@@ -188,6 +190,9 @@ export function parseRecord(markdown) {
       if (place.kind === "closing") place.content.push(line);
       continue;
     }
+    // Text in an HTML comment is not shown on the pull request (review-follow-ups D2). It is
+    // reported and the line is read as before, so its other problems are reported too.
+    if (line.includes("<!--")) problems.push(messages.htmlComment(index + 1));
     const marker = fenceLine.exec(line)?.[1];
     if (marker) {
       openFence = { marker, line: index + 1 };

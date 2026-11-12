@@ -4,7 +4,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 1. The record
 
-- [ ] 1.1 Make `parseRecord` in `scripts/review-record.mjs` report an HTML comment as in design D2; verify with unit tests for a comment before the first round, among a round's own lines, under a finding, under `### Notes`, in a closing section, and inside a fenced block, where it is accepted
+- [x] 1.1 Make `parseRecord` in `scripts/review-record.mjs` report an HTML comment as in design D2; verify with unit tests for a comment before the first round, among a round's own lines, under a finding, under `### Notes`, in a closing section, and inside a fenced block, where it is accepted — 11 tests in `scripts/review-record.test.mjs` (also indented under an outcome, on a heading, two comments, and a comment hiding a whole round) pass; the 9 that expect the problem fail without the new check; the other problems of each line are still reported
 - [ ] 1.2 Run the check on a clone with a hand-written record that hides an approving round in a comment; verify it fails with the message of D2
 
 ## 2. The process
