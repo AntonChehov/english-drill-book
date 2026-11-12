@@ -18,13 +18,13 @@ Nothing checks this in CI: which agent wrote a round is not recorded in the repo
 
 ### D2. HTML comments
 
-`parseRecord` reports a problem for every line that contains `<!--` outside a fenced block, wherever it stands: before the first round, in a round's own lines, under a finding or `### Notes`, in the closing sections. Inside a fenced block the text is left alone, so a reviewer can still quote one.
+`parseRecord` reports a problem for every line that contains `<!--` anywhere in the record: before the first round, in a round's own lines, under a finding or `### Notes`, in the closing sections, and inside a fenced block too. The openings are found in the raw text, independently of fences and of how the parser reads the lines; the line number is the parser's own, which counts lines by `\n` (with or without `\r` before it), so an opening after a lone `\r` is reported on the line that holds the `\r`. A reviewer who has to mention the characters writes `&lt;!--` in running text, where GitHub shows it as `<!--` (in a code span it shows as written).
 
 Message, in the style of the others (the fact, then what to do):
 
-> `review.md` has an HTML comment on line N. A comment is not shown on the pull request, so the record would hold text its reader cannot see: delete it, or write the text openly under `### Notes`; to quote `<!--` itself, put it in a fenced block.
+> `review.md` has an HTML comment on line N. A comment is not shown on the pull request, so the record would hold text its reader cannot see: delete it, or write the text openly under `### Notes`; to mention the characters themselves, write `&lt;!--`.
 
-Why refuse and not strip: the check reads; it does not rewrite the evidence. Why only the opening `<!--`: a closing `-->` without an opening hides nothing.
+Why refuse and not strip: the check reads; it does not rewrite the evidence. Why only the opening `<!--`: a closing `-->` without an opening hides nothing. Why inside fenced blocks too: whether a line is in a fenced block depends on CommonMark's rules for indentation, list items, raw HTML blocks and line endings; a parser that disagrees with GitHub about one of them would skip a comment that the page hides (round 1 of the review, F1). Refusing the opening everywhere does not depend on agreeing with GitHub, and costs only the entity when the characters are meant.
 
 Not covered, and stated here honestly: other ways to hide text from a reader of rendered Markdown (a collapsed `<details>`, a link definition) remain possible. They do not change what the check decides, and the owner can read the raw file.
 
@@ -32,5 +32,5 @@ Not covered, and stated here honestly: other ways to hide text from a reader of 
 
 | Constraint | How it is met and measured |
 | --- | --- |
-| C-18 | the review check gains one refusal; its tests cover the comment in each place of D2 and inside a fenced block |
+| C-18 | the review check gains one refusal; its tests cover the comment in each place of D2, inside fenced blocks and after the fences of F1 of round 1 |
 | C-10 | unit tests of `scripts/review-record.mjs` |

@@ -11,7 +11,7 @@ Two things the first changes reviewed in rounds showed.
 ## What Changes
 
 - **The same reviewer for every round of a change.** The first round is made by a reviewing agent started with a fresh context. Later rounds are made by that same agent, resumed with its context. A new agent is started only when the first cannot be resumed, and its round says so under `### Notes`. `docs/process.md` (step 4), `CLAUDE.md` and `README.md` are reworded; C-18 already says "a reviewing agent, not the author" and stays as it is.
-- **No HTML comments in the record.** A `review.md` that contains `<!--` outside a fenced block fails the review check, with a message that says what to do.
+- **No HTML comments in the record.** A `review.md` that contains `<!--` anywhere, fenced blocks included, fails the review check, with a message that says what to do.
 
 Requirements delivered from `docs/product/`: none. This change alters no behaviour of the app, so it has no delta specs (`skip_specs`).
 
