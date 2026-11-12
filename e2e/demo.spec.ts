@@ -8,6 +8,8 @@ import {
   failDemo,
   failedLoad,
   pdfLibraryFiles,
+  pdfWorker,
+  pdfWorkerError,
   retryButton,
   startButton,
 } from "./demo";
@@ -42,7 +44,7 @@ test.describe("PACK-003 The demo book", () => {
         await expect(book.getByRole("heading", { level: 3 })).toHaveText(title);
         await expect(book.getByRole("listitem")).toHaveText([
           "Раздел 1. To be: am, is, are — 3 упражнения",
-          "Раздел 2. Present simple: I work, she works — 3 упражнения",
+          "Раздел 2. Present simple — 3 упражнения",
           "Раздел 3. A and an — 3 упражнения",
           "Раздел 4. There is and there are — 3 упражнения",
         ]);
@@ -130,6 +132,44 @@ test.describe("PACK-003 The demo book", () => {
   );
 
   test(
+    "@req PACK-003 a file that is not the demo book is refused before it is read",
+    { tag: "@demo" },
+    async ({ page }) => {
+      await page.route(drillsPdf, async (route) => {
+        const course = await page.request.get(route.request().url().replace("drills", "course"));
+        await route.fulfill({ contentType: "application/pdf", body: await course.body() });
+      });
+      await page.goto(addressOf("/"));
+      await startButton(page).click();
+
+      await expect(page.getByRole("alert")).toHaveText(
+        "Демо-книгу «Everyday Grammar: Demo Drills» не удалось прочитать: файл повреждён или не той версии. Попробуйте ещё раз, а если не поможет, обновите страницу.",
+      );
+      await expect(page.getByRole("heading", { level: 3 })).toHaveCount(0);
+    },
+  );
+
+  test(
+    "@req PACK-003 a worker of the PDF library that does not arrive is a network failure, and trying again adds the demo",
+    { tag: "@demo" },
+    async ({ page, allowConsoleError }) => {
+      allowConsoleError(failedLoad);
+      allowConsoleError(pdfWorkerError);
+      await page.route(pdfWorker, (route) => route.abort("internetdisconnected"), { times: 1 });
+      await page.goto(addressOf("/"));
+      await startButton(page).click();
+
+      await expect(page.getByRole("alert")).toHaveText(
+        "Не удалось загрузить демо-книгу «Everyday Grammar: A Demo Course»: нет связи с сайтом. Проверьте подключение к интернету и попробуйте ещё раз.",
+      );
+      await retryButton(page).click();
+
+      await expect(addedHeading(page)).toBeVisible();
+      await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+    },
+  );
+
+  test(
     "@req PACK-003 trying again when the network is back adds the demo without reloading the page",
     { tag: "@demo" },
     async ({ page, allowConsoleError }) => {
@@ -197,7 +237,24 @@ test.describe("PACK-003 The demo book", () => {
 
       await expect(retryButton(page)).toBeFocused();
       await page.unroute(drillsPdf);
+      // Hold the drill book back, to see where the focus is while the books are read.
+      let release: (() => void) | undefined;
+      const held = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      await page.route(drillsPdf, async (route) => {
+        await held;
+        await route.continue();
+      });
       await page.keyboard.press("Enter");
+
+      await expect(page.getByRole("status")).toHaveText(
+        "Читаем книгу 2 из 2: «Everyday Grammar: Demo Drills»…",
+      );
+      await expect(retryButton(page)).toBeFocused();
+      await expect(retryButton(page)).toHaveAttribute("aria-disabled", "true");
+      await page.keyboard.press("Enter");
+      release?.();
 
       await expect(addedHeading(page)).toBeFocused();
       await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);

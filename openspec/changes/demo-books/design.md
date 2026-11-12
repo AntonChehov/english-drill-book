@@ -73,6 +73,8 @@ Because things are found by content, a copy of the text with two blank pages put
 
 The reader returns the pack or a list of what it could not find. For the demo any gap is a failure: the books are ours.
 
+Before a demo book is read, the SHA-256 of the fetched file is compared with the hash its profile holds; `pnpm demo:build` writes the hash and page count of each committed PDF to `src/domain/books/demo/documents.json`, and a test keeps them equal to the files. A file that differs is refused as damaged or of another version and is not read: a copy with a line missing could otherwise read into a different pack that still passes validation. Without a secure context the browser offers no SHA-256 (`crypto.subtle`), so the file cannot be checked; the demo is then not added, and the visitor is told that the page must be opened over `https://`.
+
 ### D6. Validation (PACK-001, PACK-002)
 
 `validatePack` is written by hand: the schema is small, and a general validator in the bundle would cost about 40 kB gzip. Errors are `{ path, rule }`, with `path` a JSON pointer and `rule` either a schema keyword (`required`, `pattern`, `maxLength`, …) or a semantic rule (`unique-unit-id`, `unique-exercise-id`, `unique-item-id`, `invalid-key`, `no-accepted-choice`). All errors are collected, up to 100.
@@ -87,7 +89,7 @@ Semantic rule 2 uses `compileKey`: every item's `accept` must build a valid key,
 
 ### D8. The start screen
 
-Under the introduction: a button **Попробовать демо**. While reading: progress in words (which book is being read). After: the two books by title, each with its units and "N упражнений". On failure: what went wrong in Russian, in the same place, with **Попробовать ещё раз**; no browser dialog; the rest of the screen stays usable. Network use goes through the one module that loads the app's own files (C-03).
+Under the introduction: a button **Попробовать демо**. While reading: progress in words (which book is being read), in a live region that is always in the page, so that its first message is announced; the button stays in place, inactive (`aria-disabled`), and keeps the focus. After: the two books by title, each with its units and "N упражнений". On failure: what went wrong in Russian, in the same place, with **Попробовать ещё раз**; no browser dialog; the rest of the screen stays usable. A file of the app that does not arrive, whether a demo book, a chunk of the app or the worker of pdf.js, is a network failure. The worker is started by the app for each attempt and handed to pdf.js, and stopped afterwards, since pdf.js, when its own worker fails to load, keeps that failure for the life of the page; so trying again after the network is back succeeds without a reload. A file that is not the published book (D5) is a damaged file. Network use goes through the one module that loads the app's own files (C-03).
 
 The state lives in memory. A reload shows the button again; slice 1.4 makes it stay.
 
@@ -110,3 +112,4 @@ The state lives in memory. A reload shows the button again; slice 1.4 makes it s
 - **pdf.js reports text differently across versions** (line grouping, spacing). The version is pinned; the reader's tests run on text taken by that version from the committed PDFs.
 - **The demo layout is easier than a real book.** True, and accepted: the real readers are milestone 3, with synthetic PDFs laid out like the real books. The interface (D3) is what is carried over.
 - **Standard PDF fonts cannot print Cyrillic.** The demo books are in English only.
+- **Validating a large pack takes time.** Each key is compiled to check it (D6), synchronously; the demo packs take milliseconds, but packs built from imported files (milestone 3) will need a bound on their size or validation off the main thread.

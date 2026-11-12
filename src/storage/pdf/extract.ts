@@ -5,17 +5,24 @@ import { linesFromRuns, type TextRun } from "../../domain/books/lines";
 import type { PageText } from "../../domain/books/types";
 
 export type PdfJs = Pick<typeof import("pdfjs-dist"), "getDocument">;
+type PdfWorker = InstanceType<typeof import("pdfjs-dist").PDFWorker>;
 
 /** Coordinates are kept to a hundredth of a point, so the same file gives the same numbers. */
 const round = (value: number) => Math.round(value * 100) / 100;
 
 /**
  * Reads every page of the PDF in `data`. pdf.js may take over the buffer, so the caller keeps
- * no use of it. Fonts are not loaded and nothing is fetched: only the text layer is read.
+ * no use of it. Fonts are not loaded and nothing is fetched: only the text layer is read. With
+ * `worker`, pdf.js uses that worker, which the caller destroys; without, it starts its own.
  */
-export async function extractText(pdfjs: PdfJs, data: Uint8Array): Promise<PageText[]> {
+export async function extractText(
+  pdfjs: PdfJs,
+  data: Uint8Array,
+  worker?: PdfWorker,
+): Promise<PageText[]> {
   const task = pdfjs.getDocument({
     data,
+    ...(worker && { worker }),
     verbosity: 0,
     disableFontFace: true,
     useSystemFonts: false,

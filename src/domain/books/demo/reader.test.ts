@@ -83,9 +83,15 @@ describe("PACK-003 The demo book: reading", () => {
     });
   }
 
-  it("@req PACK-003 has a profile for each demo book, the course first", () => {
+  it("@req PACK-003 has a profile for each demo book, the course first, with its file's hash", () => {
     expect(demoBooks.map(({ profile }) => profile.id)).toEqual(["demo-course", "demo-drills"]);
     expect(demoBooks.map(({ file }) => file)).toEqual(["demo/course.pdf", "demo/drills.pdf"]);
+    expect(demoBooks.map(({ document }) => document)).toEqual(
+      [coursePack, drillsPack].map((pack) => {
+        const { sha256, pages } = documentOf(pack);
+        return { sha256, pages };
+      }),
+    );
   });
 
   it("@req PACK-003 records the hash and page count of the document it read", () => {

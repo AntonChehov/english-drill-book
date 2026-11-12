@@ -9,6 +9,12 @@ export const demoTitles = ["Everyday Grammar: A Demo Course", "Everyday Grammar:
 /** Matches the address of a demo book. */
 export const demoPdf = /\/demo\/(course|drills)\.pdf$/;
 
+/** Matches the address of the worker of the PDF library. */
+export const pdfWorker = /pdf\.worker.*\.mjs$/;
+
+/** What a browser may log when a module worker cannot be loaded. */
+export const pdfWorkerError = /worker|Worker|module script|pdf\.worker/;
+
 /** Matches the address of the drill book, the second one read. */
 export const drillsPdf = /\/demo\/drills\.pdf$/;
 

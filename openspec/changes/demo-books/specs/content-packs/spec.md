@@ -113,6 +113,12 @@ The demo book SHALL be added with one action and SHALL need no file from the lea
 - **THEN** the reason is explained in Russian where the demo was being added, with a way to try again
 - **AND** no browser dialog appears and the rest of the screen stays usable
 
+#### Scenario: A file that is not the demo book
+
+- **GIVEN** the file fetched for a demo book differs from the one published with the app
+- **WHEN** the visitor presses "Попробовать демо"
+- **THEN** the file is refused as damaged or of another version before it is read, and nothing of it is shown
+
 #### Scenario: Trying again
 
 - **GIVEN** the demo could not be loaded and the network is back
