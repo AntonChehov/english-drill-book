@@ -77,6 +77,12 @@ describe("readings", () => {
       expect(only("' - ''")).toEqual({ text: "", words: 0 });
     });
 
+    it("@req CHK-003 opens a quotation at an apostrophe before punctuation", () => {
+      expect(only("'...I can't'")).toEqual({ text: "icannot", words: 3 });
+      expect(only("'— yes' '...no'")).toEqual({ text: "yesno", words: 2 });
+      expect(only("x '' y")).toEqual({ text: "xy", words: 2 });
+    });
+
     it("@req CHK-003 keeps an apostrophe after a word when no quotation is open", () => {
       expect(only("the boys' room")).toEqual({ text: "theboys'room", words: 3 });
       expect(only("'the boys' room'")).toEqual({ text: "theboysroom'", words: 3 });

@@ -40,12 +40,15 @@ const S_READINGS = [" is", " has", "'s"] as const;
 const D_READINGS = [" would", " had"] as const;
 
 const WORD_CHARACTER = /[\p{L}\p{M}\p{N}]/u;
+const WHITE_SPACE = /\s/u;
 
 /**
  * Step 3 of CHK-003, second half: removes the apostrophes that work as single quotation marks.
- * One before a word opens a quote; one after a word closes the open quote, or is kept as the
- * apostrophe of a plural possessive (`the boys' room`) when no quote is open. One between two
- * letters or digits is always kept; one with no letter or digit on either side is removed.
+ * One between two letters or digits is always kept. One after a letter or digit and before
+ * anything else closes an open quote, or is kept as the apostrophe of a plural possessive
+ * (`the boys' room`) when no quote is open. One after anything else opens a quote when a letter
+ * or digit follows, closes one when white space or the end follows, and between punctuation
+ * (`'...yes'`) closes an open quote or else opens one. Every quotation mark is removed.
  */
 function removeSingleQuotes(text: string): string {
   if (!text.includes("'")) return text;
@@ -57,15 +60,18 @@ function removeSingleQuotes(text: string): string {
       result += character;
       continue;
     }
+    const next = characters[index + 1] ?? "";
     const afterWord = WORD_CHARACTER.test(characters[index - 1] ?? "");
-    const beforeWord = WORD_CHARACTER.test(characters[index + 1] ?? "");
-    if (beforeWord) {
-      if (afterWord) result += character;
-      else open += 1;
-    } else if (open > 0) {
-      open -= 1;
-    } else if (afterWord) {
-      result += character;
+    const beforeWord = WORD_CHARACTER.test(next);
+    if (afterWord) {
+      if (beforeWord || open === 0) result += character;
+      else open -= 1;
+    } else if (beforeWord) {
+      open += 1;
+    } else if (next === "" || WHITE_SPACE.test(next)) {
+      open = Math.max(0, open - 1);
+    } else {
+      open += open > 0 ? -1 : 1;
     }
   }
   return result;
