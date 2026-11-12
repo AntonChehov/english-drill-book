@@ -64,10 +64,10 @@ describe("expandPattern", () => {
       expect(variantsOf("book(s) / [a|the] pen")).toEqual([
         "books pen",
         "book pen",
-        "a pen",
-        "the pen",
         "books",
         "book",
+        "a pen",
+        "the pen",
       ]);
     });
 
@@ -108,6 +108,17 @@ describe("expandPattern", () => {
       expect(errorOf("(is]) late")).toBe("stray-character");
     });
 
+    it("@req CHK-002 reports a spaced slash inside a group", () => {
+      for (const pattern of ["[a / b|c] d", "[c|a / b] d", "(a / b) d", "[/|c]", "( / )"]) {
+        expect(errorOf(pattern)).toBe("stray-character");
+      }
+    });
+
+    it("@req CHK-002 keeps an unspaced slash inside a group as text", () => {
+      expect(variantsOf("[and/or|or] d")).toEqual(["and/or d", "or d"]);
+      expect(variantsOf("(a/ b) c")).toEqual(["a/ b c", "c"]);
+    });
+
     it("@req CHK-002 reports a slash with nothing beside it", () => {
       for (const pattern of ["/ late", "late /", "/", "early / / late"]) {
         expect(errorOf(pattern)).toBe("dangling-slash");
@@ -134,8 +145,20 @@ describe("expandPattern", () => {
       expect(errorOf(words.join(" / "))).toBe("too-many-variants");
     });
 
+    it("@req CHK-002 counts each candidate of a loose alternative once", () => {
+      const variants = variantsOf(
+        "(a) (b) (c) (d) (e) (f) (g) one two three four / five six seven eight",
+      );
+      expect(variants).toHaveLength(128 * 8);
+      expect(variantsOf("[a|b] [c|d|e] [f|g|h] [i|j|k|l|m|n|o] w x y z / p q r s")).toHaveLength(
+        126 * 8,
+      );
+    });
+
     it("@req CHK-002 stops when loose alternatives and groups together pass the limit", () => {
-      expect(errorOf("a b c d / e f g h (i) (j) (k) (l) (m) (n) (o)")).toBe("too-many-variants");
+      expect(errorOf("a b c d / e f g h (i) (j) (k) (l) (m) (n) (o) (p) (q) (r)")).toBe(
+        "too-many-variants",
+      );
     });
   });
 

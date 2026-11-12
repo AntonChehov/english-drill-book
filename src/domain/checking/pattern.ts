@@ -26,6 +26,10 @@ type Parsed =
 
 const WHITE_SPACE = /\s/u;
 
+function isSpacedSlashIn(text: string): boolean {
+  return text.split(/\s+/u).includes("/");
+}
+
 function parse(pattern: string): Parsed {
   const tokens: Token[] = [];
   let segments: Segment[] = [];
@@ -44,7 +48,12 @@ function parse(pattern: string): Parsed {
   for (const character of pattern) {
     if (group !== null) {
       if (character === "(" || character === "[") return { ok: false, error: "nested-group" };
-      if (character === (group.round ? ")" : "]")) {
+      const closes = character === (group.round ? ")" : "]");
+      if ((closes || (character === "|" && !group.round)) && isSpacedSlashIn(group.current)) {
+        // A loose alternative cannot stand inside a group, and a spaced slash is no text.
+        return { ok: false, error: "stray-character" };
+      }
+      if (closes) {
         group.alternatives.push(group.current);
         if (group.round) group.alternatives.push("");
         segments.push(group.alternatives);
@@ -131,12 +140,13 @@ export function expandPattern(pattern: string): Expansion {
     const end = following < 0 ? tokens.length : following;
     const left = Math.min(MAX_SIDE, slash);
     const right = Math.min(MAX_SIDE, end - slash - 1);
+    // Each distinct candidate once: the left side with the first j words after the slash
+    // dropped, then the right side with the last i words before it dropped.
+    for (let j = 1; j <= right; j += 1) {
+      if (!resolve([...tokens.slice(0, slash), ...tokens.slice(slash + 1 + j)])) return false;
+    }
     for (let i = 1; i <= left; i += 1) {
-      for (let j = 1; j <= right; j += 1) {
-        const withLeft = [...tokens.slice(0, slash), ...tokens.slice(slash + 1 + j)];
-        const withRight = [...tokens.slice(0, slash - i), ...tokens.slice(slash + 1)];
-        if (!resolve(withLeft) || !resolve(withRight)) return false;
-      }
+      if (!resolve([...tokens.slice(0, slash - i), ...tokens.slice(slash + 1)])) return false;
     }
     return true;
   };
