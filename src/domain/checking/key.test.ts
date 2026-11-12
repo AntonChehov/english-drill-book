@@ -65,7 +65,7 @@ describe("compileKey", () => {
     });
 
     it("@req CHK-002 stops at a key too large: later patterns are neither read nor reported", () => {
-      expect(compileKey(["(a", fourThousand, "x", "b)"])).toEqual({
+      expect(compileKey(["in (the house", fourThousand, "x", "at) home"])).toEqual({
         ok: false,
         errors: [
           { index: 0, reason: "unclosed-group" },
