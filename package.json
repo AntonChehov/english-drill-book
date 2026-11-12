@@ -23,12 +23,13 @@
     "audit": "pnpm audit --audit-level=high",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm spec && pnpm trace && pnpm audit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --exclude '**/speed.test.ts'",
+    "test:speed": "vitest run src/domain/checking/speed.test.ts --reporter=default",
     "e2e": "pnpm build && playwright test --project=chromium --project=firefox --project=webkit",
     "size": "node scripts/size.mjs",
     "lhci": "lhci autorun",
     "commitlint": "commitlint --verbose",
-    "verify": "pnpm check && pnpm test:coverage && pnpm e2e && pnpm size && pnpm lhci",
+    "verify": "pnpm check && pnpm test:coverage && pnpm test:speed && pnpm e2e && pnpm size && pnpm lhci",
     "screenshots": "playwright test --project=screenshots"
   },
   "dependencies": {

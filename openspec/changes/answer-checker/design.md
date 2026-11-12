@@ -97,7 +97,7 @@ A unit test builds the worst valid keys the limits of D4 allow and asserts, for 
 - a key of 4000 readings of one shape, at the reading limit, with a `bad` answer of the same shape;
 - a key with `'s` and `'d` in every variant and a `near` answer one edit from the last variant.
 
-It also asserts that the key that was slowest before the limits, four `'s` before 4000 variants, is refused as `key-too-large`. The medians of checking and of preparing are printed in the test output. "The reference machine" is the CI runner.
+It also asserts that the key that was slowest before the limits, four `'s` before 4000 variants, is refused as `key-too-large`. The medians of checking and of preparing are printed in the test output. "The reference machine" is the CI runner. The speed test is run on its own, without coverage instrumentation (`pnpm test:speed`, a step of the unit job and of `pnpm verify`), and is left out of `pnpm test:coverage`: instrumentation counts every comparison and is not part of what a learner runs.
 
 Measured on the development machine, median of 200 checks: at most 0.74 ms (8 endings 0.63 – 0.65 ms, 4 endings 0.69 – 0.71 ms, 1 ending 0.47 – 0.48 ms, 4000 readings 0.07 – 0.08 ms, `near` 0.03 ms), a margin of about 7 times; under the coverage instrumentation that `pnpm test:coverage` and CI add, at most 3.9 ms (8 endings 3.4 – 3.9 ms, 4 endings 2.5 – 3.5 ms, 1 ending 1.2 – 1.3 ms, 4000 readings 0.5 – 0.6 ms, `near` 0.09 ms), a margin of only about 1.3 times. Preparing takes at most 11 ms, for the key of 4000 readings (14 ms under coverage). Under coverage the cost lies in the number of comparisons, each counted by the instrumentation, more than in their length. A key from a book has a handful of variants and is checked in microseconds.
 
@@ -134,5 +134,5 @@ Made in `docs/product/03-answer-checking.md` by this change, with the owner's ap
 ## Risks
 
 - **The loose alternative accepts too much.** It is the price CHK-001 states. Readers use `[a|b]` wherever they can.
-- **A timing test can fail on a busy machine.** Without instrumentation the margin is about 7 times (D7); under the coverage instrumentation of CI it is only about 1.3 times on the development machine, for keys at the limits that no book needs. If the test proves unsteady in CI, the search for a near match gets an index by deleted character instead of a scan, or the limits of D4 are lowered; the 5 ms is not raised.
+- **A timing test can fail on a busy machine.** It is timed without instrumentation, where the margin is about 7 times (D7). Under coverage instrumentation the margin was only about 1.3 times, which is why the test is not run there. If the test still proves unsteady in CI, the search for a near match gets an index by deleted character instead of a scan, or the limits of D4 are lowered; the 5 ms is not raised.
 - **The limits of a key refuse a key a book needs.** 4000 readings and 20 000 characters are far above a key of an exercise; a refused key is reported by the reader of slice 1.3, and its writer can drop the variants the exercise does not need.

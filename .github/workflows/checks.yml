@@ -73,6 +73,8 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Unit tests with coverage of src/domain
         run: pnpm test:coverage
+      - name: Speed of the checker (CHK-014), without coverage instrumentation
+        run: pnpm test:speed
       - name: Summary
         if: ${{ !cancelled() }}
         run: node scripts/junit.mjs "Unit tests" reports/unit-junit.xml
