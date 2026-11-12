@@ -84,7 +84,7 @@ Why a library and not a hand-written generator: shrinking gives the smallest fai
 
 ### D7. Speed (CHK-014, C-06)
 
-A unit test builds the worst valid keys it can — a pattern of 4000 variants, each with `'s` and `'d`, and an answer one edit from the last of them — and asserts that the median of 200 checks is under 5 ms. The expected time is tens of microseconds, so the margin absorbs a slow CI machine. The measured medians of checking and of preparing are printed in the test output. "The reference machine" is the CI runner.
+A unit test builds the worst valid keys it can — a pattern of 4000 variants, each with `'s` and `'d`, and an answer one edit from the last of them — and asserts that the median of 200 checks is under 5 ms. Measured on the development machine: about 0.3 ms for a check alone and 1.3 ms under coverage instrumentation, so the margin is between 4 and 15 times; preparing that key takes about 0.1 s. A key from a book has a handful of variants, not thousands, and is prepared in microseconds. The measured medians of checking and of preparing are printed in the test output. "The reference machine" is the CI runner.
 
 ### D8. Clarifications of the product description
 
@@ -116,4 +116,4 @@ Made in `docs/product/03-answer-checking.md` by this change, with the owner's ap
 ## Risks
 
 - **The loose alternative accepts too much.** It is the price CHK-001 states. Readers use `[a|b]` wherever they can.
-- **A timing test can fail on a busy machine.** The margin is two orders of magnitude; if it ever fails, the cause is worth knowing.
+- **A timing test can fail on a busy machine.** The margin is at least 4 times (D7). If the test proves unsteady in CI, the search for a near match gets an index by deleted character instead of a scan; the limit is not raised.
