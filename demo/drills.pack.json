@@ -1,0 +1,852 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "demo-drills",
+  "version": "1.0.0",
+  "title": "Everyday Grammar: Demo Drills",
+  "language": "en",
+  "instructionLanguage": "en",
+  "original": true,
+  "license": "CC-BY-4.0",
+  "source": {
+    "title": "Everyday Grammar: Demo Drills",
+    "authors": [
+      "English Drill Book project"
+    ],
+    "edition": "1",
+    "year": 2026,
+    "documents": [
+      {
+        "role": "book",
+        "sha256": "7740bab7213909fe5c9f9149d66beec9185e50d30daaca7250ef935d3a4c1eb1",
+        "pages": 6
+      }
+    ]
+  },
+  "units": [
+    {
+      "id": "1",
+      "title": "To be: am, is, are",
+      "pages": [
+        {
+          "document": "book",
+          "from": 2,
+          "to": 2
+        }
+      ],
+      "exercises": [
+        {
+          "id": "1.1",
+          "type": "items",
+          "task": "Write questions with the words.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 2,
+              "to": 2
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "you / ready",
+              "accept": [
+                "Are you ready"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "the museum / open",
+              "accept": [
+                "Is the museum open"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "your parents / at home",
+              "accept": [
+                "Are your parents at home"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "Nell / your sister",
+              "accept": [
+                "Is Nell your sister"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "it / far from here",
+              "accept": [
+                "Is it far from here"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "we / late",
+              "accept": [
+                "Are we late"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "type": "items",
+          "task": "Give a short answer.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 2,
+              "to": 2
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "Are you a student? (yes)",
+              "accept": [
+                "Yes, I am"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "Is Kofi at school? (no)",
+              "accept": [
+                "No, he isn't",
+                "No, he's not"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "Is the tea hot? (yes)",
+              "accept": [
+                "Yes, it is"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "Are the children asleep? (no)",
+              "accept": [
+                "No, they aren't",
+                "No, they're not"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "Am I late? (no)",
+              "accept": [
+                "No, you aren't",
+                "No, you're not"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "Is your flat big? (yes)",
+              "accept": [
+                "Yes, it is"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "type": "items",
+          "task": "Choose the correct form.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 2,
+              "to": 2
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "My grandparents ___ eighty years old.",
+              "accept": [
+                "are"
+              ],
+              "choices": [
+                "is",
+                "are"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "This bag ___ very heavy.",
+              "accept": [
+                "isn't"
+              ],
+              "choices": [
+                "isn't",
+                "aren't"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "I ___ good at maths.",
+              "accept": [
+                "'m not"
+              ],
+              "choices": [
+                "'m not",
+                "isn't",
+                "aren't"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "Where ___ my glasses?",
+              "accept": [
+                "are"
+              ],
+              "choices": [
+                "is",
+                "are"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "___ your teacher from Ireland?",
+              "accept": [
+                "Is"
+              ],
+              "choices": [
+                "Is",
+                "Are"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "The windows ___ open, so the room is cold.",
+              "accept": [
+                "are"
+              ],
+              "choices": [
+                "is",
+                "are"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Present simple: I work, she works",
+      "pages": [
+        {
+          "document": "book",
+          "from": 3,
+          "to": 3
+        }
+      ],
+      "exercises": [
+        {
+          "id": "2.1",
+          "type": "items",
+          "task": "Make the sentences negative.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 3,
+              "to": 3
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "I drink coffee.",
+              "accept": [
+                "I don't drink coffee"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "Priya lives in Oslo.",
+              "accept": [
+                "Priya doesn't live in Oslo"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "We watch the news.",
+              "accept": [
+                "We don't watch the news"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "The shop opens on Sundays.",
+              "accept": [
+                "The shop doesn't open on Sundays"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "My brother plays the guitar.",
+              "accept": [
+                "My brother doesn't play the guitar"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "They know the answer.",
+              "accept": [
+                "They don't know the answer"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "type": "items",
+          "task": "Write questions with the words.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 3,
+              "to": 3
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "you / like / jazz",
+              "accept": [
+                "Do you like jazz"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "Ivo / speak / Spanish",
+              "accept": [
+                "Does Ivo speak Spanish"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "your friends / live / near you",
+              "accept": [
+                "Do your friends live near you"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "the film / start / at eight",
+              "accept": [
+                "Does the film start at eight"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "your cat / sleep / a lot",
+              "accept": [
+                "Does your cat sleep a lot"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "where / you / work",
+              "accept": [
+                "Where do you work"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "type": "items",
+          "task": "Choose the correct form of the verb.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 3,
+              "to": 3
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "My sister ___ to the radio in the car.",
+              "accept": [
+                "listens"
+              ],
+              "choices": [
+                "listen",
+                "listens"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "We ___ dinner at half past seven.",
+              "accept": [
+                "have"
+              ],
+              "choices": [
+                "have",
+                "has"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "Does Marta ___ to work?",
+              "accept": [
+                "cycle"
+              ],
+              "choices": [
+                "cycle",
+                "cycles"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "The museum ___ at ten in the morning.",
+              "accept": [
+                "opens"
+              ],
+              "choices": [
+                "open",
+                "opens"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "My parents ___ a lot of tea.",
+              "accept": [
+                "drink"
+              ],
+              "choices": [
+                "drink",
+                "drinks"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "Bruno ___ his homework after school.",
+              "accept": [
+                "does"
+              ],
+              "choices": [
+                "do",
+                "does"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "A and an",
+      "pages": [
+        {
+          "document": "book",
+          "from": 4,
+          "to": 4
+        }
+      ],
+      "exercises": [
+        {
+          "id": "3.1",
+          "type": "items",
+          "task": "Choose a or an.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 4,
+              "to": 4
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "I would like ___ orange juice.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "There is ___ spider in the bath!",
+              "accept": [
+                "a"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "It was ___ easy test.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "She studies at ___ university in Spain.",
+              "accept": [
+                "a"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "We need ___ hour to cook it.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "He has ___ old blue car.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "type": "items",
+          "task": "Find the mistake in each sentence. Write the correct sentence.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 4,
+              "to": 4
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "She is a artist.",
+              "accept": [
+                "She is an artist"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "I have an car.",
+              "accept": [
+                "I have a car"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "They are an students.",
+              "accept": [
+                "They are students"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "He is engineer.",
+              "accept": [
+                "He is an engineer"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "We need a onion for the soup.",
+              "accept": [
+                "We need an onion for the soup"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "It is an useful app.",
+              "accept": [
+                "It is a useful app"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "type": "items",
+          "task": "Answer the questions. Use a or an and the word in brackets.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 4,
+              "to": 4
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "What is a cat? (animal)",
+              "accept": [
+                "(It is) an animal"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "What is a rose? (flower)",
+              "accept": [
+                "(It is) a flower"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "What is Lisbon? (city)",
+              "accept": [
+                "(It is) a city"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "What is a lemon? (fruit)",
+              "accept": [
+                "(It is) a fruit"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "What is an owl? (bird)",
+              "accept": [
+                "(It is) a bird"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "What is Danish? (language)",
+              "accept": [
+                "(It is) a language"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "There is and there are",
+      "pages": [
+        {
+          "document": "book",
+          "from": 5,
+          "to": 5
+        }
+      ],
+      "exercises": [
+        {
+          "id": "4.1",
+          "type": "items",
+          "task": "Write sentences with there is or there are.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 5,
+              "to": 5
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "a cat / on the roof",
+              "accept": [
+                "There is a cat on the roof"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "apples / in the bowl",
+              "accept": [
+                "There are (some) apples in the bowl"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "a post office / in the village",
+              "accept": [
+                "There is a post office in the village"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "books / under the bed",
+              "accept": [
+                "There are (some) books under the bed"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "a message / for you",
+              "accept": [
+                "There is a message for you"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "clouds / in the sky",
+              "accept": [
+                "There are (some) clouds in the sky"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4.2",
+          "type": "items",
+          "task": "Choose some or any.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 5,
+              "to": 5
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "There are ___ biscuits in the tin.",
+              "accept": [
+                "some"
+              ],
+              "choices": [
+                "some",
+                "any"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "Are there ___ buses after midnight?",
+              "accept": [
+                "any"
+              ],
+              "choices": [
+                "some",
+                "any"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "There aren't ___ chairs in the hall.",
+              "accept": [
+                "any"
+              ],
+              "choices": [
+                "some",
+                "any"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "There are ___ flowers on the table.",
+              "accept": [
+                "some"
+              ],
+              "choices": [
+                "some",
+                "any"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "Are there ___ good films on tonight?",
+              "accept": [
+                "any"
+              ],
+              "choices": [
+                "some",
+                "any"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "There aren't ___ towels in the bathroom.",
+              "accept": [
+                "any"
+              ],
+              "choices": [
+                "some",
+                "any"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4.3",
+          "type": "items",
+          "task": "Complete the conversation with there is, there are, is there or are there.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 5,
+              "to": 5
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "A: Excuse me, ___ a chemist near here?",
+              "accept": [
+                "is there"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "B: Yes, ___ one next to the bank.",
+              "accept": [
+                "there is / there's"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "A: Great. And ___ any good cafes in this area?",
+              "accept": [
+                "are there"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "B: Yes, ___ two on Mill Street.",
+              "accept": [
+                "there are"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "A: ___ a cash machine on Mill Street too?",
+              "accept": [
+                "Is there"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "B: No, ___, sorry.",
+              "accept": [
+                "there isn't / there's not"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

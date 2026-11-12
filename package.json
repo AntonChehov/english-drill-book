@@ -30,7 +30,8 @@
     "lhci": "lhci autorun",
     "commitlint": "commitlint --verbose",
     "verify": "pnpm check && pnpm test:coverage && pnpm test:speed && pnpm e2e && pnpm size && pnpm lhci",
-    "screenshots": "playwright test --project=screenshots"
+    "screenshots": "playwright test --project=screenshots",
+    "demo:build": "node scripts/build-demo-books.mjs"
   },
   "dependencies": {
     "pdfjs-dist": "6.5.438",
