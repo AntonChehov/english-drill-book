@@ -26,15 +26,25 @@ describe("the lint override of src/domain/checking", () => {
   const domain = rulesOf("src/domain/**");
   const checking = rulesOf("src/domain/checking/**");
 
-  for (const rule of ["no-restricted-globals", "no-restricted-properties"]) {
-    it(`keeps every restriction of src/domain in ${rule}`, () => {
+  // Every rule both overrides set: the checker's must be at least as strict.
+  const shared = Object.keys(checking).filter((rule) => rule in domain);
+
+  it("sets the rules of the locale and the clock", () => {
+    expect(shared).toEqual(
+      expect.arrayContaining(["no-restricted-globals", "no-restricted-properties"]),
+    );
+  });
+
+  for (const rule of shared) {
+    it(`keeps ${rule} an error with every restriction of src/domain`, () => {
+      expect([checking[rule]].flat()[0]).toBe("error");
       const kept = restrictions(checking, rule);
       for (const restriction of restrictions(domain, rule))
         expect(kept).toContainEqual(restriction);
     });
   }
 
-  it("adds the locale rules of CHK-013", () => {
+  it("@req CHK-013 adds the locale rules of the checker", () => {
     expect(restrictions(checking, "no-restricted-globals")).toContainEqual({
       name: "Intl",
       object: undefined,
