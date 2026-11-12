@@ -61,6 +61,7 @@ describe("artifactPaths", () => {
 
   const complete = [
     "unit/unit-junit.xml",
+    "unit/speed-junit.xml",
     "unit/coverage/coverage-summary.json",
     "size/metrics.json",
     "lighthouse/manifest.json",
@@ -72,7 +73,7 @@ describe("artifactPaths", () => {
   it("finds every report in the layout of a checks run", () => {
     const root = artifacts(complete);
     expect(artifactPaths(root)).toEqual({
-      unit: [join(root, "unit/unit-junit.xml")],
+      unit: [join(root, "unit/unit-junit.xml"), join(root, "unit/speed-junit.xml")],
       e2e: [join(root, "e2e-chromium/e2e-chromium.xml"), join(root, "e2e-webkit/e2e-webkit.xml")],
       coverage: join(root, "unit/coverage/coverage-summary.json"),
       lighthouse: join(root, "lighthouse/manifest.json"),

@@ -74,16 +74,21 @@ jobs:
       - name: Unit tests with coverage of src/domain
         run: pnpm test:coverage
       - name: Speed of the checker (CHK-014), without coverage instrumentation
+        if: ${{ !cancelled() }}
         run: pnpm test:speed
       - name: Summary
         if: ${{ !cancelled() }}
         run: node scripts/junit.mjs "Unit tests" reports/unit-junit.xml
+      - name: Summary of the speed tests
+        if: ${{ !cancelled() }}
+        run: node scripts/junit.mjs "Speed of the checker" reports/speed-junit.xml
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: unit
           path: |
             reports/unit-junit.xml
+            reports/speed-junit.xml
             reports/coverage/coverage-summary.json
           if-no-files-found: error
           retention-days: 7
