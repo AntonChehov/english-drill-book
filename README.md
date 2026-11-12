@@ -41,22 +41,23 @@ pnpm install
 pnpm exec playwright install chromium firefox webkit
 ```
 
-| Command                       | What it does                                                                                  |
-| ----------------------------- | --------------------------------------------------------------------------------------------- |
-| `pnpm dev`                    | development server with hot reload                                                            |
-| `pnpm build`                  | production build into `dist/`                                                                 |
-| `pnpm preview`                | serves the production build at <http://localhost:4173/>                                       |
-| `pnpm check`                  | types, lint, formatting, OpenSpec validation, requirement traceability, dependency advisories |
-| `pnpm test`                   | unit tests                                                                                    |
-| `pnpm test:coverage`          | unit tests with the coverage thresholds of `src/domain`                                       |
-| `pnpm e2e`                    | builds, then runs the end-to-end tests on Chromium, Firefox and WebKit                        |
-| `pnpm size`                   | initial JavaScript and CSS of the last build against the budgets; writes `metrics.json`       |
-| `pnpm lhci`                   | Lighthouse on the last build, mobile profile                                                  |
-| `pnpm screenshots`            | screenshots of the last build: every view, both themes, two widths, into `screenshots/`       |
-| `pnpm verify`                 | `check`, `test:coverage`, `e2e`, `size` and `lhci` in turn: the gates CI runs, locally        |
-| `pnpm format`                 | formats the code with Prettier                                                                |
-| `pnpm commitlint --from main` | checks the messages of the branch's commits                                                   |
-| `pnpm review:hash <change>`   | the hash of the content a review reads, for its line `Reviewed:`; fetches `main` first        |
+| Command                       | What it does                                                                                         |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                    | development server with hot reload                                                                   |
+| `pnpm build`                  | production build into `dist/`                                                                        |
+| `pnpm preview`                | serves the production build at <http://localhost:4173/>                                              |
+| `pnpm check`                  | types, lint, formatting, OpenSpec validation, requirement traceability, dependency advisories        |
+| `pnpm test`                   | unit tests                                                                                           |
+| `pnpm test:coverage`          | unit tests with the coverage thresholds of `src/domain`, without the speed test                      |
+| `pnpm test:speed`             | the speed test of the checker (CHK-014), without coverage instrumentation                            |
+| `pnpm e2e`                    | builds, then runs the end-to-end tests on Chromium, Firefox and WebKit                               |
+| `pnpm size`                   | initial JavaScript and CSS of the last build against the budgets; writes `metrics.json`              |
+| `pnpm lhci`                   | Lighthouse on the last build, mobile profile                                                         |
+| `pnpm screenshots`            | screenshots of the last build: every view, both themes, two widths, into `screenshots/`              |
+| `pnpm verify`                 | `check`, `test:coverage`, `test:speed`, `e2e`, `size` and `lhci` in turn: the gates CI runs, locally |
+| `pnpm format`                 | formats the code with Prettier                                                                       |
+| `pnpm commitlint --from main` | checks the messages of the branch's commits                                                          |
+| `pnpm review:hash <change>`   | the hash of the content a review reads, for its line `Reviewed:`; fetches `main` first               |
 
 On every pull request CI runs the same gates, publishes screenshots and numbers in a comment and checks the evidence the constitution asks for (C-18); see `.github/workflows/`.
 

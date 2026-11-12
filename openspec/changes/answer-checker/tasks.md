@@ -1,0 +1,33 @@
+# Tasks
+
+Tasks marked **(owner)** need the owner and cannot be done by an agent.
+
+## 1. Patterns
+
+- [x] 1.1 Add `fast-check` as a development dependency with a fixed seed in the test setup; verify `pnpm audit` passes and a sample property runs — `fast-check` 4.10.2, seed set in `vitest.setup.ts`; `pnpm audit` found no vulnerabilities; a sample property ran with the global seed
+- [x] 1.2 Write `expandPattern` in `src/domain/checking/pattern.ts` as in design D2 with the errors of D1; verify with unit tests named `@req CHK-001` and `@req CHK-002` covering every scenario of the delta spec for the two requirements
+- [x] 1.3 Add the property "expanding any string never throws, and a valid result has 1 to 4000 variants"; verify it passes
+
+## 2. Normalisation
+
+- [x] 2.1 Write `readings` in `normalise.ts` as in design D3; verify with unit tests named `@req CHK-003` and `@req CHK-004` covering their scenarios, including the bound of four independent readings
+- [x] 2.2 Forbid `toLocaleLowerCase`, `toLocaleUpperCase`, `localeCompare`, `Intl` and `Date` under `src/domain/checking` by a lint rule; verify with a deliberately failing file that is then removed — a probe file in `src/domain/checking` failed on each of them and on the rules of `src/domain` kept by the override; the same calls in `src/domain` outside `checking` passed; the probe was removed
+
+## 3. Verdicts
+
+- [x] 3.1 Write `isOneEditApart` in `distance.ts`; verify with unit tests and with a property comparing it to a plain Levenshtein distance written in the test
+- [x] 3.2 Write `compileKey` in `key.ts` as in design D4; verify that an invalid pattern gives errors with its index and no key
+- [x] 3.3 Write `checkAnswer` in `check.ts` as in design D5 and export the interface from `index.ts`; verify with unit tests named `@req CHK-005` – `@req CHK-009` covering every scenario of the delta spec
+- [x] 3.4 Add the properties of design D6 named `@req CHK-012` and `@req CHK-013`, and the scenario of the capital `I`; verify they pass with the fixed seed and with `LANG=tr_TR.UTF-8` — 96 checker tests passed with the fixed seed, with `LANG=tr_TR.UTF-8 LC_ALL=tr_TR.UTF-8` (default locale `tr-TR`) as without; lowering case with `toLocaleLowerCase("tr")` instead made 8 of them fail
+- [x] 3.5 Add the speed test of design D7 named `@req CHK-014`, printing the medians of checking and of preparing; verify it passes locally and record both numbers here — after review round 3, `pnpm test:speed` on the owner's machine, three runs, median of 200 checks: four `α's` and 329 `α'd` 0.74 ms (the worst), 4 endings 0.65 – 0.72 ms, `x's` 250 times 0.68 – 0.71 ms, 8 endings 0.59 – 0.70 ms, the 1000-character answers 0.41 – 0.71 ms, 1 ending 0.40 – 0.41 ms, 4000 readings 0.07 ms, `near` 0.02 – 0.03 ms, 200 000 characters 0.002 ms; median of preparing: the keys checked at most 12.7 ms, the slowest valid key found (4000 variants with 12 marks) 14.6 – 18.6 ms, the slowest refused key found (4000 variants of 400 marks) 36.5 – 39.1 ms, every other key under 4 ms
+
+## 4. Product description
+
+- [x] 4.1 Make the clarifications of design D8 in `docs/product/03-answer-checking.md`; verify the delta spec and the text state the same rules — the example of the Purpose, CHK-002 (characters, the spaced slash in a group, the length of a pattern, the raw size, variants and readings of a key, twenty errors), step 3 (single quotation marks, also before punctuation, with letters of any script) and step 5 of CHK-003, CHK-007 (the length of an answer) and CHK-014 read against the delta spec requirement by requirement
+
+## 5. Review and evidence
+
+- [x] 5.1 Run `pnpm verify` from a clean build; verify it passes, coverage of `src/domain` is at least 95 % of lines and branches, and `pnpm size` shows the bundle unchanged — after review round 3, run without `dist`, `reports`, `.lighthouseci` and `test-results`: `pnpm check` passed; `pnpm test:coverage` 427 tests, `src/domain` 100 % lines and 98.16 % branches; `pnpm test:speed` 13 tests, worst median of a check 0.74 ms; `pnpm build`, then the end-to-end tests on Chromium and Firefox passed (24), while WebKit does not start on this machine (missing `libavif.so.16`), so `pnpm e2e` and `pnpm verify` fail on WebKit only; `pnpm size` 34.57 kB of JS and 0.50 kB of CSS gzip, the same file hashes as the build before this change, no checker code in `dist`; `pnpm lhci` passed
+- [x] 5.2 Open the pull request as the bot with the sections of C-18 item 1, stating that there is no visual change; verify every check but `evidence` is green — pull request [#8](https://github.com/AntonChehov/english-drill-book/pull/8); on its first commit every check but `evidence` was green
+- [x] 5.3 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; a reviewing agent writes the next round; repeat until a round approves the latest content; verify the `evidence` check is green — round 1 raised F1 – F6, round 2 F7 – F10, round 3 F11; all are fixed and confirmed; round 4 approved the content `cb105feeeaf8`; the run on the commit that records this tick is green
+- [ ] 5.4 **(owner)** Read the pull request and the declined findings, approve and merge

@@ -47,7 +47,8 @@ export function artifactPaths(directory) {
     .toSorted()
     .map((name) => join(directory, name, `${name}.xml`));
   const paths = {
-    unit: [join(directory, "unit", "unit-junit.xml")],
+    // The speed of the checker runs apart from the coverage run (CHK-014); both are unit tests.
+    unit: [join(directory, "unit", "unit-junit.xml"), join(directory, "unit", "speed-junit.xml")],
     e2e,
     coverage: join(directory, "unit", "coverage", "coverage-summary.json"),
     lighthouse: join(directory, "lighthouse", "manifest.json"),

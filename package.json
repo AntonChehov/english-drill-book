@@ -23,12 +23,13 @@
     "audit": "pnpm audit --audit-level=high",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm spec && pnpm trace && pnpm audit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --exclude \"**/speed.test.ts\"",
+    "test:speed": "vitest run src/domain/checking/speed.test.ts --reporter=default --reporter=junit --outputFile.junit=reports/speed-junit.xml",
     "e2e": "pnpm build && playwright test --project=chromium --project=firefox --project=webkit",
     "size": "node scripts/size.mjs",
     "lhci": "lhci autorun",
     "commitlint": "commitlint --verbose",
-    "verify": "pnpm check && pnpm test:coverage && pnpm e2e && pnpm size && pnpm lhci",
+    "verify": "pnpm check && pnpm test:coverage && pnpm test:speed && pnpm e2e && pnpm size && pnpm lhci",
     "screenshots": "playwright test --project=screenshots"
   },
   "dependencies": {
@@ -46,6 +47,7 @@
     "@vitejs/plugin-vue": "6.0.10",
     "@vitest/coverage-v8": "5.1.0",
     "@vue/tsconfig": "0.9.1",
+    "fast-check": "4.10.2",
     "oxlint": "1.93.0",
     "prettier": "3.9.10",
     "typescript": "6.0.3",
