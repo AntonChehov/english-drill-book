@@ -44,7 +44,7 @@ export const messages = {
   textBeforeRounds: (line) =>
     `\`review.md\` has the line \`${quote(line)}\` before its first round. Before \`## Round 1\` the record holds only its title, \`# Review\`: move the line under \`### Notes\` of a round, which any round may have.`,
   htmlComment: (line) =>
-    `\`review.md\` has an HTML comment on line ${line}. A comment is not shown on the pull request, so the record would hold text its reader cannot see: delete it, or write the text openly under \`### Notes\`; to quote \`<!--\` itself, put it in a fenced block.`,
+    `\`review.md\` has an HTML comment on line ${line}. A comment is not shown on the pull request, so the record would hold text its reader cannot see: delete it, or write the text openly under \`### Notes\`; to mention the characters themselves, write \`&lt;!--\`.`,
   unclosedFence: (line) =>
     `\`review.md\` has a fenced block, opened on line ${line}, that is never closed, so everything after it is read as text. Close it with a line that repeats its opening fence.`,
   repeatedLine: (round, name) =>
@@ -143,6 +143,20 @@ function forbiddenInText(trimmed, previous) {
   return undefined;
 }
 
+/**
+ * The numbers of the lines that hold an HTML comment's opening `<!--`, wherever it stands,
+ * fenced blocks included (review-follow-ups D2): found in the raw text, so that no reading of
+ * fences or line endings can hide one. Lines are counted as the parser counts them, by `\n`;
+ * a lone `\r` ends no line, so a comment after one is on the line that holds that `\r`.
+ */
+function commentLines(markdown) {
+  const lines = new Set();
+  // `\n` is not part of `<!--`, so splitting on it alone cannot cut an opening in two.
+  for (const [index, line] of markdown.split("\n").entries())
+    if (line.includes("<!--")) lines.add(index + 1);
+  return lines;
+}
+
 /** An outcome exactly as D2 writes it, or undefined. */
 function parseOutcome(text) {
   if (/^fixed\.?$/i.test(text)) return { outcome: "fixed", note: "" };
@@ -176,7 +190,12 @@ export function parseRecord(markdown) {
   /** The previous line, when it was free text: a setext underline makes it a heading. */
   let lastFree;
 
+  const commented = commentLines(markdown ?? "");
+
   for (const [index, line] of (markdown ?? "").split(/\r?\n/).entries()) {
+    // Reported before anything else on the line, and the line is then read as before, so its
+    // other problems are reported too.
+    if (commented.has(index + 1)) problems.push(messages.htmlComment(index + 1));
     const trimmed = line.trim();
     const round = place.kind === "round" ? place.round : undefined;
     const previous = lastFree;
@@ -190,9 +209,6 @@ export function parseRecord(markdown) {
       if (place.kind === "closing") place.content.push(line);
       continue;
     }
-    // Text in an HTML comment is not shown on the pull request (review-follow-ups D2). It is
-    // reported and the line is read as before, so its other problems are reported too.
-    if (line.includes("<!--")) problems.push(messages.htmlComment(index + 1));
     const marker = fenceLine.exec(line)?.[1];
     if (marker) {
       openFence = { marker, line: index + 1 };
