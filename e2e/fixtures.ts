@@ -5,10 +5,13 @@ import { test as base, expect, type BrowserContext } from "@playwright/test";
  * a request to another origin (constitution C-02), a console error, which includes
  * Content-Security-Policy violations, and an uncaught exception.
  * Requests to other origins are aborted, so a test never touches the network.
+ * A test that makes a request fail on purpose names the console error it expects with
+ * `allowConsoleError`; any other error still fails it.
  */
 export async function guardContext(context: BrowserContext, ownOrigin: string) {
   const foreignRequests: string[] = [];
   const errors: string[] = [];
+  const allowed: RegExp[] = [];
 
   await context.route(
     (url) => url.origin !== ownOrigin && /^(https?|wss?):$/.test(url.protocol),
@@ -27,15 +30,22 @@ export async function guardContext(context: BrowserContext, ownOrigin: string) {
   context.pages().forEach(watch);
   context.on("page", watch);
 
-  return function assertClean() {
-    expect(foreignRequests, "requests to other origins (C-02)").toEqual([]);
-    expect(errors, "console errors and uncaught exceptions").toEqual([]);
+  return {
+    allowConsoleError(pattern: RegExp) {
+      allowed.push(pattern);
+    },
+    assertClean() {
+      expect(foreignRequests, "requests to other origins (C-02)").toEqual([]);
+      const unexpected = errors.filter((error) => !allowed.some((pattern) => pattern.test(error)));
+      expect(unexpected, "console errors and uncaught exceptions").toEqual([]);
+    },
   };
 }
 
 interface Fixtures {
   ownOrigin: string;
-  guard: void;
+  /** Lets the console error of a request the test makes fail on purpose through the guard. */
+  allowConsoleError: (pattern: RegExp) => void;
   /** Opens a page in a new browser context with no stored state, guarded like `page`. */
   openCleanPage: (address: string) => Promise<import("@playwright/test").Page>;
 }
@@ -46,11 +56,11 @@ export const test = base.extend<Fixtures>({
     await use(new URL(baseURL).origin);
   },
 
-  guard: [
+  allowConsoleError: [
     async ({ context, ownOrigin }, use) => {
-      const assertClean = await guardContext(context, ownOrigin);
-      await use();
-      assertClean();
+      const guard = await guardContext(context, ownOrigin);
+      await use(guard.allowConsoleError);
+      guard.assertClean();
     },
     { auto: true },
   ],
@@ -59,7 +69,7 @@ export const test = base.extend<Fixtures>({
     const opened: { context: BrowserContext; assertClean: () => void }[] = [];
     await use(async (address) => {
       const context = await browser.newContext({ baseURL });
-      opened.push({ context, assertClean: await guardContext(context, ownOrigin) });
+      opened.push({ context, assertClean: (await guardContext(context, ownOrigin)).assertClean });
       const page = await context.newPage();
       await page.goto(address);
       return page;
