@@ -1,7 +1,14 @@
 // The speed of CHK-014 (design D7). The only test of the checker that reads a clock.
 /* oxlint-disable no-restricted-properties -- measuring time is what this test is for */
 import { describe, expect, it } from "vitest";
-import { checkAnswer, compileKey, MAX_KEY_CHARACTERS, MAX_KEY_READINGS, type Key } from "./index";
+import {
+  checkAnswer,
+  compileKey,
+  MAX_ANSWER_LENGTH,
+  MAX_KEY_CHARACTERS,
+  MAX_KEY_READINGS,
+  type Key,
+} from "./index";
 
 const CHECKS = 200;
 const PREPARATIONS = 5;
@@ -85,6 +92,60 @@ describe("speed", () => {
       expect(measure(`${count} ending(s)`, [accept], answer)).toBeLessThan(LIMIT_MS);
     });
   }
+
+  for (const count of [1, 4, 8]) {
+    it(`@req CHK-014 checks a bad answer of 1000 characters against ${count} long ending(s) in under 5 ms`, () => {
+      const { accept, answer } = sharedBeginning(count);
+      // Punctuation reads as nothing: the readings stay those of the worst answer above, and
+      // normalising reads all 1000 characters.
+      const longest = answer.padEnd(MAX_ANSWER_LENGTH, ".");
+      expect(longest).toHaveLength(MAX_ANSWER_LENGTH);
+      expect(checkAnswer(keyOf([accept]), longest)).toBe("bad");
+      const name = `1000 characters, ${count} ending(s)`;
+      expect(measure(name, [accept], longest)).toBeLessThan(LIMIT_MS);
+    });
+  }
+
+  it("@req CHK-014 refuses an answer of 200 000 characters in under 5 ms", () => {
+    const { accept } = sharedBeginning(1);
+    const pasted = `${FOUR_S} ${"b".repeat(200_000)}`;
+    expect(checkAnswer(keyOf([accept]), pasted)).toBe("bad");
+    expect(measure("200 000 characters", [accept], pasted)).toBeLessThan(LIMIT_MS);
+  });
+
+  it("@req CHK-014 prepares the keys of review round 2 in well under 100 ms", () => {
+    const ten = "[a|b|c|d|e|f|g|h|i|j]";
+    const equal = `[${Array.from({ length: 4000 }, () => "x").join("|")}]`;
+    const keys: readonly [string, readonly string[]][] = [
+      ["3999 groups of 4000 equal alternatives", Array.from({ length: 3999 }, () => equal)],
+      [
+        "200 patterns of four 's before 4000 variants",
+        Array.from({ length: 200 }, () => `${FOUR_S} ${ten} ${ten} ${ten} [a|b|c|d]`),
+      ],
+      ["one pattern of 500 000 words", [Array.from({ length: 500_000 }, () => "a").join(" ")]],
+    ];
+    for (const [name, accept] of keys) {
+      expect(compileKey(accept).ok).toBe(false);
+      const preparing = median(Array.from({ length: 3 }, () => timed(() => compileKey(accept))));
+      // oxlint-disable-next-line no-console -- design D7 asks for the medians in the test output
+      console.info(`CHK-014 preparing ${name}: median of 3 ${preparing.toFixed(2)} ms`);
+      expect(preparing).toBeLessThan(100);
+    }
+  });
+
+  it("@req CHK-014 prepares the slowest valid key found within a second", () => {
+    // 4000 patterns of 500 characters, the most a key holds: every character is normalised.
+    const accept = Array.from({ length: MAX_KEY_READINGS }, (_, index) =>
+      `${index}`.padEnd(500, "'"),
+    );
+    expect(compileKey(accept).ok).toBe(true);
+    const preparing = median(Array.from({ length: 3 }, () => timed(() => compileKey(accept))));
+    // oxlint-disable-next-line no-console -- design D7 asks for the medians in the test output
+    console.info(
+      `CHK-014 preparing 4000 patterns of 500 characters: median of 3 ${preparing.toFixed(1)} ms`,
+    );
+    expect(preparing).toBeLessThan(1000);
+  });
 
   it("@req CHK-014 checks a bad answer against 4000 readings of one shape in under 5 ms", () => {
     const ten = "[a|b|c|d|e|f|g|h|i|j]";
