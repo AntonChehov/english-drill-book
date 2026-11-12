@@ -1,20 +1,30 @@
 <script setup lang="ts">
 // The demo section of the start screen (PACK-003, design D8): one button adds the two demo books,
 // progress and failure are said in place, and a failure offers to try again without a reload.
-import { nextTick, useTemplateRef } from "vue";
+// The button stays where it is while the books are read, inactive, so the focus stays on it.
+import { computed, nextTick, useTemplateRef } from "vue";
 import { countOf } from "../../domain/plural";
 import { failureMessage, failureOf, progressMessage } from "../demo/messages";
 import { demoState } from "../demo/state";
 
 const heading = useTemplateRef<HTMLElement>("heading");
-const retry = useTemplateRef<HTMLButtonElement>("retry");
+const action = useTemplateRef<HTMLButtonElement>("action");
+
+const reading = computed(() => demoState.value.phase === "reading");
+const retrying = computed(
+  () =>
+    demoState.value.phase === "failed" ||
+    (demoState.value.phase === "reading" && demoState.value.retry),
+);
 
 async function add() {
-  demoState.value = { phase: "reading", message: "Загружаем демо-книги…" };
+  if (reading.value) return;
+  const retry = retrying.value;
+  demoState.value = { phase: "reading", message: "Загружаем демо-книги…", retry };
   try {
     const { addDemo } = await import("../demo/add-demo");
     const packs = await addDemo((progress) => {
-      demoState.value = { phase: "reading", message: progressMessage(progress) };
+      demoState.value = { phase: "reading", message: progressMessage(progress), retry };
     });
     demoState.value = {
       phase: "added",
@@ -33,7 +43,7 @@ async function add() {
   } catch (error) {
     demoState.value = { phase: "failed", message: failureMessage(failureOf(error)) };
     await nextTick();
-    retry.value?.focus();
+    action.value?.focus();
   }
 }
 
@@ -46,22 +56,28 @@ const exercises = ["упражнение", "упражнения", "упражн
       {{ demoState.phase === "added" ? "Демо-книги добавлены" : "Демо-книги" }}
     </h2>
 
-    <p v-if="demoState.phase === 'idle'">
+    <p v-if="demoState.phase !== 'added'">
       Две короткие книги, написанные для этого приложения: курс грамматики и сборник упражнений к
       нему. Файлы загружаются с этого сайта, выбирать ничего не нужно.
     </p>
-    <button v-if="demoState.phase === 'idle'" type="button" class="action" @click="add">
-      Попробовать демо
+    <p v-if="demoState.phase === 'failed'" class="failure" role="alert">
+      {{ demoState.message }}
+    </p>
+    <button
+      v-if="demoState.phase !== 'added'"
+      ref="action"
+      type="button"
+      class="action"
+      :aria-disabled="reading ? 'true' : undefined"
+      @click="add"
+    >
+      {{ retrying ? "Попробовать ещё раз" : "Попробовать демо" }}
     </button>
 
+    <!-- The live region is always in the page, so its first message is announced. -->
     <p class="status" role="status">
       {{ demoState.phase === "reading" ? demoState.message : "" }}
     </p>
-
-    <template v-if="demoState.phase === 'failed'">
-      <p class="failure" role="alert">{{ demoState.message }}</p>
-      <button ref="retry" type="button" class="action" @click="add">Попробовать ещё раз</button>
-    </template>
 
     <template v-if="demoState.phase === 'added'">
       <p>
@@ -116,8 +132,16 @@ h3 {
   background: var(--color-button-hover);
 }
 
+.action[aria-disabled="true"] {
+  cursor: progress;
+}
+
+.status {
+  margin: 0.75rem 0 0;
+}
+
 .status:empty {
-  display: none;
+  margin: 0;
 }
 
 .failure {

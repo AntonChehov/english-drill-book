@@ -17,7 +17,8 @@ export interface DemoBookSummary {
 
 export type DemoState =
   | { readonly phase: "idle" }
-  | { readonly phase: "reading"; readonly message: string }
+  /** `retry` when an earlier attempt failed, so the button keeps saying so. */
+  | { readonly phase: "reading"; readonly message: string; readonly retry: boolean }
   | { readonly phase: "added"; readonly books: readonly DemoBookSummary[] }
   | { readonly phase: "failed"; readonly message: string };
 
