@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compileKey, type Key } from "./key";
+import { compileKey, MAX_KEY_CHARACTERS, MAX_KEY_READINGS, type Key } from "./key";
 
 function keyOf(accept: readonly string[]): Key {
   const compiled = compileKey(accept);
@@ -22,6 +22,64 @@ describe("compileKey", () => {
         { index: 0, reason: "stray-character" },
         { index: 2, reason: "dangling-slash" },
       ],
+    });
+  });
+
+  describe("@req CHK-002 the size of a key", () => {
+    const ten = "[a|b|c|d|e|f|g|h|i|j]";
+    const fourThousand = `${ten} ${ten} ${ten} [a|b|c|d]`;
+
+    it("@req CHK-002 accepts a key of exactly 4000 readings", () => {
+      expect(MAX_KEY_READINGS).toBe(4000);
+      expect(keyOf([fourThousand]).readings.size).toBe(MAX_KEY_READINGS);
+    });
+
+    it("@req CHK-002 reports a key of more than 4000 readings", () => {
+      expect(compileKey([fourThousand, "one more"])).toEqual({
+        ok: false,
+        errors: [{ index: null, reason: "key-too-large" }],
+      });
+      expect(
+        compileKey([
+          "he's [a|b|c|d|e|f|g|h|i|j] [a|b|c|d|e|f|g|h|i|j] [a|b|c|d|e|f|g|h|i|j] [a|b]",
+        ]),
+      ).toEqual({
+        ok: false,
+        errors: [{ index: null, reason: "key-too-large" }],
+      });
+    });
+
+    it("@req CHK-002 counts readings as they are produced, duplicates included", () => {
+      const twice = compileKey([fourThousand, `${ten} ${ten} ${ten} [a|b|c|d]`]);
+      expect(twice.ok).toBe(false);
+    });
+
+    it("@req CHK-002 accepts readings of 20 000 characters and reports more", () => {
+      expect(MAX_KEY_CHARACTERS).toBe(20_000);
+      expect(compileKey(["a".repeat(MAX_KEY_CHARACTERS)]).ok).toBe(true);
+      expect(compileKey(["a".repeat(10_000), "b".repeat(10_001)])).toEqual({
+        ok: false,
+        errors: [{ index: null, reason: "key-too-large" }],
+      });
+    });
+
+    it("@req CHK-002 reports a key too large together with its invalid patterns", () => {
+      expect(compileKey(["(a", fourThousand, "x", "b)"])).toEqual({
+        ok: false,
+        errors: [
+          { index: 0, reason: "unclosed-group" },
+          { index: 3, reason: "stray-character" },
+          { index: null, reason: "key-too-large" },
+        ],
+      });
+    });
+
+    it("@req CHK-002 reports the reviewer's key of four 's as too large", () => {
+      const pattern = `he's she's it's that's ${ten} ${ten} ${ten} [a|b|c|d]`;
+      expect(compileKey([pattern])).toEqual({
+        ok: false,
+        errors: [{ index: null, reason: "key-too-large" }],
+      });
     });
   });
 
