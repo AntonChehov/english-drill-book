@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { checkAnswer, compileKey, NEAR_MIN_LENGTH, type CheckOptions, type Verdict } from "./index";
+import {
+  checkAnswer,
+  compileKey,
+  MAX_ANSWER_LENGTH,
+  NEAR_MIN_LENGTH,
+  type CheckOptions,
+  type Verdict,
+} from "./index";
 
 function verdict(
   accept: readonly string[],
@@ -12,6 +19,11 @@ function verdict(
 }
 
 const LEFT_SINGLE_QUOTE = String.fromCodePoint(0x2018);
+/** `she goes` followed by spaces up to `length` characters. */
+function padded(length: number): string {
+  return "she goes".padEnd(length, " ");
+}
+
 const RIGHT_SINGLE_QUOTE = String.fromCodePoint(0x2019);
 const COMBINING_ACUTE = String.fromCodePoint(0x0301);
 const E_ACUTE = String.fromCodePoint(0x00e9);
@@ -81,6 +93,17 @@ describe("checkAnswer", () => {
     it("@req CHK-003 expands a contraction before a closing quotation mark", () => {
       const quoted = `${LEFT_SINGLE_QUOTE}I can${RIGHT_SINGLE_QUOTE}t${RIGHT_SINGLE_QUOTE}`;
       expect(verdict([quoted], "I cannot")).toBe("ok");
+    });
+
+    it("@req CHK-003 opens a quotation before punctuation, as direct speech often does", () => {
+      expect(verdict(["'...I can't'"], "I can not")).toBe("ok");
+      expect(verdict(["'...I can't'"], "...I can't")).toBe("ok");
+      expect(verdict(["'— I can't'"], "I can not")).toBe("ok");
+      expect(verdict(["yes"], "'...yes'")).toBe("ok");
+    });
+
+    it("@req CHK-003 reads an apostrophe after a space as an opening quotation mark", () => {
+      expect(verdict(["he is late"], "he 's late")).not.toBe("ok");
     });
 
     it("@req CHK-003 keeps the apostrophe of a plural possessive", () => {
@@ -170,6 +193,20 @@ describe("checkAnswer", () => {
   describe("@req CHK-007 wrong answer", () => {
     it("@req CHK-007 is bad for another word", () => {
       expect(verdict(["she goes"], "she went")).toBe("bad");
+    });
+
+    it("@req CHK-007 is bad for an answer of more than 1000 characters, unread", () => {
+      expect(MAX_ANSWER_LENGTH).toBe(1000);
+      expect(verdict(["she goes"], padded(1000))).toBe("ok");
+      expect(verdict(["she goes"], padded(1001))).toBe("bad");
+      expect(verdict(["she goes"], padded(1001), { choices: ["she goes", "she went"] })).toBe(
+        "bad",
+      );
+      expect(verdict(["", "the"], "the".padEnd(1001, "."))).toBe("bad");
+    });
+
+    it("@req CHK-008 keeps a blank answer of any length without a verdict", () => {
+      expect(verdict(["she goes"], " ".repeat(5000))).toBeNull();
     });
 
     it("@req CHK-007 is bad for punctuation only", () => {

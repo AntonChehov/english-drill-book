@@ -14,6 +14,12 @@ export interface CheckOptions {
 /** The shortest reading of an answer that can be `near` (CHK-006). */
 export const NEAR_MIN_LENGTH = 4;
 
+/**
+ * The longest answer that is read, in UTF-16 code units as typed. A longer one is `bad` without
+ * being normalised or compared (CHK-007), so a check stays within the time of CHK-014.
+ */
+export const MAX_ANSWER_LENGTH = 1000;
+
 const BLANK = /^\s*$/u;
 
 /**
@@ -22,6 +28,7 @@ const BLANK = /^\s*$/u;
  */
 export function checkAnswer(key: Key, answer: string, options: CheckOptions = {}): Verdict | null {
   if (BLANK.test(answer)) return key.acceptsBlank ? "ok" : null;
+  if (answer.length > MAX_ANSWER_LENGTH) return "bad";
 
   const answerReadings = readings(answer);
   if (answerReadings.some(({ text }) => key.readings.has(text))) return "ok";
