@@ -9,6 +9,19 @@ export const MAX_KEY_READINGS = 4000;
 /** The most characters those readings may have together, after normalisation. */
 export const MAX_KEY_CHARACTERS = 20_000;
 
+/**
+ * The most characters (code points) the patterns of a key may have together, checked before any
+ * of them is read: forty patterns of the 500 characters of `MAX_PATTERN_LENGTH`.
+ */
+export const MAX_KEY_PATTERN_CHARACTERS = 20_000;
+
+/**
+ * The most characters (UTF-16 code units) the variants of a key may have together, counted as
+ * they are produced, duplicates included, before they are normalised: it bounds the work of
+ * normalising variants whose characters are mostly dropped, such as marks or punctuation.
+ */
+export const MAX_KEY_VARIANT_CHARACTERS = 100_000;
+
 /** The most invalid patterns that are reported; after that many the rest of the key is not read. */
 export const MAX_KEY_ERRORS = 20;
 
@@ -37,12 +50,21 @@ export type CompiledKey =
   | { readonly ok: true; readonly key: Key }
   | { readonly ok: false; readonly errors: readonly KeyError[] };
 
+/** The characters (code points) of all patterns, or more than the limit once that is certain. */
+function patternCharacters(accept: readonly string[]): number {
+  const units = accept.reduce((sum, pattern) => sum + pattern.length, 0);
+  // A code point is one or two UTF-16 units: twice the limit in units is over it in any case.
+  if (units <= MAX_KEY_PATTERN_CHARACTERS || units > 2 * MAX_KEY_PATTERN_CHARACTERS) return units;
+  return accept.reduce((sum, pattern) => sum + [...pattern].length, 0);
+}
+
 /**
- * Prepares the key of `accept`. Readings and their characters are counted across all patterns
- * as they are produced, duplicates included; the moment the key passes a limit, all work stops:
- * later patterns are neither expanded nor reported. Reading also stops after the twentieth
- * invalid pattern. So preparing is bounded: at most 4000 valid and 20 invalid patterns of at
- * most 500 characters are read.
+ * Prepares the key of `accept`. A key whose patterns have more than 20 000 characters together
+ * is refused before any is read. Variants, readings and their characters are counted across all
+ * patterns as they are produced, duplicates included; the moment the key passes a limit, all
+ * work stops: later patterns are neither expanded nor reported. Reading also stops after the
+ * twentieth invalid pattern. So preparing is bounded: at most 20 000 characters of patterns
+ * are parsed, and at most 100 000 characters of variants are normalised.
  */
 export function compileKey(accept: readonly string[]): CompiledKey {
   const errors: KeyError[] = [];
@@ -55,6 +77,11 @@ export function compileKey(accept: readonly string[]): CompiledKey {
   >();
   let produced = 0;
   let characters = 0;
+
+  if (patternCharacters(accept) > MAX_KEY_PATTERN_CHARACTERS) {
+    return { ok: false, errors: [{ index: null, reason: "key-too-large" }] };
+  }
+  let variantCharacters = 0;
 
   const store = ({ text, words }: Reading): void => {
     const counts = texts.get(text) ?? new Set<number>();
@@ -77,6 +104,10 @@ export function compileKey(accept: readonly string[]): CompiledKey {
     }
     for (const [at, variant] of expansion.variants.entries()) {
       const times = expansion.produced[at] ?? 1;
+      variantCharacters += times * variant.length;
+      if (variantCharacters > MAX_KEY_VARIANT_CHARACTERS) {
+        return { ok: false, errors: [...errors, { index: null, reason: "key-too-large" }] };
+      }
       let found = read.get(variant);
       if (found === undefined) {
         const all = readings(variant);

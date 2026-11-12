@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { compileKey, MAX_KEY_CHARACTERS, MAX_KEY_READINGS, type Key } from "./key";
+import {
+  compileKey,
+  MAX_KEY_CHARACTERS,
+  MAX_KEY_PATTERN_CHARACTERS,
+  MAX_KEY_READINGS,
+  MAX_KEY_VARIANT_CHARACTERS,
+  type Key,
+} from "./key";
 
 function keyOf(accept: readonly string[]): Key {
   const compiled = compileKey(accept);
@@ -31,7 +38,10 @@ describe("compileKey", () => {
       ok: false,
       errors: Array.from({ length: 20 }, (_, index) => ({ index, reason: "unclosed-group" })),
     });
-    expect(compileKey(accept.slice(0, 19)).ok).toBe(false);
+    expect(compileKey([...accept.slice(0, 19), "fine"])).toEqual({
+      ok: false,
+      errors: Array.from({ length: 19 }, (_, index) => ({ index, reason: "unclosed-group" })),
+    });
   });
 
   describe("@req CHK-002 the size of a key", () => {
@@ -61,6 +71,28 @@ describe("compileKey", () => {
     it("@req CHK-002 counts readings as they are produced, duplicates included", () => {
       const twice = compileKey([fourThousand, `${ten} ${ten} ${ten} [a|b|c|d]`]);
       expect(twice.ok).toBe(false);
+    });
+
+    it("@req CHK-002 refuses patterns of more than 20 000 characters together, unread", () => {
+      expect(MAX_KEY_PATTERN_CHARACTERS).toBe(20_000);
+      // An emoji is one character of two UTF-16 units, and reads as nothing.
+      const forty = Array.from({ length: 40 }, () => "\u{1F600}".repeat(500));
+      expect(compileKey(forty).ok).toBe(true);
+      expect(compileKey(["she (is late", ...forty, "x"])).toEqual({
+        ok: false,
+        errors: [{ index: null, reason: "key-too-large" }],
+      });
+    });
+
+    it("@req CHK-002 refuses variants of more than 100 000 characters together", () => {
+      expect(MAX_KEY_VARIANT_CHARACTERS).toBe(100_000);
+      const dots = (count: number) => `${fourThousand} ${".".repeat(count)}`;
+      // 4000 variants such as `a b c d .................`, of 8 + 17 characters each.
+      expect(compileKey([dots(17)]).ok).toBe(true);
+      expect(compileKey([dots(18)])).toEqual({
+        ok: false,
+        errors: [{ index: null, reason: "key-too-large" }],
+      });
     });
 
     it("@req CHK-002 accepts readings of 20 000 characters and reports more", () => {
