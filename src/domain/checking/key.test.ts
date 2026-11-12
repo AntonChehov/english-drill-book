@@ -8,6 +8,11 @@ import {
   type Key,
 } from "./key";
 
+/** Four 's and a word: 81 readings of about 20 characters more than the word. */
+function fourS(letters: number): readonly string[] {
+  return [`he's she's it's that's ${"a".repeat(letters)}`];
+}
+
 function keyOf(accept: readonly string[]): Key {
   const compiled = compileKey(accept);
   if (!compiled.ok) throw new Error(`invalid key: ${JSON.stringify(compiled.errors)}`);
@@ -98,7 +103,8 @@ describe("compileKey", () => {
       expect(MAX_KEY_CHARACTERS).toBe(20_000);
       const forty = Array.from({ length: 40 }, (_, index) => `${index % 10}`.repeat(500));
       expect(compileKey(forty).ok).toBe(true);
-      expect(compileKey([...forty, "b"])).toEqual({
+      expect(compileKey(fourS(200)).ok).toBe(true);
+      expect(compileKey(fourS(240))).toEqual({
         ok: false,
         errors: [{ index: null, reason: "key-too-large" }],
       });
