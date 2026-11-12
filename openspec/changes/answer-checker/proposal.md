@@ -8,7 +8,7 @@ Everything a learner does in the app ends in a verdict on what they typed. The v
 
 - A pure function library in `src/domain/checking`: key patterns and their expansion, normalisation of answers and keys, the verdicts `ok`, `near` and `bad`, the blank answer, items with choices.
 - Property tests of the checker and a measurement of its speed.
-- Nine clarifications of `docs/product/03-answer-checking.md` that writing the scenarios and the reviews showed to be needed (design D8). They change no intent; they settle cases the text leaves open or states inconsistently, and bound the size of a key, a pattern and an answer so that CHK-014 holds.
+- Ten clarifications of `docs/product/03-answer-checking.md` that writing the scenarios and the reviews showed to be needed (design D8). They change no intent; they settle cases the text leaves open or states inconsistently, and bound the size of a key, a pattern and an answer so that CHK-014 holds.
 
 Requirements delivered, from `docs/product/03-answer-checking.md`: **CHK-001**, **CHK-002**, **CHK-003**, **CHK-004**, **CHK-005**, **CHK-006**, **CHK-007**, **CHK-008**, **CHK-009**, **CHK-012**, **CHK-013**, **CHK-014**.
 

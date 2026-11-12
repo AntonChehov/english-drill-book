@@ -66,7 +66,7 @@ Each gradable item SHALL have `accept`, a non-empty list of patterns; an answer 
 
 ### Requirement: CHK-002 Invalid patterns
 
-A pattern SHALL be invalid if it has more than 500 characters, if a group is unclosed or nested, if `)`, `]` or `|` stands outside a group, `|` inside `( )` or a spaced `/` inside any group, if a loose alternative has no word on one of its sides, or if it expands to more than 4000 variants. A key SHALL be invalid if its patterns together give more than 4000 readings or readings of more than 20 000 characters. What is invalid SHALL be reported with its reason and SHALL NOT be used for checking.
+A pattern SHALL be invalid if it has over 500 characters, a group unclosed or nested, `)`, `]` or `|` outside a group, `|` inside `( )` or a spaced `/` inside any group, a loose alternative without a word on one side, or over 4000 variants. A key SHALL be invalid if its patterns have over 20 000 characters, its variants over 100 000, or its readings over 4000 or over 20 000 characters. What is invalid SHALL be reported with its reason, at most 20 patterns, and SHALL NOT be used for checking.
 
 #### Scenario: A pattern too long
 
@@ -124,9 +124,27 @@ A pattern SHALL be invalid if it has more than 500 characters, if a group is unc
 
 #### Scenario: A key with too long readings
 
-- **GIVEN** an item with `accept` of forty patterns, each a word of 500 letters, and one more of one letter
+- **GIVEN** an item with `accept` of `he's she's it's that's` followed by a word of 240 letters, 81 readings of about 260 characters
 - **WHEN** its key is prepared
-- **THEN** the key is not built and is reported with the reason "key too large"
+- **THEN** the key is not built and is reported with the reason "key too large", while a word of 200 letters makes a valid key
+
+#### Scenario: Patterns too long together
+
+- **GIVEN** an item with `accept` of `she (is late`, forty patterns of 500 characters each and `x`
+- **WHEN** its key is prepared
+- **THEN** it is reported with the reason "key too large" alone: no pattern is read, and the forty patterns alone make a valid key
+
+#### Scenario: Variants too long together
+
+- **GIVEN** the pattern of three groups of ten letters and one of four followed by 18 dots, 4000 variants of 26 characters
+- **WHEN** its key is prepared
+- **THEN** it is reported with the reason "key too large", while 17 dots make a valid key
+
+#### Scenario: Twenty invalid patterns
+
+- **GIVEN** an item with `accept` of 25 copies of `she (is late`
+- **WHEN** its key is prepared
+- **THEN** the first 20 are reported and the rest are not read, while 19 copies and a valid pattern give 19 errors
 
 #### Scenario: A key stops at its limit
 
@@ -148,7 +166,7 @@ A pattern SHALL be invalid if it has more than 500 characters, if a group is unc
 
 ### Requirement: CHK-003 Normalisation
 
-The answer and each variant SHALL be normalised: (1) Unicode NFC, lower case; (2) `ё` to `е`; (3) typographic apostrophes and quotes to ASCII, then each apostrophe not between letters or digits removed as a quotation mark, unless it ends a word while no quote is open; (4) contractions expanded; (5) `'s` read as `'s`, ` is` or ` has` and `'d` as ` would` or ` had`, the first four independently, later ones as the fourth; (6) all but letters, digits, apostrophes removed.
+The answer and each variant SHALL be normalised: (1) Unicode NFC, lower case; (2) `ё` to `е`; (3) typographic apostrophes and quotes to ASCII, then each apostrophe not between letters, marks or numbers of any script removed as a quotation mark, unless it ends a word while no quote is open; (4) contractions expanded; (5) `'s` read as `'s`, ` is` or ` has` and `'d` as ` would` or ` had`, the first four independently, later ones as the fourth; (6) all but letters, digits, apostrophes removed.
 
 #### Scenario: Case, spaces and final punctuation
 
