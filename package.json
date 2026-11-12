@@ -31,7 +31,7 @@
     "commitlint": "commitlint --verbose",
     "verify": "pnpm check && pnpm test:coverage && pnpm test:speed && pnpm e2e && pnpm size && pnpm lhci",
     "screenshots": "playwright test --project=screenshots",
-    "demo:build": "node scripts/build-demo-books.mjs"
+    "demo:build": "node scripts/build-demo-books.mjs && vitest run src/storage/pdf/text.test.ts --update"
   },
   "dependencies": {
     "pdfjs-dist": "6.5.438",
