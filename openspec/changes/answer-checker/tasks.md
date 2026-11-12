@@ -19,11 +19,11 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 - [x] 3.2 Write `compileKey` in `key.ts` as in design D4; verify that an invalid pattern gives errors with its index and no key
 - [x] 3.3 Write `checkAnswer` in `check.ts` as in design D5 and export the interface from `index.ts`; verify with unit tests named `@req CHK-005` – `@req CHK-009` covering every scenario of the delta spec
 - [x] 3.4 Add the properties of design D6 named `@req CHK-012` and `@req CHK-013`, and the scenario of the capital `I`; verify they pass with the fixed seed and with `LANG=tr_TR.UTF-8` — 96 checker tests passed with the fixed seed, with `LANG=tr_TR.UTF-8 LC_ALL=tr_TR.UTF-8` (default locale `tr-TR`) as without; lowering case with `toLocaleLowerCase("tr")` instead made 8 of them fail
-- [x] 3.5 Add the speed test of design D7 named `@req CHK-014`, printing the medians of checking and of preparing; verify it passes locally and record both numbers here — on the owner's machine, over three runs: median of 200 checks 0.28 – 0.32 ms; median of 11 preparations of the key 106 – 107 ms
+- [x] 3.5 Add the speed test of design D7 named `@req CHK-014`, printing the medians of checking and of preparing; verify it passes locally and record both numbers here — after review round 1, on the owner's machine, over three plain runs: worst median of 200 checks 0.69 – 0.71 ms (4 endings), 0.63 – 0.65 ms (8 endings), 0.47 – 0.48 ms (1 ending), 0.07 – 0.08 ms (4000 readings), 0.03 ms (`near`); worst median of 5 preparations 10.8 – 11.5 ms (4000 readings); under `--coverage`, two runs: worst median of checks 3.4 – 3.8 ms (8 endings); the key of round 1 is refused as `key-too-large`
 
 ## 4. Product description
 
-- [x] 4.1 Make the four clarifications of design D8 in `docs/product/03-answer-checking.md`; verify the delta spec and the text state the same rules — the example of the Purpose, CHK-002, step 5 of CHK-003 and CHK-014 read against the delta spec requirement by requirement
+- [x] 4.1 Make the clarifications of design D8 in `docs/product/03-answer-checking.md`; verify the delta spec and the text state the same rules — the example of the Purpose, CHK-002 (characters, the spaced slash in a group, the size of a key), step 3 (single quotation marks) and step 5 of CHK-003, and CHK-014 read against the delta spec requirement by requirement
 
 ## 5. Review and evidence
 

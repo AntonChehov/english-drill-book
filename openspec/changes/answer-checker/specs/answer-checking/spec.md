@@ -66,7 +66,7 @@ Each gradable item SHALL have `accept`, a non-empty list of patterns; an answer 
 
 ### Requirement: CHK-002 Invalid patterns
 
-A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` stands outside a group or `|` inside `( )`, if a loose alternative has no word on one of its sides, or if it expands to more than 4000 variants. An invalid pattern SHALL be reported with its reason and SHALL NOT be used for checking.
+A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` stands outside a group, `|` inside `( )` or a spaced `/` inside any group, if a loose alternative has no word on one of its sides, or if it expands to more than 4000 variants. A key SHALL be invalid if its patterns together give more than 4000 readings or readings of more than 20 000 characters. What is invalid SHALL be reported with its reason and SHALL NOT be used for checking.
 
 #### Scenario: Unclosed group
 
@@ -82,6 +82,11 @@ A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` 
 
 - **WHEN** the patterns `is) late`, `is] late`, `is | was` and `(is|was)` are expanded
 - **THEN** each is reported as invalid with the reason "stray character"
+
+#### Scenario: A spaced slash inside a group
+
+- **WHEN** the pattern `[a / b|c] d` is expanded
+- **THEN** it is reported as invalid with the reason "stray character"
 
 #### Scenario: A slash with nothing beside it
 
@@ -100,6 +105,24 @@ A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` 
 - **WHEN** it is expanded
 - **THEN** it is valid
 
+#### Scenario: Each split of a loose alternative counts once
+
+- **GIVEN** the pattern `(a) (b) (c) (d) (e) (f) (g) one two three four / five six seven eight`, seven optional words before a loose alternative of four words on each side
+- **WHEN** it is expanded
+- **THEN** it is valid, with 128 × 8 = 1024 variants
+
+#### Scenario: A key with too many readings
+
+- **GIVEN** an item with `accept` of `he's she's it's that's` followed by three groups of ten letters and one of four, 4000 variants of 81 readings each
+- **WHEN** its key is prepared
+- **THEN** the key is not built and is reported with the reason "key too large"
+
+#### Scenario: A key with too long readings
+
+- **GIVEN** an item with `accept` of two patterns, a word of 10 000 letters and a word of 10 001 letters
+- **WHEN** its key is prepared
+- **THEN** the key is not built and is reported with the reason "key too large"
+
 #### Scenario: One bad pattern spoils the key
 
 - **GIVEN** an item with `accept` of `at home` and `in (the house`
@@ -108,7 +131,7 @@ A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` 
 
 ### Requirement: CHK-003 Normalisation
 
-Before comparison the answer and each variant SHALL be normalised: (1) Unicode NFC, lower case; (2) `ё` to `е`; (3) typographic apostrophes and quotes to ASCII; (4) contractions expanded; (5) `'s` read three ways (`'s`, ` is`, ` has`) and `'d` two ways (` would`, ` had`), independently for the first four occurrences of a text and later ones as the fourth; (6) everything except letters, digits and apostrophes removed, spaces included.
+The answer and each variant SHALL be normalised: (1) Unicode NFC, lower case; (2) `ё` to `е`; (3) typographic apostrophes and quotes to ASCII, then single quotation marks removed: an apostrophe before a word, and one after a word that closes an open one or follows no letter or digit; (4) contractions expanded; (5) `'s` read as `'s`, ` is` or ` has` and `'d` as ` would` or ` had`, the first four independently, later ones as the fourth; (6) all but letters, digits, apostrophes removed.
 
 #### Scenario: Case, spaces and final punctuation
 
@@ -144,6 +167,36 @@ Before comparison the answer and each variant SHALL be normalised: (1) Unicode N
 - **GIVEN** the key `it isn't cold`
 - **WHEN** the answer `it isn’t cold` is checked
 - **THEN** it is `ok`
+
+#### Scenario: Direct speech in single quotation marks
+
+- **GIVEN** the key `He said, 'I'm tired.'`
+- **WHEN** the answers `He said, I'm tired.` and `He said, "I'm tired."` are checked
+- **THEN** both are `ok`
+
+#### Scenario: A quotation at the start
+
+- **GIVEN** the key `'Yes,' she said`
+- **WHEN** the answer `Yes, she said` is checked
+- **THEN** it is `ok`
+
+#### Scenario: A quoted answer
+
+- **GIVEN** the key `he runs`
+- **WHEN** the answer `'he runs'` is checked
+- **THEN** it is `ok`
+
+#### Scenario: A contraction before a closing quotation mark
+
+- **GIVEN** the key `‘I can’t’`
+- **WHEN** the answer `I cannot` is checked
+- **THEN** it is `ok`
+
+#### Scenario: The apostrophe of a plural possessive
+
+- **GIVEN** the key `the boys' room`
+- **WHEN** the answer `the boys room` is checked
+- **THEN** it is not `ok` but `near`: the apostrophe is kept, and its loss is one edit
 
 #### Scenario: The readings of 's
 
@@ -289,7 +342,7 @@ Every variant of every pattern SHALL be `ok` against its own pattern.
 
 #### Scenario: Generated patterns
 
-- **GIVEN** any valid pattern
+- **GIVEN** any valid pattern whose key is valid (CHK-002)
 - **WHEN** each of its variants is checked against it as an answer
 - **THEN** each is `ok`
 
@@ -310,10 +363,16 @@ Checking SHALL be deterministic and SHALL NOT depend on locale or time.
 
 ### Requirement: CHK-014 Speed
 
-Checking one item against its prepared key SHALL take under 5 ms on the reference machine for any valid pattern (constraint C-06).
+Checking one item against its prepared key SHALL take under 5 ms on the reference machine for any valid key (constraint C-06).
 
-#### Scenario: The largest valid key
+#### Scenario: The worst valid keys
 
-- **GIVEN** a key whose pattern expands to 4000 variants, each with `'s` and `'d`
-- **WHEN** an answer one edit away from one of them is checked 200 times
+- **GIVEN** keys at the limits of CHK-002 whose variants share a long beginning followed by four `'s`
+- **WHEN** an answer with the same beginning, the same number of words and the same length, wrong in two letters at its end, is checked 200 times
+- **THEN** the median time of a check is under 5 ms
+
+#### Scenario: A near answer
+
+- **GIVEN** a key with `'s` and `'d` in every variant
+- **WHEN** an answer one edit away from its last variant is checked 200 times
 - **THEN** the median time of a check is under 5 ms
