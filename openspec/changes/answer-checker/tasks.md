@@ -17,7 +17,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 - [x] 3.1 Write `isOneEditApart` in `distance.ts`; verify with unit tests and with a property comparing it to a plain Levenshtein distance written in the test
 - [x] 3.2 Write `compileKey` in `key.ts` as in design D4; verify that an invalid pattern gives errors with its index and no key
-- [ ] 3.3 Write `checkAnswer` in `check.ts` as in design D5 and export the interface from `index.ts`; verify with unit tests named `@req CHK-005` – `@req CHK-009` covering every scenario of the delta spec
+- [x] 3.3 Write `checkAnswer` in `check.ts` as in design D5 and export the interface from `index.ts`; verify with unit tests named `@req CHK-005` – `@req CHK-009` covering every scenario of the delta spec
 - [ ] 3.4 Add the properties of design D6 named `@req CHK-012` and `@req CHK-013`, and the scenario of the capital `I`; verify they pass with the fixed seed and with `LANG=tr_TR.UTF-8`
 - [ ] 3.5 Add the speed test of design D7 named `@req CHK-014`, printing the medians of checking and of preparing; verify it passes locally and record both numbers here
 
