@@ -18,7 +18,7 @@
     "documents": [
       {
         "role": "book",
-        "sha256": "ac9def92e0157e063c7ea743279917b47e5feb2ad94c5e6884ae0299092a9b14",
+        "sha256": "3fee82fb7bf060f52defd2091003414e5503c564caf1a9b0c26dac78b0873019",
         "pages": 12
       }
     ]
@@ -239,7 +239,7 @@
     },
     {
       "id": "2",
-      "title": "Present simple: I work, she works",
+      "title": "Present simple",
       "pages": [
         {
           "document": "book",
@@ -454,7 +454,7 @@
             },
             {
               "id": "3",
-              "prompt": "Take ___ umbrella, it might rain.",
+              "prompt": "Take ___ umbrella. It might rain.",
               "accept": [
                 "an"
               ],
@@ -606,70 +606,80 @@
               "id": "1",
               "prompt": "Priya / doctor. She works at the hospital in the centre of town.",
               "accept": [
-                "Priya is a doctor"
+                "Priya is a doctor",
+                "She is a doctor"
               ]
             },
             {
               "id": "2",
               "prompt": "Sven / actor. He is in a play at the theatre this month.",
               "accept": [
-                "Sven is an actor"
+                "Sven is an actor",
+                "He is an actor"
               ]
             },
             {
               "id": "3",
               "prompt": "my uncle / farmer. He has sheep, hens and a very old tractor.",
               "accept": [
-                "My uncle is a farmer"
+                "My uncle is a farmer",
+                "He is a farmer"
               ]
             },
             {
               "id": "4",
               "prompt": "Nell / architect. She draws plans for new schools and libraries.",
               "accept": [
-                "Nell is an architect"
+                "Nell is an architect",
+                "She is an architect"
               ]
             },
             {
               "id": "5",
               "prompt": "Bruno / taxi driver. He knows every street in the city.",
               "accept": [
-                "Bruno is a taxi driver"
+                "Bruno is a taxi driver",
+                "He is a taxi driver"
               ]
             },
             {
               "id": "6",
               "prompt": "my cousin / artist. She paints large pictures of the sea.",
               "accept": [
-                "My cousin is an artist"
+                "My cousin is an artist",
+                "She is an artist"
               ]
             },
             {
               "id": "7",
               "prompt": "Kofi / engineer. He builds bridges over rivers and roads.",
               "accept": [
-                "Kofi is an engineer"
+                "Kofi is an engineer",
+                "He is an engineer"
               ]
             },
             {
               "id": "8",
               "prompt": "Dasha / police officer. She works at night in the old part of town.",
               "accept": [
-                "Dasha is a police officer"
+                "Dasha is a police officer",
+                "She is a police officer"
               ]
             },
             {
               "id": "9",
               "prompt": "Ivo / waiter. He brings coffee and cake to the people at the tables.",
               "accept": [
-                "Ivo is a waiter"
+                "Ivo is a waiter",
+                "He is a waiter"
               ]
             },
             {
               "id": "10",
               "prompt": "my neighbour / English teacher. Her students are adults.",
               "accept": [
-                "My neighbour is an English teacher"
+                "My neighbour is an English teacher",
+                "She is an English teacher"
               ]
             }
           ]

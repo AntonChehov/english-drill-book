@@ -18,3 +18,4 @@ CHANGELOG.md
 # Written by scripts: pnpm demo:build and the test of the text pdf.js takes from the demo books.
 demo/*.pack.json
 demo/*.text.json
+src/domain/books/demo/documents.json

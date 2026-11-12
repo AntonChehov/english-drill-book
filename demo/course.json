@@ -61,30 +61,74 @@
           "type": "items",
           "task": "Complete the sentences with am, is or are.",
           "items": [
-            { "prompt": "My name ___ Marta.", "accept": ["is"] },
-            { "prompt": "I ___ from a small town by the sea.", "accept": ["am"] },
-            { "prompt": "Omar and Priya ___ in the garden.", "accept": ["are"] },
-            { "prompt": "The soup ___ very hot.", "accept": ["is"] },
-            { "prompt": "You ___ early today!", "accept": ["are"] },
-            { "prompt": "It ___ cold in this room.", "accept": ["is"] },
-            { "prompt": "We ___ ready for the test.", "accept": ["are"] },
-            { "prompt": "I ___ hungry. Is there any bread?", "accept": ["am"] }
+            {
+              "prompt": "My name ___ Marta.",
+              "accept": ["is"]
+            },
+            {
+              "prompt": "I ___ from a small town by the sea.",
+              "accept": ["am"]
+            },
+            {
+              "prompt": "Omar and Priya ___ in the garden.",
+              "accept": ["are"]
+            },
+            {
+              "prompt": "The soup ___ very hot.",
+              "accept": ["is"]
+            },
+            {
+              "prompt": "You ___ early today!",
+              "accept": ["are"]
+            },
+            {
+              "prompt": "It ___ cold in this room.",
+              "accept": ["is"]
+            },
+            {
+              "prompt": "We ___ ready for the test.",
+              "accept": ["are"]
+            },
+            {
+              "prompt": "I ___ hungry. Is there any bread?",
+              "accept": ["am"]
+            }
           ]
         },
         {
           "type": "items",
           "task": "Choose the correct word.",
           "items": [
-            { "prompt": "The keys ___ on the table.", "choices": ["is", "are"], "accept": ["are"] },
-            { "prompt": "My bike ___ blue and white.", "choices": ["is", "are"], "accept": ["is"] },
-            { "prompt": "___ you a teacher?", "choices": ["Am", "Is", "Are"], "accept": ["Are"] },
+            {
+              "prompt": "The keys ___ on the table.",
+              "choices": ["is", "are"],
+              "accept": ["are"]
+            },
+            {
+              "prompt": "My bike ___ blue and white.",
+              "choices": ["is", "are"],
+              "accept": ["is"]
+            },
+            {
+              "prompt": "___ you a teacher?",
+              "choices": ["Am", "Is", "Are"],
+              "accept": ["Are"]
+            },
             {
               "prompt": "Sven ___ not at work today.",
               "choices": ["is", "are"],
               "accept": ["is"]
             },
-            { "prompt": "These shoes ___ new.", "choices": ["is", "are"], "accept": ["are"] },
-            { "prompt": "I ___ in the kitchen.", "choices": ["am", "is"], "accept": ["am"] }
+            {
+              "prompt": "These shoes ___ new.",
+              "choices": ["is", "are"],
+              "accept": ["are"]
+            },
+            {
+              "prompt": "I ___ in the kitchen.",
+              "choices": ["am", "is"],
+              "accept": ["am"]
+            }
           ]
         },
         {
@@ -92,17 +136,32 @@
           "task": "Make the sentences negative.",
           "answerLines": true,
           "items": [
-            { "prompt": "I am tired.", "accept": ["I am not tired"] },
-            { "prompt": "The bus is late.", "accept": ["The bus is not late"] },
-            { "prompt": "We are at home.", "accept": ["We are not at home"] },
-            { "prompt": "My phone is in my bag.", "accept": ["My phone is not in my bag"] },
-            { "prompt": "Kofi and Nell are friends.", "accept": ["Kofi and Nell are not friends"] }
+            {
+              "prompt": "I am tired.",
+              "accept": ["I am not tired"]
+            },
+            {
+              "prompt": "The bus is late.",
+              "accept": ["The bus is not late"]
+            },
+            {
+              "prompt": "We are at home.",
+              "accept": ["We are not at home"]
+            },
+            {
+              "prompt": "My phone is in my bag.",
+              "accept": ["My phone is not in my bag"]
+            },
+            {
+              "prompt": "Kofi and Nell are friends.",
+              "accept": ["Kofi and Nell are not friends"]
+            }
           ]
         }
       ]
     },
     {
-      "title": "Present simple: I work, she works",
+      "title": "Present simple",
       "explanation": [
         {
           "type": "paragraph",
@@ -143,26 +202,55 @@
           "type": "items",
           "task": "Write the verb in brackets in the present simple.",
           "items": [
-            { "prompt": "My aunt ___ in a small town. (live)", "accept": ["lives"] },
-            { "prompt": "We ___ to work by bus. (go)", "accept": ["go"] },
-            { "prompt": "Ivo ___ his teeth after breakfast. (brush)", "accept": ["brushes"] },
-            { "prompt": "The baby ___ a lot at night. (cry)", "accept": ["cries"] },
-            { "prompt": "They ___ football on Sundays. (play)", "accept": ["play"] },
-            { "prompt": "My dog ___ the postman. (not like)", "accept": ["doesn't like"] },
-            { "prompt": "Dasha ___ two cats and a parrot. (have)", "accept": ["has"] }
+            {
+              "prompt": "My aunt ___ in a small town. (live)",
+              "accept": ["lives"]
+            },
+            {
+              "prompt": "We ___ to work by bus. (go)",
+              "accept": ["go"]
+            },
+            {
+              "prompt": "Ivo ___ his teeth after breakfast. (brush)",
+              "accept": ["brushes"]
+            },
+            {
+              "prompt": "The baby ___ a lot at night. (cry)",
+              "accept": ["cries"]
+            },
+            {
+              "prompt": "They ___ football on Sundays. (play)",
+              "accept": ["play"]
+            },
+            {
+              "prompt": "My dog ___ the postman. (not like)",
+              "accept": ["doesn't like"]
+            },
+            {
+              "prompt": "Dasha ___ two cats and a parrot. (have)",
+              "accept": ["has"]
+            }
           ]
         },
         {
           "type": "items",
           "task": "Choose do or does.",
           "items": [
-            { "prompt": "___ you speak French?", "choices": ["Do", "Does"], "accept": ["Do"] },
+            {
+              "prompt": "___ you speak French?",
+              "choices": ["Do", "Does"],
+              "accept": ["Do"]
+            },
             {
               "prompt": "Where ___ your brother work?",
               "choices": ["do", "does"],
               "accept": ["does"]
             },
-            { "prompt": "I ___ not eat fish.", "choices": ["do", "does"], "accept": ["do"] },
+            {
+              "prompt": "I ___ not eat fish.",
+              "choices": ["do", "does"],
+              "accept": ["do"]
+            },
             {
               "prompt": "___ the train stop at this station?",
               "choices": ["Do", "Does"],
@@ -173,7 +261,11 @@
               "choices": ["do", "does"],
               "accept": ["do"]
             },
-            { "prompt": "Marta ___ not watch TV.", "choices": ["do", "does"], "accept": ["does"] }
+            {
+              "prompt": "Marta ___ not watch TV.",
+              "choices": ["do", "does"],
+              "accept": ["does"]
+            }
           ]
         },
         {
@@ -222,36 +314,84 @@
           "type": "items",
           "task": "Choose a or an.",
           "items": [
-            { "prompt": "She eats ___ apple every day.", "choices": ["a", "an"], "accept": ["an"] },
-            { "prompt": "We have ___ new teacher.", "choices": ["a", "an"], "accept": ["a"] },
             {
-              "prompt": "Take ___ umbrella, it might rain.",
+              "prompt": "She eats ___ apple every day.",
               "choices": ["a", "an"],
               "accept": ["an"]
             },
-            { "prompt": "My dad is ___ engineer.", "choices": ["a", "an"], "accept": ["an"] },
-            { "prompt": "They live in ___ old house.", "choices": ["a", "an"], "accept": ["an"] },
+            {
+              "prompt": "We have ___ new teacher.",
+              "choices": ["a", "an"],
+              "accept": ["a"]
+            },
+            {
+              "prompt": "Take ___ umbrella. It might rain.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "My dad is ___ engineer.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "They live in ___ old house.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
             {
               "prompt": "Can I have ___ glass of water?",
               "choices": ["a", "an"],
               "accept": ["a"]
             },
-            { "prompt": "He waited for ___ hour.", "choices": ["a", "an"], "accept": ["an"] },
-            { "prompt": "This is ___ useful map.", "choices": ["a", "an"], "accept": ["a"] }
+            {
+              "prompt": "He waited for ___ hour.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "This is ___ useful map.",
+              "choices": ["a", "an"],
+              "accept": ["a"]
+            }
           ]
         },
         {
           "type": "items",
           "task": "Write a or an before each word.",
           "items": [
-            { "prompt": "___ egg", "accept": ["an (egg)"] },
-            { "prompt": "___ banana", "accept": ["a (banana)"] },
-            { "prompt": "___ island", "accept": ["an (island)"] },
-            { "prompt": "___ uniform", "accept": ["a (uniform)"] },
-            { "prompt": "___ orange", "accept": ["an (orange)"] },
-            { "prompt": "___ desk", "accept": ["a (desk)"] },
-            { "prompt": "___ ice cream", "accept": ["an (ice cream)"] },
-            { "prompt": "___ holiday", "accept": ["a (holiday)"] }
+            {
+              "prompt": "___ egg",
+              "accept": ["an (egg)"]
+            },
+            {
+              "prompt": "___ banana",
+              "accept": ["a (banana)"]
+            },
+            {
+              "prompt": "___ island",
+              "accept": ["an (island)"]
+            },
+            {
+              "prompt": "___ uniform",
+              "accept": ["a (uniform)"]
+            },
+            {
+              "prompt": "___ orange",
+              "accept": ["an (orange)"]
+            },
+            {
+              "prompt": "___ desk",
+              "accept": ["a (desk)"]
+            },
+            {
+              "prompt": "___ ice cream",
+              "accept": ["an (ice cream)"]
+            },
+            {
+              "prompt": "___ holiday",
+              "accept": ["a (holiday)"]
+            }
           ]
         },
         {
@@ -261,43 +401,43 @@
           "items": [
             {
               "prompt": "Priya / doctor. She works at the hospital in the centre of town.",
-              "accept": ["Priya is a doctor"]
+              "accept": ["Priya is a doctor", "She is a doctor"]
             },
             {
               "prompt": "Sven / actor. He is in a play at the theatre this month.",
-              "accept": ["Sven is an actor"]
+              "accept": ["Sven is an actor", "He is an actor"]
             },
             {
               "prompt": "my uncle / farmer. He has sheep, hens and a very old tractor.",
-              "accept": ["My uncle is a farmer"]
+              "accept": ["My uncle is a farmer", "He is a farmer"]
             },
             {
               "prompt": "Nell / architect. She draws plans for new schools and libraries.",
-              "accept": ["Nell is an architect"]
+              "accept": ["Nell is an architect", "She is an architect"]
             },
             {
               "prompt": "Bruno / taxi driver. He knows every street in the city.",
-              "accept": ["Bruno is a taxi driver"]
+              "accept": ["Bruno is a taxi driver", "He is a taxi driver"]
             },
             {
               "prompt": "my cousin / artist. She paints large pictures of the sea.",
-              "accept": ["My cousin is an artist"]
+              "accept": ["My cousin is an artist", "She is an artist"]
             },
             {
               "prompt": "Kofi / engineer. He builds bridges over rivers and roads.",
-              "accept": ["Kofi is an engineer"]
+              "accept": ["Kofi is an engineer", "He is an engineer"]
             },
             {
               "prompt": "Dasha / police officer. She works at night in the old part of town.",
-              "accept": ["Dasha is a police officer"]
+              "accept": ["Dasha is a police officer", "She is a police officer"]
             },
             {
               "prompt": "Ivo / waiter. He brings coffee and cake to the people at the tables.",
-              "accept": ["Ivo is a waiter"]
+              "accept": ["Ivo is a waiter", "He is a waiter"]
             },
             {
               "prompt": "my neighbour / English teacher. Her students are adults.",
-              "accept": ["My neighbour is an English teacher"]
+              "accept": ["My neighbour is an English teacher", "She is an English teacher"]
             }
           ]
         }
@@ -341,12 +481,30 @@
           "type": "items",
           "task": "Complete the sentences with there is or there are.",
           "items": [
-            { "prompt": "___ a big tree in our garden.", "accept": ["There is"] },
-            { "prompt": "___ three bedrooms in the flat.", "accept": ["There are"] },
-            { "prompt": "___ some milk in the fridge.", "accept": ["There is"] },
-            { "prompt": "___ two cafes in the village.", "accept": ["There are"] },
-            { "prompt": "___ a problem with my phone.", "accept": ["There is"] },
-            { "prompt": "___ lots of people at the station.", "accept": ["There are"] }
+            {
+              "prompt": "___ a big tree in our garden.",
+              "accept": ["There is"]
+            },
+            {
+              "prompt": "___ three bedrooms in the flat.",
+              "accept": ["There are"]
+            },
+            {
+              "prompt": "___ some milk in the fridge.",
+              "accept": ["There is"]
+            },
+            {
+              "prompt": "___ two cafes in the village.",
+              "accept": ["There are"]
+            },
+            {
+              "prompt": "___ a problem with my phone.",
+              "accept": ["There is"]
+            },
+            {
+              "prompt": "___ lots of people at the station.",
+              "accept": ["There are"]
+            }
           ]
         },
         {

@@ -1,9 +1,12 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { validatePack } from "../src/domain/packs/validate.ts";
 import {
   books,
   buildBook,
+  documentsOf,
+  documentsPath,
   formatPack,
   packPath,
   pdfPath,
@@ -45,6 +48,18 @@ describe("build-demo-books", () => {
       expect(sourceProblems(source(name))).toEqual([]);
     });
   }
+
+  it("writes the hash and page count of each committed PDF where the profiles read them", () => {
+    const packs = Object.fromEntries(books.map((name) => [name, built[name].pack]));
+    expect(documentsOf(packs)).toBe(readFileSync(documentsPath(root), "utf8"));
+    for (const name of books) {
+      const committed = readFileSync(pdfPath(root, name));
+      expect(JSON.parse(documentsOf(packs))[name]).toEqual({
+        sha256: createHash("sha256").update(committed).digest("hex"),
+        pages: built[name].pack.source.documents[0].pages,
+      });
+    }
+  });
 
   it("prints every unit, exercise and item of the sources, numbered as the books number them", () => {
     for (const name of books) {
@@ -91,13 +106,14 @@ describe("build-demo-books", () => {
   it("refuses a source that breaks the layout", async () => {
     const broken = source("drills");
     const item = broken.units[0].exercises[0].items[0];
-    item.accept = ["Are you 2 ready; yes"];
+    item.accept = ["Are you 2 ready; yes", "there is / there's"];
     item.prompt = "you [and] me";
     broken.units[1].exercises[0].task = "1.1  Do it.";
     expect(sourceProblems(broken)).toEqual([
       "exercise 1.1 item 1: square brackets in the prompt",
       "exercise 1.1 item 1: a digit in the key",
       "exercise 1.1 item 1: a semicolon inside an answer",
+      "exercise 1.1 item 1: a slash between more than single words",
       "exercise 2.1 task: a line break or extra space",
       "exercise 2.1: the task starts with a number",
     ]);

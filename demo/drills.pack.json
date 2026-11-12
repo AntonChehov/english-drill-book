@@ -18,7 +18,7 @@
     "documents": [
       {
         "role": "book",
-        "sha256": "7740bab7213909fe5c9f9149d66beec9185e50d30daaca7250ef935d3a4c1eb1",
+        "sha256": "42121716a447b7d9d46b90703cc9e6d7c56cfda3c6b00ac9a7290f26c6b06a2f",
         "pages": 6
       }
     ]
@@ -235,7 +235,7 @@
     },
     {
       "id": "2",
-      "title": "Present simple: I work, she works",
+      "title": "Present simple",
       "pages": [
         {
           "document": "book",
@@ -601,42 +601,48 @@
               "id": "1",
               "prompt": "What is a cat? (animal)",
               "accept": [
-                "(It is) an animal"
+                "(It is) an animal",
+                "A cat is an animal"
               ]
             },
             {
               "id": "2",
               "prompt": "What is a rose? (flower)",
               "accept": [
-                "(It is) a flower"
+                "(It is) a flower",
+                "A rose is a flower"
               ]
             },
             {
               "id": "3",
               "prompt": "What is Lisbon? (city)",
               "accept": [
-                "(It is) a city"
+                "(It is) a city",
+                "Lisbon is a city"
               ]
             },
             {
               "id": "4",
               "prompt": "What is a lemon? (fruit)",
               "accept": [
-                "(It is) a fruit"
+                "(It is) a fruit",
+                "A lemon is a fruit"
               ]
             },
             {
               "id": "5",
               "prompt": "What is an owl? (bird)",
               "accept": [
-                "(It is) a bird"
+                "(It is) a bird",
+                "An owl is a bird"
               ]
             },
             {
               "id": "6",
               "prompt": "What is Danish? (language)",
               "accept": [
-                "(It is) a language"
+                "(It is) a language",
+                "Danish is a language"
               ]
             }
           ]
@@ -793,7 +799,7 @@
         {
           "id": "4.3",
           "type": "items",
-          "task": "Complete the conversation with there is, there are, is there or are there.",
+          "task": "Complete the conversation.",
           "pages": [
             {
               "document": "book",
@@ -811,9 +817,9 @@
             },
             {
               "id": "2",
-              "prompt": "B: Yes, ___ one next to the bank.",
+              "prompt": "B: Yes, there ___ one next to the bank.",
               "accept": [
-                "there is / there's"
+                "is / 's"
               ]
             },
             {
@@ -825,9 +831,9 @@
             },
             {
               "id": "4",
-              "prompt": "B: Yes, ___ two on Mill Street.",
+              "prompt": "B: Yes, there ___ two on Mill Street.",
               "accept": [
-                "there are"
+                "are"
               ]
             },
             {
@@ -839,9 +845,9 @@
             },
             {
               "id": "6",
-              "prompt": "B: No, ___, sorry.",
+              "prompt": "B: No, there ___, sorry.",
               "accept": [
-                "there isn't / there's not"
+                "isn't"
               ]
             }
           ]

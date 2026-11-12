@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Lays out the demo books as PDFs (design D2 of the change `demo-books`). Reads demo/<book>.json,
-// writes public/demo/<book>.pdf and demo/<book>.pack.json, the pack the reader must find in it.
+// writes public/demo/<book>.pdf and demo/<book>.pack.json, the pack the reader must find in it,
+// and src/domain/books/demo/documents.json, the hash and page count by which the app knows each PDF.
 // The layout is the one demo/LAYOUT.md states; the reader in src/domain/books/demo relies on it.
 // The same source gives the same bytes: standard fonts, fixed metadata, no clock.
 // Usage: node scripts/build-demo-books.mjs (`pnpm demo:build`, which also updates the text
@@ -679,7 +680,8 @@ function layOut(book, fonts, starts = new Map(), keyPage = 0) {
 
 /**
  * What demo/LAYOUT.md promises about the text, checked before anything is laid out: answers have
- * no digits and use `;` only between whole answers; prompts have no square brackets and do not
+ * no digits, use `;` only between whole answers and `/` only between single words; prompts have
+ * no square brackets and do not
  * start with a number; no text has a line break or a double space. Returns the problems found.
  */
 export function sourceProblems(source) {
@@ -716,6 +718,9 @@ export function sourceProblems(source) {
           if (/\d/u.test(pattern)) problems.push(`${at}: a digit in the key`);
           if (pattern.includes(";")) problems.push(`${at}: a semicolon inside an answer`);
           if (pattern.length === 0) problems.push(`${at}: an empty answer`);
+          if (pattern.includes(" / ") && !/^\S+ \/ \S+$/u.test(pattern)) {
+            problems.push(`${at}: a slash between more than single words`);
+          }
         }
         for (const choice of item.choices ?? []) {
           if (/[[\]/]/u.test(choice)) problems.push(`${at}: a bracket or slash in a choice`);
@@ -944,22 +949,40 @@ export function packPath(root, name) {
   return join(root, "demo", `${name}.pack.json`);
 }
 
+/** Where the profiles of the demo books find the hash and page count of each PDF. */
+export function documentsPath(root) {
+  return join(root, "src", "domain", "books", "demo", "documents.json");
+}
+
+/** The hash and page count of each book's PDF, from the packs built for them. */
+export function documentsOf(packs) {
+  const documents = {};
+  for (const [name, pack] of Object.entries(packs)) {
+    const { sha256, pages } = pack.source.documents[0];
+    documents[name] = { sha256, pages };
+  }
+  return `${JSON.stringify(documents, null, 2)}\n`;
+}
+
 export function formatPack(pack) {
   return `${JSON.stringify(pack, null, 2)}\n`;
 }
 
 async function main() {
   const root = process.cwd();
+  const packs = {};
   for (const name of books) {
     const { bytes, pack } = await buildBook(
       JSON.parse(readFileSync(sourcePath(root, name), "utf8")),
     );
     writeFileSync(pdfPath(root, name), bytes);
     writeFileSync(packPath(root, name), formatPack(pack));
+    packs[name] = pack;
     console.log(
       `${name}: ${pack.source.documents[0].pages} pages, ${(bytes.length / 1000).toFixed(1)} kB`,
     );
   }
+  writeFileSync(documentsPath(root), documentsOf(packs));
 }
 
 if (isMain(import.meta.url)) await main();
