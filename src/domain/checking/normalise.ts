@@ -93,80 +93,106 @@ function prepare(text: string): string {
 }
 
 /**
- * A piece of a text, read once however many readings it takes part in: its kept characters
- * (step 6 of CHK-003), and for each run between white space whether it keeps any character.
+ * A stretch of a text, read once however many readings it takes part in: its kept characters
+ * (step 6 of CHK-003) and its runs between white space, of which only the first and the last
+ * can join a neighbouring stretch. `single` is a stretch of one run, which is then both.
  */
 interface Part {
   readonly kept: string;
-  readonly runs: readonly boolean[];
+  readonly single: boolean;
+  /** Whether the first run keeps a character. */
+  readonly first: boolean;
+  /** The runs between the first and the last that keep a character: whole words. */
+  readonly inner: number;
+  /** Whether the last run keeps a character. */
+  readonly last: boolean;
 }
 
 const KEPT_ANY = new RegExp(KEPT, "u");
 
 function part(text: string): Part {
+  const keeps = text.split(/\s+/u).map((run) => KEPT_ANY.test(run));
   return {
     kept: text.match(KEPT_CHARACTER)?.join("") ?? "",
-    runs: text.split(/\s+/u).map((run) => KEPT_ANY.test(run)),
+    single: keeps.length === 1,
+    first: keeps[0] === true,
+    inner: keeps.slice(1, -1).filter(Boolean).length,
+    last: keeps.at(-1) === true,
   };
+}
+
+const EMPTY = part("");
+
+/** Two stretches written one after the other: where they meet, their runs are one word. */
+function join(a: Part, b: Part): Part {
+  const kept = a.kept + b.kept;
+  if (a.single && b.single) {
+    const keeps = a.first || b.first;
+    return { kept, single: true, first: keeps, inner: 0, last: keeps };
+  }
+  if (a.single)
+    return { kept, single: false, first: a.first || b.first, inner: b.inner, last: b.last };
+  if (b.single)
+    return { kept, single: false, first: a.first, inner: a.inner, last: a.last || b.first };
+  const middle = a.last || b.first ? 1 : 0;
+  return { kept, single: false, first: a.first, inner: a.inner + middle + b.inner, last: b.last };
+}
+
+function read(stretch: Part): Reading {
+  const ends = stretch.single
+    ? Number(stretch.first)
+    : Number(stretch.first) + Number(stretch.last);
+  return { text: stretch.kept, words: stretch.inner + ends };
 }
 
 const S_PARTS = S_READINGS.map(part);
 const D_PARTS = D_READINGS.map(part);
 
 /**
- * The reading of parts written one after another. Where two parts meet without white space,
- * the last run of one and the first run of the next are one word.
- */
-function read(parts: readonly Part[]): Reading {
-  let text = "";
-  let words = 0;
-  let open = false;
-  for (const { kept, runs } of parts) {
-    text += kept;
-    for (const [index, keeps] of runs.entries()) {
-      if (index === 0) {
-        open ||= keeps;
-        continue;
-      }
-      if (open) words += 1;
-      open = keeps;
-    }
-  }
-  return { text, words: open ? words + 1 : words };
-}
-
-/**
  * Every reading of a text after normalisation (CHK-003). `'s` is read three ways and `'d` two,
  * independently for the first four occurrences; each later one takes the reading of the fourth.
- * At most 81 readings, without duplicates.
+ * At most 81 readings, without duplicates. The text after the fourth occurrence is joined once
+ * for each reading of the fourth, so the work of a reading does not grow with the occurrences.
  */
 export function readings(text: string): readonly Reading[] {
   const prepared = prepare(text);
   const fixed: Part[] = [];
   const kinds: (typeof S_PARTS)[] = [];
-  let last = 0;
+  let at = 0;
   for (const match of prepared.matchAll(S_OR_D)) {
-    fixed.push(part(prepared.slice(last, match.index)));
+    fixed.push(part(prepared.slice(at, match.index)));
     kinds.push(match[1] === "s" ? S_PARTS : D_PARTS);
-    last = match.index + match[0].length;
+    at = match.index + match[0].length;
   }
-  fixed.push(part(prepared.slice(last)));
+  fixed.push(part(prepared.slice(at)));
 
-  let choices: number[][] = [[]];
-  for (const kind of kinds.slice(0, INDEPENDENT_READINGS)) {
-    choices = choices.flatMap((chosen) => kind.map((_, index) => [...chosen, index]));
+  // The beginnings up to the fourth occurrence, each with the form chosen last.
+  let beginnings: { readonly stretch: Part; readonly chosen: number }[] = [
+    { stretch: fixed[0] ?? EMPTY, chosen: 0 },
+  ];
+  const independent = Math.min(INDEPENDENT_READINGS, kinds.length);
+  for (let index = 0; index < independent; index += 1) {
+    const forms = kinds[index] ?? [];
+    const after = fixed[index + 1] ?? EMPTY;
+    beginnings = beginnings.flatMap(({ stretch }) =>
+      forms.map((form, chosen) => ({ stretch: join(join(stretch, form), after), chosen })),
+    );
   }
+
+  // The rest, once for each form of the fourth: later occurrences take the same form.
+  const rests = [0, 1, 2].map((chosen) => {
+    let rest = EMPTY;
+    for (let index = independent; index < kinds.length; index += 1) {
+      const forms = kinds[index] ?? [];
+      const form = forms[Math.min(chosen, forms.length - 1)] ?? EMPTY;
+      rest = join(join(rest, form), fixed[index + 1] ?? EMPTY);
+    }
+    return rest;
+  });
 
   const found = new Map<string, Reading>();
-  for (const chosen of choices) {
-    const fourth = chosen.at(-1) ?? 0;
-    const parts = fixed.flatMap((fixedPart, index) => {
-      const kind = kinds[index];
-      if (kind === undefined) return [fixedPart];
-      const slot = kind[chosen[index] ?? Math.min(fourth, kind.length - 1)];
-      return slot === undefined ? [fixedPart] : [fixedPart, slot];
-    });
-    const reading = read(parts);
+  for (const { stretch, chosen } of beginnings) {
+    const reading = read(join(stretch, rests[chosen] ?? EMPTY));
     found.set(`${reading.words}:${reading.text}`, reading);
   }
   return [...found.values()];
