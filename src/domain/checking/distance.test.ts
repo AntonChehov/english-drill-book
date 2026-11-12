@@ -50,6 +50,28 @@ describe("isOneEditApart", () => {
     );
   });
 
+  it("@req CHK-006 agrees with the distance on long strings that differ late or early", () => {
+    const base = fc.string({ unit: fc.constantFrom("a", "b"), minLength: 60, maxLength: 300 });
+    const edit = fc.tuple(fc.nat(), fc.constantFrom("a", "b", "c"), fc.nat({ max: 2 }));
+    const long = fc.tuple(base, fc.array(edit, { maxLength: 3 })).map(([text, edits]) => {
+      let edited = text;
+      for (const [at, character, kind] of edits) {
+        const index = at % (edited.length + 1);
+        const removed = kind === 0 ? 0 : 1;
+        edited =
+          edited.slice(0, index) + (kind === 1 ? "" : character) + edited.slice(index + removed);
+      }
+      return [text, edited] as const;
+    });
+    fc.assert(
+      fc.property(long, ([a, b]) => {
+        expect(isOneEditApart(a, b)).toBe(levenshtein(a, b) === 1);
+        expect(isOneEditApart(b, a)).toBe(levenshtein(a, b) === 1);
+      }),
+      { numRuns: 300 },
+    );
+  });
+
   it("@req CHK-006 agrees with the distance on strings one edit apart", () => {
     const edited = fc
       .tuple(

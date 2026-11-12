@@ -31,9 +31,9 @@ export function checkAnswer(key: Key, answer: string, options: CheckOptions = {}
     if (text.length < NEAR_MIN_LENGTH) continue;
     const byLength = key.byWordsAndLength.get(words);
     if (byLength === undefined) continue;
-    for (const length of [text.length - 1, text.length, text.length + 1]) {
-      if (byLength.get(length)?.some((candidate) => isOneEditApart(text, candidate))) {
-        return "near";
+    for (let length = text.length - 1; length <= text.length + 1; length += 1) {
+      for (const candidate of byLength.get(length) ?? []) {
+        if (isOneEditApart(text, candidate)) return "near";
       }
     }
   }
