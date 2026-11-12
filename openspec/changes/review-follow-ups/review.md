@@ -22,7 +22,7 @@ Verdict: changes requested
 Checked by hand.
 
     ```
-<!-- hidden text, invisible
+&lt;!-- hidden text, invisible
 ```
 -->
 ~~~
@@ -30,7 +30,7 @@ Checked by hand.
 ~~~text
 - checked by hand
   ```
-<!-- hidden text, invisible
+&lt;!-- hidden text, invisible
 ```
 -->
 ~~~
@@ -40,7 +40,7 @@ Checked by hand.
 
 <div>
 ```
-<!--
+&lt;!--
 hidden text, invisible
 ```
 -->
@@ -50,7 +50,7 @@ hidden text, invisible
 - Input 4, written with escapes as a JavaScript string, under `### Notes`:
 
 ~~~text
-"~~~\r~~~\n<!--\nhidden text, invisible\n~~~\n-->"
+"~~~\r~~~\n&lt;!--\nhidden text, invisible\n~~~\n-->"
 ~~~
 
 - What should happen: each input fails the check with the message of D2 for the line of the opener, and a unit test covers each. The simplest rule that cannot drift from GitHub's renderer is to report the opener on every line, inside fenced blocks too, and drop the fence exemption from D2, the message and the docs (a reviewer can write about a comment in words, or quote it with the entity `&lt;` for its first character, which GitHub shows as the characters). Narrowing the exemption (opening fence at most three spaces deep, not inside a list item or HTML block, lines split on `\r` too) is possible but has to follow CommonMark's container and HTML-block rules to be sound. If the author keeps the parser as it is, then D2 has to list these cases under "Not covered" and `docs/process.md` step 4 must not say that the page shows all of the record.
@@ -64,6 +64,24 @@ hidden text, invisible
 - `README.md:26` says "the same one in every round", without the exception of D1 (a new agent when the first cannot be resumed). It is a summary that points to `docs/process.md`, so not raised; "normally the same one" would match.
 - The sentence of the archived design of `review-rounds` (design D2 clarifications) "An HTML comment is not recognised" is superseded by this change; `CLAUDE.md` points to both designs, so a reader finds the rule.
 - The tests of the new check fail without it: each expects `messages.htmlComment`, and the acceptance test for fenced blocks would fail if the fence exemption were dropped. None of them covers an input of F1.
+
+## Round 2
+
+Reviewed: 8a4fad13673d
+Verdict: approved
+- F1: fixed
+  `parseRecord` now finds the opener in the raw text, split on `\n` only, before any reading of fences (`commentLines`, scripts/review-record.mjs:152), and reports it on the parser's own line number; the fence exemption is gone from the code, the message, design D2, the proposal, `docs/process.md`, `CLAUDE.md` and `README.md`. All four inputs of round 1, run again as files, are reported on the line of the opener, as are the probes listed under round 1's Notes; the new unit tests cover each input of F1, an ordinary fenced block, CRLF endings and the entity, and fail with the parser of round 1.
+
+### Notes
+
+- Scope: `git diff 86365e6..HEAD` (three commits: the fix in `scripts/review-record.mjs` and its tests; the wording in design D2, the proposal, `tasks.md`, `docs/process.md`, `CLAUDE.md`, `README.md`). Round 1 read the whole diff and nothing else changed since, so with this round the review again covers the whole diff `origin/main...HEAD`.
+- Round 1 is edited: I am its author, and its fenced examples of F1 held the opener literally, which the rule as fixed refuses anywhere. In those four examples each opener is now written as the entity `&lt;!--`, which in a fenced block GitHub shows as typed; read it as the opener. Nothing else in round 1 changed.
+- Further variations run against the fix, each reported: an opener in an inline code span, after a lone `\r` or a Unicode line separator, followed by `\r\n`, after a byte-order mark, the empty comment (the opener followed at once by `-->`), and in an ordinary fenced block. The entity form is accepted in running text, a code span, a fenced block and a closing section. An opener cannot be split across lines (`\n` is not part of it), and a split one renders as text, so nothing is lost by finding it per line.
+- Line numbers: `commentLines` counts lines by `\n` and the main loop by `\r?\n`; both give the same count, so the message points at the right line; after a lone `\r` it names the line that holds it, as design D2 says.
+- The archived `2026-11-12-review-rounds/review.md` still fails on lines 84 and 100 (code spans), as noted in round 1; `2026-11-12-answer-checker/review.md` is still accepted. Archived records are not checked.
+- `README.md` now says "normally the same one in every round", which settles the note of round 1. `tasks.md` 1.2 records the clone's hash `8a4fad13673d`, the content this round read.
+- Not covered, as D2 says: other raw HTML that hides text without the opener (`<details>`, link definitions).
+- Run: `pnpm test` (459 passed), `pnpm lint`, `pnpm check`, all passing.
 
 ## Requirement coverage
 
