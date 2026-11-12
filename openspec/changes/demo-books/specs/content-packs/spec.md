@@ -31,7 +31,8 @@ Every pack, bundled or built from a file, SHALL be validated against `pack.schem
 
 - **GIVEN** any pack example of the contract, valid or invalid
 - **WHEN** it is validated by the app and by a general JSON Schema validator
-- **THEN** both accept it or both refuse it
+- **THEN** the app reports a schema error exactly when the general validator refuses the pack
+- **AND** an example that breaks only a semantic rule passes the general validator and is refused by the app with that rule
 
 #### Scenario: The demo books are validated too
 

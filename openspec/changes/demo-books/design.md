@@ -25,10 +25,10 @@
 | | Course | Drill book |
 | --- | --- | --- |
 | Pack id | `demo-course` | `demo-drills` |
-| Units | 4, each a left page of explanation and a right page of 3 exercises | 4 sections of 3 exercises, one per topic of the course |
+| Units | 4, each a page of explanation and a page of 3 exercises (unit 3 has a third page, where its last exercise continues) | 4 sections of 3 exercises, one per topic of the course |
 | Topics | *to be*; present simple; *a / an*; *there is / there are* | the same |
 | Keys | at the back | at the back |
-| Pages | about 12 | about 8 |
+| Pages | 12 | 6 |
 
 Between them the exercises use every kind the app will support: typed answers, choices, one connected text and one open exercise (the last two are read into the pack now and played from milestone 2). Keys are printed the way books print them, with `/` between alternatives and optional words in brackets, so the demo exercises the checker's patterns. One exercise starts at the foot of a page and continues on the next, as real books do.
 
@@ -67,7 +67,7 @@ The layout is specified in `demo/LAYOUT.md` and the reader relies only on what t
 - items are lines starting with their number; an item with choices prints them after the prompt in a fixed form;
 - the keys start at the heading `Answer key`; each line is `<unit>.<n>` and numbered answers.
 
-IDs come from the printed numbers: unit `1`, exercise `1.2`, item `3`. Page ranges of a unit and of an exercise are where their first and last lines were found. A printed key becomes `accept` patterns: `/` stays a loose alternative, `(…)` stays optional, `;` or `or` between whole answers gives several patterns.
+IDs come from the printed numbers: unit `1`, exercise `1.2`, item `3`. Page ranges of a unit and of an exercise are where their first and last lines were found. A printed key becomes `accept` patterns: `/` stays a loose alternative, `(…)` stays optional, `;` between whole answers gives several patterns (not the word `or`, which an answer may contain).
 
 Because things are found by content, a copy of the text with two blank pages put in front gives the same pack with shifted page ranges; this is a test.
 
