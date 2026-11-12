@@ -25,6 +25,15 @@ describe("compileKey", () => {
     });
   });
 
+  it("@req CHK-002 stops reading after twenty bad patterns", () => {
+    const accept = Array.from({ length: 25 }, () => "she (is late");
+    expect(compileKey(accept)).toEqual({
+      ok: false,
+      errors: Array.from({ length: 20 }, (_, index) => ({ index, reason: "unclosed-group" })),
+    });
+    expect(compileKey(accept.slice(0, 19)).ok).toBe(false);
+  });
+
   describe("@req CHK-002 the size of a key", () => {
     const ten = "[a|b|c|d|e|f|g|h|i|j]";
     const fourThousand = `${ten} ${ten} ${ten} [a|b|c|d]`;

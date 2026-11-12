@@ -11,6 +11,7 @@ export { isOneEditApart } from "./distance";
 export {
   compileKey,
   MAX_KEY_CHARACTERS,
+  MAX_KEY_ERRORS,
   MAX_KEY_READINGS,
   type CompiledKey,
   type Key,

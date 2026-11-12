@@ -9,6 +9,9 @@ export const MAX_KEY_READINGS = 4000;
 /** The most characters those readings may have together, after normalisation. */
 export const MAX_KEY_CHARACTERS = 20_000;
 
+/** The most invalid patterns that are reported; after that many the rest of the key is not read. */
+export const MAX_KEY_ERRORS = 20;
+
 export type KeyErrorReason = PatternErrorReason | "key-too-large";
 
 /**
@@ -37,8 +40,9 @@ export type CompiledKey =
 /**
  * Prepares the key of `accept`. Readings and their characters are counted across all patterns
  * as they are produced, duplicates included; the moment the key passes a limit, all work stops:
- * later patterns are neither expanded nor reported. So preparing is bounded: at most 4001
- * patterns of at most 500 characters are read, and each gives at least one reading.
+ * later patterns are neither expanded nor reported. Reading also stops after the twentieth
+ * invalid pattern. So preparing is bounded: at most 4000 valid and 20 invalid patterns of at
+ * most 500 characters are read.
  */
 export function compileKey(accept: readonly string[]): CompiledKey {
   const errors: KeyError[] = [];
@@ -68,6 +72,7 @@ export function compileKey(accept: readonly string[]): CompiledKey {
     const expansion = expandPattern(pattern);
     if (!expansion.ok) {
       errors.push({ index, reason: expansion.error });
+      if (errors.length === MAX_KEY_ERRORS) return { ok: false, errors };
       continue;
     }
     for (const [at, variant] of expansion.variants.entries()) {
