@@ -66,7 +66,12 @@ Each gradable item SHALL have `accept`, a non-empty list of patterns; an answer 
 
 ### Requirement: CHK-002 Invalid patterns
 
-A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` stands outside a group, `|` inside `( )` or a spaced `/` inside any group, if a loose alternative has no word on one of its sides, or if it expands to more than 4000 variants. A key SHALL be invalid if its patterns together give more than 4000 readings or readings of more than 20 000 characters. What is invalid SHALL be reported with its reason and SHALL NOT be used for checking.
+A pattern SHALL be invalid if it has more than 500 characters, if a group is unclosed or nested, if `)`, `]` or `|` stands outside a group, `|` inside `( )` or a spaced `/` inside any group, if a loose alternative has no word on one of its sides, or if it expands to more than 4000 variants. A key SHALL be invalid if its patterns together give more than 4000 readings or readings of more than 20 000 characters. What is invalid SHALL be reported with its reason and SHALL NOT be used for checking.
+
+#### Scenario: A pattern too long
+
+- **WHEN** a pattern of 501 letters is expanded
+- **THEN** it is reported as invalid with the reason "pattern too long", and a pattern of 500 letters is valid
 
 #### Scenario: Unclosed group
 
@@ -119,9 +124,21 @@ A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` 
 
 #### Scenario: A key with too long readings
 
-- **GIVEN** an item with `accept` of two patterns, a word of 10 000 letters and a word of 10 001 letters
+- **GIVEN** an item with `accept` of forty patterns, each a word of 500 letters, and one more of one letter
 - **WHEN** its key is prepared
 - **THEN** the key is not built and is reported with the reason "key too large"
+
+#### Scenario: A key stops at its limit
+
+- **GIVEN** an item with `accept` of `in (the house`, a pattern of 4000 readings, `x` and `at) home`
+- **WHEN** its key is prepared
+- **THEN** the first pattern is reported, then the key as too large, and the last pattern is not read
+
+#### Scenario: Duplicates count
+
+- **GIVEN** an item with `accept` of 21 copies of a group of 200 equal alternatives `[x|x|…|x]`
+- **WHEN** its key is prepared
+- **THEN** it is reported with the reason "key too large", while 20 copies make a valid key
 
 #### Scenario: One bad pattern spoils the key
 
@@ -131,7 +148,7 @@ A pattern SHALL be invalid if a group is unclosed or nested, if `)`, `]` or `|` 
 
 ### Requirement: CHK-003 Normalisation
 
-The answer and each variant SHALL be normalised: (1) Unicode NFC, lower case; (2) `ё` to `е`; (3) typographic apostrophes and quotes to ASCII, then single quotation marks removed: an apostrophe before a word, and one after a word that closes an open one or follows no letter or digit; (4) contractions expanded; (5) `'s` read as `'s`, ` is` or ` has` and `'d` as ` would` or ` had`, the first four independently, later ones as the fourth; (6) all but letters, digits, apostrophes removed.
+The answer and each variant SHALL be normalised: (1) Unicode NFC, lower case; (2) `ё` to `е`; (3) typographic apostrophes and quotes to ASCII, then each apostrophe not between letters or digits removed as a quotation mark, unless it ends a word while no quote is open; (4) contractions expanded; (5) `'s` read as `'s`, ` is` or ` has` and `'d` as ` would` or ` had`, the first four independently, later ones as the fourth; (6) all but letters, digits, apostrophes removed.
 
 #### Scenario: Case, spaces and final punctuation
 
@@ -190,6 +207,18 @@ The answer and each variant SHALL be normalised: (1) Unicode NFC, lower case; (2
 
 - **GIVEN** the key `‘I can’t’`
 - **WHEN** the answer `I cannot` is checked
+- **THEN** it is `ok`
+
+#### Scenario: A quotation that starts with punctuation
+
+- **GIVEN** the keys `'...I can't'` and `'— I can't'`
+- **WHEN** `I can not` and `...I can't` are checked against the first, and `I can not` against the second
+- **THEN** each is `ok`
+
+#### Scenario: A quoted answer that starts with an ellipsis
+
+- **GIVEN** the key `yes`
+- **WHEN** the answer `'...yes'` is checked
 - **THEN** it is `ok`
 
 #### Scenario: The apostrophe of a plural possessive
@@ -290,7 +319,7 @@ The verdict SHALL be `near` when the answer is not `ok`, the normalised answer h
 
 ### Requirement: CHK-007 Wrong answer
 
-The verdict SHALL be `bad` for anything else that is not blank.
+The verdict SHALL be `bad` for anything else that is not blank, and for an answer of more than 1000 characters, which SHALL NOT be normalised or compared.
 
 #### Scenario: Another word
 
@@ -303,6 +332,12 @@ The verdict SHALL be `bad` for anything else that is not blank.
 - **GIVEN** the key `she goes`
 - **WHEN** the answer `?` is checked
 - **THEN** it is `bad`
+
+#### Scenario: An answer too long
+
+- **GIVEN** the key `she goes`
+- **WHEN** `she goes` followed by spaces to 1000 characters, and to 1001 characters, are checked
+- **THEN** the first is `ok` and the second is `bad`, also for an item with choices
 
 ### Requirement: CHK-008 Blank answer
 
@@ -363,7 +398,7 @@ Checking SHALL be deterministic and SHALL NOT depend on locale or time.
 
 ### Requirement: CHK-014 Speed
 
-Checking one item against its prepared key SHALL take under 5 ms on the reference machine for any valid key (constraint C-06).
+Checking one item against its prepared key SHALL take under 5 ms on the reference machine for any valid key and any answer (constraint C-06).
 
 #### Scenario: The worst valid keys
 
@@ -375,4 +410,10 @@ Checking one item against its prepared key SHALL take under 5 ms on the referenc
 
 - **GIVEN** a key with `'s` and `'d` in every variant
 - **WHEN** an answer one edit away from its last variant is checked 200 times
+- **THEN** the median time of a check is under 5 ms
+
+#### Scenario: The longest answers
+
+- **GIVEN** the worst valid keys
+- **WHEN** an answer of 1000 characters with four `'s`, and an answer of 200 000 characters, are each checked 200 times
 - **THEN** the median time of a check is under 5 ms

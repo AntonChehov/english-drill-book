@@ -32,7 +32,7 @@ src/domain/checking/
   index.ts       the exports above
 ```
 
-`null` is "no verdict" (CHK-008). `expandPattern` gives one of the reasons `unclosed-group`, `nested-group`, `stray-character`, `dangling-slash`, `too-many-variants`. `compileKey` gives a list of errors `{ index, reason }`: one for each invalid pattern, with its index in `accept`, and `{ index: null, reason: 'key-too-large' }` when the key as a whole passes the limits of D4. Why a result and not an exception: a book has thousands of keys, and its reader reports all the bad ones at once.
+`null` is "no verdict" (CHK-008). `expandPattern` gives one of the reasons `pattern-too-long`, `unclosed-group`, `nested-group`, `stray-character`, `dangling-slash`, `too-many-variants`; a valid result lists the variants without duplicates and, for each, how many times it was produced (D4 counts them). A pattern of more than 500 characters, counted as code points like the `maxLength` of a pattern in `contracts/pack.schema.json`, is `pattern-too-long` without being read further. `compileKey` gives a list of errors `{ index, reason }`: one for each invalid pattern, with its index in `accept`, and `{ index: null, reason: 'key-too-large' }` when the key as a whole passes the limits of D4. Why a result and not an exception: a book has thousands of keys, and its reader reports all the bad ones at once.
 
 ### D2. Reading a pattern (CHK-001)
 
@@ -40,10 +40,10 @@ A pattern is split on white space outside groups into words. A word may contain 
 
 Expansion, in this order:
 
-1. Each loose alternative is resolved from left to right. With `L` words before the slash and `R` words after it, up to the next slash, its candidates are, for every `j` from 1 to `min(4, R)`, the pattern without the slash and the first `j` words after it, and then, for every `i` from 1 to `min(4, L)`, the pattern without the slash and the last `i` words before it: `min(4, L) + min(4, R)` candidates, each produced once. A following slash is resolved in each candidate in turn, so `a / b / c` gives `a`, `c`, `b`. A word with a group counts as one word. Each slash gives at least two candidates, so a pattern with twelve slashes is over the limit before anything is expanded.
+1. Each loose alternative is resolved from left to right. With `L` words before the slash and `R` words after it, up to the next slash, its candidates are, for every `j` from 1 to `min(4, R)`, the pattern without the slash and the first `j` words after it, and then, for every `i` from 1 to `min(4, L)`, the pattern without the slash and the last `i` words before it: `min(4, L) + min(4, R)` candidates, each produced once. A following slash is resolved in each candidate in turn, so `a / b / c` gives `a`, `c`, `b`. A word with a group counts as one word. Every candidate keeps at least one word before each later slash, so the slash before a segment of `R` words gives at least `1 + min(4, R)` candidates: when the product of these over all slashes passes 4000, the pattern is over the limit before anything is resolved.
 2. In each candidate every group is expanded: `(x)` to `x` and nothing, `[a|b|c]` to each alternative.
 
-Variants are counted as they are produced, before the duplicates a pattern writes (`[x|x]`, or two splits that give the same text) are removed, and expansion stops when the count passes 4000 (CHK-002). Why count before removing duplicates: it bounds the work, not only the result. The count of a candidate is the product of the sizes of its groups, taken before its variants are built.
+Variants are counted as they are produced, before the duplicates a pattern writes (`[x|x]`, or two splits that give the same text) are removed, and expansion stops when the count passes 4000 (CHK-002). Why count before removing duplicates: it bounds the work, not only the result. The count of a candidate is the product of the sizes of its groups. The candidates are first only counted, and the variants are built in a second pass when the count stays within the limit, so a pattern over the limit builds nothing. A single invalid pattern costs at most about 0.4 ms (D7).
 
 ### D3. Normalisation and readings (CHK-003, CHK-004)
 
@@ -52,7 +52,7 @@ Steps 1 – 5 of CHK-003 are applied to the text with its spaces. The result is 
 - Lower case is `String.prototype.toLowerCase`, which does not depend on locale (CHK-013). `toLocaleLowerCase`, `Intl` and `localeCompare` are not used; a lint rule forbids them in this directory.
 - Kept characters: letters of the Latin and Cyrillic scripts (`\p{Script=Latin}`, `\p{Script=Cyrillic}`), the digits `0`–`9`, the apostrophe.
 - Contractions are matched at the end of a word only; `won't`, `can't`, `cannot` and `shan't` also at its start.
-- Single quotation marks (CHK-003 step 3, D8 clarification 6). After typographic marks become ASCII, an apostrophe is read by its neighbours. Before a letter or digit and after the start of the text, white space or punctuation, it opens a quote and is removed. After a word, before the end of the text, white space or punctuation, it is removed if a quote is open (closing it) or if it follows no letter or digit, and otherwise kept: the apostrophe of a plural possessive, `the boys' room`. Between letters or digits it is always kept. Why before contractions: `'I can't'` must read as `I can not`, and the closing quote would hide the end of `can't`.
+- Single quotation marks (CHK-003 step 3, D8 clarifications 6 and 9). After typographic marks become ASCII, an apostrophe is read by its neighbours. Between letters or digits it is always kept. After a letter or digit and before anything else (the end, white space or punctuation) it closes an open quote and is removed, or, with no quote open, is kept: the apostrophe of a plural possessive, `the boys' room`. After anything else (the start, white space or punctuation) it is removed: before a letter or digit it opens a quote; before white space or the end it closes one if one is open; before punctuation it closes an open quote, or else opens one, so `'...I can't'` and `'— I can't'` are quotes as `'I can't'` is. Why before contractions: `'I can't'` must read as `I can not`, and the closing quote would hide the end of `can't`.
 - The parts of a text between its `'s` and `'d` are stripped to their kept characters once, not once for each of its readings: a reading joins the parts and the chosen forms, and counts the words where they meet.
 
 `'s` and `'d` (CHK-003 step 5): each occurrence is read independently, so `she's said he's ill` matches `she has said he is ill`. To bound the work, only the first four occurrences in a text are read independently (at most 81 readings); later ones keep the reading of the fourth. Why not one reading for all, as the private reader does: two different readings in one sentence are common in exercises on the present perfect.
@@ -61,17 +61,20 @@ Steps 1 – 5 of CHK-003 are applied to the text with its spaces. The result is 
 
 `compileKey` expands every pattern of `accept`, takes the readings of every variant and stores them in a map from the text of a reading to the set of its word counts, with an index by number of words and then by length for the search of D5. It also records whether a blank is accepted: some variant has a reading with empty text. If any pattern is invalid the key is not built.
 
-The size of a key is bounded (CHK-002, D8 clarification 5): its patterns together may give at most 4000 readings, of at most 20 000 characters in total, both counted as they are produced, duplicates included. Reading stops as soon as either limit is passed, and the key is reported as `key-too-large`; so preparing is bounded too. After the first invalid pattern nothing more is stored, but the size is still counted, so that every reason is reported at once. Why these limits: with them the search of D5 compares at most 81 readings of the answer with 20 000 characters of key, and a check stays under 5 ms by a margin (D7). A key of a book has a handful of variants; the limits refuse only keys that no exercise needs, such as four `'s` before 4000 variants (324 000 readings), which took a third of a second to check before the limits.
+The size of a key is bounded (CHK-002, D8 clarification 5): its patterns together may give at most 4000 readings, of at most 20 000 characters in total. Both are counted across all patterns as they are produced, duplicates included: a variant produced twice, in one pattern or in two, counts its readings twice (and is read once). The moment either limit is passed all work stops: the key is reported as `key-too-large`, with the errors of the patterns before it, and later patterns are neither expanded nor reported. After the first invalid pattern nothing more is stored, but the size is still counted.
+
+What this bounds: every valid pattern gives at least one reading, so at most 4000 valid patterns of at most 500 characters are read before a key is built or refused, and the work of each invalid pattern is bounded by its 500 characters and the 4000 variants of D2. What it does not bound: the number of invalid patterns in an item, each of which is still read so that every reason is reported; the schema of a pack does not limit the length of `accept`, so the validation of packs (slice 1.3) is where it can be bounded. Measured preparing times are in D7. Why these limits: with them the search of D5 compares at most 81 readings of the answer with 20 000 characters of key, and a check stays under 5 ms by a margin (D7). A key of a book has a handful of variants; the limits refuse only keys that no exercise needs, such as four `'s` before 4000 variants (324 000 readings), which took a third of a second to check before the limits.
 
 A key is prepared when an exercise is opened, not on every check. Preparing is not part of the 5 ms of CHK-014 (D8, clarification 4); its own time is measured and reported.
 
 ### D5. The verdict (CHK-005 – CHK-009)
 
 1. The answer is blank when it is empty or white space only. Blank: `ok` if the key accepts a blank, otherwise no verdict.
-2. `ok` if the text of some reading of the answer is in the key.
-3. With `choices`, anything else is `bad`.
-4. `near` if some reading of the answer has at least 4 characters and the key holds a reading with the same number of words exactly one edit away (one character inserted, removed or replaced). Only key readings with the same number of words and a length that differs by at most one are compared, and the comparison stops at the second difference; the full distance is never computed. The first difference is found one character at a time over up to 32 characters and by comparing halves as whole strings over longer stretches, and the rest after it is compared as a whole string: the engine compares strings several times faster than a loop in code.
-5. Otherwise `bad`.
+2. An answer of more than 1000 characters (UTF-16 code units, as typed) is `bad` without being normalised or compared, with `choices` too (CHK-007). Every check reads the whole answer up to 81 times, so without this bound a pasted text of 60 000 characters took more than 5 ms. The limit is exported as `MAX_ANSWER_LENGTH`, so that the study screen can also limit its field. A blank answer is tested first, so white space of any length has no verdict.
+3. `ok` if the text of some reading of the answer is in the key.
+4. With `choices`, anything else is `bad`.
+5. `near` if some reading of the answer has at least 4 characters and the key holds a reading with the same number of words exactly one edit away (one character inserted, removed or replaced). Only key readings with the same number of words and a length that differs by at most one are compared, and the comparison stops at the second difference; the full distance is never computed. The first difference is found one character at a time over up to 32 characters and by comparing halves as whole strings over longer stretches, and the rest after it is compared as a whole string: the engine compares strings several times faster than a loop in code.
+6. Otherwise `bad`.
 
 An answer of punctuation only (`?`) is not blank: it is `bad` unless the key accepts a blank.
 
@@ -95,11 +98,16 @@ A unit test builds the worst valid keys the limits of D4 allow and asserts, for 
 
 - keys at the character limit whose variants share a beginning as long as the limit allows, then four `'s` (81 readings of each variant), then one of 1, 4 or 8 endings of four letters; the answer has the same beginning, four `'s`, the same number of words and the same length, and an ending two letters away from every one of them, so it is `bad`, every key reading of its shape is compared, and each comparison runs to the end;
 - a key of 4000 readings of one shape, at the reading limit, with a `bad` answer of the same shape;
-- a key with `'s` and `'d` in every variant and a `near` answer one edit from the last variant.
+- a key with `'s` and `'d` in every variant and a `near` answer one edit from the last variant;
+- the three keys at the character limit again with an answer of exactly 1000 characters (the worst answer above, padded with punctuation that reads as nothing), and an answer of 200 000 characters, `bad` unread.
+
+It also times preparing: the three keys of review round 2 (3999 groups of 4000 equal alternatives, 200 patterns of four `'s` before 4000 variants, one pattern of 500 000 words), each asserted under 100 ms, and the slowest valid key found, 4000 patterns of 500 characters, asserted under 1 s.
 
 It also asserts that the key that was slowest before the limits, four `'s` before 4000 variants, is refused as `key-too-large`. The medians of checking and of preparing are printed in the test output. "The reference machine" is the CI runner. The speed test is run on its own, without coverage instrumentation (`pnpm test:speed`, a step of the unit job and of `pnpm verify`), and is left out of `pnpm test:coverage`: instrumentation counts every comparison and is not part of what a learner runs.
 
-Measured on the development machine, median of 200 checks: at most 0.74 ms (8 endings 0.63 – 0.65 ms, 4 endings 0.69 – 0.71 ms, 1 ending 0.47 – 0.48 ms, 4000 readings 0.07 – 0.08 ms, `near` 0.03 ms), a margin of about 7 times; under the coverage instrumentation that `pnpm test:coverage` and CI add, at most 3.9 ms (8 endings 3.4 – 3.9 ms, 4 endings 2.5 – 3.5 ms, 1 ending 1.2 – 1.3 ms, 4000 readings 0.5 – 0.6 ms, `near` 0.09 ms), a margin of only about 1.3 times. Preparing takes at most 11 ms, for the key of 4000 readings (14 ms under coverage). Under coverage the cost lies in the number of comparisons, each counted by the instrumentation, more than in their length. A key from a book has a handful of variants and is checked in microseconds.
+Measured on the development machine, without instrumentation, median of 200 checks: at most 0.75 ms (4 endings 0.68 – 0.75 ms, 8 endings 0.61 – 0.67 ms, 1 ending 0.45 – 0.49 ms, the same with an answer of 1000 characters within 0.03 ms of these, 4000 readings 0.07 – 0.08 ms, `near` 0.03 ms, 200 000 characters 0.002 ms), a margin of about 7 times. Under coverage instrumentation the same checks took up to 3.9 ms, a margin of only about 1.3 times, which is why the test is not run there.
+
+Preparing, median: the keys above at most 14 ms (4000 readings); the keys of review round 2 0.6 – 0.8 ms, 3.7 – 4.2 ms and under 0.01 ms; the slowest valid key found, 4000 patterns of 500 characters, 160 – 166 ms (every character of 2 000 000 is normalised; 110 ms with punctuation instead of apostrophes, 65 ms with spaces). The slowest invalid keys found are lists of patterns each `too-many-variants` after resolving many loose alternatives, about 0.3 – 0.4 ms a pattern: 1000 of them take 270 – 400 ms, and the time grows with their number (D4). A key from a book has a handful of variants and is prepared and checked in microseconds.
 
 ### D8. Clarifications of the product description
 
@@ -112,11 +120,16 @@ Made in `docs/product/03-answer-checking.md` by this change, with the owner's ap
 5. **CHK-002, the size of a key.** Added: the key of an item is invalid when its patterns together give more than 4000 readings, or readings of more than 20 000 characters in total (`key-too-large`, D4). Without it, a valid pattern with four `'s` took hundreds of milliseconds to check, against the 5 ms of CHK-014.
 6. **CHK-003 step 3, single quotation marks.** Added: after typographic marks become ASCII, an apostrophe that works as a single quotation mark is removed (D3), before contractions are expanded. Without it, `He said, 'I'm tired.'` as a key made `He said, I'm tired.` `bad`, while the text of CHK-003 meant quotation marks not to count.
 
+7. **CHK-002, the length of a pattern.** Added: a pattern of more than 500 characters is invalid (`pattern-too-long`), the `maxLength` a pack already sets, so that preparing is bounded (D4).
+8. **CHK-007 and CHK-014, the length of an answer.** Added: an answer of more than 1000 characters is `bad` without being compared (D5), and CHK-014 holds "for any valid key and any answer".
+9. **CHK-003 step 3, quotation marks before punctuation.** Widened: an apostrophe after no letter or digit and before punctuation also opens a quote (D3), so direct speech that starts with an ellipsis or a dash is read as a quote.
+
 ### D9. Known limits, left as they are
 
 - `I dont know` against `I don't know` is `bad`, not `near`: the answer has three words and the key four. A missing apostrophe is treated as a mistake of grammar. Changing this needs a list of contractions written without an apostrophe; it can be a later change if practice asks for it.
 - `let's` is not expanded to `let us`; a key that wants both lists both.
 - Since spaces are removed, `a lot` and `alot` are equal. This is CHK-003 as written.
+- An apostrophe after white space opens a quote, so `he 's late`, with a space before the apostrophe, no longer reads as `he is late` and is not `ok`; written without the space, it is.
 - A word that begins with an apostrophe, such as `'tis`, loses it: the apostrophe is read as an opening quotation mark (D3). A plural possessive inside a single-quoted text, `'the boys' room'`, closes the quote, so the final apostrophe is kept. Both are rare in exercises; a key that needs them can list the other form.
 
 ## Constitution
@@ -134,5 +147,6 @@ Made in `docs/product/03-answer-checking.md` by this change, with the owner's ap
 ## Risks
 
 - **The loose alternative accepts too much.** It is the price CHK-001 states. Readers use `[a|b]` wherever they can.
+- **Preparing a key of many invalid patterns is slow.** Each costs at most about 0.4 ms, but their number is not bounded by the checker (D4, D7); the validation of packs in slice 1.3 can limit the number of patterns of an item if it ever matters.
 - **A timing test can fail on a busy machine.** It is timed without instrumentation, where the margin is about 7 times (D7). Under coverage instrumentation the margin was only about 1.3 times, which is why the test is not run there. If the test still proves unsteady in CI, the search for a near match gets an index by deleted character instead of a scan, or the limits of D4 are lowered; the 5 ms is not raised.
 - **The limits of a key refuse a key a book needs.** 4000 readings and 20 000 characters are far above a key of an exercise; a refused key is reported by the reader of slice 1.3, and its writer can drop the variants the exercise does not need.
