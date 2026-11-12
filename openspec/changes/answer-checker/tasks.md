@@ -10,7 +10,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 2. Normalisation
 
-- [ ] 2.1 Write `readings` in `normalise.ts` as in design D3; verify with unit tests named `@req CHK-003` and `@req CHK-004` covering their scenarios, including the bound of four independent readings
+- [x] 2.1 Write `readings` in `normalise.ts` as in design D3; verify with unit tests named `@req CHK-003` and `@req CHK-004` covering their scenarios, including the bound of four independent readings
 - [ ] 2.2 Forbid `toLocaleLowerCase`, `toLocaleUpperCase`, `localeCompare`, `Intl` and `Date` under `src/domain/checking` by a lint rule; verify with a deliberately failing file that is then removed
 
 ## 3. Verdicts
