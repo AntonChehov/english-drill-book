@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { INDEPENDENT_READINGS, readings } from "./normalise";
+import fixtures from "./readings.fixture.json";
 
 const RIGHT_SINGLE_QUOTE = String.fromCodePoint(0x2019);
 const COMBINING_ACUTE = String.fromCodePoint(0x0301);
@@ -17,6 +18,12 @@ function only(text: string): { text: string; words: number } {
 }
 
 describe("readings", () => {
+  it("@req CHK-003 gives the recorded readings of texts with many 's and 'd", () => {
+    for (const { text, readings: expected } of fixtures) {
+      expect(readings(text)).toEqual(expected);
+    }
+  });
+
   describe("@req CHK-003 normalisation", () => {
     it("@req CHK-003 ignores case, spaces and final punctuation", () => {
       const expected = { text: "sheisathome", words: 4 };

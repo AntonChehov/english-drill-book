@@ -1,0 +1,1356 @@
+[
+  {
+    "text": "x's x's x's x's x's x's x's x's x's x's x's x's ",
+    "readings": [
+      {
+        "text": "xisxisxisxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xisxisxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xisxisxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xisxisxhasxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xisxisxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xisxisxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xisxisx'sxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xisxisx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xisxisx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xisxhasxisxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xisxhasxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xisxhasxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xisxhasxhasxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xisxhasxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xisxhasxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xisxhasx'sxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xisxhasx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xisxhasx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xisx'sxisxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xisx'sxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xisx'sxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xisx'sxhasxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xisx'sxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xisx'sxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xisx'sx'sxisxisxisxisxisxisxisxisxis",
+        "words": 22
+      },
+      {
+        "text": "xisx'sx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 22
+      },
+      {
+        "text": "xisx'sx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 13
+      },
+      {
+        "text": "xhasxisxisxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xhasxisxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xhasxisxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xhasxisxhasxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xhasxisxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xhasxisxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xhasxisx'sxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xhasxisx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xhasxisx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xhasxhasxisxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xhasxhasxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xhasxhasxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xhasxhasxhasxisxisxisxisxisxisxisxisxis",
+        "words": 24
+      },
+      {
+        "text": "xhasxhasxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 24
+      },
+      {
+        "text": "xhasxhasxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 15
+      },
+      {
+        "text": "xhasxhasx'sxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xhasxhasx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xhasxhasx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xhasx'sxisxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xhasx'sxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xhasx'sxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xhasx'sxhasxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "xhasx'sxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "xhasx'sxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "xhasx'sx'sxisxisxisxisxisxisxisxisxis",
+        "words": 22
+      },
+      {
+        "text": "xhasx'sx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 22
+      },
+      {
+        "text": "xhasx'sx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 13
+      },
+      {
+        "text": "x'sxisxisxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "x'sxisxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "x'sxisxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "x'sxisxhasxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "x'sxisxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "x'sxisxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "x'sxisx'sxisxisxisxisxisxisxisxisxis",
+        "words": 22
+      },
+      {
+        "text": "x'sxisx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 22
+      },
+      {
+        "text": "x'sxisx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 13
+      },
+      {
+        "text": "x'sxhasxisxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "x'sxhasxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "x'sxhasxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "x'sxhasxhasxisxisxisxisxisxisxisxisxis",
+        "words": 23
+      },
+      {
+        "text": "x'sxhasxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 23
+      },
+      {
+        "text": "x'sxhasxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 14
+      },
+      {
+        "text": "x'sxhasx'sxisxisxisxisxisxisxisxisxis",
+        "words": 22
+      },
+      {
+        "text": "x'sxhasx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 22
+      },
+      {
+        "text": "x'sxhasx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 13
+      },
+      {
+        "text": "x'sx'sxisxisxisxisxisxisxisxisxisxis",
+        "words": 22
+      },
+      {
+        "text": "x'sx'sxisxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 22
+      },
+      {
+        "text": "x'sx'sxisx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 13
+      },
+      {
+        "text": "x'sx'sxhasxisxisxisxisxisxisxisxisxis",
+        "words": 22
+      },
+      {
+        "text": "x'sx'sxhasxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 22
+      },
+      {
+        "text": "x'sx'sxhasx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 13
+      },
+      {
+        "text": "x'sx'sx'sxisxisxisxisxisxisxisxisxis",
+        "words": 21
+      },
+      {
+        "text": "x'sx'sx'sxhasxhasxhasxhasxhasxhasxhasxhasxhas",
+        "words": 21
+      },
+      {
+        "text": "x'sx'sx'sx'sx'sx'sx'sx'sx'sx'sx'sx's",
+        "words": 12
+      }
+    ]
+  },
+  {
+    "text": "α's α's α's α's α'd α'd α'd α'd α'd α'd ",
+    "readings": [
+      {
+        "text": "isisisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "isisishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "isisis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "isishasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "isishashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "isishas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "isis'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "isis'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "isis's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "ishasisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "ishasishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "ishasis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "ishashasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "ishashashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "ishashas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "ishas'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "ishas'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "ishas's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "is'sisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "is'sishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "is'sis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "is'shasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "is'shashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "is'shas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "is's'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "is's'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "is's's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hasisisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "hasisishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hasisis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hasishasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "hasishashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hasishas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hasis'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "hasis'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hasis's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hashasisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "hashasishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hashasis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hashashasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "hashashashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hashashas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hashas'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "hashas'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "hashas's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "has'sisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "has'sishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "has'sis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "has'shasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "has'shashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "has'shas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "has's'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "has's'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "has's's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'sisisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'sisishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'sisis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'sishasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'sishashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'sishas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'sis'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'sis'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'sis's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'shasisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'shasishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'shasis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'shashasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'shashashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'shashas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'shas'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'shas'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'shas's'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'s'sisiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'s'sishashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'s'sis'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'s'shasiswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'s'shashashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'s'shas'shadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'s's'siswouldwouldwouldwouldwouldwould",
+        "words": 10
+      },
+      {
+        "text": "'s's'shashadhadhadhadhadhad",
+        "words": 10
+      },
+      {
+        "text": "'s's's'shadhadhadhadhadhad",
+        "words": 10
+      }
+    ]
+  },
+  {
+    "text": "he's said she'd go, it's Anna's and they'd've 's d's",
+    "readings": [
+      {
+        "text": "heissaidshewouldgoitisannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "heissaidshewouldgoitisannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "heissaidshewouldgoitisanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "heissaidshewouldgoithasannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "heissaidshewouldgoithasannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "heissaidshewouldgoithasanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "heissaidshewouldgoit'sannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "heissaidshewouldgoit'sannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "heissaidshewouldgoit'sanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "heissaidshehadgoitisannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "heissaidshehadgoitisannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "heissaidshehadgoitisanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "heissaidshehadgoithasannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "heissaidshehadgoithasannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "heissaidshehadgoithasanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "heissaidshehadgoit'sannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "heissaidshehadgoit'sannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "heissaidshehadgoit'sanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "hehassaidshewouldgoitisannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshewouldgoitisannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshewouldgoitisanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "hehassaidshewouldgoithasannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshewouldgoithasannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshewouldgoithasanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "hehassaidshewouldgoit'sannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "hehassaidshewouldgoit'sannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "hehassaidshewouldgoit'sanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "hehassaidshehadgoitisannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshehadgoitisannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshehadgoitisanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "hehassaidshehadgoithasannaisandtheywouldhavesdis",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshehadgoithasannahasandtheyhadhavesdhas",
+        "words": 17
+      },
+      {
+        "text": "hehassaidshehadgoithasanna'sandtheyhadhavesd's",
+        "words": 15
+      },
+      {
+        "text": "hehassaidshehadgoit'sannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "hehassaidshehadgoit'sannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "hehassaidshehadgoit'sanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "he'ssaidshewouldgoitisannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshewouldgoitisannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshewouldgoitisanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "he'ssaidshewouldgoithasannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshewouldgoithasannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshewouldgoithasanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "he'ssaidshewouldgoit'sannaisandtheywouldhavesdis",
+        "words": 15
+      },
+      {
+        "text": "he'ssaidshewouldgoit'sannahasandtheyhadhavesdhas",
+        "words": 15
+      },
+      {
+        "text": "he'ssaidshewouldgoit'sanna'sandtheyhadhavesd's",
+        "words": 13
+      },
+      {
+        "text": "he'ssaidshehadgoitisannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshehadgoitisannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshehadgoitisanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "he'ssaidshehadgoithasannaisandtheywouldhavesdis",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshehadgoithasannahasandtheyhadhavesdhas",
+        "words": 16
+      },
+      {
+        "text": "he'ssaidshehadgoithasanna'sandtheyhadhavesd's",
+        "words": 14
+      },
+      {
+        "text": "he'ssaidshehadgoit'sannaisandtheywouldhavesdis",
+        "words": 15
+      },
+      {
+        "text": "he'ssaidshehadgoit'sannahasandtheyhadhavesdhas",
+        "words": 15
+      },
+      {
+        "text": "he'ssaidshehadgoit'sanna'sandtheyhadhavesd's",
+        "words": 13
+      }
+    ]
+  },
+  {
+    "text": "'...I can't' he's 'the boys' room' x'd y's z's w'd v's",
+    "readings": [
+      {
+        "text": "icannotheistheboysroom'xwouldyisziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldyiszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldyisz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldyhasziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldyhaszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldyhasz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldy'sziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldy'szhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannotheistheboysroom'xwouldy'sz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannotheistheboysroom'xhadyisziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xhadyiszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xhadyisz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannotheistheboysroom'xhadyhasziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xhadyhaszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannotheistheboysroom'xhadyhasz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannotheistheboysroom'xhady'sziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannotheistheboysroom'xhady'szhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannotheistheboysroom'xhady'sz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldyisziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldyiszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldyisz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldyhasziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldyhaszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldyhasz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldy'sziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldy'szhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannothehastheboysroom'xwouldy'sz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannothehastheboysroom'xhadyisziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xhadyiszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xhadyisz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannothehastheboysroom'xhadyhasziswwouldvis",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xhadyhaszhaswhadvhas",
+        "words": 18
+      },
+      {
+        "text": "icannothehastheboysroom'xhadyhasz'swhadv's",
+        "words": 16
+      },
+      {
+        "text": "icannothehastheboysroom'xhady'sziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannothehastheboysroom'xhady'szhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannothehastheboysroom'xhady'sz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldyisziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldyiszhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldyisz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldyhasziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldyhaszhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldyhasz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldy'sziswwouldvis",
+        "words": 16
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldy'szhaswhadvhas",
+        "words": 16
+      },
+      {
+        "text": "icannothe'stheboysroom'xwouldy'sz'swhadv's",
+        "words": 14
+      },
+      {
+        "text": "icannothe'stheboysroom'xhadyisziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xhadyiszhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xhadyisz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannothe'stheboysroom'xhadyhasziswwouldvis",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xhadyhaszhaswhadvhas",
+        "words": 17
+      },
+      {
+        "text": "icannothe'stheboysroom'xhadyhasz'swhadv's",
+        "words": 15
+      },
+      {
+        "text": "icannothe'stheboysroom'xhady'sziswwouldvis",
+        "words": 16
+      },
+      {
+        "text": "icannothe'stheboysroom'xhady'szhaswhadvhas",
+        "words": 16
+      },
+      {
+        "text": "icannothe'stheboysroom'xhady'sz'swhadv's",
+        "words": 14
+      }
+    ]
+  },
+  {
+    "text": "A's\tb'd  c's\nd'd e's f'd ё's g'd. H's!",
+    "readings": [
+      {
+        "text": "aisbwouldcisdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "aisbwouldcisdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "aisbwouldchasdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "aisbwouldchasdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "aisbwouldc'sdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "aisbwouldc'sdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "aisbhadcisdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "aisbhadcisdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "aisbhadchasdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "aisbhadchasdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "aisbhadc'sdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "aisbhadc'sdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "ahasbwouldcisdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "ahasbwouldcisdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "ahasbwouldchasdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "ahasbwouldchasdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "ahasbwouldc'sdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "ahasbwouldc'sdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "ahasbhadcisdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "ahasbhadcisdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "ahasbhadchasdwouldeisfwouldеisgwouldhis",
+        "words": 18
+      },
+      {
+        "text": "ahasbhadchasdhadehasfhadеhasghadhhas",
+        "words": 18
+      },
+      {
+        "text": "ahasbhadc'sdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "ahasbhadc'sdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "a'sbwouldcisdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "a'sbwouldcisdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "a'sbwouldchasdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "a'sbwouldchasdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "a'sbwouldc'sdwouldeisfwouldеisgwouldhis",
+        "words": 16
+      },
+      {
+        "text": "a'sbwouldc'sdhadehasfhadеhasghadhhas",
+        "words": 16
+      },
+      {
+        "text": "a'sbhadcisdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "a'sbhadcisdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "a'sbhadchasdwouldeisfwouldеisgwouldhis",
+        "words": 17
+      },
+      {
+        "text": "a'sbhadchasdhadehasfhadеhasghadhhas",
+        "words": 17
+      },
+      {
+        "text": "a'sbhadc'sdwouldeisfwouldеisgwouldhis",
+        "words": 16
+      },
+      {
+        "text": "a'sbhadc'sdhadehasfhadеhasghadhhas",
+        "words": 16
+      }
+    ]
+  },
+  {
+    "text": "x's y's",
+    "readings": [
+      {
+        "text": "xisyis",
+        "words": 4
+      },
+      {
+        "text": "xisyhas",
+        "words": 4
+      },
+      {
+        "text": "xisy's",
+        "words": 3
+      },
+      {
+        "text": "xhasyis",
+        "words": 4
+      },
+      {
+        "text": "xhasyhas",
+        "words": 4
+      },
+      {
+        "text": "xhasy's",
+        "words": 3
+      },
+      {
+        "text": "x'syis",
+        "words": 3
+      },
+      {
+        "text": "x'syhas",
+        "words": 3
+      },
+      {
+        "text": "x'sy's",
+        "words": 2
+      }
+    ]
+  },
+  {
+    "text": "it's",
+    "readings": [
+      {
+        "text": "itis",
+        "words": 2
+      },
+      {
+        "text": "ithas",
+        "words": 2
+      },
+      {
+        "text": "it's",
+        "words": 1
+      }
+    ]
+  },
+  {
+    "text": "she'd say he's here",
+    "readings": [
+      {
+        "text": "shewouldsayheishere",
+        "words": 6
+      },
+      {
+        "text": "shewouldsayhehashere",
+        "words": 6
+      },
+      {
+        "text": "shewouldsayhe'shere",
+        "words": 5
+      },
+      {
+        "text": "shehadsayheishere",
+        "words": 6
+      },
+      {
+        "text": "shehadsayhehashere",
+        "words": 6
+      },
+      {
+        "text": "shehadsayhe'shere",
+        "words": 5
+      }
+    ]
+  },
+  {
+    "text": "",
+    "readings": [
+      {
+        "text": "",
+        "words": 0
+      }
+    ]
+  },
+  {
+    "text": "?",
+    "readings": [
+      {
+        "text": "",
+        "words": 0
+      }
+    ]
+  }
+]
