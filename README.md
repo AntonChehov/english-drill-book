@@ -23,7 +23,7 @@ The app is a companion for textbooks a learner already owns. It reads the learne
 
 ## How it is built
 
-Specification-first, with [OpenSpec](https://github.com/Fission-AI/OpenSpec): every piece of work is a change with a proposal, a design, tasks and delta specs that the owner approves before any code is written. Coding agents implement the change as a bot identity, a separate reviewing agent reviews the diff in rounds until it approves the latest content, and CI refuses a pull request that lacks the evidence. Another agent then tests the built app against acceptance scenarios that the implementing agent has never seen.
+Specification-first, with [OpenSpec](https://github.com/Fission-AI/OpenSpec): every piece of work is a change with a proposal, a design, tasks and delta specs that the owner approves before any code is written. Coding agents implement the change as a bot identity, a separate reviewing agent, the same one in every round, reviews the diff in rounds until it approves the latest content, and CI refuses a pull request that lacks the evidence. Another agent then tests the built app against acceptance scenarios that the implementing agent has never seen.
 
 The full process, the roles and its honest limits are in [`docs/process.md`](docs/process.md); the invariants enforced on every change are in [`docs/constitution.md`](docs/constitution.md).
 

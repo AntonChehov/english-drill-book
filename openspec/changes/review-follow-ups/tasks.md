@@ -10,7 +10,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 2. The process
 
-- [ ] 2.1 Reword step 4 of `docs/process.md` as in design D1, and `CLAUDE.md` and `README.md` to agree, including the rule on HTML comments; verify each against what the script checks
+- [x] 2.1 Reword step 4 of `docs/process.md` as in design D1, and `CLAUDE.md` and `README.md` to agree, including the rule on HTML comments; verify each against what the script checks — each states what `parseRecord` checks: a comment is refused wherever `<!--` stands outside a fenced block, which the tests of 1.1 cover; who writes a round is not checked (D1) and none of them says it is; `README.md` names the same reviewer and leaves the grammar of the record to the other two
 
 ## 3. Review and evidence
 
