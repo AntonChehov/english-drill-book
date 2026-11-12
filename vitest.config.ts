@@ -9,6 +9,7 @@ export default mergeConfig(
     test: {
       include: ["src/**/*.test.ts", "scripts/**/*.test.mjs"],
       environment: "node",
+      setupFiles: ["./vitest.setup.ts"],
       // Order-independence (constitution C-10): shuffle, with the seed printed on failure.
       sequence: { shuffle: true },
       reporters: ci ? ["default", "junit"] : ["default"],
