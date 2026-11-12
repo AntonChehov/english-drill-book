@@ -46,6 +46,8 @@ type Parsed =
   | { readonly ok: false; readonly error: PatternErrorReason };
 
 const WHITE_SPACE = /\s/u;
+// White space other than one space between words: two together, at an end, or not a space.
+const UNTIDY = /\s\s|^\s|\s$|[^\S ]/u;
 
 function isSpacedSlashIn(text: string): boolean {
   return text.split(/\s+/u).includes("/");
@@ -176,10 +178,19 @@ export function expandPattern(pattern: string): Expansion {
 
   const variants = new Map<string, number>();
   resolve(parsed.tokens, (words) => {
+    // Text next to text is joined first, so each variant is built from few pieces.
     const parts: Segment[] = [];
+    const add = (segment: Segment): void => {
+      const previous = parts.at(-1);
+      if (typeof segment === "string" && typeof previous === "string") {
+        parts[parts.length - 1] = previous + segment;
+      } else {
+        parts.push(segment);
+      }
+    };
     for (const [index, word] of words.entries()) {
-      if (index > 0) parts.push(" ");
-      parts.push(...word);
+      if (index > 0) add(" ");
+      for (const segment of word) add(segment);
     }
     // The leftmost group changes slowest, so variants come in the order of the pattern.
     let built = [""];
@@ -190,7 +201,7 @@ export function expandPattern(pattern: string): Expansion {
           : built.flatMap((prefix) => part.map((alternative) => prefix + alternative));
     }
     for (const variant of built) {
-      const tidy = variant.replace(/\s+/gu, " ").trim();
+      const tidy = UNTIDY.test(variant) ? variant.replace(/\s+/gu, " ").trim() : variant;
       variants.set(tidy, (variants.get(tidy) ?? 0) + 1);
     }
     return true;
