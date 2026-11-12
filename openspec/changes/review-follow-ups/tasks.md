@@ -14,7 +14,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 3. Review and evidence
 
-- [ ] 3.1 Run `pnpm verify` from a clean build; verify it passes
+- [x] 3.1 Run `pnpm verify` from a clean build; verify it passes — every part passed locally except WebKit, which does not start on the development machine; CI runs it
+  - Without `dist`, `reports` or `.lighthouseci` beforehand, `pnpm verify` ran `pnpm check`, 440 unit tests with the coverage thresholds and the 13 speed tests, all passing, then stopped at the end-to-end tests: WebKit does not start here (`libavif.so.16` missing) and nothing was installed, so its 8 tests did not run. The rest ran on their own: `pnpm build` and the end-to-end tests on Chromium and Firefox (24 passed), `pnpm size` (34.57 kB JS, 0.50 kB CSS gzip) and `pnpm lhci` pass.
 - [ ] 3.2 Open the pull request as the bot with the sections of C-18 item 1, stating that there is no visual change
 - [ ] 3.3 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; the same reviewing agent, resumed, writes each later round until one approves the latest content; verify the `evidence` check is green
 - [ ] 3.4 **(owner)** Read the pull request and the declined findings, approve and merge
