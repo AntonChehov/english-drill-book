@@ -21,6 +21,10 @@ const PIECES = [
   "well...",
   "?",
   "a",
+  "'yes'",
+  "'Anna",
+  "boys'",
+  "'tis",
 ] as const;
 
 const piece = fc.constantFrom(...PIECES);
@@ -31,11 +35,18 @@ const group = fc.oneof(
     .map((alternatives) => `[${alternatives.join("|")}]`),
 );
 const word = fc
-  .array(fc.oneof({ weight: 3, arbitrary: piece }, { weight: 1, arbitrary: group }), {
-    minLength: 1,
-    maxLength: 2,
-  })
-  .map((segments) => segments.join(""));
+  .tuple(
+    fc.array(fc.oneof({ weight: 3, arbitrary: piece }, { weight: 1, arbitrary: group }), {
+      minLength: 1,
+      maxLength: 2,
+    }),
+    fc.constantFrom("", "'", "\u2018"),
+  )
+  .map(([segments, quote]) => {
+    const text = segments.join("");
+    // Sometimes in single quotation marks, ASCII or typographic.
+    return quote === "" ? text : `${quote}${text}${quote === "'" ? "'" : "\u2019"}`;
+  });
 
 /** A valid pattern: words, some joined by a loose alternative. */
 const pattern = fc
@@ -47,7 +58,7 @@ const pattern = fc
       )
       .join(" "),
   )
-  .filter((text) => expandPattern(text).ok);
+  .filter((text) => compileKey([text]).ok);
 
 function keyOf(text: string): Key {
   const compiled = compileKey([text]);
@@ -132,6 +143,34 @@ describe("properties of the checker", () => {
       fc.property(patternAndAnswer, ([text, answer]) => {
         expect(checkAnswer(keyOf(text), answer)).toBe(checkAnswer(keyOf(text), answer));
       }),
+    );
+  });
+
+  it("@req CHK-012 a key near the limits accepts its variants, or is refused as too large", () => {
+    const alternatives = fc
+      .array(fc.constantFrom("a", "b", "c", "d", "e", "f", "g", "h"), {
+        minLength: 2,
+        maxLength: 8,
+      })
+      .map((letters) => `[${letters.join("|")}]`);
+    const large = fc
+      .tuple(
+        fc.array(fc.constantFrom("he's", "I'd", "'yes'", "abcdefghij"), { maxLength: 8 }),
+        fc.array(alternatives, { minLength: 2, maxLength: 5 }),
+      )
+      .map(([words, groups]) => [...words, ...groups].join(" "))
+      .filter((text) => expandPattern(text).ok);
+    fc.assert(
+      fc.property(large, (text) => {
+        const compiled = compileKey([text]);
+        const errors = compiled.ok ? [] : compiled.errors;
+        const verdicts = compiled.ok
+          ? variantsOf(text).map((variant) => checkAnswer(compiled.key, variant))
+          : [];
+        expect(errors.filter(({ reason }) => reason !== "key-too-large")).toEqual([]);
+        expect(verdicts.filter((verdict) => verdict !== "ok")).toEqual([]);
+      }),
+      { numRuns: 60 },
     );
   });
 
