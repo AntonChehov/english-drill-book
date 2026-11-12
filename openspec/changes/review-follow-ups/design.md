@@ -10,7 +10,7 @@ The review record and its check were introduced by the change `review-rounds` (a
 
 Wording for step 4 of `docs/process.md`, with `CLAUDE.md` and `README.md` made to agree:
 
-> When the tasks are done, a reviewing agent started for this with a fresh context runs the review skill on the whole diff and writes round 1 into `review.md` […]. The implementing agent fixes or declines each finding and hands the change back to **the same reviewing agent**, resumed with what it already knows, for the next round, which states for every open finding whether it is fixed and reviews what changed since. A new reviewing agent is started for a later round only when the first cannot be resumed; its round says so under `### Notes`.
+> When the tasks are done, a reviewing agent started for this with a fresh context runs the review skill on the whole diff and writes round 1 into `review.md` […]. The implementing agent fixes or declines each finding and hands the change back to **the same reviewing agent**, resumed with what it already knows, for the next round, which states for every open finding whether it is fixed and reviews what changed since, so that the round again covers the whole diff (C-18). A new reviewing agent is started for a later round only when the first cannot be resumed; its round says so under `### Notes`.
 
 Why the same agent: it knows the diff and its own findings, so a later round costs the reading of the fixes, not of the whole change. Why this is still an independent review: independence is from the author, and the reviewer never writes code. The hash still binds each round to the content it read, whoever wrote it.
 
