@@ -156,43 +156,49 @@ const D_PARTS = D_READINGS.map(part);
  */
 export function readings(text: string): readonly Reading[] {
   const prepared = prepare(text);
-  const fixed: Part[] = [];
-  const kinds: (typeof S_PARTS)[] = [];
+  // The stretch before the first occurrence, then each occurrence with the stretch after it.
+  let beginning = EMPTY;
+  const occurrences: { readonly forms: readonly Part[]; readonly after: Part }[] = [];
+  let forms: readonly Part[] | null = null;
   let at = 0;
+  const close = (stretch: Part): void => {
+    if (forms === null) beginning = stretch;
+    else occurrences.push({ forms, after: stretch });
+  };
   for (const match of prepared.matchAll(S_OR_D)) {
-    fixed.push(part(prepared.slice(at, match.index)));
-    kinds.push(match[1] === "s" ? S_PARTS : D_PARTS);
+    close(part(prepared.slice(at, match.index)));
+    forms = match[1] === "s" ? S_PARTS : D_PARTS;
     at = match.index + match[0].length;
   }
-  fixed.push(part(prepared.slice(at)));
+  close(part(prepared.slice(at)));
 
   // The beginnings up to the fourth occurrence, each with the form chosen last.
-  let beginnings: { readonly stretch: Part; readonly chosen: number }[] = [
-    { stretch: fixed[0] ?? EMPTY, chosen: 0 },
-  ];
-  const independent = Math.min(INDEPENDENT_READINGS, kinds.length);
-  for (let index = 0; index < independent; index += 1) {
-    const forms = kinds[index] ?? [];
-    const after = fixed[index + 1] ?? EMPTY;
+  let beginnings = [{ stretch: beginning, chosen: 0 }];
+  for (const { forms: choices, after } of occurrences.slice(0, INDEPENDENT_READINGS)) {
     beginnings = beginnings.flatMap(({ stretch }) =>
-      forms.map((form, chosen) => ({ stretch: join(join(stretch, form), after), chosen })),
+      choices.map((form, chosen) => ({ stretch: join(join(stretch, form), after), chosen })),
     );
   }
 
   // The rest, once for each form of the fourth: later occurrences take the same form.
-  const rests = [0, 1, 2].map((chosen) => {
-    let rest = EMPTY;
-    for (let index = independent; index < kinds.length; index += 1) {
-      const forms = kinds[index] ?? [];
-      const form = forms[Math.min(chosen, forms.length - 1)] ?? EMPTY;
-      rest = join(join(rest, form), fixed[index + 1] ?? EMPTY);
+  const later = occurrences.slice(INDEPENDENT_READINGS);
+  const rests = new Map<number, Part>();
+  const restFor = (chosen: number): Part => {
+    let rest = rests.get(chosen);
+    if (rest === undefined) {
+      rest = EMPTY;
+      for (const { forms: choices, after } of later) {
+        const form = choices[Math.min(chosen, choices.length - 1)] ?? EMPTY;
+        rest = join(join(rest, form), after);
+      }
+      rests.set(chosen, rest);
     }
     return rest;
-  });
+  };
 
   const found = new Map<string, Reading>();
   for (const { stretch, chosen } of beginnings) {
-    const reading = read(join(stretch, rests[chosen] ?? EMPTY));
+    const reading = read(join(stretch, restFor(chosen)));
     found.set(`${reading.words}:${reading.text}`, reading);
   }
   return [...found.values()];
