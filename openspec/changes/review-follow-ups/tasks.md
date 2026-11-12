@@ -5,7 +5,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 ## 1. The record
 
 - [x] 1.1 Make `parseRecord` in `scripts/review-record.mjs` report an HTML comment as in design D2; verify with unit tests for a comment before the first round, among a round's own lines, under a finding, under `### Notes`, in a closing section, and inside a fenced block, where it is accepted — 11 tests in `scripts/review-record.test.mjs` (also indented under an outcome, on a heading, two comments, and a comment hiding a whole round) pass; the 9 that expect the problem fail without the new check; the other problems of each line are still reported
-- [ ] 1.2 Run the check on a clone with a hand-written record that hides an approving round in a comment; verify it fails with the message of D2
+- [x] 1.2 Run the check on a clone with a hand-written record that hides an approving round in a comment; verify it fails with the message of D2 — `gather`, `checkEvidence` and `report` of `scripts/pr-evidence.mjs` ran on a clone of this branch with GitHub stubbed
+  - The record showed round 1 requesting changes and hid, in a comment opened under its `### Notes` and closed after `none` of the closing sections, a round 2 approving content `efe142e020ef`, the hash of the clone. Check 3 failed with the message of D2 for line 16, the line of `<!--`; checks 1, 2 and 4 passed. With the parser of `main` the same record passed check 3: the hidden round approved.
 
 ## 2. The process
 
