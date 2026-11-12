@@ -1,0 +1,3 @@
+rule: oneOf
+path: /units/0/exercises/0
+An exercise is of a type the schema does not know.

@@ -1,0 +1,3 @@
+rule: pattern
+path: /id
+The id has capital letters and a space.

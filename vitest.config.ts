@@ -17,7 +17,8 @@ export default mergeConfig(
       coverage: {
         provider: "v8",
         include: ["src/domain/**/*.ts"],
-        exclude: ["src/domain/**/*.test.ts"],
+        // Fixtures are code that only tests run.
+        exclude: ["src/domain/**/*.test.ts", "src/domain/**/*.fixture.ts"],
         reporter: ["text", "json-summary", "html"],
         reportsDirectory: "reports/coverage",
         thresholds: { lines: 95, branches: 95 },

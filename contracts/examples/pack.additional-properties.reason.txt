@@ -1,0 +1,3 @@
+rule: additionalProperties
+path: /units/0/colour
+A unit has a property the schema does not define.

@@ -1,0 +1,3 @@
+rule: required
+path:
+The pack is not original and does not name its source.

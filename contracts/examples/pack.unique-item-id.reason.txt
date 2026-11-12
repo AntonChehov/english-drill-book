@@ -1,0 +1,3 @@
+rule: unique-item-id
+path: /units/0/exercises/0/items/1/id
+Two items of one exercise have the ID 1.

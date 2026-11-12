@@ -1,0 +1,3 @@
+rule: minItems
+path: /units/0/exercises/0/items
+An exercise of items has no items.

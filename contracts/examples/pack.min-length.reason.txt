@@ -1,0 +1,3 @@
+rule: minLength
+path: /title
+The title is empty.

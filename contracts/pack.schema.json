@@ -15,7 +15,7 @@
     "instructionLanguage": { "$ref": "#/$defs/languageTag" },
     "original": { "type": "boolean", "description": "True when all content was written for this pack." },
     "license": { "type": "string", "minLength": 1, "maxLength": 64, "description": "SPDX identifier." },
-    "source": { "$ref": "#/$defs/source" },
+    "source": { "$ref": "#/$defs/source", "description": "Required unless the pack is original; an original pack has it when it was read from documents." },
     "migrations": {
       "type": "array",
       "items": { "$ref": "#/$defs/migration" }
@@ -29,7 +29,7 @@
   "allOf": [
     {
       "if": { "properties": { "original": { "const": true } } },
-      "then": { "required": ["license"], "not": { "required": ["source"] } },
+      "then": { "required": ["license"] },
       "else": { "required": ["source"] }
     }
   ],

@@ -1,0 +1,63 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "example-rules",
+  "version": "1.0.0",
+  "title": "Example: one rule broken",
+  "language": "en",
+  "original": true,
+  "license": "CC-BY-4.0-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "units": [
+    {
+      "id": "1",
+      "title": "Plurals",
+      "exercises": [
+        {
+          "id": "1.1",
+          "type": "items",
+          "task": "Write the plural.",
+          "items": [
+            {
+              "id": "1",
+              "prompt": "one box, two ___",
+              "accept": [
+                "boxes"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "one city, two ___",
+              "accept": [
+                "cities"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Articles",
+      "exercises": [
+        {
+          "id": "2.1",
+          "type": "items",
+          "task": "Choose a or an.",
+          "items": [
+            {
+              "id": "1",
+              "prompt": "___ ostrich",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
