@@ -11,7 +11,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 ## 2. Normalisation
 
 - [x] 2.1 Write `readings` in `normalise.ts` as in design D3; verify with unit tests named `@req CHK-003` and `@req CHK-004` covering their scenarios, including the bound of four independent readings
-- [ ] 2.2 Forbid `toLocaleLowerCase`, `toLocaleUpperCase`, `localeCompare`, `Intl` and `Date` under `src/domain/checking` by a lint rule; verify with a deliberately failing file that is then removed
+- [x] 2.2 Forbid `toLocaleLowerCase`, `toLocaleUpperCase`, `localeCompare`, `Intl` and `Date` under `src/domain/checking` by a lint rule; verify with a deliberately failing file that is then removed — a probe file in `src/domain/checking` failed on each of them and on the rules of `src/domain` kept by the override; the same calls in `src/domain` outside `checking` passed; the probe was removed
 
 ## 3. Verdicts
 
