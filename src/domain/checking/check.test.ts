@@ -75,6 +75,7 @@ describe("checkAnswer", () => {
       expect(verdict([`He said, "I'm tired."`], "He said, 'I'm tired.'")).toBe("ok");
       expect(verdict(["'Yes,' she said"], "Yes, she said")).toBe("ok");
       expect(verdict(["'he runs'"], "he runs")).toBe("ok");
+      expect(verdict(["he runs"], "'he runs'")).toBe("ok");
     });
 
     it("@req CHK-003 expands a contraction before a closing quotation mark", () => {
