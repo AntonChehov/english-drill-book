@@ -17,11 +17,11 @@
       "budget": 20000
     }
   },
-  "sha": "607fe21a3d23a726acdb758328c3ae811f188372",
+  "sha": "e133bddee4c8273742f9c9a2d335e76fad30a127",
   "tests": {
     "unit": {
-      "tests": 295,
-      "passed": 295,
+      "tests": 440,
+      "passed": 440,
       "failed": 0,
       "skipped": 0
     },
@@ -34,9 +34,9 @@
   },
   "coverage": {
     "lines": 100,
-    "branches": 100,
+    "branches": 98.16,
     "functions": 100,
-    "statements": 100
+    "statements": 99.69
   },
   "lighthouse": {
     "performance": 100,
