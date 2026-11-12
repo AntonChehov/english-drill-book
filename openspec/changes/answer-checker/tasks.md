@@ -19,7 +19,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 - [x] 3.2 Write `compileKey` in `key.ts` as in design D4; verify that an invalid pattern gives errors with its index and no key
 - [x] 3.3 Write `checkAnswer` in `check.ts` as in design D5 and export the interface from `index.ts`; verify with unit tests named `@req CHK-005` – `@req CHK-009` covering every scenario of the delta spec
 - [x ] 3.4 Add the properties of design D6 named `@req CHK-012` and `@req CHK-013`, and the scenario of the capital `I`; verify they pass with the fixed seed and with `LANG=tr_TR.UTF-8` — 96 checker tests passed with the fixed seed, with `LANG=tr_TR.UTF-8 LC_ALL=tr_TR.UTF-8` (default locale `tr-TR`) as without; lowering case with `toLocaleLowerCase("tr")` instead made 8 of them fail
-- [ ] 3.5 Add the speed test of design D7 named `@req CHK-014`, printing the medians of checking and of preparing; verify it passes locally and record both numbers here
+- [x ] 3.5 Add the speed test of design D7 named `@req CHK-014`, printing the medians of checking and of preparing; verify it passes locally and record both numbers here — on the owner's machine, over three runs: median of 200 checks 0.28 – 0.32 ms; median of 11 preparations of the key 106 – 107 ms
 
 ## 4. Product description
 
