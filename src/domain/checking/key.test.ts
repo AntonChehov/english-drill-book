@@ -56,22 +56,39 @@ describe("compileKey", () => {
 
     it("@req CHK-002 accepts readings of 20 000 characters and reports more", () => {
       expect(MAX_KEY_CHARACTERS).toBe(20_000);
-      expect(compileKey(["a".repeat(MAX_KEY_CHARACTERS)]).ok).toBe(true);
-      expect(compileKey(["a".repeat(10_000), "b".repeat(10_001)])).toEqual({
+      const forty = Array.from({ length: 40 }, (_, index) => `${index % 10}`.repeat(500));
+      expect(compileKey(forty).ok).toBe(true);
+      expect(compileKey([...forty, "b"])).toEqual({
         ok: false,
         errors: [{ index: null, reason: "key-too-large" }],
       });
     });
 
-    it("@req CHK-002 reports a key too large together with its invalid patterns", () => {
+    it("@req CHK-002 stops at a key too large: later patterns are neither read nor reported", () => {
       expect(compileKey(["(a", fourThousand, "x", "b)"])).toEqual({
         ok: false,
         errors: [
           { index: 0, reason: "unclosed-group" },
-          { index: 3, reason: "stray-character" },
           { index: null, reason: "key-too-large" },
         ],
       });
+    });
+
+    it("@req CHK-002 counts the readings of a variant each time it is produced", () => {
+      const twoHundredX = `[${Array.from({ length: 200 }, () => "x").join("|")}]`;
+      expect(compileKey(Array.from({ length: 20 }, () => twoHundredX)).ok).toBe(true);
+      expect(compileKey(Array.from({ length: 21 }, () => twoHundredX))).toEqual({
+        ok: false,
+        errors: [{ index: null, reason: "key-too-large" }],
+      });
+    });
+
+    it("@req CHK-002 counts across patterns, so a later pattern can pass the limit", () => {
+      expect(compileKey([fourThousand.replace("[a|b|c|d]", "[a|b|c]"), ten])).toEqual({
+        ok: true,
+        key: expect.anything(),
+      });
+      expect(compileKey([fourThousand, ten]).ok).toBe(false);
     });
 
     it("@req CHK-002 reports the reviewer's key of four 's as too large", () => {

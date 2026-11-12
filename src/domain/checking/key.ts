@@ -35,16 +35,22 @@ export type CompiledKey =
   | { readonly ok: false; readonly errors: readonly KeyError[] };
 
 /**
- * Prepares the key of `accept`. Every invalid pattern is reported, and so is a key whose
- * readings pass the limits; reading stops there, so preparing is bounded too.
+ * Prepares the key of `accept`. Readings and their characters are counted across all patterns
+ * as they are produced, duplicates included; the moment the key passes a limit, all work stops:
+ * later patterns are neither expanded nor reported. So preparing is bounded: at most 4001
+ * patterns of at most 500 characters are read, and each gives at least one reading.
  */
 export function compileKey(accept: readonly string[]): CompiledKey {
   const errors: KeyError[] = [];
   const texts = new Map<string, Set<number>>();
   const byWordsAndLength = new Map<number, Map<number, string[]>>();
+  // A variant produced again, in the same pattern or another, is read only once.
+  const read = new Map<
+    string,
+    { readonly readings: readonly Reading[]; readonly characters: number }
+  >();
   let produced = 0;
   let characters = 0;
-  let tooLarge = false;
 
   const store = ({ text, words }: Reading): void => {
     const counts = texts.get(text) ?? new Set<number>();
@@ -64,20 +70,24 @@ export function compileKey(accept: readonly string[]): CompiledKey {
       errors.push({ index, reason: expansion.error });
       continue;
     }
-    for (const variant of tooLarge ? [] : expansion.variants) {
-      const found = readings(variant);
-      produced += found.length;
-      for (const reading of found) characters += reading.text.length;
+    for (const [at, variant] of expansion.variants.entries()) {
+      const times = expansion.produced[at] ?? 1;
+      let found = read.get(variant);
+      if (found === undefined) {
+        const all = readings(variant);
+        found = { readings: all, characters: all.reduce((sum, { text }) => sum + text.length, 0) };
+        read.set(variant, found);
+      }
+      produced += times * found.readings.length;
+      characters += times * found.characters;
       if (produced > MAX_KEY_READINGS || characters > MAX_KEY_CHARACTERS) {
-        tooLarge = true;
-        break;
+        return { ok: false, errors: [...errors, { index: null, reason: "key-too-large" }] };
       }
       // Once a pattern is invalid the key is not built; only its size is still counted.
-      if (errors.length === 0) for (const reading of found) store(reading);
+      if (errors.length === 0) for (const reading of found.readings) store(reading);
     }
   }
 
-  if (tooLarge) errors.push({ index: null, reason: "key-too-large" });
   if (errors.length > 0) return { ok: false, errors };
   return {
     ok: true,

@@ -2,11 +2,32 @@
 
 /** Why a pattern cannot be used (CHK-002). */
 export type PatternErrorReason =
-  "unclosed-group" | "nested-group" | "stray-character" | "dangling-slash" | "too-many-variants";
+  | "pattern-too-long"
+  | "unclosed-group"
+  | "nested-group"
+  | "stray-character"
+  | "dangling-slash"
+  | "too-many-variants";
 
 export type Expansion =
-  | { readonly ok: true; readonly variants: readonly string[] }
+  | {
+      readonly ok: true;
+      /** The variants without duplicates, in the order they are first produced. */
+      readonly variants: readonly string[];
+      /** How many times each variant was produced, duplicates included (CHK-002, D4). */
+      readonly produced: readonly number[];
+    }
   | { readonly ok: false; readonly error: PatternErrorReason };
+
+/** The longest pattern, in characters (code points): the `maxLength` of a pattern in a pack. */
+export const MAX_PATTERN_LENGTH = 500;
+
+/** Whether a text has more than `MAX_PATTERN_LENGTH` code points, without reading a long one. */
+function isTooLong(pattern: string): boolean {
+  if (pattern.length <= MAX_PATTERN_LENGTH) return false;
+  // A code point is one or two UTF-16 units, so twice the limit is too long whatever it holds.
+  return pattern.length > 2 * MAX_PATTERN_LENGTH || [...pattern].length > MAX_PATTERN_LENGTH;
+}
 
 /** The most variants a valid pattern may expand to, counted before duplicates are removed. */
 export const MAX_VARIANTS = 4000;
@@ -92,35 +113,74 @@ function parse(pattern: string): Parsed {
   return { ok: true, tokens };
 }
 
+/** The variants of a candidate: the product of the sizes of its groups. */
+function countOf(words: readonly Word[]): number {
+  let count = 1;
+  for (const word of words) {
+    for (const segment of word) if (typeof segment !== "string") count *= segment.length;
+  }
+  return count;
+}
+
+/**
+ * Resolves the loose alternatives of `tokens` from left to right (design D2) and passes each
+ * candidate, a list of words without slashes, to `leaf`; stops as soon as `leaf` returns false.
+ */
+function resolve(tokens: readonly Token[], leaf: (words: readonly Word[]) => boolean): boolean {
+  const slash = tokens.indexOf(SLASH);
+  if (slash < 0) return leaf(tokens as readonly Word[]);
+  const following = tokens.indexOf(SLASH, slash + 1);
+  const end = following < 0 ? tokens.length : following;
+  const left = Math.min(MAX_SIDE, slash);
+  const right = Math.min(MAX_SIDE, end - slash - 1);
+  // Each distinct candidate once: the left side with the first j words after the slash
+  // dropped, then the right side with the last i words before it dropped.
+  for (let j = 1; j <= right; j += 1) {
+    if (!resolve([...tokens.slice(0, slash), ...tokens.slice(slash + 1 + j)], leaf)) return false;
+  }
+  for (let i = 1; i <= left; i += 1) {
+    if (!resolve([...tokens.slice(0, slash - i), ...tokens.slice(slash + 1)], leaf)) return false;
+  }
+  return true;
+}
+
 /**
  * Expands a pattern into its variants, without duplicates, in the order they are produced.
  * Loose alternatives are resolved first, from left to right, then groups are expanded.
  * An invalid pattern gives its reason instead; nothing is thrown.
  */
 export function expandPattern(pattern: string): Expansion {
+  if (isTooLong(pattern)) return { ok: false, error: "pattern-too-long" };
   const parsed = parse(pattern);
   if (!parsed.ok) return parsed;
 
-  // Each loose alternative yields at least two candidates and each candidate at least one
-  // variant, so twelve of them (4096) are over the limit before anything is expanded.
-  const slashes = parsed.tokens.filter((token) => token === SLASH).length;
-  if (2 ** slashes > MAX_VARIANTS) return { ok: false, error: "too-many-variants" };
+  // Every candidate keeps at least one word before each later slash, so the slash before a
+  // segment of R words gives at least 1 + min(4, R) candidates, each with at least one variant:
+  // their product is a lower bound of the count, checked before anything is resolved.
+  let lowest = 1;
+  for (const [index, token] of parsed.tokens.entries()) {
+    if (token !== SLASH) continue;
+    const following = parsed.tokens.indexOf(SLASH, index + 1);
+    const end = following < 0 ? parsed.tokens.length : following;
+    lowest *= 1 + Math.min(MAX_SIDE, end - index - 1);
+  }
+  if (lowest > MAX_VARIANTS) return { ok: false, error: "too-many-variants" };
 
+  // First the candidates are only counted, so a pattern over the limit builds nothing.
   let produced = 0;
-  const variants = new Set<string>();
+  const counted = resolve(parsed.tokens, (words) => {
+    produced += countOf(words);
+    return produced <= MAX_VARIANTS;
+  });
+  if (!counted) return { ok: false, error: "too-many-variants" };
 
-  const expandGroups = (words: readonly Word[]): boolean => {
+  const variants = new Map<string, number>();
+  resolve(parsed.tokens, (words) => {
     const parts: Segment[] = [];
     for (const [index, word] of words.entries()) {
       if (index > 0) parts.push(" ");
       parts.push(...word);
     }
-    // Counted before anything is built: the product bounds the work as well as the result.
-    produced += parts.reduce(
-      (count, part) => count * (typeof part === "string" ? 1 : part.length),
-      1,
-    );
-    if (produced > MAX_VARIANTS) return false;
     // The leftmost group changes slowest, so variants come in the order of the pattern.
     let built = [""];
     for (const part of parts) {
@@ -129,28 +189,11 @@ export function expandPattern(pattern: string): Expansion {
           ? built.map((prefix) => prefix + part)
           : built.flatMap((prefix) => part.map((alternative) => prefix + alternative));
     }
-    for (const variant of built) variants.add(variant.replace(/\s+/gu, " ").trim());
-    return true;
-  };
-
-  const resolve = (tokens: readonly Token[]): boolean => {
-    const slash = tokens.indexOf(SLASH);
-    if (slash < 0) return expandGroups(tokens as readonly Word[]);
-    const following = tokens.indexOf(SLASH, slash + 1);
-    const end = following < 0 ? tokens.length : following;
-    const left = Math.min(MAX_SIDE, slash);
-    const right = Math.min(MAX_SIDE, end - slash - 1);
-    // Each distinct candidate once: the left side with the first j words after the slash
-    // dropped, then the right side with the last i words before it dropped.
-    for (let j = 1; j <= right; j += 1) {
-      if (!resolve([...tokens.slice(0, slash), ...tokens.slice(slash + 1 + j)])) return false;
-    }
-    for (let i = 1; i <= left; i += 1) {
-      if (!resolve([...tokens.slice(0, slash - i), ...tokens.slice(slash + 1)])) return false;
+    for (const variant of built) {
+      const tidy = variant.replace(/\s+/gu, " ").trim();
+      variants.set(tidy, (variants.get(tidy) ?? 0) + 1);
     }
     return true;
-  };
-
-  if (!resolve(parsed.tokens)) return { ok: false, error: "too-many-variants" };
-  return { ok: true, variants: [...variants] };
+  });
+  return { ok: true, variants: [...variants.keys()], produced: [...variants.values()] };
 }

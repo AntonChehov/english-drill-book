@@ -1,6 +1,6 @@
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { expandPattern, MAX_VARIANTS } from "./pattern";
+import { expandPattern, MAX_PATTERN_LENGTH, MAX_VARIANTS } from "./pattern";
 
 function variantsOf(pattern: string): readonly string[] {
   const expansion = expandPattern(pattern);
@@ -87,9 +87,30 @@ describe("expandPattern", () => {
     it("@req CHK-001 removes duplicate variants and keeps their first order", () => {
       expect(variantsOf("[a|a|b]")).toEqual(["a", "b"]);
     });
+
+    it("@req CHK-002 counts how many times each variant was produced", () => {
+      expect(expandPattern("[a|a|b] (c)")).toEqual({
+        ok: true,
+        variants: ["a c", "a", "b c", "b"],
+        produced: [2, 2, 1, 1],
+      });
+    });
   });
 
   describe("@req CHK-002 invalid patterns", () => {
+    it("@req CHK-002 reports a pattern of more than 500 characters without reading it", () => {
+      expect(MAX_PATTERN_LENGTH).toBe(500);
+      expect(variantsOf("a".repeat(500))).toEqual(["a".repeat(500)]);
+      expect(errorOf("a".repeat(501))).toBe("pattern-too-long");
+      expect(errorOf(`(${"a".repeat(1000)}`)).toBe("pattern-too-long");
+    });
+
+    it("@req CHK-002 counts the length of a pattern in characters, as a pack does", () => {
+      const letter = String.fromCodePoint(0x1df00);
+      expect(variantsOf(letter.repeat(500))).toHaveLength(1);
+      expect(errorOf(letter.repeat(501))).toBe("pattern-too-long");
+    });
+
     it("@req CHK-002 reports an unclosed group", () => {
       expect(errorOf("she (is late")).toBe("unclosed-group");
       expect(errorOf("she [is|was late")).toBe("unclosed-group");
