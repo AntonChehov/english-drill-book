@@ -5,8 +5,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 ## 1. Patterns
 
 - [x] 1.1 Add `fast-check` as a development dependency with a fixed seed in the test setup; verify `pnpm audit` passes and a sample property runs — `fast-check` 4.10.2, seed set in `vitest.setup.ts`; `pnpm audit` found no vulnerabilities; a sample property ran with the global seed
-- [ ] 1.2 Write `expandPattern` in `src/domain/checking/pattern.ts` as in design D2 with the errors of D1; verify with unit tests named `@req CHK-001` and `@req CHK-002` covering every scenario of the delta spec for the two requirements
-- [ ] 1.3 Add the property "expanding any string never throws, and a valid result has 1 to 4000 variants"; verify it passes
+- [x] 1.2 Write `expandPattern` in `src/domain/checking/pattern.ts` as in design D2 with the errors of D1; verify with unit tests named `@req CHK-001` and `@req CHK-002` covering every scenario of the delta spec for the two requirements
+- [x] 1.3 Add the property "expanding any string never throws, and a valid result has 1 to 4000 variants"; verify it passes
 
 ## 2. Normalisation
 
