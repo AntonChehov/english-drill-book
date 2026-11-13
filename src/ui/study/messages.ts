@@ -51,11 +51,12 @@ export const markedDoneMessage = (exercise: string) =>
 export const nothingToCheck = "Введите хотя бы один ответ, чтобы проверить упражнение.";
 
 /** What could not be kept, by the action that was refused. */
-export type KeptAction = "check" | "reveal" | "change" | "mark-done";
+export type KeptAction = "check" | "reveal" | "sample" | "change" | "mark-done";
 
 const subject: Record<KeptAction, string> = {
   check: "Результат проверки",
   reveal: "Ответ",
+  sample: "Образец",
   change: "Изменение оценки",
   "mark-done": "Отметку «сделано»",
 };
@@ -66,14 +67,14 @@ const subject: Record<KeptAction, string> = {
  */
 export function notKeptMessage(action: KeptAction, error: unknown): string {
   const start =
-    action === "reveal"
-      ? "Ответ не показан: его не удалось сохранить в этом браузере"
+    action === "reveal" || action === "sample"
+      ? `${subject[action]} не показан: не удалось записать в этом браузере, что он был открыт`
       : `${subject[action]} не удалось сохранить в этом браузере`;
   const kind = error instanceof StorageError ? error.kind : "failed";
   if (kind === "quota")
     return `${start}: на устройстве не хватает места. Освободите место и повторите.`;
   if (kind === "unavailable") {
-    return `${start}: браузер не разрешает этому сайту хранить данные. Разрешите его и повторите.`;
+    return `${start}: браузер не разрешает этому сайту хранить данные. Разрешите сайту хранить данные и повторите.`;
   }
   return `${start}. Повторите, пожалуйста.`;
 }
