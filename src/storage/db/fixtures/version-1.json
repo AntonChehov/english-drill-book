@@ -1,10 +1,13 @@
 {
-  "comment": "A database as version 1 of the schema wrote it, for the migration tests (design D5 of the change `storage`). The cached state of exercise 1.1 was built before its second attempt, as an older app might leave it. Never change this file: add a fixture of each later version beside it. The data is invented.",
+  "comment": "A database as version 1 of the schema wrote it, for the migration tests (design D5 of the change `storage`). The cached state of exercise 1.1 was built before its second attempt, as an older app might leave it. Version 1 is not released yet, so this file and the schema of version 1 were changed in place once (review round 1 of `storage`: the cached record gained `derivation`); once it is released, never change this file: add a fixture of each later version beside it. The data is invented.",
   "version": 1,
   "stores": {
     "attempts": {
       "keyPath": "id",
-      "indexes": { "at": "at", "exercise": ["pack", "exercise"] },
+      "indexes": {
+        "at": "at",
+        "exercise": ["pack", "exercise"]
+      },
       "records": [
         {
           "id": "6f1d0c3e-2b4a-4c7d-9e8f-0a1b2c3d4e01",
@@ -13,8 +16,14 @@
           "packVersion": "1.0.0",
           "exercise": "1.1",
           "action": "check",
-          "answers": { "1": "boxs", "2": "cities" },
-          "results": { "1": "near", "2": "ok" },
+          "answers": {
+            "1": "boxs",
+            "2": "cities"
+          },
+          "results": {
+            "1": "near",
+            "2": "ok"
+          },
           "complete": false
         },
         {
@@ -24,9 +33,17 @@
           "packVersion": "1.0.0",
           "exercise": "1.1",
           "action": "override",
-          "answers": { "1": "boxs", "2": "cities" },
-          "results": { "1": "near", "2": "ok" },
-          "overridden": { "1": "ok" },
+          "answers": {
+            "1": "boxs",
+            "2": "cities"
+          },
+          "results": {
+            "1": "near",
+            "2": "ok"
+          },
+          "overridden": {
+            "1": "ok"
+          },
           "corrects": "6f1d0c3e-2b4a-4c7d-9e8f-0a1b2c3d4e01",
           "complete": true
         },
@@ -51,14 +68,35 @@
         {
           "pack": "fixture-plurals",
           "exercise": "1.1",
+          "derivation": 1,
           "count": 1,
           "lastId": "6f1d0c3e-2b4a-4c7d-9e8f-0a1b2c3d4e01",
           "lastAt": "2026-11-13T09:00:00.000Z",
           "state": {
             "done": false,
-            "verdicts": { "1": "near", "2": "ok" },
+            "verdicts": {
+              "1": "near",
+              "2": "ok"
+            },
             "overridden": {},
-            "revealed": []
+            "revealed": [],
+            "checks": {
+              "6f1d0c3e-2b4a-4c7d-9e8f-0a1b2c3d4e01": {
+                "at": "2026-11-13T09:00:00.000Z",
+                "complete": false,
+                "overridden": {}
+              }
+            },
+            "items": {
+              "1": {
+                "check": "6f1d0c3e-2b4a-4c7d-9e8f-0a1b2c3d4e01",
+                "result": "near"
+              },
+              "2": {
+                "check": "6f1d0c3e-2b4a-4c7d-9e8f-0a1b2c3d4e01",
+                "result": "ok"
+              }
+            }
           }
         }
       ]
@@ -66,7 +104,15 @@
     "drafts": {
       "keyPath": ["pack", "exercise"],
       "indexes": {},
-      "records": [{ "pack": "fixture-plurals", "exercise": "1.2", "answers": { "2": "mic" } }]
+      "records": [
+        {
+          "pack": "fixture-plurals",
+          "exercise": "1.2",
+          "answers": {
+            "2": "mic"
+          }
+        }
+      ]
     },
     "packs": {
       "keyPath": "id",
@@ -91,8 +137,16 @@
                   "type": "items",
                   "task": "Write the plural.",
                   "items": [
-                    { "id": "1", "prompt": "one box, two ___", "accept": ["boxes"] },
-                    { "id": "2", "prompt": "one city, two ___", "accept": ["cities"] }
+                    {
+                      "id": "1",
+                      "prompt": "one box, two ___",
+                      "accept": ["boxes"]
+                    },
+                    {
+                      "id": "2",
+                      "prompt": "one city, two ___",
+                      "accept": ["cities"]
+                    }
                   ]
                 },
                 {
@@ -100,8 +154,16 @@
                   "type": "items",
                   "task": "Write the plural.",
                   "items": [
-                    { "id": "1", "prompt": "one fox, two ___", "accept": ["foxes"] },
-                    { "id": "2", "prompt": "one mouse, two ___", "accept": ["mice"] }
+                    {
+                      "id": "1",
+                      "prompt": "one fox, two ___",
+                      "accept": ["foxes"]
+                    },
+                    {
+                      "id": "2",
+                      "prompt": "one mouse, two ___",
+                      "accept": ["mice"]
+                    }
                   ]
                 }
               ]
@@ -113,7 +175,12 @@
     "settings": {
       "keyPath": "name",
       "indexes": {},
-      "records": [{ "name": "theme", "value": "dark" }]
+      "records": [
+        {
+          "name": "theme",
+          "value": "dark"
+        }
+      ]
     }
   }
 }

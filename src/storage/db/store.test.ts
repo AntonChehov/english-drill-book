@@ -1,6 +1,6 @@
 import { IDBObjectStore } from "fake-indexeddb";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { deriveExercise, emptyExerciseState } from "../../domain/progress";
+import { DERIVATION, deriveExercise, emptyExerciseState, newAttempt } from "../../domain/progress";
 import { attemptOf, freshFactory, packOf, rawOpen, snapshot } from "./db.fixture";
 import { StorageError } from "./errors";
 import { openStore, type DerivedRecord } from "./store";
@@ -83,11 +83,9 @@ describe("the attempt log", () => {
     await store.appendAttempt(first);
     const state = await store.appendAttempt(second);
 
-    expect(state).toEqual({
-      ...emptyExerciseState,
-      done: true,
-      verdicts: { "1": "bad", "2": "ok" },
-    });
+    expect(state).toEqual(deriveExercise([first, second]));
+    expect(state.done).toBe(true);
+    expect(state.verdicts).toEqual({ "1": "bad", "2": "ok" });
   });
 });
 
@@ -114,6 +112,7 @@ describe("the cached state of an exercise", () => {
       {
         pack: "test-pack",
         exercise: "1.1",
+        derivation: DERIVATION,
         count: 3,
         lastId: attempts[2]!.id,
         lastAt: attempts[2]!.at,
@@ -137,6 +136,7 @@ describe("the cached state of an exercise", () => {
     const stale: DerivedRecord = {
       pack: "test-pack",
       exercise: "1.1",
+      derivation: DERIVATION,
       count: 1,
       lastId: attempts[0]!.id,
       lastAt: attempts[0]!.at,
@@ -154,6 +154,7 @@ describe("the cached state of an exercise", () => {
       derived.put({
         pack: "test-pack",
         exercise: "1.1",
+        derivation: DERIVATION,
         count: 2,
         lastId: attempts[1]!.id,
         lastAt: attempts[1]!.at,
@@ -171,6 +172,7 @@ describe("the cached state of an exercise", () => {
       derived.put({
         pack: "test-pack",
         exercise: "1.1",
+        derivation: DERIVATION,
         count: 3,
         lastId: "00000000-0000-4000-8000-0000000000ff",
         lastAt: attempts[2]!.at,
@@ -179,6 +181,40 @@ describe("the cached state of an exercise", () => {
     );
 
     expect(await store.getExerciseState("test-pack", "1.1")).toEqual(deriveExercise(attempts));
+  });
+
+  it("@req DATA-003 a cache of another derivation, though it matches the log, is rebuilt", async () => {
+    const { factory, store } = await withAttempts();
+    const [record] = await cached(factory);
+    await changeCache(factory, (derived) =>
+      derived.put({ ...record!, derivation: DERIVATION - 1, state: emptyExerciseState }),
+    );
+
+    expect(await store.getExerciseState("test-pack", "1.1")).toEqual(deriveExercise(attempts));
+    expect(await cached(factory)).toEqual([record]);
+  });
+
+  it("@req DATA-003 an override appended through the store takes the completion back, and its undo gives it back", async () => {
+    const { store } = await setUp();
+    const complete = attemptOf(1, { "1": "ok", "2": "ok" });
+    const overrideOf = (n: number, overridden: Record<string, "ok" | "bad">, done: boolean) =>
+      newAttempt({
+        id: `00000000-0000-4000-8000-${n.toString(16).padStart(12, "0")}`,
+        at: `2026-11-13T10:00:0${n}.000Z`,
+        pack: { id: "test-pack", version: "1.0.0" },
+        exercise: "1.1",
+        action: "override",
+        answers: {},
+        results: {},
+        corrects: complete.id,
+        overridden,
+        complete: done,
+      });
+    await store.appendAttempt(complete);
+
+    expect((await store.appendAttempt(overrideOf(2, { "1": "bad" }, false))).done).toBe(false);
+    expect((await store.appendAttempt(overrideOf(3, {}, true))).done).toBe(true);
+    expect((await store.getExerciseState("test-pack", "1.1")).doneAt).toBe(complete.at);
   });
 
   it("@req DATA-003 an attempt earlier than the cached last one rebuilds the state in time order", async () => {

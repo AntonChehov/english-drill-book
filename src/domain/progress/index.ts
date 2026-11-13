@@ -9,4 +9,12 @@ export {
   type AttemptInput,
   type OverrideVerdict,
 } from "./attempt";
-export { compareAttempts, deriveExercise, emptyExerciseState, type ExerciseState } from "./derive";
+export {
+  compareAttempts,
+  DERIVATION,
+  deriveExercise,
+  emptyExerciseState,
+  type CheckState,
+  type ExerciseState,
+  type ItemState,
+} from "./derive";

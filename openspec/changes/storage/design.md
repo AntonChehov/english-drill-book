@@ -41,9 +41,18 @@ The interface of the store has `appendAttempt` and reads; it has no function tha
 
 ### D3. Derived state (DATA-003)
 
-`deriveExercise(attempts)` is a pure function from the attempts of one exercise, in time order, to its state: whether it is done (some attempt was complete), the latest verdict of each item, which items were revealed or overridden. `appendAttempt` writes the attempt and the new derived record in one transaction, so they cannot disagree after a crash.
+`deriveExercise(attempts, from?)` is a pure function from the attempts of one exercise, taken in time order (by `at`, then by `id`), to its state. It is a fold: the state of the earlier attempts, continued with the later ones, equals the state of all of them, so a cached state is brought up to date with one appended attempt. It follows PLAY-008 – PLAY-010 using only what attempts carry:
 
-The derived record stores the number of attempts it was built from and the `id` of the last. A read compares them with the log's index; a record that is missing or does not match is rebuilt and written back. Tests delete and corrupt the cache and expect the same state.
+- **Groups.** Every override joins the check it corrects (`corrects`). In a group, the latest attempt speaks for the check: its `complete` says whether the check, with the learner's changes, has every item `ok`, and the latest override's `overridden` is the whole set of verdicts set by hand for that check; an item left out of it is no longer set by hand, which is how an undo is recorded. An override whose `corrects` names no earlier check of the exercise is left out of the derivation (it stays in the log).
+- **Done.** The exercise is done when the group of some check is complete now, or some `mark-done` attempt exists. Counting as wrong an item of the completing check takes the completion back, an undo gives it back, and a later check with a wrong item does not undo an earlier completion (PLAY-010). `doneAt` is the time of the first check whose group is complete now, or of the first `mark-done` if that is earlier (PLAY-009).
+- **Verdicts.** The latest verdict of an item is what the latest check that judged it said, changed only by the latest override of that same check; an override of an older check never changes what a later check said. An item is marked as set by hand only for that check.
+- **Revealed.** Every item revealed by an attempt that is not left out.
+
+`newAttempt` is stricter than the format where the app never writes what the format allows: an override must carry `corrects` and `overridden`, and no other action carries either.
+
+`appendAttempt` writes the attempt and the new derived record in one transaction, so they cannot disagree after a crash.
+
+The derived record stores the number of attempts it was built from, the `id` and time of the last, and `derivation`, the version of the derivation (a constant in `src/domain/progress`, 1 for the logic above). A read compares the number with the log's index, checks that the last attempt is in the log and that `derivation` is the current one; a record that is missing or does not match is rebuilt and written back. Tests delete, corrupt and age the cache and expect the same state. Version 1 of the schema is not released yet, so the shape of this record was changed in place, with its fixture, after review round 1; once released, a version is never changed.
 
 ### D4. Failures (DATA-004)
 
@@ -83,4 +92,6 @@ After reading and validating, the two demo packs are put into `packs`. On start 
 ## Risks
 
 - **`fake-indexeddb` is not a browser.** The end-to-end tests exercise the real one for what is visible now; the attempt log meets a real browser in slice 1.5, whose tests write through it.
+- **Deleting the database.** `versionchange` also fires when another tab deletes the database, and the app would then say a newer version wrote the data; nothing deletes it yet, and erasing data (DATA-010) must tell the two apart.
+- **Reads take a write transaction.** Every read of an exercise's state opens a read-write transaction so that a stale record can be written back, so reads queue behind writes; at the size of this app that is acceptable.
 - **Private windows.** Some browsers give a private window storage that is dropped when it closes. The app works there and keeps nothing afterwards; this is the browser's promise, not ours.

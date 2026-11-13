@@ -52,9 +52,27 @@ Derived state SHALL be recomputed from the log. Derived values may be cached, an
 
 #### Scenario: Done stays done
 
-- **GIVEN** an exercise with a complete attempt followed by an attempt with a wrong item
+- **GIVEN** an exercise with a complete check followed by a check with a wrong item
 - **WHEN** its state is derived
 - **THEN** the exercise is done and that item's latest verdict is `bad`
+
+#### Scenario: An override takes the completion back
+
+- **GIVEN** a check with every item `ok`, followed by an override of that check that counts one of its items as wrong
+- **WHEN** the state of the exercise is derived
+- **THEN** the exercise is not done, and that item's latest verdict is `bad`, set by hand
+
+#### Scenario: An undo gives it back
+
+- **GIVEN** that override followed by an override of the same check that sets no item by hand
+- **WHEN** the state of the exercise is derived
+- **THEN** the exercise is done again, as of the time of that check, and no item is set by hand
+
+#### Scenario: An override of an older check
+
+- **GIVEN** a check with wrong items, a later check with every item `ok`, and then an override of the first check
+- **WHEN** the state of the exercise is derived
+- **THEN** the latest verdict of each item is the one the later check gave
 
 #### Scenario: A missing cache
 
@@ -67,6 +85,12 @@ Derived state SHALL be recomputed from the log. Derived values may be cached, an
 - **GIVEN** a cached state built from fewer attempts than the log now holds
 - **WHEN** the state of the exercise is read
 - **THEN** it equals the state derived from the whole log
+
+#### Scenario: A cache of another derivation
+
+- **GIVEN** a cached state that matches the log but was built by another version of the derivation
+- **WHEN** the state of the exercise is read
+- **THEN** it equals the state derived from the whole log by the current derivation, and the cache is written again
 
 ### Requirement: DATA-004 Failed writes
 

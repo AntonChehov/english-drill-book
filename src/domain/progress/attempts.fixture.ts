@@ -73,9 +73,12 @@ const actionArb = fc.constantFrom<AttemptAction>(
   "dismiss-mistake",
 );
 
-/** Any input the export format accepts, for one exercise of one pack. */
-export const inputArb: fc.Arbitrary<AttemptInput> = fc.record(
-  {
+/**
+ * Any input `newAttempt` accepts, for one exercise of one pack: an override names a check (here
+ * any UUID) and carries its verdicts set by hand; no other action carries either.
+ */
+export const inputArb: fc.Arbitrary<AttemptInput> = fc
+  .record({
     id: uuidArb,
     at: instantArb,
     pack: fc.constant(pack),
@@ -85,8 +88,29 @@ export const inputArb: fc.Arbitrary<AttemptInput> = fc.record(
     results: fc.dictionary(itemArb, verdictArb),
     overridden: fc.dictionary(itemArb, overrideArb),
     corrects: uuidArb,
-    revealed: fc.array(itemArb, { maxLength: 4 }),
+    revealed: fc.option(fc.array(itemArb, { maxLength: 4 }), { nil: undefined }),
     complete: fc.boolean(),
-  },
-  { requiredKeys: ["id", "at", "pack", "exercise", "action", "answers", "results", "complete"] },
-);
+  })
+  .map(({ overridden, corrects, revealed, ...input }) => ({
+    ...input,
+    ...(input.action === "override" && { overridden, corrects }),
+    ...(revealed !== undefined && { revealed }),
+  }));
+
+/**
+ * A log of one exercise: generated attempts whose overrides correct, by `pick`, one of the
+ * checks of the log, or now and then a check that is not in it.
+ */
+export const logArb: fc.Arbitrary<AttemptInput[]> = fc
+  .tuple(
+    fc.uniqueArray(inputArb, { selector: (input) => input.id, maxLength: 14 }),
+    fc.array(fc.nat(), { minLength: 14, maxLength: 14 }),
+  )
+  .map(([inputs, picks]) => {
+    const checks = inputs.filter((input) => input.action === "check").map((input) => input.id);
+    return inputs.map((input, index) => {
+      const pick = picks[index] ?? 0;
+      if (input.action !== "override" || checks.length === 0 || pick % 5 === 0) return input;
+      return { ...input, corrects: checks[pick % checks.length]! };
+    });
+  });

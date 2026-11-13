@@ -7,6 +7,7 @@
 import type { Pack } from "../../domain/packs/types";
 import {
   compareAttempts,
+  DERIVATION,
   deriveExercise,
   emptyExerciseState,
   type Attempt,
@@ -37,6 +38,8 @@ export interface Settings {
 export interface DerivedRecord {
   readonly pack: string;
   readonly exercise: string;
+  /** `DERIVATION` of the code that built it; a record of another derivation is rebuilt. */
+  readonly derivation: number;
   readonly count: number;
   readonly lastId: string;
   readonly lastAt: string;
@@ -115,6 +118,7 @@ function currentState(
       count,
       lastId: last.id,
       lastAt: last.at,
+      derivation: DERIVATION,
       state,
     };
     derived.put(record);
@@ -131,7 +135,7 @@ function currentState(
   tx.after(derived.get(key) as IDBRequest<DerivedRecord | undefined>, (record) => {
     tx.after(log.index(INDEXES.exercise).count(key), (count) => {
       const before = appended === undefined ? count : count - 1;
-      if (record === undefined || record.count !== before) {
+      if (record === undefined || record.derivation !== DERIVATION || record.count !== before) {
         rebuild();
         return;
       }

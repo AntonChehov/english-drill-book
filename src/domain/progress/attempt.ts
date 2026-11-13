@@ -25,9 +25,12 @@ export interface Attempt {
   readonly answers: Readonly<Record<string, string>>;
   /** Item id → verdict for every checked item. */
   readonly results: Readonly<Record<string, Verdict>>;
-  /** Item id → verdict set by hand; present on override attempts. */
+  /**
+   * Item id → verdict set by hand: on an override, and only there, the whole set of items set by
+   * hand for the check it corrects; an item left out is no longer set by hand (an undo).
+   */
   readonly overridden?: Readonly<Record<string, OverrideVerdict>>;
-  /** For an override: the id of the check attempt whose verdicts it changes. */
+  /** On an override, and only there: the id of the check attempt whose verdicts it changes. */
   readonly corrects?: string;
   /** Items whose answer was revealed. */
   readonly revealed?: readonly string[];
@@ -103,7 +106,9 @@ function copyRecord<T>(
  * Builds the attempt the log appends: a fresh copy of what it is given, `revealed` without
  * repeats, optional parts only when given. Throws `AttemptError` naming the first field the
  * export format would refuse, so whatever it returns is valid against the attempt of
- * `contracts/export.schema.json`.
+ * `contracts/export.schema.json`. It is stricter than the format where the app never writes what
+ * the format allows: an override must name the check it corrects (`corrects`) and carry its
+ * verdicts set by hand (`overridden`), and no other action may carry either.
  */
 export function newAttempt(input: AttemptInput): Attempt {
   ensure(uuid.test(input.id), "id");
@@ -133,6 +138,9 @@ export function newAttempt(input: AttemptInput): Attempt {
     results,
     complete: input.complete,
   };
+  const override = input.action === "override";
+  ensure((input.overridden !== undefined) === override, "overridden");
+  ensure((input.corrects !== undefined) === override, "corrects");
   if (input.overridden !== undefined) {
     attempt.overridden = copyRecord(
       input.overridden,

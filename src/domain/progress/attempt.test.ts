@@ -96,8 +96,11 @@ describe("newAttempt", () => {
     ["answers", { answers: { "1": "a".repeat(10_001) } }],
     ["answers", { answers: { "1": 1 as unknown as string } }],
     ["results", { results: { "1": "fine" as "ok" } }],
-    ["overridden", { overridden: { "1": "near" as "ok" } }],
-    ["corrects", { corrects: "check-1" }],
+    [
+      "overridden",
+      { action: "override", overridden: { "1": "near" as "ok" }, corrects: uuidOf(1) },
+    ],
+    ["corrects", { action: "override", overridden: { "1": "ok" }, corrects: "check-1" }],
     ["revealed", { revealed: ["two words"] }],
   ])("@req DATA-002 refuses a value of `%s` the export format would refuse", (field, change) => {
     const input = { ...checkInput(7, { "1": "ok" }), ...change };
@@ -110,4 +113,18 @@ describe("newAttempt", () => {
     };
     expect(validAttempt(raw)).toBe(false);
   });
+
+  it.each<[string, Partial<AttemptInput>]>([
+    ["corrects", { action: "override", overridden: { "1": "ok" } }],
+    ["overridden", { action: "override", corrects: uuidOf(1) }],
+    ["overridden", { action: "check", overridden: { "1": "ok" } }],
+    ["corrects", { action: "reveal", corrects: uuidOf(1) }],
+  ])(
+    "@req DATA-002 refuses what the app never writes though the format allows it: `%s` missing on an override or present on another action",
+    (field, change) => {
+      expect(() => newAttempt({ ...checkInput(8, { "1": "ok" }), ...change })).toThrow(
+        new AttemptError(field),
+      );
+    },
+  );
 });
