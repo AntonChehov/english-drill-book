@@ -57,6 +57,8 @@ export interface ExerciseEntry {
   busy: boolean;
   /** How many edits the fields have had: a reload does not overwrite newer edits. */
   edits: number;
+  /** The value of `edits` the stored draft holds: answers not stored are never read over. */
+  stored: number;
 }
 
 export type UnitPhase = "loading" | "ready" | "not-found" | "failed";
@@ -76,6 +78,41 @@ function editing(): boolean {
   return active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement;
 }
 
+/** The answers in the fields of `entry` are newer than its stored draft. */
+const unsaved = (entry: ExerciseEntry) => entry.stored !== entry.edits;
+
+/** Nothing of `entry` is on its way to the store: what is stored is what the screen holds. */
+const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
+
+/** The states of every exercise of the pack, and what the store holds for the exercises of `shown`. */
+async function readUnit(store: Store, from: Pack, shown: Unit) {
+  const states = await Promise.all(
+    from.units.flatMap((each) =>
+      each.exercises.map(
+        async (exercise) =>
+          [exercise.id, await store.getExerciseState(from.id, exercise.id)] as const,
+      ),
+    ),
+  );
+  const stateOf = new Map(states);
+  const exercises = await Promise.all(
+    shown.exercises.map(async (exercise) => {
+      const [attempts, draft] = await Promise.all([
+        store.getAttempts(from.id, exercise.id),
+        store.getDraft(from.id, exercise.id),
+      ]);
+      const state = stateOf.get(exercise.id)!;
+      return {
+        exercise,
+        state,
+        attempts,
+        answers: initialAnswers(state, attempts, draft?.answers),
+      };
+    }),
+  );
+  return { states, exercises };
+}
+
 export function useUnit(packId: string, unitId: string) {
   const phase = ref<UnitPhase>("loading");
   const pack = shallowRef<Pack>();
@@ -88,6 +125,8 @@ export function useUnit(packId: string, unitId: string) {
 
   const timers = new Map<string, ReturnType<typeof setTimeout>>();
   const writing = new Set<string>();
+  /** The exercises whose last draft write failed. */
+  const failed = new Set<string>();
 
   const unitIndex = computed(() =>
     pack.value && unit.value ? pack.value.units.indexOf(unit.value) : -1,
@@ -125,34 +164,6 @@ export function useUnit(packId: string, unitId: string) {
     announcement.value = message;
   }
 
-  async function readUnit(store: Store, from: Pack, shown: Unit) {
-    const states = await Promise.all(
-      from.units.flatMap((each) =>
-        each.exercises.map(
-          async (exercise) =>
-            [exercise.id, await store.getExerciseState(from.id, exercise.id)] as const,
-        ),
-      ),
-    );
-    const stateOf = new Map(states);
-    for (const [id, state] of states) done.set(id, state.done);
-    return Promise.all(
-      shown.exercises.map(async (exercise) => {
-        const [attempts, draft] = await Promise.all([
-          store.getAttempts(from.id, exercise.id),
-          store.getDraft(from.id, exercise.id),
-        ]);
-        const state = stateOf.get(exercise.id)!;
-        return {
-          exercise,
-          state,
-          attempts,
-          answers: initialAnswers(state, attempts, draft?.answers),
-        };
-      }),
-    );
-  }
-
   async function load() {
     phase.value = "loading";
     try {
@@ -169,7 +180,8 @@ export function useUnit(packId: string, unitId: string) {
       const read = await readUnit(store, validation.pack, shown);
       pack.value = validation.pack;
       unit.value = shown;
-      entries.value = read.map(({ exercise, state, attempts, answers }) => ({
+      for (const [id, state] of read.states) done.set(id, state.done);
+      entries.value = read.exercises.map(({ exercise, state, attempts, answers }) => ({
         exercise,
         keys: exercise.type === "items" ? prepareKeys(exercise) : undefined,
         state,
@@ -179,6 +191,7 @@ export function useUnit(packId: string, unitId: string) {
         notice: null,
         busy: false,
         edits: 0,
+        stored: 0,
       }));
       phase.value = "ready";
     } catch (error) {
@@ -189,26 +202,43 @@ export function useUnit(packId: string, unitId: string) {
 
   /**
    * Reads the unit again, as another tab may have changed it (DATA-012, design D6), unless a field
-   * is being edited, a draft waits to be written or an action is being written.
+   * is being edited. An exercise is left as it is when what the screen holds is newer than what was
+   * read: its answers are not stored yet, an action on it is being written, or one was kept after
+   * the read began. A draft whose write failed is written again.
    */
   async function refresh() {
     const from = pack.value;
     const shown = unit.value;
-    if (phase.value !== "ready" || from === undefined || shown === undefined) return;
-    const quiet = () =>
-      !editing() && timers.size === 0 && writing.size === 0 && entries.value.every((e) => !e.busy);
-    if (!quiet()) return;
-    const before = entries.value.map((entry) => entry.edits);
+    if (phase.value !== "ready" || from === undefined || shown === undefined || editing()) return;
+    for (const entry of entries.value) {
+      const id = entry.exercise.id;
+      if (unsaved(entry) && !timers.has(id) && !writing.has(id)) void writeDraft(entry);
+    }
+    const before = entries.value.map((entry) =>
+      settled(entry) ? { edits: entry.edits, attempts: entry.attempts } : undefined,
+    );
     try {
       const read = await readUnit(await getStore(), from, shown);
-      if (!quiet()) return;
-      read.forEach((fresh, index) => {
+      if (editing()) return;
+      const kept = new Set<string>();
+      read.exercises.forEach((fresh, index) => {
         const entry = entries.value[index];
-        if (entry === undefined || entry.edits !== before[index]) return;
+        const was = before[index];
+        if (entry === undefined) return;
+        if (
+          was === undefined ||
+          !settled(entry) ||
+          entry.edits !== was.edits ||
+          entry.attempts !== was.attempts
+        ) {
+          kept.add(entry.exercise.id);
+          return;
+        }
         entry.state = fresh.state;
         entry.attempts = fresh.attempts;
         entry.answers = fresh.answers;
       });
+      for (const [id, state] of read.states) if (!kept.has(id)) done.set(id, state.done);
     } catch (error) {
       noteStorageFailure(error);
     }
@@ -220,13 +250,17 @@ export function useUnit(packId: string, unitId: string) {
     timers.delete(id);
     if (pack.value === undefined) return;
     writing.add(id);
+    const edits = entry.edits;
     try {
       await (
         await getStore()
       ).putDraft({ pack: pack.value.id, exercise: id, answers: { ...entry.answers } });
-      draftFailed.value = false;
+      entry.stored = edits;
+      failed.delete(id);
+      draftFailed.value = failed.size > 0;
     } catch (error) {
       noteStorageFailure(error);
+      failed.add(id);
       draftFailed.value = true;
     } finally {
       writing.delete(id);
@@ -248,7 +282,8 @@ export function useUnit(packId: string, unitId: string) {
   /** Writes a waiting draft at once: when a field loses focus or the page is hidden. */
   function flush(entry?: ExerciseEntry) {
     for (const each of entry ? [entry] : entries.value) {
-      if (timers.has(each.exercise.id)) void writeDraft(each);
+      const id = each.exercise.id;
+      if (timers.has(id) || (failed.has(id) && !writing.has(id))) void writeDraft(each);
     }
   }
 
@@ -314,7 +349,7 @@ export function useUnit(packId: string, unitId: string) {
   function reveal(entry: ExerciseEntry, item: string) {
     void keep(
       entry,
-      "reveal",
+      item === TEXT ? "sample" : "reveal",
       () => revealAttempt(contextOf(entry), item, entry.answers),
       () => (item === TEXT ? sampleMessage(entry.exercise.id) : revealedMessage(item)),
     );
