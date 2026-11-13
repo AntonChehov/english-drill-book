@@ -1,0 +1,77 @@
+{
+  "size": {
+    "js": {
+      "files": [
+        "assets/index-8WWyzl_Y.js"
+      ],
+      "bytes": 106743,
+      "gzip": 40423,
+      "budget": 120000
+    },
+    "css": {
+      "files": [
+        "assets/index-COSSKkxX.css"
+      ],
+      "bytes": 2193,
+      "gzip": 817,
+      "budget": 20000
+    },
+    "later": [
+      {
+        "file": "assets/add-demo-DJqpjVMq.js",
+        "bytes": 7713,
+        "gzip": 3206
+      },
+      {
+        "file": "assets/kept-B6cOLauV.js",
+        "bytes": 491,
+        "gzip": 342
+      },
+      {
+        "file": "assets/pdf-YwugTw7Y.js",
+        "bytes": 444231,
+        "gzip": 132001
+      },
+      {
+        "file": "assets/pdf.worker.min-CIqJB0yW.mjs",
+        "bytes": 1271915,
+        "gzip": 379243
+      },
+      {
+        "file": "assets/profiles-CmfSymNq.js",
+        "bytes": 11911,
+        "gzip": 4728
+      }
+    ]
+  },
+  "sha": "fc835ca95163530517bafeac842407350b952249",
+  "tests": {
+    "unit": {
+      "tests": 717,
+      "passed": 717,
+      "failed": 0,
+      "skipped": 0
+    },
+    "e2e": {
+      "tests": 107,
+      "passed": 107,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "coverage": {
+    "lines": 99.69,
+    "branches": 98.44,
+    "functions": 100,
+    "statements": 99.62
+  },
+  "lighthouse": {
+    "performance": 100,
+    "accessibility": 100,
+    "best-practices": 100,
+    "seo": 91
+  },
+  "pipeline": {
+    "seconds": 119
+  }
+}
