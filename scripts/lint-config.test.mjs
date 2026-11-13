@@ -63,3 +63,26 @@ describe("the lint override of src/domain/checking", () => {
     expect(domain["no-restricted-imports"]).toBeDefined();
   });
 });
+
+describe("the lint override of src/storage/db", () => {
+  const shared = config.overrides.find(
+    (candidate) =>
+      JSON.stringify(candidate.files) === JSON.stringify(["src/storage/**", "src/ui/**"]),
+  ).rules;
+  const database = rulesOf("src/storage/db/**");
+
+  it("closes IndexedDB to src/storage and src/ui outside src/storage/db", () => {
+    expect(restrictions(shared, "no-restricted-globals")).toContainEqual({
+      name: "indexedDB",
+      object: undefined,
+      property: undefined,
+    });
+  });
+
+  it("opens IndexedDB to src/storage/db and keeps every other restriction", () => {
+    const kept = restrictions(database, "no-restricted-globals");
+    expect(kept).toEqual(
+      restrictions(shared, "no-restricted-globals").filter(({ name }) => name !== "indexedDB"),
+    );
+  });
+});

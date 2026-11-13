@@ -1,7 +1,9 @@
-// The demo books added in this visit (design D8). The state lives in memory: it survives going
-// to another view and back, and a reload starts again from the button. Slice 1.4 keeps packs.
+// The demo books of the start screen (design D8 of `demo-books`, D7 of `storage`). The state lives
+// in memory and survives going to another view and back; what survives a reload is the packs in
+// the store, which the start screen reads when it opens.
 
 import { shallowRef } from "vue";
+import type { Pack } from "../../domain/packs/types";
 
 export interface DemoUnitSummary {
   readonly id: string;
@@ -16,10 +18,30 @@ export interface DemoBookSummary {
 }
 
 export type DemoState =
+  /** The store is being read; shown as `idle`, and the button already works. */
+  | { readonly phase: "loading" }
   | { readonly phase: "idle" }
   /** `retry` when an earlier attempt failed, so the button keeps saying so. */
   | { readonly phase: "reading"; readonly message: string; readonly retry: boolean }
+  /** The books are stored: only then are they shown as added (DATA-004). */
   | { readonly phase: "added"; readonly books: readonly DemoBookSummary[] }
-  | { readonly phase: "failed"; readonly message: string };
+  /**
+   * Adding failed. `packs` when the books were read and could not be kept: trying again only
+   * stores them.
+   */
+  | { readonly phase: "failed"; readonly message: string; readonly packs?: readonly Pack[] };
 
-export const demoState = shallowRef<DemoState>({ phase: "idle" });
+export const demoState = shallowRef<DemoState>({ phase: "loading" });
+
+/** What the start screen lists of the demo packs. */
+export function summaryOf(packs: readonly Pack[]): DemoBookSummary[] {
+  return packs.map((pack) => ({
+    id: pack.id,
+    title: pack.title,
+    units: pack.units.map((unit) => ({
+      id: unit.id,
+      title: unit.title,
+      exercises: unit.exercises.length,
+    })),
+  }));
+}

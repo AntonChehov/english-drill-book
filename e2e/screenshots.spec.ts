@@ -7,7 +7,9 @@ import { addressOf, themes, views } from "./views";
 
 /**
  * One PNG per view, theme and width, made from the production build (design D8), and one per
- * state of the start screen's demo section after the first (`start-demo-added`, `start-demo-failed`).
+ * state of the start screen's demo section after the first (`start-demo-added`,
+ * `start-demo-failed`, `start-demo-kept`, `start-demo-not-kept`) and of the message about data of a
+ * newer version (`newer-version`), from `demoStates` in e2e/demo.ts.
  * File names are `<view or state>-<theme>-<width>.png`; scripts/screenshots.mjs relies on them.
  */
 const directory = process.env["SCREENSHOTS_DIR"] ?? "screenshots";
@@ -39,7 +41,8 @@ for (const view of views) {
   }
 }
 
-// The start screen with the demo added and with adding it failed (design D8).
+// The start screen with the demo added, kept, failed and not kept, and the message about newer
+// data (design D8 of `demo-books`, D4, D5, D7 of `storage`).
 for (const state of demoStates) {
   for (const theme of themes) {
     for (const width of widths) {

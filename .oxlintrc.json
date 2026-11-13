@@ -200,6 +200,10 @@
           {
             "name": "EventSource",
             "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "name": "indexedDB",
+            "message": "Only src/storage/db may use IndexedDB; use its store (C-08, design D1 of `storage`)."
           }
         ],
         "no-restricted-properties": [
@@ -218,6 +222,30 @@
           {
             "object": "self",
             "property": "fetch",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/storage/db/**"],
+      "rules": {
+        "no-restricted-globals": [
+          "error",
+          {
+            "name": "fetch",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "name": "XMLHttpRequest",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "name": "WebSocket",
+            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+          },
+          {
+            "name": "EventSource",
             "message": "Only src/storage/static-files.ts may use the network (C-03)."
           }
         ]

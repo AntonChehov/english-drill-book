@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
+import NewerVersion from "./components/NewerVersion.vue";
 import { appName } from "./router";
+import { newerVersion } from "./storage";
 </script>
 
 <template>
-  <header class="app-header">
-    <RouterLink class="app-name" to="/">{{ appName }}</RouterLink>
-  </header>
-  <main class="app-main">
-    <RouterView />
-  </main>
+  <NewerVersion v-if="newerVersion" />
+  <template v-else>
+    <header class="app-header">
+      <RouterLink class="app-name" to="/">{{ appName }}</RouterLink>
+    </header>
+    <main class="app-main">
+      <RouterView />
+    </main>
+  </template>
 </template>
 
 <style scoped>

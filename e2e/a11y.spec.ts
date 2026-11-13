@@ -34,7 +34,8 @@ for (const view of views) {
   }
 }
 
-// The start screen after the demo was added and after adding it failed (design D8).
+// The start screen with the demo added, kept, failed and not kept, and the message about newer
+// data (design D8 of `demo-books`, D4, D5, D7 of `storage`).
 for (const state of demoStates) {
   for (const theme of themes) {
     test(`${state.name} in the ${theme} theme has no serious accessibility violations`, async ({
