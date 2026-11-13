@@ -34,7 +34,7 @@
       }
     ]
   },
-  "sha": "e189167fa69975242610e443c5bac9b901bc11d9",
+  "sha": "2e7dee3d676b037275a8f15fc98c649073683e9f",
   "tests": {
     "unit": {
       "tests": 613,
@@ -62,6 +62,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 110
+    "seconds": 120
   }
 }
