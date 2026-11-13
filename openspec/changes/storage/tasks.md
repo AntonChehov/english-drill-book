@@ -4,8 +4,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 1. Progress in the domain
 
-- [ ] 1.1 Write the type `Attempt` and `newAttempt` in `src/domain/progress` as in design D2; verify with unit tests named `@req DATA-002` that a built attempt is valid against `contracts/export.schema.json` (with `ajv`)
-- [ ] 1.2 Write `deriveExercise` as in design D3; verify with unit tests named `@req DATA-003`, and with a property: the state does not depend on how the same attempts are split between reads
+- [x] 1.1 Write the type `Attempt` and `newAttempt` in `src/domain/progress` as in design D2; verify with unit tests named `@req DATA-002` that a built attempt is valid against `contracts/export.schema.json` (with `ajv`) — `attempt.test.ts`: every action and generated input validate with `ajv`; each field the format refuses is refused by both
+- [x] 1.2 Write `deriveExercise` as in design D3; verify with unit tests named `@req DATA-003`, and with a property: the state does not depend on how the same attempts are split between reads — `derive.test.ts`, with the property over generated attempts and cuts; `src/domain/progress` 100 % lines and branches
 
 ## 2. The database
 
