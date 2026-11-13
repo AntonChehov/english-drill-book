@@ -44,3 +44,61 @@ Verdict: changes requested
 - Not raised, for the next slices: every write of another tab makes the start screen read the state of every exercise of both books again, each in a read-write transaction (`getExerciseState`): 408 transactions for the two exercises of the test in F3. It is fast for 24 exercises; it will need coalescing, and one transaction per book, before a real book is added. `Study` does the same for the whole pack on each open and each reread, which is also what makes the window of F1 grow.
 - Not raised: the pause of 400 ms that writes a draft (design D6) is exercised by no test, the tests reach the write through a blur or a check. Scenarios of the delta specs are otherwise each driven by a test that would fail without the behaviour; the accessibility specs of Study run on Chromium only and carry no requirement tag, as the earlier ones do.
 - C-01: the sentences in the tests are those of the demo books written for this project. C-02, C-03: the guard of `e2e/fixtures.ts` runs through every Study test; nothing but the app's own origin is requested. C-08: the components import no storage; `unit.ts`, `pages.ts` and `messages.ts` do, as the design says.
+
+## Round 2
+
+Reviewed: a03aaa21583b
+Verdict: approved
+
+- F1: fixed
+  `refresh` now leaves an exercise alone when an action on it was kept after the read began (its `attempts` array is another one), when it is busy, edited or not stored, and takes the done count only of the exercises it applied. The probe of round 1 run again on the new build, Chromium and Firefox: a `focus` event and a click on **Проверить** in one task leave «сделано 1 из 3» in the header and «✓ Сделано верно 8 из 8» with the verdicts in the block. The new test "@req PLAY-006 a reread that began before a check…" does the same, and "@req DATA-012 @req PLAY-011 an exercise checked in another tab…" is the test of the reread that was missing.
+- F2: fixed
+  An entry remembers which of its edits the stored draft holds (`stored`), and one that is not stored is never read over; a failed write is made again by the next reread and by `flush`. The new test "@req PLAY-005 answers whose draft could not be saved…" refuses the write, gives the window the focus, finds the answers in their fields, then lets the write through and finds them after a reload.
+- F3: fixed
+  `finishUnit1` waits for «Сделано» after each check. The test "the counts follow work done in another tab" and the three tests of `e2e/study-reread.spec.ts` repeated 40 times each on Firefox with 12 workers, the load under which round 1 failed once in 150: 160 passed.
+- F4: fixed
+  «Разрешите сайту хранить данные и повторите.»; a reveal that is not kept says «Ответ не показан: не удалось записать в этом браузере, что он был открыт», and for **Показать образец** «Образец не показан: …» (the new action `sample`).
+- F5: fixed
+  `docs/roadmap.md` has slice 1.5 with the requirements of this change, 1.6 the two books joined, 1.7 the tools of the pages panel and 1.8 the shell, as the proposal says.
+
+### Notes
+
+- Range read: `git diff 5030c26..HEAD` in full (`src/ui/study/unit.ts`, `src/ui/study/messages.ts`, `e2e/study.ts`, the new `e2e/study-reread.spec.ts`, `docs/roadmap.md`), by hand, with the rest of the change as read in round 1. `pnpm check` (41 requirements traced, no advisories), `pnpm test` (755 tests), `pnpm build` and `pnpm exec playwright test --project=chromium --project=firefox` (146 passed) all pass at `903f7da`. WebKit was not run: it cannot start on this machine.
+- Not raised, for the author to weigh: two rereads that overlap now cancel the later one. The first to finish replaces `entry.attempts`, so the second, which began before that, takes the exercise for one changed on the screen and leaves it. When a write of another tab lands between the two reads, the fresher one is the one thrown away. Probed on Chromium and Firefox: a `focus` event, then a check of 1.1 added to the log through a second connection, then another `focus` event at once: the header stays at «сделано 0 из 3» and the block not done; one more `focus` event shows «сделано 1 из 3». It needs two writes of another tab a few milliseconds apart, a check and the draft written before it do not do it (both transactions are made before the first message is sent), and it heals on the next focus or message, so I did not ask for a change. Running one reread at a time, with a second one queued, would close it.
+- The first writer still clears `writing` for its exercise while a second write of the same exercise is in flight; with `stored` taken from the edits each write began with, the worst outcome is one draft written twice.
+- The notes of round 1 on the pages panel, the focus after a pressed button is removed, the number of transactions the start screen makes for each write of another tab, and the untested pause of 400 ms stand as written.
+
+## Requirement coverage
+
+| Requirement | Implemented in | Tested by |
+| --- | --- | --- |
+| PLAY-001 | `src/ui/study/StudyView.vue` (the two columns, **‹** and **›**, the unit menu), `src/ui/study/unit.ts` (`useUnit`: the unit, its neighbours), `src/ui/router.ts` (`#/study/<pack>/<unit>`), `src/ui/App.vue` (a screen per address) | `e2e/study.spec.ts` (a unit shows its pages and exercises in order; next and previous, disabled at the ends) |
+| PLAY-002 | `src/domain/study/view.ts` (`RowView`), `src/ui/study/ItemRow.vue` (a field, or the options as radio buttons) | `src/domain/study/view.test.ts`, `e2e/study.spec.ts` |
+| PLAY-003 | `src/domain/study/grade.ts` (`gradeExercise`), `src/domain/study/view.ts`, `src/ui/study/ItemRow.vue` and `messages.ts` (a sign and words) | `src/domain/study/grade.test.ts`, `view.test.ts`, `attempts.test.ts`, `e2e/study.spec.ts` (three verdicts, a blank row) |
+| PLAY-004 | `src/domain/study/grade.ts` (`complete` only when every item is `ok`), `src/ui/study/messages.ts` («Почти — проверьте написание»), the key shown only once revealed (`view.ts`) | `src/domain/study/grade.test.ts`, `view.test.ts`, `e2e/study.spec.ts` |
+| PLAY-005 | `src/ui/study/unit.ts` (`setAnswer`, `writeDraft`, `flush`, `stored`), `src/domain/study/view.ts` (`initialAnswers`) | `src/domain/study/view.test.ts`, `e2e/study.spec.ts` (after a reload, before and after a check), `e2e/study-reread.spec.ts` (a draft that could not be saved) |
+| PLAY-006 | `src/domain/study/attempts.ts` (`checkAttempt`), `src/ui/study/unit.ts` (`check`, `keep`, the failure and its repeat), `src/domain/study/view.ts` (a verdict only while the field holds the judged answer), `src/ui/study/ExerciseBlock.vue` | `src/domain/study/attempts.test.ts`, `view.test.ts`, `e2e/study.spec.ts` (the log, editing clears one verdict, a refused write), `e2e/study-reread.spec.ts` |
+| PLAY-007 | `src/domain/study/attempts.ts` (`revealAttempt`), `src/domain/study/view.ts` (`key`), `src/ui/study/ItemRow.vue` (the menu of one row) | `src/domain/study/attempts.test.ts`, `view.test.ts`, `e2e/study.spec.ts` |
+| PLAY-008 | `src/domain/study/attempts.ts` (`overrideAttempt`), `src/domain/study/time.ts`, `src/domain/study/view.ts` (`change`, `byHand`), `src/ui/study/ItemRow.vue`, `messages.ts` | `src/domain/study/attempts.test.ts`, `time.test.ts`, `view.test.ts`, `e2e/study.spec.ts` |
+| PLAY-009 | `src/domain/study/attempts.ts` (`complete` of a check and of an override, `markDoneAttempt`), with the derivation of `src/domain/progress` | `src/domain/study/attempts.test.ts`, `e2e/study.spec.ts` (completed by a check, by hand, taken back and returned) |
+| PLAY-010 | the derivation of `src/domain/progress` over the attempts of `src/domain/study/attempts.ts`; `src/domain/study/view.ts` (`statusOf`) | `src/domain/study/attempts.test.ts`, `view.test.ts`, `e2e/study.spec.ts` |
+| PLAY-011 | `src/domain/study/view.ts` (`statusOf`), `src/domain/study/progress.ts`, `src/ui/study/StudyView.vue` (the header), `ExerciseBlock.vue`, `UnitMenu.vue` | `src/domain/study/view.test.ts`, `e2e/study.spec.ts`, `e2e/study-reread.spec.ts` |
+| PLAY-013 | `src/domain/study/view.ts` (`FreeView`), `src/domain/study/attempts.ts` (`markDoneAttempt`, a reveal of `TEXT`), `src/ui/study/ExerciseBlock.vue` | `src/domain/study/view.test.ts`, `attempts.test.ts`, `e2e/study.spec.ts` (an open exercise, a connected text) |
+| PLAY-015 | `src/ui/study/ItemRow.vue`, `ExerciseBlock.vue` (the attributes of every field) | `e2e/study.spec.ts` |
+| DOC-001 | `src/ui/study/PagesPanel.vue`, `src/ui/study/pages.ts` (`pageNumbers`, `bookOf`), `src/storage/pdf/render.ts`, `src/ui/study/StudyView.vue` (`showPage`) | `e2e/pages.spec.ts` (the unit's own pages, to the exercise, within 2 seconds) |
+| DOC-008 | `src/ui/study/pages.ts` (the PDF from the app's own files, a failure not kept), `src/ui/study/PagesPanel.vue` (the message and **Повторить**) | `e2e/pages.spec.ts`, `e2e/study-a11y.spec.ts` (the state `study-pages-offline`) |
+| PROG-014 | `src/ui/components/BookCards.vue`, `src/ui/demo/progress.ts`, `src/domain/study/progress.ts` (`progressOf`, `continueAt`), `src/ui/views/StartView.vue` | `src/domain/study/view.test.ts`, `e2e/study-frame.spec.ts` (three tests), `e2e/demo.spec.ts` |
+| PROD-006 | `src/ui/study/StudyView.vue` (two columns from 1024 px, the jump links below), `src/ui/App.vue` (the wide frame) | `e2e/study-layout.spec.ts` (1280 px and 360 px) |
+| PROD-007 | `src/ui/study/ItemRow.vue` (Enter checks, the menu and Escape), `UnitMenu.vue`, the order of the elements in `ExerciseBlock.vue`, the focus on the unit's title in `StudyView.vue` | `e2e/study-layout.spec.ts` (an exercise by keyboard; from the start screen to the next unit, the focus marked at every stop) |
+
+## Outside the listed requirements
+
+- `docs/product/08-interface-reference.md`, new, and its line in `docs/product/README.md`: the screens of the owner's predecessor that the interface follows; no requirement IDs.
+- `docs/roadmap.md`: the slices of milestone 1 after this one in the order the owner asked for on 2026-11-13.
+- The frame (`src/ui/App.vue`): a top bar with **Сегодня** and **О приложении** on every screen, a screen made anew for each address; the link to "О приложении" in the body of the start screen is gone, and its lead text is new.
+- `src/ui/router.ts`: the Study chunk is fetched ahead once the demo is added (`prefetchStudy`), so that a unit opens after the connection is lost.
+- `src/ui/styles/base.css`: a grey page background with white cards, colour tokens for the verdicts, `.secondary`, `.card`, `.visually-hidden`; `e2e/themes.spec.ts` follows the new background.
+- `src/storage/pdf/text.ts`: `startWorker` and `loadPdfLibrary` are exported for `render.ts`.
+- `src/ui/study/unit.ts` reads the unit again when another tab wrote or the window regains focus (design D6); the test in `e2e/study-reread.spec.ts` names DATA-012, a requirement of the change `storage`.
+- `src/ui/study/ids.ts`: ids and times of attempts made in the interface, a UUID without `crypto.randomUUID`.
+- `e2e/`: `study.ts` (each worker adds the demo once, the tests start from its stored state), `openCleanPage` starts explicitly empty, `views.ts` tells the views a clean profile can open from Study, the accessibility check and the screenshots of Study in four states.
