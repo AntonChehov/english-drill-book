@@ -16,8 +16,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 3. The demo stays
 
-- [ ] 3.1 Keep the demo packs as in design D7 and show them as added on start; show the failures of design D4 and the message of D5; verify with end-to-end tests named `@req DATA-001`, `@req DATA-004`, `@req DATA-005` and `@req DATA-012` on Chromium, Firefox and WebKit covering "The demo is kept", "Nothing is sent", "Little is stored", "The demo cannot be kept", "Newer data" and "Seen in the other tab"
-- [ ] 3.2 Add the new states of the start screen to the accessibility check and the screenshots, both themes; verify no serious or critical violation
+- [x] 3.1 Keep the demo packs as in design D7 and show them as added on start; show the failures of design D4 and the message of D5; verify with end-to-end tests named `@req DATA-001`, `@req DATA-004`, `@req DATA-005` and `@req DATA-012` on Chromium, Firefox and WebKit covering "The demo is kept", "Nothing is sent", "Little is stored", "The demo cannot be kept", "Newer data" and "Seen in the other tab" — `e2e/storage.spec.ts`, tagged `@demo`, green on Chromium and Firefox here (WebKit does not start on this machine; CI runs it); storage refused by an init script that makes `indexedDB.open` throw `SecurityError`, newer data written by an init script before the app starts
+- [x] 3.2 Add the new states of the start screen to the accessibility check and the screenshots, both themes; verify no serious or critical violation — `start-demo-kept`, `start-demo-not-kept` and `newer-version` in `demoStates`; axe green in both themes, screenshots made
 
 ## 4. Review and evidence
 

@@ -62,6 +62,90 @@ export async function failDemo(page: Page, allowConsoleError: (pattern: RegExp) 
   await expect(retryButton(page)).toBeVisible();
 }
 
+/** The name of the app's database (src/storage/db/schema.ts). */
+export const databaseName = "english-drill-book";
+
+/**
+ * Makes the browser refuse this site storage, as Firefox does when storage is blocked for a site:
+ * `indexedDB.open` throws a `SecurityError`. It runs before the app on every load of the page.
+ * Setting `window.storageAllowed = true` lets storage work again, as when the visitor allows it.
+ */
+export async function refuseStorage(page: Page) {
+  await page.addInitScript(() => {
+    const open = IDBFactory.prototype.open;
+    IDBFactory.prototype.open = function (this: IDBFactory, ...args: [string, number?]) {
+      if ((window as unknown as { storageAllowed?: boolean }).storageAllowed !== true) {
+        throw new DOMException("The operation is insecure.", "SecurityError");
+      }
+      return open.apply(this, args);
+    };
+  });
+}
+
+export const notKeptMessage =
+  "Демо-книги прочитаны, но сохранить их в этом браузере не удалось: браузер не разрешает этому сайту хранить данные. Так бывает в режиме инкогнито или когда сохранение данных сайтов выключено в настройках браузера. Разрешите его и попробуйте ещё раз.";
+
+/** Opens the start screen with storage refused and adds the demo, which cannot be kept. */
+export async function addDemoNotKept(page: Page) {
+  await refuseStorage(page);
+  await page.goto(addressOf("/"));
+  await startButton(page).click();
+  await expect(page.getByRole("alert")).toHaveText(notKeptMessage);
+}
+
+/**
+ * Before the app starts, writes the app's database with a version above the app's, with a store
+ * and a record of its own, as a newer version of the app would leave it.
+ */
+export async function writeNewerData(page: Page, version = 2) {
+  await page.addInitScript(
+    ({ name, newer }) => {
+      const request = indexedDB.open(name, newer);
+      request.addEventListener("upgradeneeded", () => {
+        request.result.createObjectStore("future", { keyPath: "id" }).add({ id: "kept", n: 1 });
+      });
+      request.addEventListener("success", () => request.result.close());
+    },
+    { name: databaseName, newer: version },
+  );
+}
+
+export const newerHeading = (page: Page) =>
+  page.getByRole("heading", { level: 1, name: "Нужна новая версия приложения" });
+
+/** The version, stores and records of the app's database as the page sees it. */
+export function databaseOf(page: Page) {
+  return page.evaluate(
+    (name) =>
+      new Promise<{ version: number; stores: Record<string, unknown[]> }>((resolve, reject) => {
+        const request = indexedDB.open(name);
+        request.addEventListener("error", () => reject(request.error));
+        request.addEventListener("success", () => {
+          const database = request.result;
+          const names = [...database.objectStoreNames];
+          const stores: Record<string, unknown[]> = {};
+          if (names.length === 0) {
+            database.close();
+            resolve({ version: database.version, stores });
+            return;
+          }
+          const transaction = database.transaction(names, "readonly");
+          for (const store of names) {
+            const all = transaction.objectStore(store).getAll();
+            all.addEventListener("success", () => {
+              stores[store] = all.result;
+            });
+          }
+          transaction.addEventListener("complete", () => {
+            database.close();
+            resolve({ version: database.version, stores });
+          });
+        });
+      }),
+    databaseName,
+  );
+}
+
 /** The states of the start screen's demo section after the first, for screenshots and axe. */
 export const demoStates = [
   { name: "start-demo-added", reach: (page: Page) => addDemo(page) },
@@ -69,5 +153,25 @@ export const demoStates = [
     name: "start-demo-failed",
     reach: (page: Page, allowConsoleError: (pattern: RegExp) => void) =>
       failDemo(page, allowConsoleError),
+  },
+  {
+    // The demo added in an earlier visit, shown from the store after a reload (design D7).
+    name: "start-demo-kept",
+    reach: async (page: Page) => {
+      await addDemo(page);
+      await page.reload();
+      await expect(addedHeading(page)).toBeVisible();
+    },
+  },
+  // Read, and refused by the browser's storage (DATA-004).
+  { name: "start-demo-not-kept", reach: (page: Page) => addDemoNotKept(page) },
+  {
+    // Data of a newer version of the app: the full-screen message (DATA-005).
+    name: "newer-version",
+    reach: async (page: Page) => {
+      await writeNewerData(page);
+      await page.goto(addressOf("/"));
+      await expect(newerHeading(page)).toBeVisible();
+    },
   },
 ] as const;
