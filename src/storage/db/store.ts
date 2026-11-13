@@ -82,6 +82,11 @@ export interface StoreOptions {
   readonly migrations?: readonly (Migration | undefined)[];
   /** Another tab opened the database with a newer version; this store is closed (design D5). */
   readonly onVersionChange?: () => void;
+  /**
+   * The browser closed the connection (the site's data was cleared, or the disk failed): this
+   * store refuses everything from now on, and a store opened again may work (DATA-004).
+   */
+  readonly onClose?: () => void;
   /** The `BroadcastChannel` that tells other tabs of each write (design D6). */
   readonly channel?: string;
 }
@@ -154,6 +159,13 @@ function currentState(
 /** Opens the database, upgrading it if it is older, and returns the store. */
 export async function openStore(options: StoreOptions = {}): Promise<Store> {
   let replaced = false;
+  let closed = false;
+  const markClosed = () => {
+    if (closed) return;
+    closed = true;
+    channel?.close();
+    options.onClose?.();
+  };
   const database = await openDatabase({
     factory: "factory" in options ? options.factory : pageFactory(),
     name: options.name ?? DATABASE_NAME,
@@ -163,6 +175,7 @@ export async function openStore(options: StoreOptions = {}): Promise<Store> {
       replaced = true;
       options.onVersionChange?.();
     },
+    onClose: () => markClosed(),
   });
   const channel =
     options.channel !== undefined && typeof BroadcastChannel !== "undefined"
@@ -175,7 +188,11 @@ export async function openStore(options: StoreOptions = {}): Promise<Store> {
     body: (tx: Transaction) => () => T,
   ): Promise<T> {
     if (replaced) return Promise.reject(new StorageError("newer-version"));
-    return transact(database, stores, mode, body);
+    if (closed) return Promise.reject(new StorageError("failed", { connectionClosed: true }));
+    return transact(database, stores, mode, body).catch((error: unknown) => {
+      if (error instanceof StorageError && error.connectionClosed) markClosed();
+      throw error;
+    });
   }
 
   async function write<T>(

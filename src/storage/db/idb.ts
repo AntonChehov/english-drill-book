@@ -22,6 +22,11 @@ export interface OpenOptions {
    * not blocked, and then this is called.
    */
   readonly onVersionChange?: () => void;
+  /**
+   * The browser closed the connection on its own: the site's data was cleared, or the disk
+   * failed. The connection cannot be used again; opening the database again may work.
+   */
+  readonly onClose?: () => void;
 }
 
 /** Opens the database, upgrading it in one transaction from whatever older version it has. */
@@ -56,6 +61,7 @@ export function openDatabase(options: OpenOptions): Promise<IDBDatabase> {
     });
     request.addEventListener("success", () => {
       const database = request.result;
+      database.addEventListener("close", () => options.onClose?.());
       database.addEventListener("versionchange", () => {
         database.close();
         options.onVersionChange?.();
@@ -103,7 +109,13 @@ export function transact<T>(
     try {
       transaction = database.transaction(stores, mode);
     } catch (error) {
-      reject(storageErrorOf(error));
+      // Thrown on a connection that is closed, whether or not its `close` event has come yet.
+      const closed = error instanceof DOMException && error.name === "InvalidStateError";
+      reject(
+        closed
+          ? new StorageError("failed", { cause: error, connectionClosed: true })
+          : storageErrorOf(error),
+      );
       return;
     }
     let failure: unknown;

@@ -1,4 +1,4 @@
-import { IDBObjectStore } from "fake-indexeddb";
+import { forceCloseDatabase, IDBObjectStore } from "fake-indexeddb";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DERIVATION, deriveExercise, emptyExerciseState, newAttempt } from "../../domain/progress";
 import { attemptOf, freshFactory, packOf, rawOpen, snapshot } from "./db.fixture";
@@ -283,6 +283,56 @@ describe("failed writes", () => {
     await expect(store.putPacks([packOf("first")])).rejects.toThrow(
       new StorageError("newer-version"),
     );
+  });
+});
+
+/** A fresh database whose connections are recorded as they are opened. */
+function recordedFactory() {
+  const factory = freshFactory();
+  const open = factory.open.bind(factory);
+  const connections: IDBOpenDBRequest[] = [];
+  vi.spyOn(factory, "open").mockImplementation((name, version) => {
+    const request = open(name, version);
+    connections.push(request);
+    return request;
+  });
+  return { factory, connection: (index: number) => connections[index]!.result };
+}
+
+describe("a connection the browser closes", () => {
+  it("@req DATA-004 is noticed by its close event: the store refuses, and a store opened again keeps the write", async () => {
+    const { factory, connection } = recordedFactory();
+    const closed = vi.fn<() => void>();
+    const store = await openStore({ factory, onClose: closed });
+
+    // fake-indexeddb types the connection it takes wrongly.
+    forceCloseDatabase(connection(0) as never);
+
+    expect(closed).toHaveBeenCalledOnce();
+    await expect(store.putPacks([packOf("first")])).rejects.toMatchObject({
+      kind: "failed",
+      connectionClosed: true,
+    });
+    const again = await openStore({ factory });
+    await again.putPacks([packOf("first")]);
+    expect(await again.getPacks()).toEqual([packOf("first")]);
+  });
+
+  it("@req DATA-004 is noticed by a write refused on it, before any close event", async () => {
+    const { factory, connection } = recordedFactory();
+    const closed = vi.fn<() => void>();
+    const store = await openStore({ factory, onClose: closed });
+
+    connection(0).close();
+
+    await expect(store.putPacks([packOf("first")])).rejects.toMatchObject({
+      kind: "failed",
+      connectionClosed: true,
+      cause: expect.objectContaining({ name: "InvalidStateError" }),
+    });
+    expect(closed).toHaveBeenCalledOnce();
+    await expect(store.getPacks()).rejects.toMatchObject({ connectionClosed: true });
+    expect(closed).toHaveBeenCalledOnce();
   });
 });
 

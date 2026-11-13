@@ -12,12 +12,19 @@ export type StorageErrorKind =
   | "failed";
 
 export class StorageError extends Error {
+  /**
+   * The connection to the database was closed, by the browser (the site's data was cleared, or
+   * the disk failed) and not by a newer version: opening the database again may succeed.
+   */
+  readonly connectionClosed: boolean;
+
   constructor(
     readonly kind: StorageErrorKind,
-    options?: { cause?: unknown },
+    options?: { cause?: unknown; connectionClosed?: boolean },
   ) {
     super(`Storage ${kind}`, options);
     this.name = "StorageError";
+    this.connectionClosed = options?.connectionClosed ?? false;
   }
 }
 

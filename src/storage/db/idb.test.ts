@@ -96,9 +96,10 @@ describe("transactions as promises", () => {
     const database = await open();
     database.close();
 
-    await expect(transact(database, ["packs"], "readonly", () => () => 1)).rejects.toThrow(
-      new StorageError("failed"),
-    );
+    await expect(transact(database, ["packs"], "readonly", () => () => 1)).rejects.toMatchObject({
+      kind: "failed",
+      connectionClosed: true,
+    });
   });
 
   it("@req DATA-004 a result that cannot be given after the commit rejects", async () => {

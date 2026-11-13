@@ -60,6 +60,8 @@ Every function of the store returns a promise that is rejected with a typed `Sto
 
 The start screen is the only caller in this slice: "Демо-книги добавлены" is shown after the packs are stored. If storing fails, the message says in Russian that the books were read and could not be kept, why if known (no space; storage is switched off in this browser), and offers to try again; the books are not listed as added.
 
+The browser can also close the connection on its own, when the visitor clears the site's data with the page open or the disk fails. The store notices it by the connection's `close` event, or by a transaction refused with `InvalidStateError` before that event comes; it then refuses everything with `failed`, and the app drops it, so the next call, such as trying again, opens the database again. For the same reason a view that shows the demo as added reads the store again when the page regains focus, and no longer shows it as kept once its packs are gone.
+
 ### D5. Schema versions (DATA-005)
 
 The schema version is IndexedDB's own database version. `migrations[n]` upgrades from `n − 1` to `n` inside the `upgradeneeded` transaction, so an upgrade happens whole or not at all. A test opens a committed fixture of every earlier version and expects the data intact; with only version 1 today, the harness is proven by a test-only version 2.

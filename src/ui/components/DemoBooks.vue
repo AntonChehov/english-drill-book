@@ -69,13 +69,14 @@ let checking = false;
 const phaseNow = (): DemoState["phase"] => demoState.value.phase;
 
 /**
- * Shows the demo as added when its packs are stored (design D7), on start and whenever another
- * tab may have added it (design D6). On start, stored packs that cannot be used are read again
- * from the PDFs. Nothing changes while the books are being added here.
+ * Shows the demo as added exactly when its packs are stored (design D7), on start and whenever
+ * another tab may have changed the store (design D6): a demo shown as added whose packs are gone,
+ * as when the site's data was cleared, is shown as not added. On start, stored packs that cannot
+ * be used are read again from the PDFs. Nothing changes while the books are being added here.
  */
 async function check() {
   const phase = demoState.value.phase;
-  if (checking || phase === "reading" || phase === "added") return;
+  if (checking || phase === "reading") return;
   const starting = phase === "loading";
   checking = true;
   try {
@@ -87,12 +88,13 @@ async function check() {
         : (await import("../../domain/books/demo/kept")).keptDemo(stored);
     // Read again: the visitor may have added the demo while the store was read.
     const now = phaseNow();
-    if (now === "reading" || now === "added") return;
-    if (kept.kind === "kept") demoState.value = { phase: "added", books: summaryOf(kept.packs) };
-    else if (kept.kind === "stale" && starting) {
+    if (now === "reading") return;
+    if (kept.kind === "kept") {
+      if (now !== "added") demoState.value = { phase: "added", books: summaryOf(kept.packs) };
+    } else if (kept.kind === "stale" && starting) {
       checking = false;
       await add(true);
-    } else if (now === "loading") demoState.value = { phase: "idle" };
+    } else if (now === "loading" || now === "added") demoState.value = { phase: "idle" };
   } catch (error) {
     // Nothing kept can be read: the demo can still be added, and says so if it cannot be kept.
     noteStorageFailure(error);

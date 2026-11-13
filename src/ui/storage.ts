@@ -21,8 +21,9 @@ export function noteStorageFailure(error: unknown): void {
 }
 
 /**
- * The store, opened on first use. A failure is not remembered: the next call tries again, so a
- * visitor who allows storage can retry without reloading.
+ * The store, opened on first use. Neither a failure to open nor a connection the browser closed
+ * (the site's data cleared, a disk failure) is remembered: the next call opens the database
+ * again, so a visitor can retry without reloading (DATA-004).
  */
 export function getStore(): Promise<Store> {
   opening ??= openStore({
@@ -30,6 +31,9 @@ export function getStore(): Promise<Store> {
     onVersionChange: () => {
       opening = undefined;
       newerVersion.value = true;
+    },
+    onClose: () => {
+      opening = undefined;
     },
   }).catch((error: unknown) => {
     opening = undefined;
