@@ -9,8 +9,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 2. The database
 
-- [ ] 2.1 Add `fake-indexeddb` for tests; write the wrapper and the schema of version 1 in `src/storage/db/` as in design D1 and the errors of D4; verify that a write resolves only when its transaction completes and that each kind of failure gives its `StorageError`
-- [ ] 2.2 Write the store's interface: packs, attempts with the derived record in one transaction, drafts, settings; verify with tests named `@req DATA-002`, `@req DATA-003` and `@req DATA-004` covering the scenarios of the delta spec, including a deleted and a stale cache and a write that fails halfway
+- [x] 2.1 Add `fake-indexeddb` for tests; write the wrapper and the schema of version 1 in `src/storage/db/` as in design D1 and the errors of D4; verify that a write resolves only when its transaction completes and that each kind of failure gives its `StorageError` — `idb.test.ts`: resolution after `complete`, an abort after every request succeeded rejects and keeps nothing, and `unavailable`, `quota`, `newer-version` and `failed` each from its cause; a lint rule closes `indexedDB` outside `src/storage/db`
+- [x] 2.2 Write the store's interface: packs, attempts with the derived record in one transaction, drafts, settings; verify with tests named `@req DATA-002`, `@req DATA-003` and `@req DATA-004` covering the scenarios of the delta spec, including a deleted and a stale cache and a write that fails halfway — `store.test.ts`, the derived record's write failing after the attempt's add leaves both stores as they were
 - [ ] 2.3 Write the migration harness of design D5 with a committed fixture of version 1 and a test-only version 2; verify with tests named `@req DATA-005` for older data, newer data and the upgrade asked for by another connection
 - [ ] 2.4 Verify with a test named `@req DATA-012` that two connections appending to one exercise lose nothing and read the same state
 
