@@ -1,4 +1,6 @@
+import Ajv2020 from "ajv/dist/2020";
 import { describe, expect, it, vi } from "vitest";
+import exportSchema from "../../../contracts/export.schema.json";
 import { deriveExercise, type Attempt } from "../../domain/progress";
 import { validatePack } from "../../domain/packs/validate";
 import {
@@ -15,6 +17,10 @@ import {
 import { StorageError } from "./errors";
 import { MIGRATIONS, SCHEMA_VERSION } from "./schema";
 import { openStore } from "./store";
+
+const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false });
+ajv.addSchema(exportSchema);
+const validAttempt = ajv.getSchema(`${exportSchema.$id}#/$defs/attempt`)!;
 
 const version1 = fixtures.find((fixture) => fixture.version === 1)!;
 
@@ -36,8 +42,13 @@ describe("the fixtures of earlier versions", () => {
 
   it("@req DATA-005 the packs and attempts of the fixtures are valid", () => {
     for (const fixture of fixtures) {
-      for (const pack of fixture.stores["packs"]?.records ?? []) {
-        expect(validatePack(pack).ok).toBe(true);
+      const packs = fixture.stores["packs"]?.records ?? [];
+      const attempts = fixture.stores["attempts"]?.records ?? [];
+      expect(packs.length).toBeGreaterThan(0);
+      expect(attempts.length).toBeGreaterThan(0);
+      for (const pack of packs) expect(validatePack(pack).ok).toBe(true);
+      for (const attempt of attempts) {
+        expect(validAttempt(attempt) ? [] : validAttempt.errors).toEqual([]);
       }
     }
   });
