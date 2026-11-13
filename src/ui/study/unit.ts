@@ -1,0 +1,383 @@
+// The state of Study (design D6, D10 of `study-screen`): `useUnit` loads the pack, prepares the
+// keys, reads the states, attempts and drafts of the unit, and exposes the views of the domain and
+// the actions that append attempts. Components show what it gives and call its actions; none of
+// them reaches the store.
+
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
+import type { Exercise, Pack, Unit } from "../../domain/packs/types";
+import { validatePack } from "../../domain/packs/validate";
+import type { Attempt, ExerciseState } from "../../domain/progress";
+import {
+  checkAttempt,
+  initialAnswers,
+  markDoneAttempt,
+  overrideAttempt,
+  prepareKeys,
+  progressOf,
+  revealAttempt,
+  TEXT,
+  viewOfExercise,
+  type AttemptContext,
+  type ExerciseView,
+  type Keys,
+  type Progress,
+  type RowChange,
+} from "../../domain/study";
+import type { Store } from "../../storage/db";
+import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
+import { newId, now } from "./ids";
+import {
+  changedMessage,
+  checkedMessage,
+  markedDoneMessage,
+  notKeptMessage,
+  nothingToCheck,
+  revealedMessage,
+  sampleMessage,
+  type KeptAction,
+} from "./messages";
+
+/** Drafts are written this long after the last keystroke (design D6). */
+export const DRAFT_DELAY = 400;
+
+/** An exercise of the unit as Study holds it. */
+export interface ExerciseEntry {
+  readonly exercise: Exercise;
+  /** The prepared keys; none for an exercise shown as open. */
+  readonly keys: Keys | undefined;
+  state: ExerciseState;
+  attempts: Attempt[];
+  /** The answers in the fields; text and open exercises use `text`. */
+  answers: Record<string, string>;
+  /** The result of an action could not be kept: what to say, and how to repeat it (D6). */
+  failure: { readonly message: string; readonly retry: () => void } | null;
+  /** A quiet word next to Проверить, such as that there is nothing to check. */
+  notice: string | null;
+  /** An action is being written. */
+  busy: boolean;
+  /** How many edits the fields have had: a reload does not overwrite newer edits. */
+  edits: number;
+}
+
+export type UnitPhase = "loading" | "ready" | "not-found" | "failed";
+
+export interface UnitLink {
+  readonly id: string;
+  readonly title: string;
+  readonly progress: Progress;
+}
+
+const idOf = (value: unknown): unknown =>
+  typeof value === "object" && value !== null && "id" in value ? value.id : undefined;
+
+/** The element being typed in, if it is a field: a reload leaves the unit alone meanwhile. */
+function editing(): boolean {
+  const active = document.activeElement;
+  return active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement;
+}
+
+export function useUnit(packId: string, unitId: string) {
+  const phase = ref<UnitPhase>("loading");
+  const pack = shallowRef<Pack>();
+  const unit = shallowRef<Unit>();
+  const entries = ref<ExerciseEntry[]>([]);
+  /** Exercise id → done, for every exercise of the pack (the unit list counts them). */
+  const done = reactive(new Map<string, boolean>());
+  const draftFailed = ref(false);
+  const announcement = ref("");
+
+  const timers = new Map<string, ReturnType<typeof setTimeout>>();
+  const writing = new Set<string>();
+
+  const unitIndex = computed(() =>
+    pack.value && unit.value ? pack.value.units.indexOf(unit.value) : -1,
+  );
+  const units = computed<UnitLink[]>(() =>
+    (pack.value?.units ?? []).map((each) => ({
+      id: each.id,
+      title: each.title,
+      progress: progressOf(
+        each.exercises.map((exercise) => exercise.id),
+        (id) => done.get(id) === true,
+      ),
+    })),
+  );
+  const progress = computed(() => units.value[unitIndex.value]?.progress);
+  const previous = computed(() => pack.value?.units[unitIndex.value - 1]?.id);
+  const next = computed(() =>
+    unitIndex.value < 0 ? undefined : pack.value?.units[unitIndex.value + 1]?.id,
+  );
+
+  function viewOf(entry: ExerciseEntry): ExerciseView {
+    return viewOfExercise(
+      entry.exercise,
+      entry.state,
+      entry.answers,
+      entry.attempts,
+      entry.keys === undefined,
+    );
+  }
+
+  /** Says `message` through the polite live region, again even if it is the same (D7). */
+  async function announce(message: string) {
+    announcement.value = "";
+    await nextTick();
+    announcement.value = message;
+  }
+
+  async function readUnit(store: Store, from: Pack, shown: Unit) {
+    const states = await Promise.all(
+      from.units.flatMap((each) =>
+        each.exercises.map(
+          async (exercise) =>
+            [exercise.id, await store.getExerciseState(from.id, exercise.id)] as const,
+        ),
+      ),
+    );
+    const stateOf = new Map(states);
+    for (const [id, state] of states) done.set(id, state.done);
+    return Promise.all(
+      shown.exercises.map(async (exercise) => {
+        const [attempts, draft] = await Promise.all([
+          store.getAttempts(from.id, exercise.id),
+          store.getDraft(from.id, exercise.id),
+        ]);
+        const state = stateOf.get(exercise.id)!;
+        return {
+          exercise,
+          state,
+          attempts,
+          answers: initialAnswers(state, attempts, draft?.answers),
+        };
+      }),
+    );
+  }
+
+  async function load() {
+    phase.value = "loading";
+    try {
+      const store = await getStore();
+      const found = (await store.getPacks()).find((value) => idOf(value) === packId);
+      const validation = found === undefined ? undefined : validatePack(found);
+      const shown = validation?.ok
+        ? validation.pack.units.find(({ id }) => id === unitId)
+        : undefined;
+      if (!validation?.ok || shown === undefined) {
+        phase.value = "not-found";
+        return;
+      }
+      const read = await readUnit(store, validation.pack, shown);
+      pack.value = validation.pack;
+      unit.value = shown;
+      entries.value = read.map(({ exercise, state, attempts, answers }) => ({
+        exercise,
+        keys: exercise.type === "items" ? prepareKeys(exercise) : undefined,
+        state,
+        attempts,
+        answers,
+        failure: null,
+        notice: null,
+        busy: false,
+        edits: 0,
+      }));
+      phase.value = "ready";
+    } catch (error) {
+      noteStorageFailure(error);
+      phase.value = "failed";
+    }
+  }
+
+  /**
+   * Reads the unit again, as another tab may have changed it (DATA-012, design D6), unless a field
+   * is being edited, a draft waits to be written or an action is being written.
+   */
+  async function refresh() {
+    const from = pack.value;
+    const shown = unit.value;
+    if (phase.value !== "ready" || from === undefined || shown === undefined) return;
+    const quiet = () =>
+      !editing() && timers.size === 0 && writing.size === 0 && entries.value.every((e) => !e.busy);
+    if (!quiet()) return;
+    const before = entries.value.map((entry) => entry.edits);
+    try {
+      const read = await readUnit(await getStore(), from, shown);
+      if (!quiet()) return;
+      read.forEach((fresh, index) => {
+        const entry = entries.value[index];
+        if (entry === undefined || entry.edits !== before[index]) return;
+        entry.state = fresh.state;
+        entry.attempts = fresh.attempts;
+        entry.answers = fresh.answers;
+      });
+    } catch (error) {
+      noteStorageFailure(error);
+    }
+  }
+
+  async function writeDraft(entry: ExerciseEntry) {
+    const id = entry.exercise.id;
+    clearTimeout(timers.get(id));
+    timers.delete(id);
+    if (pack.value === undefined) return;
+    writing.add(id);
+    try {
+      await (
+        await getStore()
+      ).putDraft({ pack: pack.value.id, exercise: id, answers: { ...entry.answers } });
+      draftFailed.value = false;
+    } catch (error) {
+      noteStorageFailure(error);
+      draftFailed.value = true;
+    } finally {
+      writing.delete(id);
+    }
+  }
+
+  /** Puts `text` in a field and writes the draft once typing pauses (PLAY-005). */
+  function setAnswer(entry: ExerciseEntry, item: string, text: string) {
+    entry.answers[item] = text;
+    entry.edits += 1;
+    entry.notice = null;
+    clearTimeout(timers.get(entry.exercise.id));
+    timers.set(
+      entry.exercise.id,
+      setTimeout(() => void writeDraft(entry), DRAFT_DELAY),
+    );
+  }
+
+  /** Writes a waiting draft at once: when a field loses focus or the page is hidden. */
+  function flush(entry?: ExerciseEntry) {
+    for (const each of entry ? [entry] : entries.value) {
+      if (timers.has(each.exercise.id)) void writeDraft(each);
+    }
+  }
+
+  function contextOf(entry: ExerciseEntry): AttemptContext {
+    const { id, version } = pack.value!;
+    return { id: newId(), at: now(), pack: { id, version }, exercise: entry.exercise.id };
+  }
+
+  /**
+   * Appends the attempt `build` makes and shows its result only once it is kept; if it is not,
+   * the exercise says so and offers to repeat (PLAY-006, DATA-004, design D6).
+   */
+  async function keep(
+    entry: ExerciseEntry,
+    action: KeptAction,
+    build: () => Attempt | undefined,
+    said: (state: ExerciseState) => string,
+  ) {
+    if (entry.busy) return;
+    const attempt = build();
+    if (attempt === undefined) return;
+    entry.busy = true;
+    entry.notice = null;
+    try {
+      const state = await (await getStore()).appendAttempt(attempt);
+      entry.failure = null;
+      entry.attempts = [...entry.attempts, attempt];
+      entry.state = state;
+      done.set(entry.exercise.id, state.done);
+      void announce(said(state));
+    } catch (error) {
+      noteStorageFailure(error);
+      entry.failure = {
+        message: notKeptMessage(action, error),
+        retry: () => void keep(entry, action, build, said),
+      };
+    } finally {
+      entry.busy = false;
+    }
+  }
+
+  function check(entry: ExerciseEntry) {
+    const { exercise, keys } = entry;
+    if (exercise.type !== "items" || keys === undefined || entry.busy) return;
+    flush(entry);
+    if (Object.values(entry.answers).every((text) => text.trim() === "")) {
+      entry.notice = nothingToCheck;
+      void announce(nothingToCheck);
+      return;
+    }
+    void keep(
+      entry,
+      "check",
+      () => checkAttempt(contextOf(entry), exercise, keys, { ...entry.answers }),
+      (state) => {
+        const view = viewOf(entry);
+        const score = view.kind === "items" ? view.score : null;
+        return checkedMessage(exercise.id, score?.ok ?? 0, score?.total ?? 0, state.done);
+      },
+    );
+  }
+
+  function reveal(entry: ExerciseEntry, item: string) {
+    void keep(
+      entry,
+      "reveal",
+      () => revealAttempt(contextOf(entry), item, entry.answers),
+      () => (item === TEXT ? sampleMessage(entry.exercise.id) : revealedMessage(item)),
+    );
+  }
+
+  function change(entry: ExerciseEntry, item: string, how: RowChange) {
+    const { exercise } = entry;
+    if (exercise.type !== "items") return;
+    const verdict = how === "count" ? "ok" : how === "uncount" ? "bad" : null;
+    void keep(
+      entry,
+      "change",
+      () => overrideAttempt(contextOf(entry), exercise, entry.attempts, item, verdict),
+      () => changedMessage(item, how),
+    );
+  }
+
+  function markDone(entry: ExerciseEntry) {
+    flush(entry);
+    void keep(
+      entry,
+      "mark-done",
+      () => markDoneAttempt(contextOf(entry), entry.answers[TEXT] ?? ""),
+      () => markedDoneMessage(entry.exercise.id),
+    );
+  }
+
+  const onHidden = () => {
+    if (document.visibilityState === "hidden") flush();
+  };
+  const onPageHide = () => flush();
+  let stopWatching: (() => void) | undefined;
+  onMounted(() => {
+    void load();
+    document.addEventListener("visibilitychange", onHidden);
+    window.addEventListener("pagehide", onPageHide);
+    stopWatching = onStoredDataChange(() => void refresh());
+  });
+  onUnmounted(() => {
+    flush();
+    document.removeEventListener("visibilitychange", onHidden);
+    window.removeEventListener("pagehide", onPageHide);
+    stopWatching?.();
+  });
+
+  return {
+    phase,
+    pack,
+    unit,
+    entries,
+    units,
+    progress,
+    previous,
+    next,
+    draftFailed,
+    announcement,
+    viewOf,
+    load,
+    setAnswer,
+    flush,
+    check,
+    reveal,
+    change,
+    markDone,
+  };
+}
