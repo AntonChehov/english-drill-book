@@ -150,12 +150,16 @@ export async function choose(exercise: Locator, answers: Record<string, string>)
 /** Answers and checks exercises 1.1, 1.2 and, with `all`, 1.3 of the open unit 1 correctly. */
 export async function finishUnit1(page: Page, all = true) {
   await fill(exerciseOf(page, "1.1"), answers11);
+  // Each check is shown before the next exercise is touched: its verdicts move what is below.
   await checkButton(exerciseOf(page, "1.1")).click();
+  await expect(exerciseOf(page, "1.1")).toContainText("Сделано");
   await choose(exerciseOf(page, "1.2"), answers12);
   await checkButton(exerciseOf(page, "1.2")).click();
+  await expect(exerciseOf(page, "1.2")).toContainText("Сделано");
   if (all) {
     await fill(exerciseOf(page, "1.3"), answers13);
     await checkButton(exerciseOf(page, "1.3")).click();
+    await expect(exerciseOf(page, "1.3")).toContainText("Сделано");
   }
   await expect(page.getByText(`сделано ${all ? 3 : 2} из 3`)).toBeVisible();
 }
