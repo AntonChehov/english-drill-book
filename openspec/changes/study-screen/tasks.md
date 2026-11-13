@@ -26,7 +26,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 - [x] 5.1 Add Study in its states to the accessibility check and the screenshots, both themes, the pages panel masked; verify no serious or critical violation — `e2e/study-a11y.spec.ts` (untouched, checked, not kept, pages offline; both themes) reports none; `e2e/study-screenshots.spec.ts` makes 16 screenshots
 - [ ] 5.2 Run `pnpm verify` from a clean build; verify it passes, coverage of `src/domain` is at least 95 %, and the checks of a pull request finish within 3 minutes
-- [ ] 5.3 Open the pull request as the bot with the sections of C-18 item 1; the changed screenshots are shown beside those of `main`
+- [x] 5.3 Open the pull request as the bot with the sections of C-18 item 1; the changed screenshots are shown beside those of `main` — pull request #16
 - [ ] 5.4 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; the same reviewing agent, resumed, writes each later round until one approves the latest content; verify the `evidence` check is green
 - [ ] 5.5 A validating agent runs the holdout scenarios of milestone 1 that Study makes possible against a production build; attach its report to the pull request
 - [ ] 5.6 **(owner)** Try the demo on the preview or after merge; read the pull request, the declined findings and the validation report; approve and merge
