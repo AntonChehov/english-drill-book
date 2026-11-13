@@ -42,7 +42,7 @@ export async function guardContext(context: BrowserContext, ownOrigin: string) {
   };
 }
 
-interface Fixtures {
+export interface Fixtures {
   ownOrigin: string;
   /** Lets the console error of a request the test makes fail on purpose through the guard. */
   allowConsoleError: (pattern: RegExp) => void;
@@ -68,7 +68,11 @@ export const test = base.extend<Fixtures>({
   openCleanPage: async ({ browser, baseURL, ownOrigin }, use) => {
     const opened: { context: BrowserContext; assertClean: () => void }[] = [];
     await use(async (address) => {
-      const context = await browser.newContext({ baseURL });
+      // Explicitly empty: the browser of a test applies the project's options, a stored state too.
+      const context = await browser.newContext({
+        baseURL,
+        storageState: { cookies: [], origins: [] },
+      });
       opened.push({ context, assertClean: (await guardContext(context, ownOrigin)).assertClean });
       const page = await context.newPage();
       await page.goto(address);

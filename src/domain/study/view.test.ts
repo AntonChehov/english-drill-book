@@ -3,14 +3,8 @@ import { deriveExercise, emptyExerciseState, type Attempt } from "../progress";
 import { checkAttempt, markDoneAttempt, overrideAttempt, revealAttempt } from "./attempts";
 import { prepareKeys } from "./grade";
 import { contextOf, exerciseOf, itemsOf } from "./study.fixture";
-import {
-  continueAt,
-  initialAnswers,
-  judgedAnswers,
-  progressOf,
-  viewOfExercise,
-  type ItemsView,
-} from "./view";
+import { continueAt, progressOf } from "./progress";
+import { initialAnswers, judgedAnswers, viewOfExercise, type ItemsView } from "./view";
 
 const exercise = itemsOf("1.3");
 const keys = prepareKeys(exercise)!;

@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+// The start screen, which is Today until programs exist (PROG-014; design D2 of `study-screen`).
 import DemoBooks from "../components/DemoBooks.vue";
 </script>
 
 <template>
   <h1>English Drill Book</h1>
-  <p>Тренажёр английской грамматики по вашим рабочим тетрадям. Скоро здесь появятся упражнения.</p>
+  <p class="lead">
+    Тренажёр английской грамматики по вашим рабочим тетрадям: страницы книги рядом с упражнениями,
+    проверка ответов и память о том, что уже сделано.
+  </p>
   <DemoBooks />
-  <p><RouterLink to="/about">О приложении</RouterLink></p>
 </template>
+
+<style scoped>
+.lead {
+  color: var(--color-muted);
+  margin: 0;
+}
+</style>

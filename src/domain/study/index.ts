@@ -13,17 +13,15 @@ export {
 } from "./attempts";
 export { gradeExercise, prepareKeys, type Answers, type Grading, type Keys } from "./grade";
 export { instantOf, millisecondsOf, notEarlierThan } from "./time";
+export { continueAt, progressOf, type Progress } from "./progress";
 export {
-  continueAt,
   initialAnswers,
   judgedAnswers,
-  progressOf,
   viewOfExercise,
   type ExerciseStatus,
   type ExerciseView,
   type FreeView,
   type ItemsView,
-  type Progress,
   type RowChange,
   type RowView,
 } from "./view";
