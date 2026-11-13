@@ -279,3 +279,51 @@ test.describe("DATA-012 Two tabs", () => {
     },
   );
 });
+
+/**
+ * Clears the site's IndexedDB as the browser's settings or developer tools do, with the page
+ * open: Chromium deletes the data and closes the page's connections. Only Chromium offers this to
+ * a test (its DevTools protocol).
+ */
+async function clearSiteData(page: Page, ownOrigin: string) {
+  const session = await page.context().newCDPSession(page);
+  await session.send("Storage.clearDataForOrigin", {
+    origin: ownOrigin,
+    storageTypes: "indexeddb",
+  });
+  await session.detach();
+}
+
+test.describe("The site's data cleared with the page open", () => {
+  test("@req DATA-004 adding the demo after the site's data was cleared opens the store again and keeps the books", async ({
+    page,
+    ownOrigin,
+  }) => {
+    await page.goto(addressOf("/"));
+    await expect(startButton(page)).toBeVisible();
+    await clearSiteData(page, ownOrigin);
+
+    await startButton(page).click();
+    // The browser may close the connection only once a write is refused on it; trying again
+    // then opens the database again (DATA-004).
+    await expect(addedHeading(page).or(retryButton(page))).toBeVisible();
+    if (await retryButton(page).isVisible()) await retryButton(page).click();
+
+    await expect(addedHeading(page)).toBeVisible();
+    await page.reload();
+    await expect(addedHeading(page)).toBeVisible();
+  });
+
+  test("@req DATA-001 a page that shows the demo as added stops saying so when it regains focus after the site's data was cleared", async ({
+    page,
+    ownOrigin,
+  }) => {
+    await addDemo(page);
+    await clearSiteData(page, ownOrigin);
+
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+
+    await expect(startButton(page)).toBeVisible();
+    await expect(addedHeading(page)).toHaveCount(0);
+  });
+});
