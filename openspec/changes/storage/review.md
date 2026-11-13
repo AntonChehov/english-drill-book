@@ -47,14 +47,33 @@ Verdict: changes requested
 - Not raised: `getExerciseState` opens a readwrite transaction for every read, so reads queue behind writes. That is acceptable at this size.
 - C-01: the fixture, test packs and e2e data read as written for this repository.
 
+## Round 2
+
+Reviewed: 01cc2c9644ac
+Verdict: approved
+
+- F1: fixed
+  The round-1 inputs, run through `deriveExercise` with Node in a scratch probe, now give the following. Take-back: `done: false`, item 1 `bad`, set by hand. Undo: done again, `doneAt` the check's time. Override of an older check: items 1 and 2 `ok`, nothing set by hand. Also checked: counting the last wrong item as correct completes; a later wrong check keeps done; two overrides of one check, the latest wins; the same log continued from a cut and shuffled gives the same state. The cached record carries `derivation`, and dropping that comparison fails "a cache of another derivation … is rebuilt". `newAttempt` refuses `corrects`/`overridden` outside an override.
+- F2: fixed
+  The store notices `close` and `InvalidStateError`, and `getStore` drops it. Removing the `onClose` reset in `src/ui/storage.ts` fails two unit tests and both new Chromium tests, which clear the site data through the DevTools protocol, so the end-to-end tests are not passing vacuously. No write is reported as kept: a transaction on a closed connection aborts and rejects. `markClosed` runs once per store, so one closed connection resets `opening` once.
+- F3: fixed
+  Changing an `at` of the version-1 fixture to `yesterday` now fails "the packs and attempts of the fixtures are valid".
+
+### Notes
+
+- Range read: `git diff 301db0b..HEAD` (20 files), with `derive.ts`, the store, `idb.ts`, `src/ui/storage.ts` and `DemoBooks.vue` re-read whole. Round 1 still stands for the rest of the diff. Run here: `pnpm test` (717 pass), `pnpm lint`, `pnpm check`, `pnpm build`, `pnpm size` (initial JS 40.42 kB gzip), `pnpm exec playwright test --project=chromium` (49 pass). Mutations, each restored: ignoring `corrects` fails 2 tests; replacing the earliest `doneAt` with the latest fails 2; dropping the `close` listener fails 2; not calling `onClose` from the store fails 4.
+- Not raised, by the rule of design D3: an override is ordered by its own `at`. An override written in the same millisecond as its check with a smaller id, or after the device clock stepped back between the check and the override, sorts before the check. It is then left out, and the learner's change disappears from the state although it stays in the log. A human cannot click within one millisecond, and a clock stepping back is rare. Slice 1.5 could rule it out by writing an override's `at` no earlier than its check's.
+- Not raised: after the store is reopened, the start screen's `BroadcastChannel` subscription stays on the closed store's channel (`onStoredDataChange` subscribes once). A visible second window then updates on focus only, not at once. DATA-012 rests on focus (design D6), so the requirement holds.
+- Not raised: a tab showing the demo as added now turns back to "not added" on focus when the stored packs are `stale`. Two builds of the app open after a deploy could therefore re-read and overwrite each other's demo packs, once per start or click. Nothing is lost: the packs are regenerated from the PDFs.
+
 ## Requirement coverage
 
 | Requirement | Implemented | Tests |
 | --- | --- | --- |
-| DATA-001 | src/storage/db/store.ts (packs, drafts, settings), src/ui/components/DemoBooks.vue `check`, src/domain/books/demo/kept.ts | store.test.ts "packs, drafts and settings"; kept.test.ts; e2e/storage.spec.ts DATA-001 (kept, revalidated, nothing sent, little stored); e2e/demo.spec.ts reload |
+| DATA-001 | src/storage/db/store.ts (packs, drafts, settings), src/ui/components/DemoBooks.vue `check` (also on focus when shown as added), src/domain/books/demo/kept.ts | store.test.ts "packs, drafts and settings"; kept.test.ts; e2e/storage.spec.ts DATA-001 (kept, revalidated, nothing sent, little stored, not shown as kept after the site data is cleared); e2e/demo.spec.ts reload |
 | DATA-002 | src/domain/progress/attempt.ts `newAttempt`, src/storage/db/store.ts `appendAttempt` (`add` only) | attempt.test.ts; store.test.ts "the attempt log" |
-| DATA-003 | src/domain/progress/derive.ts, src/storage/db/store.ts `currentState` | derive.test.ts; store.test.ts "the cached state of an exercise"; migrations.test.ts older data (stale fixture cache) |
-| DATA-004 | src/storage/db/idb.ts `transact`, errors.ts, src/ui/demo/messages.ts `keepFailureMessage`, DemoBooks.vue `add` | idb.test.ts; store.test.ts "failed writes"; messages.test.ts; e2e/storage.spec.ts DATA-004 |
+| DATA-003 | src/domain/progress/derive.ts (groups of a check and its overrides, `DERIVATION`), src/storage/db/store.ts `currentState` | derive.test.ts (take-back, undo, older check, fold property); store.test.ts "the cached state of an exercise" (another derivation); migrations.test.ts older data (stale fixture cache) |
+| DATA-004 | src/storage/db/idb.ts `transact` and `close`, errors.ts, store.ts `markClosed`, src/ui/storage.ts `getStore`, src/ui/demo/messages.ts `keepFailureMessage`, DemoBooks.vue `add` | idb.test.ts; store.test.ts "failed writes" and "a connection the browser closes"; src/ui/storage.test.ts; messages.test.ts; e2e/storage.spec.ts DATA-004 and the site data cleared |
 | DATA-005 | src/storage/db/schema.ts, idb.ts `openDatabase`, src/ui/storage.ts, src/ui/components/NewerVersion.vue | migrations.test.ts; idb.test.ts newer-version; e2e/storage.spec.ts DATA-005 |
 | DATA-012 | src/storage/db/store.ts (one transaction per write, `onOtherTabWrite`), src/ui/storage.ts `onStoredDataChange` | two-connections.test.ts; e2e/storage.spec.ts DATA-012 |
 

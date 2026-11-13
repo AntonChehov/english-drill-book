@@ -22,6 +22,6 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 ## 4. Review and evidence
 
 - [x] 4.1 Run `pnpm verify` from a clean build; verify it passes and coverage of `src/domain` is at least 95 % — every step of `pnpm verify` from an empty `dist`, the end-to-end tests on Chromium and Firefox (WebKit does not start on this machine; CI runs it); `src/domain` 99.69 % lines, 98.44 % branches; initial JavaScript 40.42 kB gzip; Lighthouse performance and accessibility 1
-- [ ] 4.2 Open the pull request as the bot with the sections of C-18 item 1
-- [ ] 4.3 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; the same reviewing agent, resumed, writes each later round until one approves the latest content; verify the `evidence` check is green
+- [x] 4.2 Open the pull request as the bot with the sections of C-18 item 1 — pull request [#14](https://github.com/AntonChehov/english-drill-book/pull/14)
+- [x] 4.3 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; the same reviewing agent, resumed, writes each later round until one approves the latest content; verify the `evidence` check is green — round 1 raised F1 – F3; fixed and confirmed by the same reviewing agent, resumed, in round 2, which approved the content `01cc2c9644ac`
 - [ ] 4.4 **(owner)** Read the pull request and the declined findings, approve and merge
