@@ -4,8 +4,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 1. Logic of an exercise
 
-- [ ] 1.1 Write `gradeExercise` and `viewOfExercise` in `src/domain/study` as in design D5; verify with unit tests named `@req PLAY-003`, `@req PLAY-004`, `@req PLAY-006`, `@req PLAY-011` over the demo packs
-- [ ] 1.2 Write `checkAttempt`, `revealAttempt`, `overrideAttempt` and `markDoneAttempt`; verify with unit tests named `@req PLAY-007`, `@req PLAY-008`, `@req PLAY-009`, `@req PLAY-010` that the attempts they build, run through `deriveExercise`, give the states of the delta spec, including an override whose clock is behind its check's
+- [x] 1.1 Write `gradeExercise` and `viewOfExercise` in `src/domain/study` as in design D5; verify with unit tests named `@req PLAY-003`, `@req PLAY-004`, `@req PLAY-006`, `@req PLAY-011` over the demo packs — `src/domain/study/{grade,view}.test.ts` over the demo course pass; `src/domain/study` covered 100 % of lines and branches
+- [x] 1.2 Write `checkAttempt`, `revealAttempt`, `overrideAttempt` and `markDoneAttempt`; verify with unit tests named `@req PLAY-007`, `@req PLAY-008`, `@req PLAY-009`, `@req PLAY-010` that the attempts they build, run through `deriveExercise`, give the states of the delta spec, including an override whose clock is behind its check's — `src/domain/study/attempts.test.ts` and `time.test.ts` pass, the clock-behind case lands 1 ms after the check and after the earlier override
 
 ## 2. The frame and the start screen
 
