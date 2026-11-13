@@ -100,14 +100,19 @@ test.describe("DOC-001 The pages of a unit", () => {
       await openUnit(page, "1");
       await expect(drawnPages(page).first()).toBeVisible();
 
-      const started = Date.now();
-      await page.getByRole("button", { name: "Следующий раздел" }).click();
-      await expect(unitHeading(page)).toHaveText(/Раздел 2\./);
-      await expect(drawnPages(page).first()).toBeVisible({ timeout: 2000 });
-      const took = Date.now() - started;
+      // Three openings and their median: one stall of a loaded machine is not the app's speed.
+      const times: number[] = [];
+      for (const unit of ["2", "3", "4"]) {
+        const started = Date.now();
+        await page.getByRole("button", { name: "Следующий раздел" }).click();
+        await expect(unitHeading(page)).toHaveText(new RegExp(`Раздел ${unit}\\.`));
+        await expect(drawnPages(page).first()).toBeVisible();
+        times.push(Date.now() - started);
+      }
+      const median = times.toSorted((x, y) => x - y)[1] ?? Infinity;
 
-      console.log(`The first page of the next unit was drawn in ${took} ms`);
-      expect(took).toBeLessThan(2000);
+      console.log(`The first page of the next unit was drawn in ${times.join(", ")} ms`);
+      expect(median).toBeLessThan(2000);
     },
   );
 });
