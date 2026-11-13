@@ -2,7 +2,7 @@
 
 ## Now
 
-**M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Slice 1.2 is done: the answer checker is in `src/domain/checking`, not yet called by any screen. Slice 1.3 is done: two demo books are served with the app, read into packs in the browser and listed on the start screen. Next: slice 1.4, storage and the attempt log.
+**M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Slice 1.2 is done: the answer checker is in `src/domain/checking`, not yet called by any screen. Slice 1.3 is done: two demo books are served with the app, read into packs in the browser and listed on the start screen. Slice 1.4 is done: packs, the attempt log and its derived state are kept in the browser, and the demo stays added. Next: the study screen.
 
 ## Milestones
 
@@ -53,3 +53,4 @@ Placement test (find the learner's level and the topics to skip). Own exercise b
 - 2026-11-12 — slice 1.2 (`answer-checker`, pull request #8): key patterns, normalisation and the verdicts `ok`, `near` and `bad`, CHK-001 – CHK-009 and CHK-012 – CHK-014, with limits on the size of a pattern, a key and an answer. Archived; `openspec/specs/answer-checking` holds its requirements.
 - 2026-11-12 — `review-follow-ups` (pull request #10): the same reviewing agent writes every round of a change; an HTML comment anywhere in the review record is refused. Archived.
 - 2026-11-13 — slice 1.3 (`demo-books`, pull request #12): two original demo books as PDFs, the reader of their layout, validation of packs, "Try the demo" on the start screen; PACK-001 – PACK-003. Archived; `openspec/specs/content-packs` holds its requirements.
+- 2026-11-13 — slice 1.4 (`storage`, pull request #14): IndexedDB behind a typed store, the append-only attempt log with derived state, a versioned schema, two tabs; DATA-001 – DATA-005, DATA-012. Archived; `openspec/specs/progress-data` holds its requirements.
