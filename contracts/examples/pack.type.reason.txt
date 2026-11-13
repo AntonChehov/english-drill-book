@@ -1,0 +1,3 @@
+rule: type
+path: /units/0/exercises/0/items/0/prompt
+The prompt of an item is a number, not a string.

@@ -7,6 +7,10 @@
   --color-border: #d4d4d8;
   --color-link: #1d4ed8;
   --color-focus: #2563eb;
+  --color-button: #1d4ed8;
+  --color-button-hover: #1e40af;
+  --color-button-text: #ffffff;
+  --color-error: #b42318;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +21,10 @@
     --color-border: #3f3f46;
     --color-link: #93b4ff;
     --color-focus: #93b4ff;
+    --color-button: #93b4ff;
+    --color-button-hover: #b9cdff;
+    --color-button-text: #111318;
+    --color-error: #ff8a80;
   }
 }
 

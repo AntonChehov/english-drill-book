@@ -1,0 +1,3 @@
+rule: unique-unit-id
+path: /units/1/id
+Two units have the ID 1.

@@ -1,0 +1,3 @@
+rule: const
+path: /schemaVersion
+The format version is 2; this schema describes format 1.

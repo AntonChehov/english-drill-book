@@ -1,0 +1,842 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "demo-course",
+  "version": "1.0.0",
+  "title": "Everyday Grammar: A Demo Course",
+  "language": "en",
+  "instructionLanguage": "en",
+  "original": true,
+  "license": "CC-BY-4.0",
+  "source": {
+    "title": "Everyday Grammar: A Demo Course",
+    "authors": [
+      "English Drill Book project"
+    ],
+    "edition": "1",
+    "year": 2026,
+    "documents": [
+      {
+        "role": "book",
+        "sha256": "3fee82fb7bf060f52defd2091003414e5503c564caf1a9b0c26dac78b0873019",
+        "pages": 12
+      }
+    ]
+  },
+  "units": [
+    {
+      "id": "1",
+      "title": "To be: am, is, are",
+      "pages": [
+        {
+          "document": "book",
+          "from": 3,
+          "to": 4
+        }
+      ],
+      "exercises": [
+        {
+          "id": "1.1",
+          "type": "items",
+          "task": "Complete the sentences with am, is or are.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 4,
+              "to": 4
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "My name ___ Marta.",
+              "accept": [
+                "is"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "I ___ from a small town by the sea.",
+              "accept": [
+                "am"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "Omar and Priya ___ in the garden.",
+              "accept": [
+                "are"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "The soup ___ very hot.",
+              "accept": [
+                "is"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "You ___ early today!",
+              "accept": [
+                "are"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "It ___ cold in this room.",
+              "accept": [
+                "is"
+              ]
+            },
+            {
+              "id": "7",
+              "prompt": "We ___ ready for the test.",
+              "accept": [
+                "are"
+              ]
+            },
+            {
+              "id": "8",
+              "prompt": "I ___ hungry. Is there any bread?",
+              "accept": [
+                "am"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "type": "items",
+          "task": "Choose the correct word.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 4,
+              "to": 4
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "The keys ___ on the table.",
+              "accept": [
+                "are"
+              ],
+              "choices": [
+                "is",
+                "are"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "My bike ___ blue and white.",
+              "accept": [
+                "is"
+              ],
+              "choices": [
+                "is",
+                "are"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "___ you a teacher?",
+              "accept": [
+                "Are"
+              ],
+              "choices": [
+                "Am",
+                "Is",
+                "Are"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "Sven ___ not at work today.",
+              "accept": [
+                "is"
+              ],
+              "choices": [
+                "is",
+                "are"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "These shoes ___ new.",
+              "accept": [
+                "are"
+              ],
+              "choices": [
+                "is",
+                "are"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "I ___ in the kitchen.",
+              "accept": [
+                "am"
+              ],
+              "choices": [
+                "am",
+                "is"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "type": "items",
+          "task": "Make the sentences negative.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 4,
+              "to": 4
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "I am tired.",
+              "accept": [
+                "I am not tired"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "The bus is late.",
+              "accept": [
+                "The bus is not late"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "We are at home.",
+              "accept": [
+                "We are not at home"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "My phone is in my bag.",
+              "accept": [
+                "My phone is not in my bag"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "Kofi and Nell are friends.",
+              "accept": [
+                "Kofi and Nell are not friends"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Present simple",
+      "pages": [
+        {
+          "document": "book",
+          "from": 5,
+          "to": 6
+        }
+      ],
+      "exercises": [
+        {
+          "id": "2.1",
+          "type": "items",
+          "task": "Write the verb in brackets in the present simple.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 6,
+              "to": 6
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "My aunt ___ in a small town. (live)",
+              "accept": [
+                "lives"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "We ___ to work by bus. (go)",
+              "accept": [
+                "go"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "Ivo ___ his teeth after breakfast. (brush)",
+              "accept": [
+                "brushes"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "The baby ___ a lot at night. (cry)",
+              "accept": [
+                "cries"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "They ___ football on Sundays. (play)",
+              "accept": [
+                "play"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "My dog ___ the postman. (not like)",
+              "accept": [
+                "doesn't like"
+              ]
+            },
+            {
+              "id": "7",
+              "prompt": "Dasha ___ two cats and a parrot. (have)",
+              "accept": [
+                "has"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "type": "items",
+          "task": "Choose do or does.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 6,
+              "to": 6
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "___ you speak French?",
+              "accept": [
+                "Do"
+              ],
+              "choices": [
+                "Do",
+                "Does"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "Where ___ your brother work?",
+              "accept": [
+                "does"
+              ],
+              "choices": [
+                "do",
+                "does"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "I ___ not eat fish.",
+              "accept": [
+                "do"
+              ],
+              "choices": [
+                "do",
+                "does"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "___ the train stop at this station?",
+              "accept": [
+                "Does"
+              ],
+              "choices": [
+                "Do",
+                "Does"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "What time ___ your lessons start?",
+              "accept": [
+                "do"
+              ],
+              "choices": [
+                "do",
+                "does"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "Marta ___ not watch TV.",
+              "accept": [
+                "does"
+              ],
+              "choices": [
+                "do",
+                "does"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "type": "text",
+          "task": "Read about Omar. Write the text again with the verbs in the present simple.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 6,
+              "to": 6
+            }
+          ],
+          "prompt": "Omar (live) in a flat near the river. He (get) up at seven and (have) a quick breakfast. Then he (walk) to the library, where he (look) after old maps. In the evening he (cook) dinner and (call) his sister.",
+          "model": "Omar lives in a flat near the river. He gets up at seven and has a quick breakfast. Then he walks to the library, where he looks after old maps. In the evening he cooks dinner and calls his sister."
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "A and an",
+      "pages": [
+        {
+          "document": "book",
+          "from": 7,
+          "to": 9
+        }
+      ],
+      "exercises": [
+        {
+          "id": "3.1",
+          "type": "items",
+          "task": "Choose a or an.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 8,
+              "to": 8
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "She eats ___ apple every day.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "We have ___ new teacher.",
+              "accept": [
+                "a"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "Take ___ umbrella. It might rain.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "My dad is ___ engineer.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "They live in ___ old house.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "Can I have ___ glass of water?",
+              "accept": [
+                "a"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "7",
+              "prompt": "He waited for ___ hour.",
+              "accept": [
+                "an"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            },
+            {
+              "id": "8",
+              "prompt": "This is ___ useful map.",
+              "accept": [
+                "a"
+              ],
+              "choices": [
+                "a",
+                "an"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "type": "items",
+          "task": "Write a or an before each word.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 8,
+              "to": 8
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "___ egg",
+              "accept": [
+                "an (egg)"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "___ banana",
+              "accept": [
+                "a (banana)"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "___ island",
+              "accept": [
+                "an (island)"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "___ uniform",
+              "accept": [
+                "a (uniform)"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "___ orange",
+              "accept": [
+                "an (orange)"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "___ desk",
+              "accept": [
+                "a (desk)"
+              ]
+            },
+            {
+              "id": "7",
+              "prompt": "___ ice cream",
+              "accept": [
+                "an (ice cream)"
+              ]
+            },
+            {
+              "id": "8",
+              "prompt": "___ holiday",
+              "accept": [
+                "a (holiday)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "type": "items",
+          "task": "What do these people do? Write a sentence about each person with a or an.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 8,
+              "to": 9
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "Priya / doctor. She works at the hospital in the centre of town.",
+              "accept": [
+                "Priya is a doctor",
+                "She is a doctor"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "Sven / actor. He is in a play at the theatre this month.",
+              "accept": [
+                "Sven is an actor",
+                "He is an actor"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "my uncle / farmer. He has sheep, hens and a very old tractor.",
+              "accept": [
+                "My uncle is a farmer",
+                "He is a farmer"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "Nell / architect. She draws plans for new schools and libraries.",
+              "accept": [
+                "Nell is an architect",
+                "She is an architect"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "Bruno / taxi driver. He knows every street in the city.",
+              "accept": [
+                "Bruno is a taxi driver",
+                "He is a taxi driver"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "my cousin / artist. She paints large pictures of the sea.",
+              "accept": [
+                "My cousin is an artist",
+                "She is an artist"
+              ]
+            },
+            {
+              "id": "7",
+              "prompt": "Kofi / engineer. He builds bridges over rivers and roads.",
+              "accept": [
+                "Kofi is an engineer",
+                "He is an engineer"
+              ]
+            },
+            {
+              "id": "8",
+              "prompt": "Dasha / police officer. She works at night in the old part of town.",
+              "accept": [
+                "Dasha is a police officer",
+                "She is a police officer"
+              ]
+            },
+            {
+              "id": "9",
+              "prompt": "Ivo / waiter. He brings coffee and cake to the people at the tables.",
+              "accept": [
+                "Ivo is a waiter",
+                "He is a waiter"
+              ]
+            },
+            {
+              "id": "10",
+              "prompt": "my neighbour / English teacher. Her students are adults.",
+              "accept": [
+                "My neighbour is an English teacher",
+                "She is an English teacher"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "There is and there are",
+      "pages": [
+        {
+          "document": "book",
+          "from": 10,
+          "to": 11
+        }
+      ],
+      "exercises": [
+        {
+          "id": "4.1",
+          "type": "items",
+          "task": "Complete the sentences with there is or there are.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 11,
+              "to": 11
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "___ a big tree in our garden.",
+              "accept": [
+                "There is"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "___ three bedrooms in the flat.",
+              "accept": [
+                "There are"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "___ some milk in the fridge.",
+              "accept": [
+                "There is"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "___ two cafes in the village.",
+              "accept": [
+                "There are"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "___ a problem with my phone.",
+              "accept": [
+                "There is"
+              ]
+            },
+            {
+              "id": "6",
+              "prompt": "___ lots of people at the station.",
+              "accept": [
+                "There are"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4.2",
+          "type": "items",
+          "task": "Choose the correct beginning.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 11,
+              "to": 11
+            }
+          ],
+          "items": [
+            {
+              "id": "1",
+              "prompt": "___ a bank near here?",
+              "accept": [
+                "Is there"
+              ],
+              "choices": [
+                "Is there",
+                "Are there"
+              ]
+            },
+            {
+              "id": "2",
+              "prompt": "___ any shops in your street?",
+              "accept": [
+                "Are there"
+              ],
+              "choices": [
+                "Is there",
+                "Are there"
+              ]
+            },
+            {
+              "id": "3",
+              "prompt": "___ a cat on the sofa.",
+              "accept": [
+                "There is"
+              ],
+              "choices": [
+                "There is",
+                "There are"
+              ]
+            },
+            {
+              "id": "4",
+              "prompt": "___ any eggs in the box?",
+              "accept": [
+                "Are there"
+              ],
+              "choices": [
+                "Is there",
+                "Are there"
+              ]
+            },
+            {
+              "id": "5",
+              "prompt": "___ many trees in the park.",
+              "accept": [
+                "There are"
+              ],
+              "choices": [
+                "There is",
+                "There are"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4.3",
+          "type": "open",
+          "task": "Write four sentences about your room. Use there is and there are.",
+          "pages": [
+            {
+              "document": "book",
+              "from": 11,
+              "to": 11
+            }
+          ],
+          "prompt": "Ideas: a bed, a window, a desk, some books, a lamp, some pictures, a plant.",
+          "sample": "There is a bed next to the window. There are some books on the desk. There isn't a television. There are two pictures on the wall."
+        }
+      ]
+    }
+  ]
+}

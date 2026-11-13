@@ -1,0 +1,3 @@
+rule: no-accepted-choice
+path: /units/1/exercises/0/items/0/choices
+The key accepts neither of the choices.

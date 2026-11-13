@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { mergeMetrics, readMetrics } from "./common.mjs";
-import { formatKb, gzipSize, initialFiles, measure } from "./size.mjs";
+import { formatKb, gzipSize, initialFiles, laterFiles, measure } from "./size.mjs";
 
 const manifest = {
   "index.html": {
@@ -33,6 +33,23 @@ describe("initialFiles", () => {
     expect(initialFiles({ a: { file: "a.js", isEntry: true, imports: ["gone"] } }).js).toEqual([
       "a.js",
     ]);
+  });
+});
+
+describe("laterFiles", () => {
+  it("lists the chunks that load on demand and the scripts they use, not the initial ones", () => {
+    const withWorker = {
+      ...manifest,
+      "src/pdf.ts": {
+        ...manifest["src/pdf.ts"],
+        assets: ["assets/worker.mjs", "assets/font.woff2"],
+      },
+    };
+    expect(laterFiles(withWorker)).toEqual(["assets/pdf.js", "assets/worker.mjs"]);
+  });
+
+  it("lists nothing when everything loads with the first screen", () => {
+    expect(laterFiles({ a: { file: "a.js", isEntry: true } })).toEqual([]);
   });
 });
 

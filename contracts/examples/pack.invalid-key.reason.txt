@@ -1,0 +1,3 @@
+rule: invalid-key
+path: /units/0/exercises/0/items/0/accept/0
+The pattern opens a group it never closes (CHK-002).

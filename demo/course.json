@@ -1,0 +1,550 @@
+{
+  "id": "demo-course",
+  "version": "1.0.0",
+  "layout": "course",
+  "title": "Everyday Grammar: A Demo Course",
+  "subtitle": "Four short units of English grammar",
+  "level": "A1",
+  "authors": ["English Drill Book project"],
+  "edition": "1",
+  "year": 2026,
+  "license": "CC-BY-4.0",
+  "about": [
+    "This short course shows how English Drill Book works. Each unit has a page that explains one point of grammar and a page of exercises. The answers are at the back of the book.",
+    "Read the explanation first, then do the exercises. Write your answers in the app or in a notebook, and check them with the key. The companion book, Everyday Grammar: Demo Drills, has more practice on the same four topics."
+  ],
+  "units": [
+    {
+      "title": "To be: am, is, are",
+      "explanation": [
+        {
+          "type": "paragraph",
+          "text": "We use the verb be to say who people are, where they are and what they are like. Be has three forms in the present: am, is and are."
+        },
+        {
+          "type": "rule",
+          "title": "Positive",
+          "rows": [
+            ["I", "am", "I'm cold."],
+            ["he, she, it", "is", "She's at work."],
+            ["we, you, they", "are", "They're my neighbours."]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "To make a negative, put not after am, is or are. In speech we usually use the short forms isn't and aren't. There is no short form of am not: say I'm not."
+        },
+        {
+          "type": "examples",
+          "lines": [
+            "I'm not late, the bus is early.",
+            "The shop isn't open on Mondays.",
+            "Our cats aren't in the house."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "In a question the verb comes before the person or thing. A question word, such as where or how, comes first of all."
+        },
+        {
+          "type": "examples",
+          "lines": ["Are you tired?", "Is this your scarf?", "Where is the station?"]
+        },
+        {
+          "type": "note",
+          "title": "Short answers",
+          "text": "Answer a yes or no question with the person and the verb: Yes, I am. No, she isn't. In a positive short answer, do not use the short form: Yes, we are, not Yes, we're."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "items",
+          "task": "Complete the sentences with am, is or are.",
+          "items": [
+            {
+              "prompt": "My name ___ Marta.",
+              "accept": ["is"]
+            },
+            {
+              "prompt": "I ___ from a small town by the sea.",
+              "accept": ["am"]
+            },
+            {
+              "prompt": "Omar and Priya ___ in the garden.",
+              "accept": ["are"]
+            },
+            {
+              "prompt": "The soup ___ very hot.",
+              "accept": ["is"]
+            },
+            {
+              "prompt": "You ___ early today!",
+              "accept": ["are"]
+            },
+            {
+              "prompt": "It ___ cold in this room.",
+              "accept": ["is"]
+            },
+            {
+              "prompt": "We ___ ready for the test.",
+              "accept": ["are"]
+            },
+            {
+              "prompt": "I ___ hungry. Is there any bread?",
+              "accept": ["am"]
+            }
+          ]
+        },
+        {
+          "type": "items",
+          "task": "Choose the correct word.",
+          "items": [
+            {
+              "prompt": "The keys ___ on the table.",
+              "choices": ["is", "are"],
+              "accept": ["are"]
+            },
+            {
+              "prompt": "My bike ___ blue and white.",
+              "choices": ["is", "are"],
+              "accept": ["is"]
+            },
+            {
+              "prompt": "___ you a teacher?",
+              "choices": ["Am", "Is", "Are"],
+              "accept": ["Are"]
+            },
+            {
+              "prompt": "Sven ___ not at work today.",
+              "choices": ["is", "are"],
+              "accept": ["is"]
+            },
+            {
+              "prompt": "These shoes ___ new.",
+              "choices": ["is", "are"],
+              "accept": ["are"]
+            },
+            {
+              "prompt": "I ___ in the kitchen.",
+              "choices": ["am", "is"],
+              "accept": ["am"]
+            }
+          ]
+        },
+        {
+          "type": "items",
+          "task": "Make the sentences negative.",
+          "answerLines": true,
+          "items": [
+            {
+              "prompt": "I am tired.",
+              "accept": ["I am not tired"]
+            },
+            {
+              "prompt": "The bus is late.",
+              "accept": ["The bus is not late"]
+            },
+            {
+              "prompt": "We are at home.",
+              "accept": ["We are not at home"]
+            },
+            {
+              "prompt": "My phone is in my bag.",
+              "accept": ["My phone is not in my bag"]
+            },
+            {
+              "prompt": "Kofi and Nell are friends.",
+              "accept": ["Kofi and Nell are not friends"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Present simple",
+      "explanation": [
+        {
+          "type": "paragraph",
+          "text": "We use the present simple for things that are true in general and for things we do again and again: habits, routines and timetables."
+        },
+        {
+          "type": "rule",
+          "title": "Positive",
+          "rows": [
+            ["I, you, we, they", "work", "I work in a shop."],
+            ["he, she, it", "works", "She works in a bank."]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "After he, she and it, add -s to the verb. Verbs that end in -ch, -sh, -s, -x or -o add -es: watch, watches; go, goes. A consonant and y becomes -ies: study, studies. Have becomes has."
+        },
+        {
+          "type": "paragraph",
+          "text": "Negatives and questions use do or does and the plain verb, with no -s."
+        },
+        {
+          "type": "examples",
+          "lines": [
+            "I don't eat meat. Bruno doesn't drive.",
+            "Do you like tea? Does she live here?",
+            "Where do your parents work?"
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Careful",
+          "text": "Does already shows that the person is he, she or it, so the verb after it stays plain: Does he work? not Does he works?"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "items",
+          "task": "Write the verb in brackets in the present simple.",
+          "items": [
+            {
+              "prompt": "My aunt ___ in a small town. (live)",
+              "accept": ["lives"]
+            },
+            {
+              "prompt": "We ___ to work by bus. (go)",
+              "accept": ["go"]
+            },
+            {
+              "prompt": "Ivo ___ his teeth after breakfast. (brush)",
+              "accept": ["brushes"]
+            },
+            {
+              "prompt": "The baby ___ a lot at night. (cry)",
+              "accept": ["cries"]
+            },
+            {
+              "prompt": "They ___ football on Sundays. (play)",
+              "accept": ["play"]
+            },
+            {
+              "prompt": "My dog ___ the postman. (not like)",
+              "accept": ["doesn't like"]
+            },
+            {
+              "prompt": "Dasha ___ two cats and a parrot. (have)",
+              "accept": ["has"]
+            }
+          ]
+        },
+        {
+          "type": "items",
+          "task": "Choose do or does.",
+          "items": [
+            {
+              "prompt": "___ you speak French?",
+              "choices": ["Do", "Does"],
+              "accept": ["Do"]
+            },
+            {
+              "prompt": "Where ___ your brother work?",
+              "choices": ["do", "does"],
+              "accept": ["does"]
+            },
+            {
+              "prompt": "I ___ not eat fish.",
+              "choices": ["do", "does"],
+              "accept": ["do"]
+            },
+            {
+              "prompt": "___ the train stop at this station?",
+              "choices": ["Do", "Does"],
+              "accept": ["Does"]
+            },
+            {
+              "prompt": "What time ___ your lessons start?",
+              "choices": ["do", "does"],
+              "accept": ["do"]
+            },
+            {
+              "prompt": "Marta ___ not watch TV.",
+              "choices": ["do", "does"],
+              "accept": ["does"]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "task": "Read about Omar. Write the text again with the verbs in the present simple.",
+          "prompt": "Omar (live) in a flat near the river. He (get) up at seven and (have) a quick breakfast. Then he (walk) to the library, where he (look) after old maps. In the evening he (cook) dinner and (call) his sister.",
+          "model": "Omar lives in a flat near the river. He gets up at seven and has a quick breakfast. Then he walks to the library, where he looks after old maps. In the evening he cooks dinner and calls his sister."
+        }
+      ]
+    },
+    {
+      "title": "A and an",
+      "explanation": [
+        {
+          "type": "paragraph",
+          "text": "Use a or an before a singular noun when you talk about one thing, or when you say what something or somebody is."
+        },
+        {
+          "type": "rule",
+          "title": "Which one?",
+          "rows": [
+            ["a", "before a consonant sound", "a cup, a lemon, a house"],
+            ["an", "before a vowel sound", "an egg, an onion, an idea"]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The sound decides, not the letter. Hour starts with a vowel sound, because the h is silent, so we say an hour. Uniform and university start with a y sound, so we say a uniform."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use a or an when you say what job somebody does."
+        },
+        {
+          "type": "examples",
+          "lines": ["She is a pilot.", "My cousin is an electrician.", "Is he a student?"]
+        },
+        {
+          "type": "note",
+          "title": "Careful",
+          "text": "Do not use a or an with a plural noun: apples, not an apples. And do not leave it out before a job: I am a nurse, not I am nurse."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "items",
+          "task": "Choose a or an.",
+          "items": [
+            {
+              "prompt": "She eats ___ apple every day.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "We have ___ new teacher.",
+              "choices": ["a", "an"],
+              "accept": ["a"]
+            },
+            {
+              "prompt": "Take ___ umbrella. It might rain.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "My dad is ___ engineer.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "They live in ___ old house.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "Can I have ___ glass of water?",
+              "choices": ["a", "an"],
+              "accept": ["a"]
+            },
+            {
+              "prompt": "He waited for ___ hour.",
+              "choices": ["a", "an"],
+              "accept": ["an"]
+            },
+            {
+              "prompt": "This is ___ useful map.",
+              "choices": ["a", "an"],
+              "accept": ["a"]
+            }
+          ]
+        },
+        {
+          "type": "items",
+          "task": "Write a or an before each word.",
+          "items": [
+            {
+              "prompt": "___ egg",
+              "accept": ["an (egg)"]
+            },
+            {
+              "prompt": "___ banana",
+              "accept": ["a (banana)"]
+            },
+            {
+              "prompt": "___ island",
+              "accept": ["an (island)"]
+            },
+            {
+              "prompt": "___ uniform",
+              "accept": ["a (uniform)"]
+            },
+            {
+              "prompt": "___ orange",
+              "accept": ["an (orange)"]
+            },
+            {
+              "prompt": "___ desk",
+              "accept": ["a (desk)"]
+            },
+            {
+              "prompt": "___ ice cream",
+              "accept": ["an (ice cream)"]
+            },
+            {
+              "prompt": "___ holiday",
+              "accept": ["a (holiday)"]
+            }
+          ]
+        },
+        {
+          "type": "items",
+          "task": "What do these people do? Write a sentence about each person with a or an.",
+          "answerLines": true,
+          "items": [
+            {
+              "prompt": "Priya / doctor. She works at the hospital in the centre of town.",
+              "accept": ["Priya is a doctor", "She is a doctor"]
+            },
+            {
+              "prompt": "Sven / actor. He is in a play at the theatre this month.",
+              "accept": ["Sven is an actor", "He is an actor"]
+            },
+            {
+              "prompt": "my uncle / farmer. He has sheep, hens and a very old tractor.",
+              "accept": ["My uncle is a farmer", "He is a farmer"]
+            },
+            {
+              "prompt": "Nell / architect. She draws plans for new schools and libraries.",
+              "accept": ["Nell is an architect", "She is an architect"]
+            },
+            {
+              "prompt": "Bruno / taxi driver. He knows every street in the city.",
+              "accept": ["Bruno is a taxi driver", "He is a taxi driver"]
+            },
+            {
+              "prompt": "my cousin / artist. She paints large pictures of the sea.",
+              "accept": ["My cousin is an artist", "She is an artist"]
+            },
+            {
+              "prompt": "Kofi / engineer. He builds bridges over rivers and roads.",
+              "accept": ["Kofi is an engineer", "He is an engineer"]
+            },
+            {
+              "prompt": "Dasha / police officer. She works at night in the old part of town.",
+              "accept": ["Dasha is a police officer", "She is a police officer"]
+            },
+            {
+              "prompt": "Ivo / waiter. He brings coffee and cake to the people at the tables.",
+              "accept": ["Ivo is a waiter", "He is a waiter"]
+            },
+            {
+              "prompt": "my neighbour / English teacher. Her students are adults.",
+              "accept": ["My neighbour is an English teacher", "She is an English teacher"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "There is and there are",
+      "explanation": [
+        {
+          "type": "paragraph",
+          "text": "Use there is and there are to say that something exists, or to say where it is. The noun after them decides which one you use."
+        },
+        {
+          "type": "rule",
+          "title": "Positive",
+          "rows": [
+            ["there is", "+ a singular noun", "There is a bank in our street."],
+            ["there are", "+ a plural noun", "There are two parks near the school."]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The short form of there is is there's. For negatives use isn't and aren't. In questions, is or are comes first."
+        },
+        {
+          "type": "examples",
+          "lines": [
+            "There isn't a lift in this building.",
+            "Are there any eggs in the fridge?",
+            "Yes, there are. No, there aren't."
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Some and any",
+          "text": "With a plural noun, use some in positive sentences and any in negatives and questions: There are some cups. There aren't any spoons. Are there any forks?"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "items",
+          "task": "Complete the sentences with there is or there are.",
+          "items": [
+            {
+              "prompt": "___ a big tree in our garden.",
+              "accept": ["There is"]
+            },
+            {
+              "prompt": "___ three bedrooms in the flat.",
+              "accept": ["There are"]
+            },
+            {
+              "prompt": "___ some milk in the fridge.",
+              "accept": ["There is"]
+            },
+            {
+              "prompt": "___ two cafes in the village.",
+              "accept": ["There are"]
+            },
+            {
+              "prompt": "___ a problem with my phone.",
+              "accept": ["There is"]
+            },
+            {
+              "prompt": "___ lots of people at the station.",
+              "accept": ["There are"]
+            }
+          ]
+        },
+        {
+          "type": "items",
+          "task": "Choose the correct beginning.",
+          "items": [
+            {
+              "prompt": "___ a bank near here?",
+              "choices": ["Is there", "Are there"],
+              "accept": ["Is there"]
+            },
+            {
+              "prompt": "___ any shops in your street?",
+              "choices": ["Is there", "Are there"],
+              "accept": ["Are there"]
+            },
+            {
+              "prompt": "___ a cat on the sofa.",
+              "choices": ["There is", "There are"],
+              "accept": ["There is"]
+            },
+            {
+              "prompt": "___ any eggs in the box?",
+              "choices": ["Is there", "Are there"],
+              "accept": ["Are there"]
+            },
+            {
+              "prompt": "___ many trees in the park.",
+              "choices": ["There is", "There are"],
+              "accept": ["There are"]
+            }
+          ]
+        },
+        {
+          "type": "open",
+          "task": "Write four sentences about your room. Use there is and there are.",
+          "prompt": "Ideas: a bed, a window, a desk, some books, a lamp, some pictures, a plant.",
+          "sample": "There is a bed next to the window. There are some books on the desk. There isn't a television. There are two pictures on the wall."
+        }
+      ]
+    }
+  ]
+}

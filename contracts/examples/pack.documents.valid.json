@@ -1,0 +1,46 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "example-worksheet",
+  "version": "1.0.0",
+  "title": "Example: a worksheet read from a PDF",
+  "language": "en",
+  "instructionLanguage": "en",
+  "original": true,
+  "license": "CC-BY-4.0",
+  "source": {
+    "title": "Example worksheet",
+    "authors": ["English Drill Book project"],
+    "edition": "1",
+    "year": 2026,
+    "documents": [
+      { "role": "book", "sha256": "0000000000000000000000000000000000000000000000000000000000000003", "pages": 2 }
+    ]
+  },
+  "units": [
+    {
+      "id": "1",
+      "title": "Can and can't",
+      "pages": [{ "document": "book", "from": 1, "to": 2 }],
+      "exercises": [
+        {
+          "id": "1.1",
+          "type": "items",
+          "task": "Complete with can or can't.",
+          "pages": [{ "document": "book", "from": 1, "to": 1 }],
+          "items": [
+            { "id": "1", "prompt": "Penguins ___ fly, but they swim well.", "accept": ["can't", "cannot"] },
+            { "id": "2", "prompt": "Our cat ___ open the fridge door.", "accept": ["can"], "choices": ["can", "can't"] }
+          ]
+        },
+        {
+          "id": "1.2",
+          "type": "open",
+          "task": "Write two things you can do and one thing you can't do.",
+          "pages": [{ "document": "book", "from": 2, "to": 2 }],
+          "sample": "I can ride a bike. I can make bread. I can't whistle."
+        }
+      ]
+    }
+  ]
+}

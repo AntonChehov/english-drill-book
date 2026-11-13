@@ -20,7 +20,7 @@ Unit, exercise and item IDs come from the book's own numbering (unit 5, exercise
 - **PACK-001 [M1]** Every pack, bundled or built from a file, is validated against `pack.schema.json` and the semantic rules below before it is stored. An error names the JSON path and the rule that failed.
 - **PACK-002 [M1]** Semantic rules beyond the schema:
   1. unit IDs are unique in the pack; exercise IDs are unique in the pack; item IDs are unique in their exercise;
-  2. every `accept` pattern parses (`CHK-002`) and expands to at most 4000 variants;
+  2. the `accept` of every item builds a valid key (`CHK-002`): every pattern is valid and the key as a whole is within its limits;
   3. for an item with `choices`, at least one choice is accepted by the key.
 - **PACK-003 [M1]** The demo book is added with one action and needs no file from the learner. It needs a network connection when it is added and when its pages are shown; it is not kept for offline use.
 

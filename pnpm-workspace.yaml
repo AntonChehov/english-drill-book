@@ -4,3 +4,8 @@ overrides:
   # proxy-agent for ftp:// addresses, which the pipeline never uses. Remove once
   # get-uri depends on a patched version.
   basic-ftp: 6.2.6
+
+# pdfjs-dist draws pages in Node with this native canvas; the app draws in the browser and the
+# tests read text only, so the native module is never needed.
+ignoredOptionalDependencies:
+  - "@napi-rs/canvas"

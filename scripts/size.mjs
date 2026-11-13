@@ -30,6 +30,20 @@ export function initialFiles(manifest) {
   return { js: [...js].toSorted(), css: [...css].toSorted() };
 }
 
+/**
+ * The scripts the first screen does not load: chunks imported dynamically and files they use,
+ * such as the worker of the PDF library. They are outside the budget and listed for the record.
+ */
+export function laterFiles(manifest, initial = initialFiles(manifest)) {
+  const files = new Set();
+  for (const chunk of Object.values(manifest)) {
+    for (const file of [chunk.file, ...(chunk.assets ?? [])]) {
+      if (/\.m?js$/.test(file) && !initial.js.includes(file)) files.add(file);
+    }
+  }
+  return [...files].toSorted();
+}
+
 /** Gzipped size in bytes, at the level static hosts commonly serve. */
 export function gzipSize(content) {
   return gzipSync(content, { level: 9 }).length;
@@ -73,17 +87,22 @@ function main() {
     js: Number(values["js-budget"] ?? budgets.js),
     css: Number(values["css-budget"] ?? budgets.css),
   };
-  const { size, over } = measure(
-    initialFiles(manifest),
-    (file) => readFileSync(join(values.dist, file)),
-    limits,
-  );
-  mergeMetrics(values.metrics, { size });
+  const read = (file) => readFileSync(join(values.dist, file));
+  const initial = initialFiles(manifest);
+  const { size, over } = measure(initial, read, limits);
+  const later = laterFiles(manifest, initial).map((file) => {
+    const content = read(file);
+    return { file, bytes: content.length, gzip: gzipSize(content) };
+  });
+  mergeMetrics(values.metrics, { size: { ...size, later } });
 
   for (const kind of ["js", "css"]) {
     console.log(
       `Initial ${kind}: ${formatKb(size[kind].gzip)} gzip of ${formatKb(size[kind].budget)}`,
     );
+  }
+  for (const { file, gzip } of later) {
+    console.log(`Loaded later, outside the budget: ${file} ${formatKb(gzip)} gzip`);
   }
   if (over.length > 0) {
     console.error(`Bundle budget exceeded (constitution C-06):\n- ${over.join("\n- ")}`);
