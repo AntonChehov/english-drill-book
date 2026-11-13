@@ -2,25 +2,30 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-Bju5pYQE.js"
+        "assets/index-8WWyzl_Y.js"
       ],
-      "bytes": 97255,
-      "gzip": 37107,
+      "bytes": 106743,
+      "gzip": 40423,
       "budget": 120000
     },
     "css": {
       "files": [
-        "assets/index-CdEZ9TDk.css"
+        "assets/index-COSSKkxX.css"
       ],
-      "bytes": 2150,
-      "gzip": 803,
+      "bytes": 2193,
+      "gzip": 817,
       "budget": 20000
     },
     "later": [
       {
-        "file": "assets/add-demo-BsLUbmQ6.js",
-        "bytes": 19636,
-        "gzip": 7660
+        "file": "assets/add-demo-DJqpjVMq.js",
+        "bytes": 7713,
+        "gzip": 3206
+      },
+      {
+        "file": "assets/kept-B6cOLauV.js",
+        "bytes": 491,
+        "gzip": 342
       },
       {
         "file": "assets/pdf-YwugTw7Y.js",
@@ -31,29 +36,34 @@
         "file": "assets/pdf.worker.min-CIqJB0yW.mjs",
         "bytes": 1271915,
         "gzip": 379243
+      },
+      {
+        "file": "assets/profiles-CmfSymNq.js",
+        "bytes": 11911,
+        "gzip": 4728
       }
     ]
   },
-  "sha": "2e7dee3d676b037275a8f15fc98c649073683e9f",
+  "sha": "1d861579ef2e68044043ed11dc0e08d8d5dcdc3a",
   "tests": {
     "unit": {
-      "tests": 613,
-      "passed": 613,
+      "tests": 717,
+      "passed": 717,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 69,
-      "passed": 69,
+      "tests": 107,
+      "passed": 107,
       "failed": 0,
       "skipped": 0
     }
   },
   "coverage": {
-    "lines": 99.65,
+    "lines": 99.69,
     "branches": 98.44,
     "functions": 100,
-    "statements": 99.56
+    "statements": 99.62
   },
   "lighthouse": {
     "performance": 100,
@@ -62,6 +72,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 120
+    "seconds": 136
   }
 }
