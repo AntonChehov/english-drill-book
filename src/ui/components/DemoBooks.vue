@@ -1,11 +1,21 @@
 <script setup lang="ts">
-// The demo section of the start screen (PACK-003, design D8): one button adds the two demo books,
-// progress and failure are said in place, and a failure offers to try again without a reload.
-// The button stays where it is while the books are read, inactive, so the focus stays on it.
-import { computed, nextTick, useTemplateRef } from "vue";
+// The demo section of the start screen (PACK-003, design D8 of `demo-books`): one button adds the
+// two demo books, progress and failure are said in place, and a failure offers to try again without
+// a reload. The button stays where it is while the books are read, inactive, so the focus stays on
+// it. The books are shown as added only once they are stored, and stay added after a reload and in
+// other tabs (DATA-001, DATA-004, DATA-012; design D4, D6, D7 of `storage`).
+import { computed, nextTick, onMounted, onUnmounted, useTemplateRef } from "vue";
+import type { Pack } from "../../domain/packs/types";
 import { countOf } from "../../domain/plural";
-import { failureMessage, failureOf, progressMessage } from "../demo/messages";
-import { demoState } from "../demo/state";
+import {
+  failureMessage,
+  failureOf,
+  keepFailureMessage,
+  keepingMessage,
+  progressMessage,
+} from "../demo/messages";
+import { demoState, summaryOf, type DemoState } from "../demo/state";
+import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
 
 const heading = useTemplateRef<HTMLElement>("heading");
 const action = useTemplateRef<HTMLButtonElement>("action");
@@ -17,35 +27,87 @@ const retrying = computed(
     (demoState.value.phase === "reading" && demoState.value.retry),
 );
 
-async function add() {
+/** Reads the demo books from their PDFs into packs, saying which book is read. */
+async function readDemo(retry: boolean): Promise<readonly Pack[]> {
+  const { addDemo } = await import("../demo/add-demo");
+  return addDemo((progress) => {
+    demoState.value = { phase: "reading", message: progressMessage(progress), retry };
+  });
+}
+
+/**
+ * Reads the demo books, unless they were read before a failure to keep them, and stores them.
+ * `quietly` when the app does it by itself on start: the focus is left where it is.
+ */
+async function add(quietly = false) {
   if (reading.value) return;
   const retry = retrying.value;
-  demoState.value = { phase: "reading", message: "Загружаем демо-книги…", retry };
+  let packs = demoState.value.phase === "failed" ? demoState.value.packs : undefined;
+  demoState.value = {
+    phase: "reading",
+    message: packs === undefined ? "Загружаем демо-книги…" : keepingMessage,
+    retry,
+  };
   try {
-    const { addDemo } = await import("../demo/add-demo");
-    const packs = await addDemo((progress) => {
-      demoState.value = { phase: "reading", message: progressMessage(progress), retry };
-    });
-    demoState.value = {
-      phase: "added",
-      books: packs.map((pack) => ({
-        id: pack.id,
-        title: pack.title,
-        units: pack.units.map((unit) => ({
-          id: unit.id,
-          title: unit.title,
-          exercises: unit.exercises.length,
-        })),
-      })),
-    };
+    packs ??= await readDemo(retry);
+    await (await getStore()).putPacks(packs);
+    demoState.value = { phase: "added", books: summaryOf(packs) };
     await nextTick();
-    heading.value?.focus();
+    if (!quietly) heading.value?.focus();
   } catch (error) {
-    demoState.value = { phase: "failed", message: failureMessage(failureOf(error)) };
+    noteStorageFailure(error);
+    demoState.value =
+      packs === undefined
+        ? { phase: "failed", message: failureMessage(failureOf(error)) }
+        : { phase: "failed", message: keepFailureMessage(error), packs };
     await nextTick();
-    action.value?.focus();
+    if (!quietly) action.value?.focus();
   }
 }
+
+let checking = false;
+const phaseNow = (): DemoState["phase"] => demoState.value.phase;
+
+/**
+ * Shows the demo as added when its packs are stored (design D7), on start and whenever another
+ * tab may have added it (design D6). On start, stored packs that cannot be used are read again
+ * from the PDFs. Nothing changes while the books are being added here.
+ */
+async function check() {
+  const phase = demoState.value.phase;
+  if (checking || phase === "reading" || phase === "added") return;
+  const starting = phase === "loading";
+  checking = true;
+  try {
+    const stored = await (await getStore()).getPacks();
+    // The validator is loaded only when there is something to validate.
+    const kept =
+      stored.length === 0
+        ? ({ kind: "none" } as const)
+        : (await import("../../domain/books/demo/kept")).keptDemo(stored);
+    // Read again: the visitor may have added the demo while the store was read.
+    const now = phaseNow();
+    if (now === "reading" || now === "added") return;
+    if (kept.kind === "kept") demoState.value = { phase: "added", books: summaryOf(kept.packs) };
+    else if (kept.kind === "stale" && starting) {
+      checking = false;
+      await add(true);
+    } else if (now === "loading") demoState.value = { phase: "idle" };
+  } catch (error) {
+    // Nothing kept can be read: the demo can still be added, and says so if it cannot be kept.
+    noteStorageFailure(error);
+    if (demoState.value.phase === "loading") demoState.value = { phase: "idle" };
+  } finally {
+    checking = false;
+  }
+}
+
+let stopWatching: (() => void) | undefined;
+onMounted(() => {
+  void check();
+  stopWatching = onStoredDataChange(() => void check());
+});
+onUnmounted(() => stopWatching?.());
 
 const exercises = ["упражнение", "упражнения", "упражнений"] as const;
 </script>
@@ -69,7 +131,7 @@ const exercises = ["упражнение", "упражнения", "упражн
       type="button"
       class="action"
       :aria-disabled="reading ? 'true' : undefined"
-      @click="add"
+      @click="add()"
     >
       {{ retrying ? "Попробовать ещё раз" : "Попробовать демо" }}
     </button>
@@ -81,8 +143,8 @@ const exercises = ["упражнение", "упражнения", "упражн
 
     <template v-if="demoState.phase === 'added'">
       <p>
-        Обе книги прочитаны. Пока они не сохраняются: после перезагрузки страницы демо нужно
-        добавить снова.
+        Обе книги прочитаны и сохранены в этом браузере: они останутся здесь и после перезагрузки
+        страницы.
       </p>
       <ul class="books">
         <li v-for="book in demoState.books" :key="book.id">
@@ -115,21 +177,6 @@ h2 {
 h3 {
   font-size: 1.05rem;
   margin: 1rem 0 0.25rem;
-}
-
-.action {
-  background: var(--color-button);
-  border: 0;
-  border-radius: 0.375rem;
-  color: var(--color-button-text);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-}
-
-.action:hover {
-  background: var(--color-button-hover);
 }
 
 .action[aria-disabled="true"] {

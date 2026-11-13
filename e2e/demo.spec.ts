@@ -262,7 +262,7 @@ test.describe("PACK-003 The demo book", () => {
   );
 
   test(
-    "@req PACK-003 the demo stays added when the visitor goes to another view and back",
+    "@req PACK-003 @req DATA-001 the demo stays added when the visitor goes to another view and back, and after a reload",
     { tag: "@demo" },
     async ({ page }) => {
       await addDemo(page);
@@ -271,7 +271,8 @@ test.describe("PACK-003 The demo book", () => {
       await expect(addedHeading(page)).toBeVisible();
 
       await page.reload();
-      await expect(startButton(page)).toBeVisible();
+      await expect(addedHeading(page)).toBeVisible();
+      await expect(startButton(page)).toHaveCount(0);
     },
   );
 });

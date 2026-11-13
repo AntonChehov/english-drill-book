@@ -1,5 +1,7 @@
-// What the start screen says while the demo is added and when adding it fails (design D8).
+// What the start screen says while the demo is added and when adding or keeping it fails (design
+// D8 of `demo-books`, D4 of `storage`).
 
+import { StorageError } from "../../storage/db/errors";
 import type { DemoFailure, DemoProgress } from "./add-demo";
 
 export function progressMessage({ book, index, count }: DemoProgress): string {
@@ -33,5 +35,25 @@ export function failureMessage(failure: DemoFailure | "network" | undefined): st
       return `Демо-книгу «${failure.book}» не удалось прочитать: файл повреждён или не той версии. Попробуйте ещё раз, а если не поможет, обновите страницу.`;
     case "insecure":
       return `Демо-книгу «${failure.book}» нельзя проверить: страница открыта по незащищённому адресу, и браузер не даёт сверить файл. Откройте приложение по адресу, который начинается с https://.`;
+  }
+}
+
+/** Said while the books, read earlier, are stored again after a failure. */
+export const keepingMessage = "Сохраняем демо-книги…";
+
+/**
+ * Why the books, read and checked, could not be kept in this browser (DATA-004), in words with no
+ * technical terms.
+ */
+export function keepFailureMessage(error: unknown): string {
+  const start = "Демо-книги прочитаны, но сохранить их в этом браузере не удалось";
+  const kind = error instanceof StorageError ? error.kind : "failed";
+  switch (kind) {
+    case "unavailable":
+      return `${start}: браузер не разрешает этому сайту хранить данные. Так бывает в режиме инкогнито или когда сохранение данных сайтов выключено в настройках браузера. Разрешите его и попробуйте ещё раз.`;
+    case "quota":
+      return `${start}: на устройстве не хватает места. Освободите место и попробуйте ещё раз.`;
+    default:
+      return `${start}. Попробуйте ещё раз.`;
   }
 }
