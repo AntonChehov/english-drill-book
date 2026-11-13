@@ -18,8 +18,12 @@ A visitor opens the link, tries the demo book, sees its pages beside its exercis
 | 1.2 Answer checker | CHK-001 – CHK-009, CHK-012 – CHK-014 |
 | 1.3 Demo books and their reader | two original PDFs (a short course, a short drill book); the profile and reader for their layout; PACK-001 – PACK-003 |
 | 1.4 Storage and attempt log | DATA-001 – DATA-005, DATA-012 |
-| 1.5 Study: pages and exercises | PLAY-001 – PLAY-011, PLAY-015, DOC-001 – DOC-006, DOC-008, DOC-009 |
-| 1.6 Shell: first run, Today as a unit list, themes | PROD-002 – PROD-007, PROD-009, PROD-011, PROG-014 |
+| 1.5 Study: exercises beside pages | PLAY-001 – PLAY-011, PLAY-013, PLAY-015, DOC-001, DOC-008, PROG-014, PROD-006, PROD-007 |
+| 1.6 Two books joined, first cut | brought forward from milestone 2: a topic is a unit of the course with its exercises in the drill book; Today with the two steps, Topics; PLAY-017, PLAY-018 and the PROG requirements its proposal names |
+| 1.7 Pages panel tools | DOC-002 – DOC-006, DOC-009 |
+| 1.8 Shell: first run, themes, failures | PROD-002 – PROD-005, PROD-009, PROD-011 |
+
+The order was changed on 2026-11-13 at the owner's request: what a visitor can use comes first, and the interface follows the owner's private predecessor (`docs/product/08-interface-reference.md`).
 
 ### M2 — Program: two books joined
 
