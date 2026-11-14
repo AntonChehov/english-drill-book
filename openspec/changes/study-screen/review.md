@@ -68,6 +68,26 @@ Verdict: approved
 - The first writer still clears `writing` for its exercise while a second write of the same exercise is in flight; with `stored` taken from the edits each write began with, the worst outcome is one draft written twice.
 - The notes of round 1 on the pages panel, the focus after a pressed button is removed, the number of transactions the start screen makes for each write of another tab, and the untested pause of 400 ms stand as written.
 
+## Round 3
+
+Reviewed: 3d1cea89c875
+Verdict: changes requested
+
+### F6 After «Добавить демо-книги и открыть раздел» the focus is lost and nothing is said
+
+- Where: src/ui/study/unit.ts:427 (`addDemoAndOpen`), src/ui/study/StudyView.vue:80
+- Problem: the button the learner pressed is removed with the whole state `demo-missing` when the unit opens, and nothing takes the focus: `StudyView` moves it to the unit's title only when `history.state.back` is not null, and an address opened in a fresh browser, which is the case this state exists for, has no `back`. The focus falls to `body`, and no live region says that the books were added or which unit opened, so a screen reader user hears nothing after pressing the button; the next Tab lands on «Предыдущий раздел». Probed on Chromium and Firefox, both themes: the address of unit 2 of the drill book in a clean profile, the button pressed with Enter, the fetch failed once and repeated with Enter: the focus is on **Попробовать ещё раз** after the failure, as it should be, and on `BODY` once «Раздел 2. Present simple» is shown. Everywhere else the app moves the focus to the new heading when the learner's action replaces what they were on: the start screen after adding the demo (`DemoBooks.vue`), Study opened from another screen or another unit (design D7, C-07).
+- What should happen: when the unit opens after the demo was added from this state, the focus goes to the unit's title, as when the unit is opened from the start screen; for example `watch(phase)` in `StudyView.vue` also focuses the title when the phase before `loading` was `demo-missing`. Add the check to the new test in `e2e/study-frame.spec.ts` (`await expect(unitHeading(page)).toBeFocused()`).
+
+### Notes
+
+- Range read: `git diff 6e525d2..HEAD` at `42d2d26` in full (`src/storage/db/store.ts` and its test, `src/ui/demo/progress.ts`, `src/ui/study/unit.ts`, `src/ui/study/StudyView.vue`, `e2e/fixtures.ts`, `e2e/pages.spec.ts`, `e2e/study-frame.spec.ts`, `e2e/study-reread.spec.ts`), by hand, with the rest of the change as read in rounds 1 and 2. `pnpm check` (41 requirements traced, no advisories), `pnpm test:coverage` (743 tests, all files 99.67 % of lines), `pnpm build` and `pnpm exec playwright test --project=chromium --project=firefox` (150 passed) all pass. The DOC-001 timing now logs 36 – 82 ms to the heading and 92 – 135 ms to the first drawn page on this machine. WebKit was not run: it cannot start on this machine.
+- While this round ran, the working tree gained uncommitted changes to `e2e/pages.spec.ts` and `src/ui/study/PagesPanel.vue` that are not mine; `pnpm review:hash` leaves them out, and this round reviewed `42d2d26` only. They will need a round once committed.
+- `getExerciseStates`: one read-write transaction with the same `currentState` for each key, so a stale or missing cache is rebuilt and written back as before; the states come back in the order asked for, and the new unit test clears the cache to prove it. This closes the note of round 1 on the number of transactions: Study now makes one for the whole book, the start screen one for each book.
+- Rereads one at a time: the probe of round 2 run again (a `focus` event, a check added to the log through a second connection, a second `focus` event at once): the header now shows «сделано 1 из 3» on Chromium and Firefox. Skipping only the exercise whose field has the focus is right, and the new test shows another exercise brought up to date while the typing and the focus stay.
+- The state `demo-missing` and its failure have no serious or critical axe violation in either theme (probed; they are not among the states of `e2e/study-a11y.spec.ts`). Not raised: a tab left on this state does not notice the demo added in another tab, and pressing its button then reads the books again and stores the same packs; a failure to keep the packs reads them again on the next try, where the start screen keeps what it read. Both are harmless.
+- Not raised: under heavy load the tests that add the demo inside a test wait the default 5 s for it. Repeating `e2e/study-frame.spec.ts` and `e2e/study-reread.spec.ts` 15 times on Firefox with 12 workers failed 25 of 180, nearly all on adding the demo within 5 s (the worker fixture, and 5 of 15 for the new clean-profile test of PROD-008), plus one console error of Playwright's own Firefox driver (`NS_BINDING_ABORTED` in `juggler`). This is the slowness of the known "both demo books read within 2000 ms" under load, not a fault of these commits; a longer timeout for the steps that add the demo would make the new test as robust as the fixture should be.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Tested by |
