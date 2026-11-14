@@ -191,8 +191,8 @@ describe("speed", () => {
   });
 
   it("@req CHK-014 checks a near answer against a key with 's and 'd in under 5 ms", () => {
-    const accept = "he's [ba|ca|da|fa|ga] [be|ce|de|fe|ge] [bi|ci|di|fi|gi] and she'd go";
-    const answer = "he's ga ge gi and she'd gx";
+    const accept = "he's [ba|ca|da|fa|ga] [be|ce|de|fe|ge] [bi|ci|di|fi|gi] and she'd travel";
+    const answer = "he's ga ge gi and she'd travek";
     expect(checkAnswer(keyOf([accept]), answer)).toBe("near");
     expect(measure("near", [accept], answer)).toBeLessThan(LIMIT_MS);
   });

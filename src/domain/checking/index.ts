@@ -4,6 +4,7 @@ export {
   checkAnswer,
   MAX_ANSWER_LENGTH,
   NEAR_MIN_LENGTH,
+  NEAR_MIN_WORD_LENGTH,
   type CheckOptions,
   type Verdict,
 } from "./check";
