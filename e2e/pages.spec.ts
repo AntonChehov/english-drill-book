@@ -158,6 +158,29 @@ test.describe("DOC-001 The pages of a unit", () => {
   );
 });
 
+test.describe("DOC-001 On a dense screen", () => {
+  test.use({ deviceScaleFactor: 2 });
+
+  test(
+    "@req DOC-001 on a screen of two pixels per CSS pixel, a page is shown at once and then drawn sharp, at the screen's density",
+    { tag: "@demo" },
+    async ({ page }) => {
+      await openUnit(page, "1");
+      const canvas = drawnPages(page).first();
+      await expect(canvas).toBeVisible();
+
+      await expect
+        .poll(() =>
+          canvas.evaluate((element) => {
+            const drawn = element as HTMLCanvasElement;
+            return drawn.width / drawn.getBoundingClientRect().width;
+          }),
+        )
+        .toBeGreaterThan(1.95);
+    },
+  );
+});
+
 test.describe("DOC-008 The demo needs a connection", () => {
   test(
     "@req DOC-008 the pages come from the app's own origin; offline the panel says the demo needs a connection, the exercises work, and repeating online shows the pages without a reload",

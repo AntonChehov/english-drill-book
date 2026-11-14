@@ -37,9 +37,16 @@ async function draw(page: number) {
   drawing.get(page)?.abort();
   const controller = new AbortController();
   drawing.set(page, controller);
+  // On a dense screen a page not shown yet is drawn twice: first at one pixel per CSS pixel, a
+  // quarter of the work, so it appears at once (DOC-001), then sharp over it.
+  const ratio = window.devicePixelRatio || 1;
+  const passes = ratio > 1 && !drawn.value.has(page) ? [1, ratio] : [ratio];
   try {
-    await pdf.draw(page, canvas, width, window.devicePixelRatio || 1, controller.signal);
-    if (!controller.signal.aborted) drawn.value = new Set(drawn.value).add(page);
+    for (const pass of passes) {
+      await pdf.draw(page, canvas, width, pass, controller.signal);
+      if (controller.signal.aborted) return;
+      if (!drawn.value.has(page)) drawn.value = new Set(drawn.value).add(page);
+    }
   } catch {
     // Cancelled because the panel changed width or closed; a page that cannot be drawn stays blank.
   } finally {
