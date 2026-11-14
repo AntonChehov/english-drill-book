@@ -16,6 +16,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 - [x] 2.4 Run the WebKit end-to-end tests in three parts instead of two, as the longer waits of 2.3 put the pipeline over C-19 (194 s); verify the pipeline of pull request #18 is within 180 s — the pipeline of pull request #18 took 153 s with WebKit in three parts
 
+- [ ] 2.5 Make the end-to-end test of reloading Study wait for the page to be drawn before and after the reload, as WebKit reports a worker of the PDF library cut off by the reload as an error in the console; verify the WebKit parts pass in the pipeline of pull request #18
+
 ## 3. Review and evidence
 
 - [x] 3.1 Run `pnpm verify`; verify it passes, WebKit by the pipeline — every gate passes in the pipeline of pull request #18 (WebKit there); locally `pnpm check`, 750 unit tests, 14 speed tests, 154 end-to-end tests on Chromium and Firefox
