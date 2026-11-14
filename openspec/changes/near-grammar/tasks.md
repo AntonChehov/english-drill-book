@@ -12,6 +12,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 - [x] 2.1 Update the hint of Study and the end-to-end tests that type an almost-right answer; verify the Study tests pass on Chromium and Firefox — the hint says a wrong short word or ending is «Неверно»; the almost-right answer of the Study tests is *lote* for *late*; 154 end-to-end tests pass on Chromium and Firefox
 - [x] 2.2 Update CHK-006 in `docs/product/03-answer-checking.md` and record the technical debt in `docs/roadmap.md` — CHK-006 in `docs/product/03-answer-checking.md` says why; the technical debt is under Later, unscheduled in `docs/roadmap.md`
 
+- [ ] 2.3 Give WebKit more time in the two end-to-end tests that failed on `main` after `study-screen` merged by WebKit's speed alone (the owner's technical debt): the drawing on a dense screen and the walk through every link of Study; verify they pass on Chromium and Firefox and, in the pipeline, on WebKit
+
 ## 3. Review and evidence
 
 - [ ] 3.1 Run `pnpm verify`; verify it passes, WebKit by the pipeline
