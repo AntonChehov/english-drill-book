@@ -1,0 +1,226 @@
+[
+  {
+    "file": "about-dark-1280.png",
+    "status": "changed",
+    "share": 0.0812197265625
+  },
+  {
+    "file": "about-dark-390.png",
+    "status": "changed",
+    "share": 0.14678525641025642
+  },
+  {
+    "file": "about-light-1280.png",
+    "status": "changed",
+    "share": 0.9416396484375
+  },
+  {
+    "file": "about-light-390.png",
+    "status": "changed",
+    "share": 0.9309294871794872
+  },
+  {
+    "file": "newer-version-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-light-1280.png",
+    "status": "changed",
+    "share": 0.9894111328125
+  },
+  {
+    "file": "newer-version-light-390.png",
+    "status": "changed",
+    "share": 0.9651698717948718
+  },
+  {
+    "file": "not-found-dark-1280.png",
+    "status": "changed",
+    "share": 0.0739921875
+  },
+  {
+    "file": "not-found-dark-390.png",
+    "status": "changed",
+    "share": 0.12572115384615384
+  },
+  {
+    "file": "not-found-light-1280.png",
+    "status": "changed",
+    "share": 0.9377333984375
+  },
+  {
+    "file": "not-found-light-390.png",
+    "status": "changed",
+    "share": 0.9181217948717949
+  },
+  {
+    "file": "start-dark-1280.png",
+    "status": "changed",
+    "share": 0.2030576171875
+  },
+  {
+    "file": "start-dark-390.png",
+    "status": "changed",
+    "share": 0.4225320512820513
+  },
+  {
+    "file": "start-demo-added-dark-1280.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-added-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-added-light-1280.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-added-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-failed-dark-1280.png",
+    "status": "changed",
+    "share": 0.251322265625
+  },
+  {
+    "file": "start-demo-failed-dark-390.png",
+    "status": "changed",
+    "share": 0.5835448717948718
+  },
+  {
+    "file": "start-demo-failed-light-1280.png",
+    "status": "changed",
+    "share": 0.7905029296875
+  },
+  {
+    "file": "start-demo-failed-light-390.png",
+    "status": "changed",
+    "share": 0.6051570512820513
+  },
+  {
+    "file": "start-demo-kept-dark-1280.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-kept-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-kept-light-1280.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-kept-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-not-kept-dark-1280.png",
+    "status": "changed",
+    "share": 0.2877373046875
+  },
+  {
+    "file": "start-demo-not-kept-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-not-kept-light-1280.png",
+    "status": "changed",
+    "share": 0.77153515625
+  },
+  {
+    "file": "start-demo-not-kept-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-light-1280.png",
+    "status": "changed",
+    "share": 0.8290087890625
+  },
+  {
+    "file": "start-light-390.png",
+    "status": "changed",
+    "share": 0.721849358974359
+  },
+  {
+    "file": "study-checked-dark-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-checked-dark-390.png",
+    "status": "added"
+  },
+  {
+    "file": "study-checked-light-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-checked-light-390.png",
+    "status": "added"
+  },
+  {
+    "file": "study-not-kept-dark-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-not-kept-dark-390.png",
+    "status": "added"
+  },
+  {
+    "file": "study-not-kept-light-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-not-kept-light-390.png",
+    "status": "added"
+  },
+  {
+    "file": "study-pages-offline-dark-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-pages-offline-dark-390.png",
+    "status": "added"
+  },
+  {
+    "file": "study-pages-offline-light-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-pages-offline-light-390.png",
+    "status": "added"
+  },
+  {
+    "file": "study-untouched-dark-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-untouched-dark-390.png",
+    "status": "added"
+  },
+  {
+    "file": "study-untouched-light-1280.png",
+    "status": "added"
+  },
+  {
+    "file": "study-untouched-light-390.png",
+    "status": "added"
+  }
+]
