@@ -97,6 +97,34 @@ test.describe("Study is read again", () => {
   );
 
   test(
+    "@req DATA-012 with a field of the same exercise focused, coming back shows the other tab's check, and the text of that field stays",
+    { tag: "@demo" },
+    async ({ page, context }) => {
+      await openUnit(page, "1");
+      const exercise = exerciseOf(page, "1.1");
+      await fieldOf(exercise, "3").fill("ar");
+      await expect.poll(() => draftsOf(page)).toBe(1);
+      await expect(fieldOf(exercise, "3")).toBeFocused();
+
+      const other = await context.newPage();
+      await openUnit(other, "1");
+      await fill(exerciseOf(other, "1.1"), answers11);
+      await checkButton(exerciseOf(other, "1.1")).click();
+      await expect(exerciseOf(other, "1.1")).toContainText("Сделано");
+
+      await page.bringToFront();
+      await regainFocus(page);
+
+      await expect(page.getByText("сделано 1 из 3")).toBeVisible();
+      await expect(exercise).toContainText("Сделано");
+      await expect(fieldOf(exercise, "1")).toHaveValue(answers11["1"]);
+      await expect(fieldOf(exercise, "8")).toHaveValue(answers11["8"]);
+      await expect(fieldOf(exercise, "3")).toHaveValue("ar");
+      await expect(fieldOf(exercise, "3")).toBeFocused();
+    },
+  );
+
+  test(
     "@req PLAY-006 a reread that began before a check does not take the result of the check back",
     { tag: "@demo" },
     async ({ page }) => {

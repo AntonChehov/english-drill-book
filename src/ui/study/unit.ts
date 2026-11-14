@@ -88,13 +88,18 @@ const idOf = (value: unknown): unknown =>
   typeof value === "object" && value !== null && "id" in value ? value.id : undefined;
 
 /**
- * The id of the exercise whose field has the focus, if one has: a reread leaves that exercise as
- * it is, and reads the others (its block's element id is `ex-` and its id with dashes).
+ * The field that has the focus, if one has: the element id of its exercise block (`ex-` and the
+ * exercise id with dashes) and its item. A reread keeps what is typed in that field.
  */
-function editedExercise(): string | undefined {
+function editedField(): { readonly block: string; readonly item: string } | undefined {
   const active = document.activeElement;
   if (!(active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement)) return;
-  return active.closest("article[id^='ex-']")?.id;
+  const block = active.closest("article[id^='ex-']")?.id;
+  if (block === undefined) return;
+  // Fields are `<block>-<item>-field`, or `<block>-text` for an open exercise (ExerciseBlock).
+  const rest = active.id.slice(block.length + 1);
+  const item = rest === "text" ? TEXT : rest.replace(/-field$/u, "");
+  return { block, item };
 }
 
 const elementIdOf = (entry: ExerciseEntry) => `ex-${entry.exercise.id.replaceAll(".", "-")}`;
@@ -221,9 +226,10 @@ export function useUnit(packId: string, unitId: string) {
 
   /**
    * Reads the unit again, as another tab may have changed it (DATA-012, design D6). An exercise is
-   * left as it is when it is being edited or what the screen holds is newer than what was read: its
-   * answers are not stored yet, an action on it is being written, or one was kept after the read
-   * began. A draft whose write failed is written again.
+   * left as it is when what the screen holds is newer than what was read: its answers are not
+   * stored yet, an action on it is being written, or one was kept after the read began. In the
+   * exercise being typed in, the focused field keeps its text; the rest is read again only when
+   * another tab added to its log. A draft whose write failed is written again.
    */
   async function reread() {
     const from = pack.value;
@@ -238,7 +244,7 @@ export function useUnit(packId: string, unitId: string) {
     );
     try {
       const read = await readUnit(await getStore(), from, shown);
-      const edited = editedExercise();
+      const edited = editedField();
       const kept = new Set<string>();
       read.exercises.forEach((fresh, index) => {
         const entry = entries.value[index];
@@ -247,11 +253,27 @@ export function useUnit(packId: string, unitId: string) {
         if (
           was === undefined ||
           !settled(entry) ||
-          elementIdOf(entry) === edited ||
           entry.edits !== was.edits ||
           entry.attempts !== was.attempts
         ) {
           kept.add(entry.exercise.id);
+          return;
+        }
+        const typing = edited?.block === elementIdOf(entry) ? edited.item : undefined;
+        if (typing !== undefined) {
+          // The state and the log are read in two transactions: a check of another tab between
+          // them gives a new log with the old state, which the next reread brings up to date.
+          const changed =
+            fresh.attempts.length !== entry.attempts.length ||
+            JSON.stringify(fresh.state) !== JSON.stringify(entry.state);
+          if (!changed) {
+            kept.add(entry.exercise.id);
+            return;
+          }
+          const text = entry.answers[typing];
+          entry.state = fresh.state;
+          entry.attempts = fresh.attempts;
+          entry.answers = { ...fresh.answers, ...(text === undefined ? {} : { [typing]: text }) };
           return;
         }
         entry.state = fresh.state;
