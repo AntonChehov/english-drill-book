@@ -47,6 +47,8 @@ Accounts and sync of the attempt log between devices. To be specified, with its 
 
 Placement test (find the learner's level and the topics to skip). Own exercise bank (original drills per topic, built in). See `docs/product/05-program-and-levels.md`, section Later.
 
+Technical debt, decided by the owner on 2026-11-14: the speed of Study on WebKit. In the pipeline's WebKit (two pixels per CSS pixel) the first page of a unit is drawn in 1.5–2 s, against about 0.1 s on Chromium and Firefox, and the end-to-end check of that time is skipped there. WebKit is not a target of the app for now; the test of PROD-002 and C-13 may need the same answer.
+
 ## Done
 
 - 2026-11-10 — first draft of the specification, contracts, constitution, factory graph, role prompts, holdout scenarios.
