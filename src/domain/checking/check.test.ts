@@ -4,6 +4,7 @@ import {
   compileKey,
   MAX_ANSWER_LENGTH,
   NEAR_MIN_LENGTH,
+  NEAR_MIN_WORD_LENGTH,
   type CheckOptions,
   type Verdict,
 } from "./index";
@@ -163,7 +164,7 @@ describe("checkAnswer", () => {
 
     it("@req CHK-006 is near for one letter too many or one replaced", () => {
       expect(verdict(["the weather is beautiful"], "the weather is beautifull")).toBe("near");
-      expect(verdict(["the weather is beautiful"], "the weather iz beautiful")).toBe("near");
+      expect(verdict(["the weather is beautiful"], "the weather is beautyful")).toBe("near");
     });
 
     it("@req CHK-006 is bad for a missing word", () => {
@@ -183,6 +184,47 @@ describe("checkAnswer", () => {
     it("@req CHK-006 is bad for two wrong letters", () => {
       expect(verdict(["I do not know"], "I do not no")).toBe("bad");
       expect(verdict(["I do not know"], "I do not knaw")).toBe("near");
+    });
+
+    it("@req CHK-006 is bad for the wrong article", () => {
+      expect(verdict(["she is an artist"], "she is a artist")).toBe("bad");
+      expect(verdict(["I have a car"], "I have an car")).toBe("bad");
+    });
+
+    it("@req CHK-006 is bad for a short word one letter off, which is grammar", () => {
+      expect(NEAR_MIN_WORD_LENGTH).toBe(4);
+      expect(verdict(["he is an engineer"], "he as an engineer")).toBe("bad");
+      expect(verdict(["the weather is beautiful"], "the weather iz beautiful")).toBe("bad");
+      expect(verdict(["they are at home"], "they ar at home")).toBe("bad");
+    });
+
+    it("@req CHK-006 is bad for a wrong ending -s, -es, -d or -ed", () => {
+      expect(verdict(["she lives in Paris"], "she live in Paris")).toBe("bad");
+      expect(verdict(["they play tennis"], "they plays tennis")).toBe("bad");
+      expect(verdict(["two brushes"], "two brushs")).toBe("bad");
+      expect(verdict(["I worked late"], "I workd late")).toBe("bad");
+      expect(verdict(["we liked it"], "we like it")).toBe("bad");
+    });
+
+    it("@req CHK-006 is near for a slip inside a longer word, at its end too when not an ending", () => {
+      expect(verdict(["she is an architect"], "she is an arhitect")).toBe("near");
+      expect(verdict(["they are friends"], "they are frients")).toBe("near");
+      expect(verdict(["a small village"], "a small vilage")).toBe("near");
+      expect(verdict(["I play the guitar"], "I play the guittar")).toBe("near");
+      expect(verdict(["a police officer"], "a police oficer")).toBe("near");
+      expect(verdict(["the bus is late"], "the bus is lote")).toBe("near");
+      expect(verdict(["the bus is late"], "the bus is lates")).toBe("bad");
+    });
+
+    it("@req CHK-006 places the edit in a word when the answer reads 's or 'd as two words", () => {
+      expect(verdict(["she is an artist"], "she's a artist")).toBe("bad");
+      expect(verdict(["he would like a coffee"], "he'd like a cofee")).toBe("near");
+      expect(verdict(["it has two brushes"], "it's two brushs")).toBe("bad");
+    });
+
+    it("@req CHK-006 takes an edit where two words meet as a slip only if it is one in both", () => {
+      expect(verdict(["a beautiful garden"], "a beautifu garden")).toBe("near");
+      expect(verdict(["she lives in Paris"], "she live in Paris")).toBe("bad");
     });
 
     it("@req CHK-006 is bad for a missing apostrophe, which changes the number of words", () => {

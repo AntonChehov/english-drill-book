@@ -93,6 +93,18 @@ function prepare(text: string): string {
 }
 
 /**
+ * The words of a text after steps 1 – 4 and 6 of CHK-003: its runs between white space, each with
+ * its kept characters only, the empty ones left out. `'s` and `'d` are kept as written, so joined
+ * they equal the text of a reading only when the text has neither.
+ */
+export function wordsOf(text: string): string[] {
+  return prepare(text)
+    .split(/\s+/u)
+    .map((run) => run.match(KEPT_CHARACTER)?.join("") ?? "")
+    .filter((word) => word !== "");
+}
+
+/**
  * A stretch of a text, read once however many readings it takes part in: its kept characters
  * (step 6 of CHK-003) and its runs between white space, of which only the first and the last
  * can join a neighbouring stretch. `single` is a stretch of one run, which is then both.
