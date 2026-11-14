@@ -88,6 +88,27 @@ Verdict: changes requested
 - The state `demo-missing` and its failure have no serious or critical axe violation in either theme (probed; they are not among the states of `e2e/study-a11y.spec.ts`). Not raised: a tab left on this state does not notice the demo added in another tab, and pressing its button then reads the books again and stores the same packs; a failure to keep the packs reads them again on the next try, where the start screen keeps what it read. Both are harmless.
 - Not raised: under heavy load the tests that add the demo inside a test wait the default 5 s for it. Repeating `e2e/study-frame.spec.ts` and `e2e/study-reread.spec.ts` 15 times on Firefox with 12 workers failed 25 of 180, nearly all on adding the demo within 5 s (the worker fixture, and 5 of 15 for the new clean-profile test of PROD-008), plus one console error of Playwright's own Firefox driver (`NS_BINDING_ABORTED` in `juggler`). This is the slowness of the known "both demo books read within 2000 ms" under load, not a fault of these commits; a longer timeout for the steps that add the demo would make the new test as robust as the fixture should be.
 
+## Round 4
+
+Reviewed: 561d2dcac64f
+Verdict: changes requested
+
+- F6: fixed
+  `StudyView` remembers that the state `demo-missing` was shown and gives the unit's title the focus when the unit then opens. The clean-profile test of PROD-008 now asserts it, and passes on Chromium and Firefox.
+
+### F7 The text kept in the focused field is not stored, and the next reread replaces it
+
+- Where: src/ui/study/unit.ts:262 – 276 (the branch of `reread` for the exercise being typed in), src/ui/study/unit.ts:348 (`flush`)
+- Problem: when another tab checked the exercise whose field has the focus, `reread` takes the other tab's answers for every other field and keeps the text of the focused field. That text is no longer what the store holds: the other tab's draft and check now give that item another answer. Yet `edits` and `stored` stay equal, so the entry counts as saved, and no draft is written. Leaving the field writes nothing either: `flush` only writes when a timer waits or the last write failed. The next reread that does not see the field focused finds the entry settled and unchanged, and replaces the field's text with the stored one, silently; a reload shows the stored one too. Probed on Chromium on the production build at `3a7c749`: «ar» typed in item 3 of 1.1 and its draft stored; 1.1 checked correctly in a second tab (item 3 «are»); back in the first tab with a `focus` event: the exercise is done and item 3 still says «ar», as the new test expects. Then a click on the unit's title, the stored draft still holds «are» for item 3, and one more `focus` event puts «are» in the field; after a reload it is «are» as well. The learner saw their text kept, and then lost it without typing anything.
+- What should happen: text the screen keeps over what was read is treated as an edit that is not stored yet. For example, in that branch, when the focused field's text differs from `fresh.answers[typing]`, count an edit (`entry.edits += 1`) and schedule the draft as `setAnswer` does, so that later rereads leave the exercise alone until the draft holds that text. Extend the new test in `e2e/study-reread.spec.ts`: after the other tab's check is shown, leave the field, give the window the focus again, and expect «ar» in item 3, before and after a reload.
+
+### Notes
+
+- Range read: `git diff 42d2d26..HEAD` in full (`src/ui/study/unit.ts`, `src/ui/study/StudyView.vue`, `src/ui/study/PagesPanel.vue`, `e2e/pages.spec.ts`, `e2e/study-frame.spec.ts`, `e2e/study-reread.spec.ts`, `docs/roadmap.md`), by hand, with the rest of the change as read in rounds 1 – 3. The two files round 3 saw uncommitted are in `e0cce17` and are reviewed here. Runs kept light, as the coordinator asked: `pnpm check` (41 requirements traced, no advisories), `pnpm test` (756 tests; `src/domain/checking/speed.test.ts` missed its 100 ms bound once at 114 ms on the shared machine and passed when run alone; that file is not in this change), `pnpm build`, and `e2e/study-reread.spec.ts`, `e2e/study-frame.spec.ts`, `e2e/pages.spec.ts` and `e2e/study-a11y.spec.ts` on Chromium and Firefox (44 passed). No stress loops this round.
+- The comparison of state and log in the typed-in exercise is right for the race the coordinator describes: a new log read with an older state is applied once and brought up to date by the next reread, instead of being kept for good. Comparing states with `JSON.stringify` may see a difference where only the order of keys differs (a state rebuilt from the log against a cached one); the only effect is that the exercise is read again, which is harmless.
+- `PagesPanel.vue`: the two passes are right with the aborts. An abort between them leaves the page drawn at one pixel per CSS pixel, and the next change of width or opening draws it again; a page already drawn is drawn once, sharp.
+- `docs/roadmap.md` records the speed of Study on WebKit as technical debt by the owner's decision, and the test of DOC-001 "within 2 seconds" is skipped there. C-13 lists Safari only for the demo books, so this is the owner's call, which the record shows.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Tested by |
