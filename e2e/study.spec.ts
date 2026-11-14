@@ -118,7 +118,7 @@ test.describe("PLAY-003 – PLAY-006 Checking", () => {
       const exercise = exerciseOf(page, "1.3");
       await fill(exercise, {
         "1": answers13["1"],
-        "2": "The bus is not lates",
+        "2": "The bus is not lote",
         "3": "We is home",
       });
       await checkButton(exercise).click();
@@ -137,14 +137,14 @@ test.describe("PLAY-003 – PLAY-006 Checking", () => {
         expect.objectContaining({
           exercise: "1.3",
           action: "check",
-          answers: { "1": answers13["1"], "2": "The bus is not lates", "3": "We is home" },
+          answers: { "1": answers13["1"], "2": "The bus is not lote", "3": "We is home" },
           results: { "1": "ok", "2": "near", "3": "bad" },
           complete: false,
         }),
       ]);
 
       // Almost and every other item right: still not done.
-      await fill(exercise, { ...answers13, "2": "The bus is not lates" });
+      await fill(exercise, { ...answers13, "2": "The bus is not lote" });
       await checkButton(exercise).click();
       await expect(exercise).toContainText("верно 4 из 5");
       await expect(exercise).toContainText("В работе");

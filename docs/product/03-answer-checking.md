@@ -32,7 +32,7 @@ Each gradable item has `accept`: a non-empty list of patterns. An answer is corr
 ## Verdicts
 
 - **CHK-005 [M1]** `ok` — some reading of the answer equals some reading of some variant after normalisation.
-- **CHK-006 [M1]** `near` — not `ok`, the normalised answer has at least 4 characters, and some variant has the same number of words as the answer and a Levenshtein distance of exactly 1 from it. Why the word count: a missing article is a grammar error, not a typo, and must be `bad`.
+- **CHK-006 [M1]** `near` — not `ok`, the normalised answer has at least 4 characters, and some variant has the same number of words as the answer and a Levenshtein distance of exactly 1 from it, the edit falling inside one word that has at least 4 characters in the variant and that does not differ from the variant's word only by an ending (`-s`, `-es`, `-d`, `-ed` or none in each). Why the word count: a missing article is a grammar error, not a typo, and must be `bad`. Why the word and the ending (changed by `near-grammar`, 2026-11-14): a wrong article, auxiliary or ending one letter off (*a artist*, *he as*, *she live*) is the grammar the item drills, not a slip of the pen.
 - **CHK-007 [M1]** `bad` — anything else that is not blank, and an answer of more than 1000 characters, which is not normalised or compared. Why: a pasted text must not hold up the check (CHK-014).
 - **CHK-008 [M1]** A blank answer is not checked and has no verdict, unless the key accepts blank (`CHK-001`), in which case it is `ok`.
 - **CHK-009 [M1]** For `choices` items the verdict is `ok` or `bad` by the same comparison; `near` does not apply.
