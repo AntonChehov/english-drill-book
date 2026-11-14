@@ -15,19 +15,15 @@ export async function readDone(books: readonly DemoBookSummary[]): Promise<void>
   try {
     const store = await getStore();
     const read = await Promise.all(
-      books.flatMap((book) =>
-        book.units.flatMap((unit) =>
-          unit.exercises.map(
-            async (exercise) =>
-              [
-                doneKey(book.id, exercise),
-                (await store.getExerciseState(book.id, exercise)).done,
-              ] as const,
-          ),
-        ),
-      ),
+      books.map(async (book) => {
+        const exercises = book.units.flatMap((unit) => unit.exercises);
+        const states = await store.getExerciseStates(book.id, exercises);
+        return exercises.map(
+          (exercise, index) => [doneKey(book.id, exercise), states[index]!.done] as const,
+        );
+      }),
     );
-    for (const [key, done] of read) doneExercises.set(key, done);
+    for (const [key, done] of read.flat()) doneExercises.set(key, done);
   } catch (error) {
     noteStorageFailure(error);
   }

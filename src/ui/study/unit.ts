@@ -86,14 +86,9 @@ const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
 
 /** The states of every exercise of the pack, and what the store holds for the exercises of `shown`. */
 async function readUnit(store: Store, from: Pack, shown: Unit) {
-  const states = await Promise.all(
-    from.units.flatMap((each) =>
-      each.exercises.map(
-        async (exercise) =>
-          [exercise.id, await store.getExerciseState(from.id, exercise.id)] as const,
-      ),
-    ),
-  );
+  const ids = from.units.flatMap((each) => each.exercises.map((exercise) => exercise.id));
+  const read = await store.getExerciseStates(from.id, ids);
+  const states = ids.map((id, index) => [id, read[index]!] as const);
   const stateOf = new Map(states);
   const exercises = await Promise.all(
     shown.exercises.map(async (exercise) => {
