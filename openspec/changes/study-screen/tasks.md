@@ -25,7 +25,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 ## 5. Review and evidence
 
 - [x] 5.1 Add Study in its states to the accessibility check and the screenshots, both themes, the pages panel masked; verify no serious or critical violation — `e2e/study-a11y.spec.ts` (untouched, checked, not kept, pages offline; both themes) reports none; `e2e/study-screenshots.spec.ts` makes 16 screenshots
-- [ ] 5.2 Run `pnpm verify` from a clean build; verify it passes, coverage of `src/domain` is at least 95 %, and the checks of a pull request finish within 3 minutes
+- [x] 5.2 Run `pnpm verify` from a clean build; verify it passes, coverage of `src/domain` is at least 95 %, and the checks of a pull request finish within 3 minutes — every gate of `pnpm verify` passes in the pipeline of pull request #16 (WebKit there, as it cannot start on the development machine); coverage of `src/domain` 99.74 % of lines; the pipeline takes 165 s with WebKit in two halves
 - [x] 5.3 Open the pull request as the bot with the sections of C-18 item 1; the changed screenshots are shown beside those of `main` — pull request #16
 - [x] 5.4 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; the same reviewing agent, resumed, writes each later round until one approves the latest content; verify the `evidence` check is green — five rounds in `review.md`, round 5 approves `cf740fa90a4d`
 - [x] 5.5 A validating agent runs the holdout scenarios of milestone 1 that Study makes possible against a production build; attach its report to the pull request — every milestone 1 scenario Study makes possible averages at least 0.9 on the final build; report on pull request #16
