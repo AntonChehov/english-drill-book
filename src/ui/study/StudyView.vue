@@ -69,15 +69,21 @@ function scrollToExercise(): boolean {
   return target !== null;
 }
 
+/** The demo was added from this screen: the unit that opens takes the focus (PROD-007). */
+let addedHere = false;
+
 watch(phase, async (now) => {
+  if (now === "demo-missing") addedHere = true;
   if (now === "not-found") document.title = documentTitle(appName, "Раздел не найден");
   if (now === "demo-missing") document.title = documentTitle(appName, "Демо-книги не добавлены");
   if (now !== "ready" || unit.value === undefined) return;
   document.title = documentTitle(appName, `Раздел ${unit.value.id}. ${unit.value.title}`);
   await nextTick();
   const scrolled = scrollToExercise();
-  // Opened from another screen of the app, or another unit: the focus starts at the unit's title.
-  if (router.options.history.state["back"] !== null) {
+  // Opened from another screen of the app, another unit, or by adding the demo here: the focus
+  // starts at the unit's title.
+  if (router.options.history.state["back"] !== null || addedHere) {
+    addedHere = false;
     heading.value?.focus({ preventScroll: scrolled });
   }
 });

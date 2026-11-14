@@ -65,6 +65,7 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
       await page.getByRole("button", { name: "Добавить демо-книги и открыть раздел" }).click();
 
       await expect(unitHeading(page)).toHaveText("Раздел 3. A and an");
+      await expect(unitHeading(page)).toBeFocused();
       await expect(exerciseOf(page, "3.2")).toBeInViewport();
       await page.getByRole("link", { name: "Сегодня" }).click();
       await expect(addedHeading(page)).toBeVisible();
