@@ -6,7 +6,6 @@
 // other tabs (DATA-001, DATA-004, DATA-012; design D4, D6, D7 of `storage`).
 import { computed, nextTick, onMounted, onUnmounted, useTemplateRef } from "vue";
 import type { Pack } from "../../domain/packs/types";
-import { countOf } from "../../domain/plural";
 import {
   failureMessage,
   failureOf,
@@ -16,6 +15,7 @@ import {
 } from "../demo/messages";
 import { demoState, summaryOf, type DemoState } from "../demo/state";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
+import BookCards from "./BookCards.vue";
 
 const heading = useTemplateRef<HTMLElement>("heading");
 const action = useTemplateRef<HTMLButtonElement>("action");
@@ -110,12 +110,14 @@ onMounted(() => {
   stopWatching = onStoredDataChange(() => void check());
 });
 onUnmounted(() => stopWatching?.());
-
-const exercises = ["упражнение", "упражнения", "упражнений"] as const;
 </script>
 
 <template>
-  <section class="demo" aria-labelledby="demo-heading">
+  <section
+    class="demo"
+    :class="{ 'offer card': demoState.phase !== 'added' }"
+    aria-labelledby="demo-heading"
+  >
     <h2 id="demo-heading" ref="heading" tabindex="-1">
       {{ demoState.phase === "added" ? "Демо-книги добавлены" : "Демо-книги" }}
     </h2>
@@ -144,41 +146,28 @@ const exercises = ["упражнение", "упражнения", "упражн
     </p>
 
     <template v-if="demoState.phase === 'added'">
-      <p>
+      <p class="kept">
         Обе книги прочитаны и сохранены в этом браузере: они останутся здесь и после перезагрузки
-        страницы.
+        страницы. Выберите раздел, чтобы открыть его страницы и упражнения.
       </p>
-      <ul class="books">
-        <li v-for="book in demoState.books" :key="book.id">
-          <h3 lang="en">{{ book.title }}</h3>
-          <ul class="units">
-            <li v-for="unit in book.units" :key="unit.id">
-              Раздел {{ unit.id }}.&nbsp;<span lang="en">{{ unit.title }}</span
-              ><span class="count"> — {{ countOf(unit.exercises, exercises) }}</span>
-            </li>
-          </ul>
-        </li>
-      </ul>
+      <BookCards :books="demoState.books" />
     </template>
   </section>
 </template>
 
 <style scoped>
 .demo {
-  border-top: 1px solid var(--color-border);
   margin: 1.5rem 0;
-  padding-top: 1rem;
+}
+
+.offer {
+  padding: 1rem;
 }
 
 h2 {
   font-size: 1.25rem;
   line-height: 1.3;
   margin: 0 0 0.75rem;
-}
-
-h3 {
-  font-size: 1.05rem;
-  margin: 1rem 0 0.25rem;
 }
 
 .action[aria-disabled="true"] {
@@ -199,18 +188,8 @@ h3 {
   padding: 0.25rem 0 0.25rem 0.75rem;
 }
 
-.books,
-.units {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.units li {
-  padding: 0.125rem 0;
-}
-
-.count {
+.kept {
   color: var(--color-muted);
+  margin: 0;
 }
 </style>

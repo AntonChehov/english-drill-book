@@ -8,7 +8,8 @@ import type { Pack } from "../../domain/packs/types";
 export interface DemoUnitSummary {
   readonly id: string;
   readonly title: string;
-  readonly exercises: number;
+  /** The ids of the unit's exercises, in book order. */
+  readonly exercises: readonly string[];
 }
 
 export interface DemoBookSummary {
@@ -41,7 +42,7 @@ export function summaryOf(packs: readonly Pack[]): DemoBookSummary[] {
     units: pack.units.map((unit) => ({
       id: unit.id,
       title: unit.title,
-      exercises: unit.exercises.length,
+      exercises: unit.exercises.map((exercise) => exercise.id),
     })),
   }));
 }

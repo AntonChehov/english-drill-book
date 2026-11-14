@@ -2,7 +2,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { demoStates } from "./demo";
 import { expect, test } from "./fixtures";
-import { addressOf, themes, views } from "./views";
+import { addressOf, plainViews as views, themes } from "./views";
 
 /** WCAG 2.1 AA; serious and critical violations fail (constitution C-07). */
 const failingImpacts = new Set(["serious", "critical"]);

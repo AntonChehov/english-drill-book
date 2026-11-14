@@ -6,3 +6,4 @@ What English Drill Book is meant to become, agreed between the owner and the ass
 - A requirement becomes binding when an OpenSpec change carries it, under the same ID, into `openspec/specs` (see `docs/process.md`). At that point it gains scenarios and tests.
 - Milestone 1 requirements are agreed. Later milestones are drafts and are revisited when their turn comes.
 - "Why:" lines give the reason; where a requirement is silent, implement what the reason implies.
+- `08-interface-reference.md` describes the screens of the owner's private predecessor, which the interface follows. It has no requirement IDs.
