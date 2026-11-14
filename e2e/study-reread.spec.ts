@@ -70,6 +70,33 @@ test.describe("Study is read again", () => {
   );
 
   test(
+    "@req DATA-012 with a field of another exercise focused and typed in, coming back shows what the other tab did, and the typing stays",
+    { tag: "@demo" },
+    async ({ page, context }) => {
+      await openUnit(page, "1");
+      const typed = exerciseOf(page, "1.3");
+      await fieldOf(typed, "1").fill("I am not");
+      await expect.poll(() => draftsOf(page)).toBe(1);
+      await expect(fieldOf(typed, "1")).toBeFocused();
+
+      const other = await context.newPage();
+      await openUnit(other, "1");
+      await fill(exerciseOf(other, "1.1"), answers11);
+      await checkButton(exerciseOf(other, "1.1")).click();
+      await expect(exerciseOf(other, "1.1")).toContainText("Сделано");
+
+      await page.bringToFront();
+      await regainFocus(page);
+
+      await expect(page.getByText("сделано 1 из 3")).toBeVisible();
+      await expect(exerciseOf(page, "1.1")).toContainText("Сделано");
+      await expect(fieldOf(exerciseOf(page, "1.1"), "1")).toHaveValue(answers11["1"]);
+      await expect(fieldOf(typed, "1")).toHaveValue("I am not");
+      await expect(fieldOf(typed, "1")).toBeFocused();
+    },
+  );
+
+  test(
     "@req PLAY-006 a reread that began before a check does not take the result of the check back",
     { tag: "@demo" },
     async ({ page }) => {

@@ -5,6 +5,7 @@
 
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
 import type { Exercise, Pack, Unit } from "../../domain/packs/types";
+import { demoBooks } from "../../domain/books/demo/profiles";
 import { validatePack } from "../../domain/packs/validate";
 import type { Attempt, ExerciseState } from "../../domain/progress";
 import {
@@ -24,6 +25,8 @@ import {
   type RowChange,
 } from "../../domain/study";
 import type { Store } from "../../storage/db";
+import { failureMessage, failureOf, keepFailureMessage, progressMessage } from "../demo/messages";
+import { demoState, summaryOf } from "../demo/state";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
 import { newId, now } from "./ids";
 import {
@@ -61,7 +64,19 @@ export interface ExerciseEntry {
   stored: number;
 }
 
-export type UnitPhase = "loading" | "ready" | "not-found" | "failed";
+export type UnitPhase =
+  | "loading"
+  | "ready"
+  | "not-found"
+  /** The address is a unit of a demo book, and the demo is not added in this browser (PROD-008). */
+  | "demo-missing"
+  | "failed";
+
+/** Adding the demo from Study: what is being done, or why it failed. */
+export type DemoAdding =
+  | { readonly phase: "idle" }
+  | { readonly phase: "adding"; readonly message: string }
+  | { readonly phase: "failed"; readonly message: string };
 
 export interface UnitLink {
   readonly id: string;
@@ -72,11 +87,17 @@ export interface UnitLink {
 const idOf = (value: unknown): unknown =>
   typeof value === "object" && value !== null && "id" in value ? value.id : undefined;
 
-/** The element being typed in, if it is a field: a reload leaves the unit alone meanwhile. */
-function editing(): boolean {
+/**
+ * The id of the exercise whose field has the focus, if one has: a reread leaves that exercise as
+ * it is, and reads the others (its block's element id is `ex-` and its id with dashes).
+ */
+function editedExercise(): string | undefined {
   const active = document.activeElement;
-  return active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement;
+  if (!(active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement)) return;
+  return active.closest("article[id^='ex-']")?.id;
 }
+
+const elementIdOf = (entry: ExerciseEntry) => `ex-${entry.exercise.id.replaceAll(".", "-")}`;
 
 /** The answers in the fields of `entry` are newer than its stored draft. */
 const unsaved = (entry: ExerciseEntry) => entry.stored !== entry.edits;
@@ -117,6 +138,9 @@ export function useUnit(packId: string, unitId: string) {
   const done = reactive(new Map<string, boolean>());
   const draftFailed = ref(false);
   const announcement = ref("");
+  const adding = shallowRef<DemoAdding>({ phase: "idle" });
+  /** The demo book the address names, if it names one. */
+  const demoBook = demoBooks.find((book) => book.profile.id === packId);
 
   const timers = new Map<string, ReturnType<typeof setTimeout>>();
   const writing = new Set<string>();
@@ -169,7 +193,7 @@ export function useUnit(packId: string, unitId: string) {
         ? validation.pack.units.find(({ id }) => id === unitId)
         : undefined;
       if (!validation?.ok || shown === undefined) {
-        phase.value = "not-found";
+        phase.value = found === undefined && demoBook !== undefined ? "demo-missing" : "not-found";
         return;
       }
       const read = await readUnit(store, validation.pack, shown);
@@ -196,15 +220,15 @@ export function useUnit(packId: string, unitId: string) {
   }
 
   /**
-   * Reads the unit again, as another tab may have changed it (DATA-012, design D6), unless a field
-   * is being edited. An exercise is left as it is when what the screen holds is newer than what was
-   * read: its answers are not stored yet, an action on it is being written, or one was kept after
-   * the read began. A draft whose write failed is written again.
+   * Reads the unit again, as another tab may have changed it (DATA-012, design D6). An exercise is
+   * left as it is when it is being edited or what the screen holds is newer than what was read: its
+   * answers are not stored yet, an action on it is being written, or one was kept after the read
+   * began. A draft whose write failed is written again.
    */
-  async function refresh() {
+  async function reread() {
     const from = pack.value;
     const shown = unit.value;
-    if (phase.value !== "ready" || from === undefined || shown === undefined || editing()) return;
+    if (phase.value !== "ready" || from === undefined || shown === undefined) return;
     for (const entry of entries.value) {
       const id = entry.exercise.id;
       if (unsaved(entry) && !timers.has(id) && !writing.has(id)) void writeDraft(entry);
@@ -214,7 +238,7 @@ export function useUnit(packId: string, unitId: string) {
     );
     try {
       const read = await readUnit(await getStore(), from, shown);
-      if (editing()) return;
+      const edited = editedExercise();
       const kept = new Set<string>();
       read.exercises.forEach((fresh, index) => {
         const entry = entries.value[index];
@@ -223,6 +247,7 @@ export function useUnit(packId: string, unitId: string) {
         if (
           was === undefined ||
           !settled(entry) ||
+          elementIdOf(entry) === edited ||
           entry.edits !== was.edits ||
           entry.attempts !== was.attempts
         ) {
@@ -236,6 +261,29 @@ export function useUnit(packId: string, unitId: string) {
       for (const [id, state] of read.states) if (!kept.has(id)) done.set(id, state.done);
     } catch (error) {
       noteStorageFailure(error);
+    }
+  }
+
+  let rereading = false;
+  let rereadAgain = false;
+
+  /**
+   * One reread at a time: a reread asked for while one runs is made after it, so that what another
+   * tab wrote meanwhile is not read by a reread that the running one makes look stale.
+   */
+  async function refresh() {
+    if (rereading) {
+      rereadAgain = true;
+      return;
+    }
+    rereading = true;
+    try {
+      do {
+        rereadAgain = false;
+        await reread();
+      } while (rereadAgain);
+    } finally {
+      rereading = false;
     }
   }
 
@@ -372,6 +420,32 @@ export function useUnit(packId: string, unitId: string) {
     );
   }
 
+  /**
+   * Adds the demo books, as the start screen does, and opens the unit the address names (PROD-008):
+   * a copied address of a demo unit leads to it in a browser where the demo was never added.
+   */
+  async function addDemoAndOpen() {
+    if (adding.value.phase === "adding") return;
+    adding.value = { phase: "adding", message: "Загружаем демо-книги…" };
+    let packs: readonly Pack[] | undefined;
+    try {
+      const { addDemo } = await import("../demo/add-demo");
+      packs = await addDemo((step) => {
+        adding.value = { phase: "adding", message: progressMessage(step) };
+      });
+      await (await getStore()).putPacks(packs);
+      demoState.value = { phase: "added", books: summaryOf(packs) };
+      adding.value = { phase: "idle" };
+      await load();
+    } catch (error) {
+      noteStorageFailure(error);
+      adding.value = {
+        phase: "failed",
+        message: packs === undefined ? failureMessage(failureOf(error)) : keepFailureMessage(error),
+      };
+    }
+  }
+
   const onHidden = () => {
     if (document.visibilityState === "hidden") flush();
   };
@@ -401,6 +475,9 @@ export function useUnit(packId: string, unitId: string) {
     next,
     draftFailed,
     announcement,
+    adding,
+    demoTitle: demoBook?.profile.title,
+    addDemoAndOpen,
     viewOf,
     load,
     setAnswer,
