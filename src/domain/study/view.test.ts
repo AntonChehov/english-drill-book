@@ -36,7 +36,7 @@ describe("viewOfExercise of items", () => {
   });
 
   it("@req PLAY-003 @req PLAY-004 shows correct, almost and wrong, and nothing on a blank row; almost shows no key", () => {
-    const answers = { "1": "I am not tired", "2": "The bus is not lates", "3": "We is home" };
+    const answers = { "1": "I am not tired", "2": "The bus is not lote", "3": "We is home" };
     const log = [checkAttempt(ctx(1), exercise, keys, answers)];
     const view = itemsView(answers, log);
 
@@ -78,7 +78,7 @@ describe("viewOfExercise of items", () => {
   });
 
   it("@req PLAY-008 offers to count a wrong or almost row, to uncount a correct one, and to undo a change by hand", () => {
-    const answers = { ...all, "2": "The bus is not lates", "3": "We is home" };
+    const answers = { ...all, "2": "The bus is not lote", "3": "We is home" };
     const log = [checkAttempt(ctx(1), exercise, keys, answers)];
     log.push(overrideAttempt(ctx(2), exercise, log, "4", "bad")!);
     const view = itemsView(answers, log);
