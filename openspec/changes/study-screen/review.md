@@ -123,6 +123,17 @@ Verdict: approved
 - `readUnit` now derives the state of each exercise of the shown unit from the log it has just read, with the same `deriveExercise` the store's cache uses, so a state and its log can no longer come from different moments. The cached state is used only when the log is empty, where both give the empty state, and for the exercises of other units, which only feed the counts of the unit menu. This closes the race the coordinator found as well as the one I described in the notes of round 2.
 - Approving: every finding of the record is fixed, nothing is declined, and the requirement coverage below is checked against the code and tests at `7d1e156`. What remains in the notes of earlier rounds is for later changes: a tab left on «Демо-книги ещё не добавлены» does not notice the demo added in another tab; focus after a pressed button is removed within an exercise falls to the page, with Tab going on from there; the pause of 400 ms before a draft is written is exercised by no test; the speed of Study on WebKit is technical debt by the owner's decision.
 
+## Round 6
+
+Reviewed: 9ad46a7082b7
+Verdict: approved
+
+### Notes
+
+- Range read: `git diff 0223b1f..HEAD`, which changes only `.github/workflows/checks.yml`, with the rest of the change as approved in round 5 at `7d1e156`; nothing else of the reviewed content changed. No end-to-end run was needed for a workflow change; the WebKit shards were listed instead.
+- The matrix of the end-to-end job is now four entries, Chromium and Firefox whole and WebKit in two shards, each with its own label. The label is used throughout: the job name, the JUnit file, the summary, and both artifacts. So the shard artifacts `e2e-webkit-1-of-2` and `e2e-webkit-2-of-2` hold `<name>/<name>.xml`, which `scripts/metrics.mjs` collects with every other `e2e-*` artifact and sums. Nothing else in `scripts/` or `.github/` names an end-to-end artifact or job by browser. `playwright test --project=webkit --shard=1/2 --list` and `2/2` list 32 and 31 tests, the 63 of the whole project. `fullyParallel` splits the shards by test, and each worker of a shard adds the demo once, as before. `--shard=1/1` for Chromium and Firefox runs everything. The workflow passes the format check.
+- Whether the pipeline now finishes within the 3 minutes of C-19 is measured by the run itself, and the `evidence` check reports it. That run had not finished when I wrote this round.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Tested by |
@@ -158,4 +169,5 @@ Verdict: approved
 - `src/ui/styles/base.css`: a grey page background with white cards, colour tokens for the verdicts, `.secondary`, `.card`, `.visually-hidden`; `e2e/themes.spec.ts` follows the new background.
 - `src/storage/pdf/text.ts`: `startWorker` and `loadPdfLibrary` are exported for `render.ts`.
 - `src/ui/study/ids.ts`: ids and times of attempts made in the interface, a UUID without `crypto.randomUUID`.
+- `.github/workflows/checks.yml`: the WebKit end-to-end tests run in two shards side by side, by the owner's choice, to keep the pipeline within C-19; jobs, reports and artifacts are named by a label for each browser or shard.
 - `e2e/`: `study.ts` (each worker adds the demo once, the tests start from its stored state), `openCleanPage` starts explicitly empty and takes allowed console errors, `views.ts` tells the views a clean profile can open from Study, the accessibility check and the screenshots of Study in four states, the time to the first page measured inside the page and not checked on WebKit.
