@@ -76,6 +76,17 @@ Verdict: approved
 - `its raining` for `it's raining` stays `near` as the spec allows; the author is raising it with the owner.
 - The WebKit expect timeout of 15 s is set on that project only, and Chromium and Firefox keep the default. Task 2.3 stays unticked until the pipeline shows WebKit; that is the author's call, not a finding.
 
+## Round 3
+
+Reviewed: 9c70dc76a21e
+Verdict: approved
+
+### Notes
+
+- Range read: `git diff 2309274..HEAD` (`.github/workflows/checks.yml`, `tasks.md`). Rounds 1 and 2 still stand for the rest of the diff.
+- The WebKit matrix entries are now three: shards `1/3`, `2/3` and `3/3`, labelled `webkit-1-of-3` to `webkit-3-of-3`. The label still names the job, the JUnit file, the summary and both artifacts, and `scripts/metrics.mjs` collects every `e2e-*` artifact. Nothing else in `scripts/`, `.github/` or `docs/` names the old `of-2` labels.
+- `playwright test --project=webkit --shard=1/3 --list`, `2/3` and `3/3` list 21 tests each, the 63 of the project. Whether the pipeline now stays within C-19 is shown by the `evidence` check, not here.
+
 ## Requirement coverage
 
 | Requirement | Implemented | Tests |
@@ -86,4 +97,5 @@ Verdict: approved
 
 - CHK-014: speed.test.ts gains a test of many candidates one edit away that are all grammar, and the near case with `'s` and `'d` now ends in a long word.
 - `playwright.config.ts`: the WebKit project waits 15 s in `expect`. In e2e/study-frame.spec.ts the walk through Study's links is `test.slow` on WebKit. Both are recorded as technical debt in docs/roadmap.md.
+- `.github/workflows/checks.yml`: WebKit's end-to-end tests run in three shards instead of two, to keep the pipeline within C-19 with the longer WebKit waits.
 - docs/roadmap.md: technical debt found by the validation of `study-screen` is listed under Later.

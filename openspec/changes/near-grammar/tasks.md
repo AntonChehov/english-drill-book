@@ -14,11 +14,11 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 - [x] 2.3 Give WebKit more time where its speed alone failed the end-to-end tests on `main` and on the archive pull request of `study-screen` (the owner's technical debt): longer waits for the WebKit project in `playwright.config.ts`, and a longer test timeout for the walk through every link of Study; verify they pass on Chromium and Firefox and, in the pipeline, on WebKit — the WebKit halves pass in the pipeline of pull request #18
 
-- [ ] 2.4 Run the WebKit end-to-end tests in three parts instead of two, as the longer waits of 2.3 put the pipeline over C-19 (194 s); verify the pipeline of pull request #18 is within 180 s
+- [x] 2.4 Run the WebKit end-to-end tests in three parts instead of two, as the longer waits of 2.3 put the pipeline over C-19 (194 s); verify the pipeline of pull request #18 is within 180 s — the pipeline of pull request #18 took 153 s with WebKit in three parts
 
 ## 3. Review and evidence
 
 - [x] 3.1 Run `pnpm verify`; verify it passes, WebKit by the pipeline — every gate passes in the pipeline of pull request #18 (WebKit there); locally `pnpm check`, 750 unit tests, 14 speed tests, 154 end-to-end tests on Chromium and Firefox
 - [x] 3.2 Open the pull request as the bot with the sections of C-18 item 1 — pull request #18
-- [x] 3.3 A reviewing agent with a fresh context writes round 1 in `review.md`; the same agent, resumed, writes each later round until one approves; verify the `evidence` check is green — two rounds in `review.md`, round 2 approves `e89eae49860a`
+- [x] 3.3 A reviewing agent with a fresh context writes round 1 in `review.md`; the same agent, resumed, writes each later round until one approves; verify the `evidence` check is green — three rounds in `review.md`, round 3 approves `9c70dc76a21e`
 - [ ] 3.4 **(owner)** Read the pull request and merge
