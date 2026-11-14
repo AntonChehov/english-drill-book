@@ -8,7 +8,7 @@
 
 ### D1. Where the edit falls
 
-Both texts have the same number of words, so one edit changes exactly one word, or, when it inserts or removes a space, joins or splits words and changes the count. Words are split on single spaces (readings are normalised). The changed word is the first word that differs; the key's word at that place is `keyWord`, the answer's is `answerWord`. A pair of texts whose differing words are more than one is not `near`.
+Readings have no spaces, so the words of the answer are taken from its text with its spaces, after the same steps of normalisation, and matched to the reading, `'s` and `'d` read as the reading reads them. A letter inserted or removed next to the same letter could be at any of them (*like swimming* / *likes swimming*): the places of the edit run from the end of the common beginning back to the start of the common end, and every word they touch is a word the edit could fall in. The key's word is the answer's word with the edit applied; the edit is `near` only if it is a slip in every such word, and where two words meet, in both.
 
 ### D2. The word must be long enough
 
@@ -16,11 +16,11 @@ Both texts have the same number of words, so one edit changes exactly one word, 
 
 ### D3. Not an ending
 
-`near` is refused when `keyWord` and `answerWord` are one stem with two different endings from `""`, `s`, `es`, `d`, `ed`. Checked by trying, for each ending of `keyWord`, the stem left after removing it, and asking whether `answerWord` is that stem with another ending. This covers *live/lives*, *play/plays*, *brushs/brushes*, *workd/worked*, and, as a cost, a true typo at the end, such as *houss* for *house*, which becomes `bad`; a slip in an ending is rare and a learner shown «Неверно» for it can count it by hand (PLAY-008).
+`near` is refused when `keyWord` and `answerWord` are one stem with two different endings from `""`, `s`, `es`, `d`, `ed`. Checked by trying, for each ending of `keyWord`, the stem left after removing it, and asking whether `answerWord` is that stem with another ending. This covers *live/lives*, *play/plays*, *brushs/brushes*, *workd/worked*, and, as a cost, a slip that happens to add or drop such an ending, such as *cars* typed for *car*, which becomes `bad`; a learner shown «Неверно» for it can count it by hand (PLAY-008).
 
 ### D4. Speed
 
-The extra work happens only for a candidate already one edit away, at most a few per answer: splitting two short texts and comparing a few strings. CHK-014 (5 ms) is unaffected; the speed tests run as before.
+The words of the answer are found once per check, and where they end in a reading once per reading, only when a candidate one edit away is found. Each candidate then costs a walk over the words before the edit and a few string comparisons. A speed test checks an answer of 80 words against 8 patterns, each with 25 options one letter from it in a different word, near the largest key allowed, within CHK-014 (5 ms).
 
 ## Constitution
 

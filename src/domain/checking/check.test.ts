@@ -222,6 +222,16 @@ describe("checkAnswer", () => {
       expect(verdict(["it has two brushes"], "it's two brushs")).toBe("bad");
     });
 
+    it("@req CHK-006 places a letter added or removed next to the same letter in every word it could fall in", () => {
+      expect(verdict(["she likes swimming"], "she like swimming")).toBe("bad");
+      expect(verdict(["she like swimming"], "she likes swimming")).toBe("bad");
+      expect(verdict(["I lived downtown"], "I live downtown")).toBe("bad");
+      expect(verdict(["she was sad"], "she wa sad")).toBe("bad");
+      expect(verdict(["he is sorry"], "he i sorry")).toBe("bad");
+      expect(verdict(["a little bottle"], "a litle bottle")).toBe("near");
+      expect(verdict(["a little bottle"], "a littlle bottle")).toBe("near");
+    });
+
     it("@req CHK-006 takes an edit where two words meet as a slip only if it is one in both", () => {
       expect(verdict(["a beautiful garden"], "a beautifu garden")).toBe("near");
       expect(verdict(["she lives in Paris"], "she live in Paris")).toBe("bad");

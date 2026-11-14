@@ -197,6 +197,20 @@ describe("speed", () => {
     expect(measure("near", [accept], answer)).toBeLessThan(LIMIT_MS);
   });
 
+  it("@req CHK-014 checks a long answer against keys one letter from it in many words in under 5 ms", () => {
+    const words = Array.from({ length: 80 }, () => "a");
+    const letters = "[b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z]";
+    const accept = Array.from({ length: 8 }, (_, index) => {
+      const key = [...words];
+      key[index * 10] = letters;
+      return key.join(" ");
+    });
+    const answer = words.join(" ");
+    expect(compileKey(accept).ok).toBe(true);
+    expect(checkAnswer(keyOf(accept), answer)).toBe("bad");
+    expect(measure("long answer, many near keys", accept, answer)).toBeLessThan(LIMIT_MS);
+  });
+
   it("@req CHK-014 refuses the keys that would be slower, before any check", () => {
     const ten = "[a|b|c|d|e|f|g|h|i|j]";
     expect(compileKey([`${FOUR_S} ${ten} ${ten} ${ten} [a|b|c|d]`])).toEqual({
