@@ -18,8 +18,20 @@ const packId = String(route.params["pack"]);
 const unitId = String(route.params["unit"]);
 
 const study = useUnit(packId, unitId);
-const { phase, pack, unit, entries, units, progress, previous, next, draftFailed, announcement } =
-  study;
+const {
+  phase,
+  pack,
+  unit,
+  entries,
+  units,
+  progress,
+  previous,
+  next,
+  draftFailed,
+  announcement,
+  adding,
+  demoTitle,
+} = study;
 
 const heading = useTemplateRef<HTMLElement>("heading");
 const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
@@ -59,6 +71,7 @@ function scrollToExercise(): boolean {
 
 watch(phase, async (now) => {
   if (now === "not-found") document.title = documentTitle(appName, "Раздел не найден");
+  if (now === "demo-missing") document.title = documentTitle(appName, "Демо-книги не добавлены");
   if (now !== "ready" || unit.value === undefined) return;
   document.title = documentTitle(appName, `Раздел ${unit.value.id}. ${unit.value.title}`);
   await nextTick();
@@ -82,11 +95,32 @@ watch(
 
   <section v-else-if="phase === 'not-found'" class="narrow">
     <h1>Раздел не найден</h1>
-    <p>
-      Такого раздела нет среди книг в этом браузере. Если это раздел демо-книги, сначала добавьте
-      демо-книги на главной странице.
-    </p>
+    <p>Такого раздела нет среди книг в этом браузере.</p>
     <p><RouterLink to="/">На главную</RouterLink></p>
+  </section>
+
+  <section v-else-if="phase === 'demo-missing'" class="narrow">
+    <h1>Демо-книги ещё не добавлены</h1>
+    <p>
+      Это ссылка на раздел демо-книги «<span lang="en">{{ demoTitle }}</span
+      >». В этом браузере демо-книги ещё не добавлены. Добавьте их — раздел откроется сразу. Файлы
+      загружаются с этого сайта, выбирать ничего не нужно.
+    </p>
+    <p v-if="adding.phase === 'adding'" role="status">{{ adding.message }}</p>
+    <p v-if="adding.phase === 'failed'" class="failure" role="alert">{{ adding.message }}</p>
+    <p class="row">
+      <button
+        type="button"
+        class="action"
+        :aria-disabled="adding.phase === 'adding' ? 'true' : undefined"
+        @click="study.addDemoAndOpen()"
+      >
+        {{
+          adding.phase === "failed" ? "Попробовать ещё раз" : "Добавить демо-книги и открыть раздел"
+        }}
+      </button>
+      <RouterLink to="/">На главную</RouterLink>
+    </p>
   </section>
 
   <section v-else-if="phase === 'failed'" class="narrow">
@@ -188,6 +222,11 @@ watch(
 </template>
 
 <style scoped>
+.failure {
+  border-left: 4px solid var(--color-error);
+  padding: 0.25rem 0 0.25rem 0.75rem;
+}
+
 .loading {
   color: var(--color-muted);
 }

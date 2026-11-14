@@ -1,4 +1,4 @@
-import { addedHeading } from "./demo";
+import { addedHeading, drillsPdf, failedLoad } from "./demo";
 import { exerciseOf, expect, finishUnit1, openUnit, test, unitAddress, unitHeading } from "./study";
 import { addressOf } from "./views";
 
@@ -52,15 +52,38 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
   );
 
   test(
-    "@req PROD-008 the address of a unit in a clean profile, without the demo, says the unit is not found and leads back",
+    "@req PROD-008 the address of a demo unit in a clean profile says the demo is not added, and one action adds it and opens that unit",
     { tag: "@demo" },
     async ({ openCleanPage }) => {
-      const page = await openCleanPage(unitAddress("1"));
+      const page = await openCleanPage(`${unitAddress("3")}?ex=3.2`);
 
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Раздел не найден");
-      await expect(page).toHaveTitle(/^Раздел не найден — /);
-      await page.getByRole("link", { name: "На главную" }).click();
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText("English Drill Book");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+        "Демо-книги ещё не добавлены",
+      );
+      await expect(page).toHaveTitle(/^Демо-книги не добавлены — /);
+      await expect(page.getByText("Everyday Grammar: A Demo Course")).toBeVisible();
+      await page.getByRole("button", { name: "Добавить демо-книги и открыть раздел" }).click();
+
+      await expect(unitHeading(page)).toHaveText("Раздел 3. A and an");
+      await expect(exerciseOf(page, "3.2")).toBeInViewport();
+      await page.getByRole("link", { name: "Сегодня" }).click();
+      await expect(addedHeading(page)).toBeVisible();
+    },
+  );
+
+  test(
+    "@req PROD-008 a demo unit whose books cannot be fetched says why in place, and trying again opens it",
+    { tag: "@demo" },
+    async ({ openCleanPage }) => {
+      const page = await openCleanPage("about:blank", [failedLoad]);
+      await page.route(drillsPdf, (route) => route.abort("internetdisconnected"));
+      await page.goto(unitAddress("2"));
+      await page.getByRole("button", { name: "Добавить демо-книги и открыть раздел" }).click();
+
+      await expect(page.getByRole("alert")).toContainText("нет связи с сайтом");
+      await page.unroute(drillsPdf);
+      await page.getByRole("button", { name: "Попробовать ещё раз" }).click();
+      await expect(unitHeading(page)).toHaveText("Раздел 2. Present simple");
     },
   );
 
