@@ -14,6 +14,8 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 - [x] 2.3 Give WebKit more time where its speed alone failed the end-to-end tests on `main` and on the archive pull request of `study-screen` (the owner's technical debt): longer waits for the WebKit project in `playwright.config.ts`, and a longer test timeout for the walk through every link of Study; verify they pass on Chromium and Firefox and, in the pipeline, on WebKit — the WebKit halves pass in the pipeline of pull request #18
 
+- [ ] 2.4 Run the WebKit end-to-end tests in three parts instead of two, as the longer waits of 2.3 put the pipeline over C-19 (194 s); verify the pipeline of pull request #18 is within 180 s
+
 ## 3. Review and evidence
 
 - [x] 3.1 Run `pnpm verify`; verify it passes, WebKit by the pipeline — every gate passes in the pipeline of pull request #18 (WebKit there); locally `pnpm check`, 750 unit tests, 14 speed tests, 154 end-to-end tests on Chromium and Firefox
