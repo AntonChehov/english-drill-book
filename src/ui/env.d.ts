@@ -5,5 +5,7 @@ declare module "vue-router" {
   interface RouteMeta {
     /** Russian title of the view, shown in the browser tab. */
     title?: string;
+    /** The view uses the whole width of the window, as Study does. */
+    wide?: boolean;
   }
 }

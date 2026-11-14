@@ -227,6 +227,19 @@ describe("the cached state of an exercise", () => {
     expect((await store.getExerciseState("test-pack", "1.1")).verdicts).toEqual({ "1": "ok" });
   });
 
+  it("@req DATA-003 the states of several exercises are read together, in their order, a missing cache rebuilt", async () => {
+    const { factory, store } = await withAttempts();
+    const before = await cached(factory);
+    await changeCache(factory, (derived) => derived.clear());
+
+    expect(await store.getExerciseStates("test-pack", ["9.9", "1.1"])).toEqual([
+      emptyExerciseState,
+      deriveExercise(attempts),
+    ]);
+    expect(await cached(factory)).toEqual(before);
+    expect(await store.getExerciseStates("test-pack", [])).toEqual([]);
+  });
+
   it("@req DATA-003 an exercise with no attempt has the empty state, and nothing is cached", async () => {
     const { factory, store } = await setUp();
 

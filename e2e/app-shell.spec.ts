@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { addressOf, views } from "./views";
+import { addressOf, plainViews as views } from "./views";
 
 const startView = views[0]!;
 const otherViews = views.filter((view) => view.name !== "start" && view.name !== "not-found");

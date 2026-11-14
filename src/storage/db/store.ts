@@ -60,6 +60,12 @@ export interface Store {
   getAttempts(pack: string, exercise: string): Promise<Attempt[]>;
   /** The state of an exercise; a cached state that is missing or stale is rebuilt and kept. */
   getExerciseState(pack: string, exercise: string): Promise<ExerciseState>;
+  /**
+   * The states of the `exercises` of `pack`, in their order, read in one transaction as
+   * `getExerciseState` reads one: opening a unit or a list of books costs one transaction, not one
+   * for each exercise.
+   */
+  getExerciseStates(pack: string, exercises: readonly string[]): Promise<ExerciseState[]>;
   getDraft(pack: string, exercise: string): Promise<Draft | undefined>;
   putDraft(draft: Draft): Promise<void>;
   deleteDraft(pack: string, exercise: string): Promise<void>;
@@ -260,6 +266,17 @@ export async function openStore(options: StoreOptions = {}): Promise<Store> {
           state = next;
         });
         return () => state;
+      }),
+
+    getExerciseStates: (pack, exercises) =>
+      run([STORES.attempts, STORES.derived], "readwrite", (tx) => {
+        const states: ExerciseState[] = exercises.map(() => emptyExerciseState);
+        exercises.forEach((exercise, index) =>
+          currentState(tx, [pack, exercise], undefined, (next) => {
+            states[index] = next;
+          }),
+        );
+        return () => states;
       }),
 
     getDraft: (pack, exercise) => getOne<Draft>(STORES.drafts, [pack, exercise]),

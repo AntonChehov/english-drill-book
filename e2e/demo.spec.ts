@@ -32,22 +32,20 @@ test.describe("PACK-003 The demo book", () => {
       test.info().annotations.push({ type: "reading time", description: `${elapsed} ms` });
 
       const books = page
-        .getByRole("list")
-        .first()
+        .getByRole("region", { name: "Демо-книги добавлены" })
         .getByRole("listitem")
-        .filter({
-          has: page.getByRole("heading", { level: 3 }),
-        });
+        .filter({ has: page.getByRole("heading", { level: 3 }) });
       await expect(books).toHaveCount(2);
       for (const [index, title] of demoTitles.entries()) {
         const book = books.nth(index);
         await expect(book.getByRole("heading", { level: 3 })).toHaveText(title);
-        await expect(book.getByRole("listitem")).toHaveText([
-          "Раздел 1. To be: am, is, are — 3 упражнения",
-          "Раздел 2. Present simple — 3 упражнения",
-          "Раздел 3. A and an — 3 упражнения",
-          "Раздел 4. There is and there are — 3 упражнения",
+        await expect(book.getByRole("link")).toHaveText([
+          "Раздел 1. To be: am, is, are",
+          "Раздел 2. Present simple",
+          "Раздел 3. A and an",
+          "Раздел 4. There is and there are",
         ]);
+        await expect(book.getByText("сделано 0 из 3")).toHaveCount(4);
       }
       expect(fileChoosers, "no file was asked for").toEqual([]);
       await expect(page.locator("input[type=file]")).toHaveCount(0);

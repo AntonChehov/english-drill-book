@@ -22,9 +22,10 @@ export class PdfLibraryLoadError extends Error {
  * Starts the worker of pdf.js and waits until it says it is ready. pdf.js could start it itself,
  * but when the file does not arrive it falls back to running the worker on the page and keeps
  * that failed set-up for the life of the page, so no later attempt could succeed (review of
- * `demo-books`, F1). A worker started here fails only this attempt.
+ * `demo-books`, F1). A worker started here fails only this attempt. Drawing pages starts its
+ * worker the same way (`render.ts`).
  */
-function startWorker(): Promise<Worker> {
+export function startWorker(): Promise<Worker> {
   const worker = new Worker(workerUrl, { type: "module" });
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
@@ -49,18 +50,22 @@ function startWorker(): Promise<Worker> {
   });
 }
 
+/** The module of pdf.js; `PdfLibraryLoadError` when it does not arrive. */
+export async function loadPdfLibrary(): Promise<typeof import("pdfjs-dist")> {
+  try {
+    return await import("pdfjs-dist");
+  } catch {
+    throw new PdfLibraryLoadError("its module");
+  }
+}
+
 /**
  * Reads the text layer of every page of the PDF in `data`; the buffer is handed over. Throws
  * `PdfLibraryLoadError` when the library or its worker cannot be loaded, and pdf.js's own error
  * when the file cannot be read.
  */
 export async function loadPdfText(data: Uint8Array): Promise<PageText[]> {
-  let pdfjs: typeof import("pdfjs-dist");
-  try {
-    pdfjs = await import("pdfjs-dist");
-  } catch {
-    throw new PdfLibraryLoadError("its module");
-  }
+  const pdfjs = await loadPdfLibrary();
   const port = await startWorker();
   // The types of pdf.js 6.5 declare `port` as null only; the code takes a Worker there.
   const worker = new pdfjs.PDFWorker({ port: port as unknown as null });

@@ -10,13 +10,27 @@ export interface View {
   path: string;
   /** Text of the view's main heading. */
   heading: string;
+  /**
+   * The view needs the demo books added first: the specs that visit every view in a clean profile
+   * leave it out, and the specs of Study cover it (e2e/study.ts).
+   */
+  demo?: boolean;
 }
 
 export const views: readonly View[] = [
   { name: "start", path: "/", heading: "English Drill Book" },
   { name: "about", path: "/about", heading: "О приложении" },
   { name: "not-found", path: "/no-such-page", heading: "Страница не найдена" },
+  {
+    name: "study",
+    path: "/study/demo-course/1",
+    heading: "Раздел 1. To be: am, is, are",
+    demo: true,
+  },
 ];
+
+/** The views a clean profile can open as they are. */
+export const plainViews = views.filter((view) => view.demo !== true);
 
 export const themes = ["light", "dark"] as const;
 export type Theme = (typeof themes)[number];

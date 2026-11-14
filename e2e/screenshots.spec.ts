@@ -3,7 +3,7 @@ import { join } from "node:path";
 import type { Page } from "@playwright/test";
 import { demoStates } from "./demo";
 import { expect, test } from "./fixtures";
-import { addressOf, themes, views } from "./views";
+import { addressOf, plainViews as views, themes } from "./views";
 
 /**
  * One PNG per view, theme and width, made from the production build (design D8), and one per
