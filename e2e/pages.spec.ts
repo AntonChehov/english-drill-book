@@ -101,17 +101,58 @@ test.describe("DOC-001 The pages of a unit", () => {
       await expect(drawnPages(page).first()).toBeVisible();
 
       // Three openings and their median: one stall of a loaded machine is not the app's speed.
-      const times: number[] = [];
+      // Timed in the page, from the press to each stage, so the test's own polling adds nothing.
+      const openings: { heading: number; placed: number; drawn: number }[] = [];
       for (const unit of ["2", "3", "4"]) {
-        const started = Date.now();
-        await page.getByRole("button", { name: "Следующий раздел" }).click();
+        openings.push(
+          await page.evaluate(
+            (title) =>
+              new Promise<{ heading: number; placed: number; drawn: number }>((resolve) => {
+                const started = performance.now();
+                const at: Partial<Record<"heading" | "placed" | "drawn", number>> = {};
+                const look = () => {
+                  const elapsed = Math.round(performance.now() - started);
+                  if (
+                    at.heading === undefined &&
+                    document.querySelector("h1")?.textContent?.trim().startsWith(title)
+                  )
+                    at.heading = elapsed;
+                  if (
+                    at.heading !== undefined &&
+                    at.placed === undefined &&
+                    document.querySelector('[aria-labelledby="pages-heading"] canvas')
+                  )
+                    at.placed = elapsed;
+                  if (at.placed !== undefined && document.querySelector("canvas[data-drawn]")) {
+                    at.drawn = elapsed;
+                    observer.disconnect();
+                    resolve({ heading: at.heading!, placed: at.placed, drawn: at.drawn });
+                  }
+                };
+                const observer = new MutationObserver(look);
+                observer.observe(document.body, {
+                  subtree: true,
+                  childList: true,
+                  attributes: true,
+                  characterData: true,
+                });
+                document
+                  .querySelector<HTMLButtonElement>('button[aria-label="Следующий раздел"]')!
+                  .click();
+              }),
+            `Раздел ${unit}.`,
+          ),
+        );
         await expect(unitHeading(page)).toHaveText(new RegExp(`Раздел ${unit}\\.`));
-        await expect(drawnPages(page).first()).toBeVisible();
-        times.push(Date.now() - started);
       }
+      const times = openings.map(({ drawn }) => drawn);
       const median = times.toSorted((x, y) => x - y)[1] ?? Infinity;
 
-      console.log(`The first page of the next unit was drawn in ${times.join(", ")} ms`);
+      console.log(
+        `The first page of the next unit (heading / pages placed / drawn, ms): ${openings
+          .map(({ heading, placed, drawn }) => `${heading} / ${placed} / ${drawn}`)
+          .join(", ")}`,
+      );
       expect(median).toBeLessThan(2000);
     },
   );
