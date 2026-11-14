@@ -1,7 +1,7 @@
 # The gates of the constitution for one commit (design D7), shared by the pull request
 # and main workflows. Jobs run in parallel; the browser jobs run in the Playwright image,
 # so no browser is downloaded per run. Every job leaves its results as an artifact for the
-# evidence job: unit, size, dist, e2e-<browser>, lighthouse, screenshots.
+# evidence job: unit, size, dist, e2e-<browser or shard>, lighthouse, screenshots.
 name: Checks
 
 on:
@@ -124,7 +124,7 @@ jobs:
           retention-days: 7
 
   e2e:
-    name: e2e (${{ matrix.project }})
+    name: e2e (${{ matrix.label }})
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -133,8 +133,13 @@ jobs:
       options: --user 1001 --ipc=host
     strategy:
       fail-fast: false
+      # WebKit, the slowest, runs in two halves side by side to keep the pipeline within C-19.
       matrix:
-        project: [chromium, firefox, webkit]
+        include:
+          - { project: chromium, shard: 1/1, label: chromium }
+          - { project: firefox, shard: 1/1, label: firefox }
+          - { project: webkit, shard: 1/2, label: webkit-1-of-2 }
+          - { project: webkit, shard: 2/2, label: webkit-2-of-2 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -148,22 +153,23 @@ jobs:
       - name: End-to-end tests
         env:
           PROJECT: ${{ matrix.project }}
-          E2E_JUNIT_FILE: reports/e2e-${{ matrix.project }}.xml
-        run: pnpm exec playwright test --project="$PROJECT"
+          SHARD: ${{ matrix.shard }}
+          E2E_JUNIT_FILE: reports/e2e-${{ matrix.label }}.xml
+        run: pnpm exec playwright test --project="$PROJECT" --shard="$SHARD"
       - name: Summary
         if: ${{ !cancelled() }}
-        run: node scripts/junit.mjs "End-to-end tests (${{ matrix.project }})" "reports/e2e-${{ matrix.project }}.xml"
+        run: node scripts/junit.mjs "End-to-end tests (${{ matrix.label }})" "reports/e2e-${{ matrix.label }}.xml"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
-          name: e2e-${{ matrix.project }}
-          path: reports/e2e-${{ matrix.project }}.xml
+          name: e2e-${{ matrix.label }}
+          path: reports/e2e-${{ matrix.label }}.xml
           if-no-files-found: error
           retention-days: 7
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ failure() }}
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report-${{ matrix.label }}
           path: reports/playwright
           retention-days: 7
 
