@@ -7,7 +7,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef }
 import type { Exercise, Pack, Unit } from "../../domain/packs/types";
 import { demoBooks } from "../../domain/books/demo/profiles";
 import { validatePack } from "../../domain/packs/validate";
-import type { Attempt, ExerciseState } from "../../domain/progress";
+import { deriveExercise, type Attempt, type ExerciseState } from "../../domain/progress";
 import {
   checkAttempt,
   initialAnswers,
@@ -114,15 +114,17 @@ const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
 async function readUnit(store: Store, from: Pack, shown: Unit) {
   const ids = from.units.flatMap((each) => each.exercises.map((exercise) => exercise.id));
   const read = await store.getExerciseStates(from.id, ids);
-  const states = ids.map((id, index) => [id, read[index]!] as const);
-  const stateOf = new Map(states);
+  const stateOf = new Map(ids.map((id, index) => [id, read[index]!] as const));
   const exercises = await Promise.all(
     shown.exercises.map(async (exercise) => {
       const [attempts, draft] = await Promise.all([
         store.getAttempts(from.id, exercise.id),
         store.getDraft(from.id, exercise.id),
       ]);
-      const state = stateOf.get(exercise.id)!;
+      // Derived from the log just read, not taken from the cache read before it: a check that
+      // another tab writes between the two reads would give a new log with an old state.
+      const state = attempts.length === 0 ? stateOf.get(exercise.id)! : deriveExercise(attempts);
+      stateOf.set(exercise.id, state);
       return {
         exercise,
         state,
@@ -131,7 +133,7 @@ async function readUnit(store: Store, from: Pack, shown: Unit) {
       };
     }),
   );
-  return { states, exercises };
+  return { states: [...stateOf], exercises };
 }
 
 export function useUnit(packId: string, unitId: string) {
@@ -261,8 +263,7 @@ export function useUnit(packId: string, unitId: string) {
         }
         const typing = edited?.block === elementIdOf(entry) ? edited.item : undefined;
         if (typing !== undefined) {
-          // The state and the log are read in two transactions: a check of another tab between
-          // them gives a new log with the old state, which the next reread brings up to date.
+          // Another tab added to the log, or changed what it derives to.
           const changed =
             fresh.attempts.length !== entry.attempts.length ||
             JSON.stringify(fresh.state) !== JSON.stringify(entry.state);
@@ -273,7 +274,10 @@ export function useUnit(packId: string, unitId: string) {
           const text = entry.answers[typing];
           entry.state = fresh.state;
           entry.attempts = fresh.attempts;
-          entry.answers = { ...fresh.answers, ...(text === undefined ? {} : { [typing]: text }) };
+          entry.answers = { ...fresh.answers };
+          // The text kept in the field is newer than what was read: an edit, saved as a draft.
+          if (text !== undefined && text !== fresh.answers[typing]) setAnswer(entry, typing, text);
+          else if (text !== undefined) entry.answers[typing] = text;
           return;
         }
         entry.state = fresh.state;

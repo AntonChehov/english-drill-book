@@ -121,6 +121,17 @@ test.describe("Study is read again", () => {
       await expect(fieldOf(exercise, "8")).toHaveValue(answers11["8"]);
       await expect(fieldOf(exercise, "3")).toHaveValue("ar");
       await expect(fieldOf(exercise, "3")).toBeFocused();
+
+      // The kept text is the learner's latest edit: it is saved, and outlives another reread and
+      // a reload.
+      await unitHeading(page).click();
+      await regainFocus(page);
+      await page.waitForTimeout(500);
+      await expect(fieldOf(exercise, "3")).toHaveValue("ar");
+      await page.reload();
+      await expect(unitHeading(page)).toBeVisible();
+      await expect(fieldOf(exercise, "3")).toHaveValue("ar");
+      await expect(exercise).toContainText("Сделано");
     },
   );
 
