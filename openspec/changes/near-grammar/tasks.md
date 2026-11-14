@@ -12,11 +12,11 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 - [x] 2.1 Update the hint of Study and the end-to-end tests that type an almost-right answer; verify the Study tests pass on Chromium and Firefox — the hint says a wrong short word or ending is «Неверно»; the almost-right answer of the Study tests is *lote* for *late*; 154 end-to-end tests pass on Chromium and Firefox
 - [x] 2.2 Update CHK-006 in `docs/product/03-answer-checking.md` and record the technical debt in `docs/roadmap.md` — CHK-006 in `docs/product/03-answer-checking.md` says why; the technical debt is under Later, unscheduled in `docs/roadmap.md`
 
-- [ ] 2.3 Give WebKit more time where its speed alone failed the end-to-end tests on `main` and on the archive pull request of `study-screen` (the owner's technical debt): longer waits for the WebKit project in `playwright.config.ts`, and a longer test timeout for the walk through every link of Study; verify they pass on Chromium and Firefox and, in the pipeline, on WebKit
+- [x] 2.3 Give WebKit more time where its speed alone failed the end-to-end tests on `main` and on the archive pull request of `study-screen` (the owner's technical debt): longer waits for the WebKit project in `playwright.config.ts`, and a longer test timeout for the walk through every link of Study; verify they pass on Chromium and Firefox and, in the pipeline, on WebKit — the WebKit halves pass in the pipeline of pull request #18
 
 ## 3. Review and evidence
 
-- [ ] 3.1 Run `pnpm verify`; verify it passes, WebKit by the pipeline
-- [ ] 3.2 Open the pull request as the bot with the sections of C-18 item 1
-- [ ] 3.3 A reviewing agent with a fresh context writes round 1 in `review.md`; the same agent, resumed, writes each later round until one approves; verify the `evidence` check is green
+- [x] 3.1 Run `pnpm verify`; verify it passes, WebKit by the pipeline — every gate passes in the pipeline of pull request #18 (WebKit there); locally `pnpm check`, 750 unit tests, 14 speed tests, 154 end-to-end tests on Chromium and Firefox
+- [x] 3.2 Open the pull request as the bot with the sections of C-18 item 1 — pull request #18
+- [x] 3.3 A reviewing agent with a fresh context writes round 1 in `review.md`; the same agent, resumed, writes each later round until one approves; verify the `evidence` check is green — two rounds in `review.md`, round 2 approves `e89eae49860a`
 - [ ] 3.4 **(owner)** Read the pull request and merge

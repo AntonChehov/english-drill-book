@@ -52,3 +52,38 @@ Verdict: changes requested
 - Not raised: the branch "Not reached" (check.ts:70) is reachable. When `'s` or `'d` is followed by punctuation and then a letter with no space between, as in `it's.great`, `wordsOf` keeps `it'sgreat` as one word, which `alignWords` cannot split into `it` `is` `great`. `isSlip` then returns true without any check. The readings merge those words, so no natural key has as many words, and I found no input where this changes a verdict. Returning `false` there would be the safer default.
 - Not raised, within the letter of the spec: a missing apostrophe in a 4-character contraction stays `near` (`its raining` for `it's raining`, `hes tired` for `he's tired`), because the apostrophe counts as a character of the key word. *its/it's* is grammar some exercises drill, so the owner may want to decide it.
 - Task 2.3 is done in commit 5a14eb7 but not ticked in `tasks.md`.
+
+## Round 2
+
+Reviewed: e89eae49860a
+Verdict: approved
+
+- F1: fixed
+  My five round-1 inputs now give `bad`, and `the bus is lote` still gives `near`. I compared `checkAnswer` with a reference that tries every placement of the edit and checks every word each one touches. Over 19 755 random keys and answers of up to three words, from the letters `a e s d`, it gave no mismatch (7 484 of them `near`). Setting `lo` to `hi` (no window) fails the new `@req CHK-006` test.
+- F2: fixed
+  My round-1 probe (N one-letter words against keys of `[b|…|z]`) now takes 0.14–0.21 ms for N 20 to 200. Before, it took 2.9–12.9 ms. The new speed test with 80 words passes, and `pnpm test:speed` passes 14 tests.
+- F3: fixed
+
+### Notes
+
+- Range read: `git diff 93f0005..HEAD` (8 files) in full, with `check.ts` re-read whole. Round 1 still stands for the rest of the diff. Run here: `pnpm check` (passes, traceability 41 IDs), `pnpm test` (46 files, 764 tests pass), `pnpm test:speed` (14 pass, near case median 0.038 ms). End-to-end tests were not run. The probes were scratch vitest files and one mutation of `check.ts`, all removed or restored.
+- Checked and fine:
+  - The window: for a substitution it is the single differing index. For a removed letter, insertion points run from `text.length - suffix` to `prefix`, and words whose end equals a place count. For an added letter, the window runs from `text.length - suffix - 1` to `prefix`.
+  - The key word `candidate.slice(start, end + longer)` is right wherever the edit falls inside that word.
+  - `wordEnds` shares one array and backtracks without copying; at most one reading of `'s` or `'d` fits at a place.
+  - `'s` read as two words: `she's a artist` gives `bad`, `she's sen it` gives `near` (`seen`), `she's sa` gives `bad`.
+- A reading whose words cannot be matched now stays `near` on purpose, and design D1 and the code comment say so. No natural key reaches it.
+- `its raining` for `it's raining` stays `near` as the spec allows; the author is raising it with the owner.
+- The WebKit expect timeout of 15 s is set on that project only, and Chromium and Firefox keep the default. Task 2.3 stays unticked until the pipeline shows WebKit; that is the author's call, not a finding.
+
+## Requirement coverage
+
+| Requirement | Implemented | Tests |
+| --- | --- | --- |
+| CHK-006 | src/domain/checking/check.ts `differInEnding`, `wordEnds`, `isSlip`, `checkAnswer`; src/domain/checking/normalise.ts `wordsOf`; src/ui/study/StudyView.vue hint; docs/product/03-answer-checking.md | check.test.ts `@req CHK-006` (every delta scenario, the proposal's examples, `'s` and `'d` as two words, an edit where two words meet, a letter added or removed next to the same letter); e2e/study.spec.ts and src/domain/study/view.test.ts (*lote* for *late* as the almost-right answer) |
+
+## Outside the listed requirements
+
+- CHK-014: speed.test.ts gains a test of many candidates one edit away that are all grammar, and the near case with `'s` and `'d` now ends in a long word.
+- `playwright.config.ts`: the WebKit project waits 15 s in `expect`. In e2e/study-frame.spec.ts the walk through Study's links is `test.slow` on WebKit. Both are recorded as technical debt in docs/roadmap.md.
+- docs/roadmap.md: technical debt found by the validation of `study-screen` is listed under Later.
