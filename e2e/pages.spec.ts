@@ -169,8 +169,7 @@ test.describe("DOC-001 On a dense screen", () => {
     async ({ page }) => {
       await openUnit(page, "1");
       const canvas = drawnPages(page).first();
-      // WebKit, not a target, draws slowly: its speed is technical debt (docs/roadmap.md).
-      await expect(canvas).toBeVisible({ timeout: 15_000 });
+      await expect(canvas).toBeVisible();
 
       await expect
         .poll(() =>
