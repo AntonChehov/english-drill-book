@@ -4,6 +4,11 @@
 
 **M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Slice 1.2 is done: the answer checker is in `src/domain/checking`, not yet called by any screen. Slice 1.3 is done: two demo books are served with the app, read into packs in the browser and listed on the start screen. Slice 1.4 is done: packs, the attempt log and its derived state are kept in the browser, and the demo stays added. Slice 1.5 is done: a unit of either demo book opens in Study, its pages beside its exercises, which are answered, checked and kept. The change `near-grammar` narrowed «Почти» to a slip inside a longer word. Version 0.1.0 is released (2026-11-16): the demo with Study on both demo books. Next: slice 1.6, the two books joined.
 
+Asked for by the owner on 2026-11-16, after the first release:
+
+- **The demo in Russian** (`russian-demo`, proposed): the explanations, tasks and service pages of the demo books in Russian, only the exercises themselves in English.
+- **The bar on a phone** (PROD-012, slice 1.8): a compact navigation fixed to the top of a narrow screen that hides on a scroll down and returns on a scroll up, replacing the page's top bar; a finished unit or book shown in green with a check mark drawn in.
+
 ## Milestones
 
 Each milestone is delivered as slices. One slice is one OpenSpec change and one pull request (`docs/process.md`).
@@ -21,7 +26,7 @@ A visitor opens the link, tries the demo book, sees its pages beside its exercis
 | 1.5 Study: exercises beside pages | PLAY-001 – PLAY-011, PLAY-013, PLAY-015, DOC-001, DOC-008, PROG-014, PROD-006, PROD-007 |
 | 1.6 Two books joined, first cut | brought forward from milestone 2: a topic is a unit of the course with its exercises in the drill book; Today with the two steps, Topics; PLAY-017, PLAY-018 and the PROG requirements its proposal names |
 | 1.7 Pages panel tools | DOC-002 – DOC-006, DOC-009 |
-| 1.8 Shell: first run, themes, failures | PROD-002 – PROD-005, PROD-009, PROD-011 |
+| 1.8 Shell: first run, themes, failures, the bar on a phone | PROD-002 – PROD-005, PROD-009, PROD-011, PROD-012 |
 
 The order was changed on 2026-11-13 at the owner's request: what a visitor can use comes first, and the interface follows the owner's private predecessor (`docs/product/08-interface-reference.md`).
 

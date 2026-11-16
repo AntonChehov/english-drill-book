@@ -23,6 +23,7 @@ Unit, exercise and item IDs come from the book's own numbering (unit 5, exercise
   2. the `accept` of every item builds a valid key (`CHK-002`): every pattern is valid and the key as a whole is within its limits;
   3. for an item with `choices`, at least one choice is accepted by the key.
 - **PACK-003 [M1]** The demo book is added with one action and needs no file from the learner. It needs a network connection when it is added and when its pages are shown; it is not kept for offline use.
+- **PACK-004 [M1]** The demo books address the learner in Russian (titles, the pages about the books, explanations, tasks, the ideas of an open exercise, the headings of the key); the material of the exercises is in English (prompts, choices, texts and models, samples, answers). A pack says the language of its titles and tasks (`language`, default `en`) and of its material (`textLanguage` of an exercise, default `en`), and the interface marks each text with it (PROD-004). Why: the app is for Russian speakers; what is read to learn is in Russian, what is practised is in English. Asked for by the owner on 2026-11-16.
 
 - **BOOK-001 [M3]** Library shows the catalogue: for each book its title, author, edition, and state — not added, added, needs attention.
 - **BOOK-002 [M3]** To add a book the learner picks it in the catalogue and selects their PDF (some books need two files: the exercises and the keys). The file is read in the browser and is never sent over the network.

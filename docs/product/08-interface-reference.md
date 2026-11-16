@@ -10,6 +10,8 @@ Where a requirement of `01` – `07` says otherwise, the requirement wins and th
 
 A top bar on every screen: the app's name on the left, leading to Today; then the sections **Сегодня**, **Темы**, **Ошибки**; the current section is marked. Content sits in a centred column of cards on a quiet background. One accent colour; states are shown by colour and by a word or a sign, never by colour alone.
 
+On a narrow screen the top bar gives way to a compact bar fixed to the top of the screen, which slides out of view on a scroll down and back in on a scroll up (PROD-012). In Study it holds the unit's navigation: **‹**, the unit, **›** and the list of units. A unit with every exercise done is shown in green with a check mark that is drawn in when the last exercise is finished; so is a book with every unit done.
+
 ## Сегодня (Today)
 
 The first screen once a book is added. From top to bottom:
