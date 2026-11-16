@@ -23,4 +23,4 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 - [x] 3.1 Run `pnpm verify`; verify it passes, WebKit by the pipeline — every gate passes in the pipeline of pull request #18 (WebKit there); locally `pnpm check`, 750 unit tests, 14 speed tests, 154 end-to-end tests on Chromium and Firefox
 - [x] 3.2 Open the pull request as the bot with the sections of C-18 item 1 — pull request #18
 - [x] 3.3 A reviewing agent with a fresh context writes round 1 in `review.md`; the same agent, resumed, writes each later round until one approves; verify the `evidence` check is green — four rounds in `review.md`, round 4 approves `c18ed35c1ae6`
-- [ ] 3.4 **(owner)** Read the pull request and merge
+- [x] 3.4 **(owner)** Read the pull request and merge — the owner approved pull request #18 on 2026-11-16 and had it merged
