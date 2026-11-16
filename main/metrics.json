@@ -2,30 +2,35 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-8WWyzl_Y.js"
+        "assets/index-CL2N5CmA.js"
       ],
-      "bytes": 106743,
-      "gzip": 40423,
+      "bytes": 111120,
+      "gzip": 42127,
       "budget": 120000
     },
     "css": {
       "files": [
-        "assets/index-COSSKkxX.css"
+        "assets/index-BiTE8n6v.css"
       ],
-      "bytes": 2193,
-      "gzip": 817,
+      "bytes": 5185,
+      "gzip": 1563,
       "budget": 20000
     },
     "later": [
       {
-        "file": "assets/add-demo-DJqpjVMq.js",
-        "bytes": 7713,
-        "gzip": 3206
+        "file": "assets/StudyView-DLXCeQtj.js",
+        "bytes": 34593,
+        "gzip": 12819
       },
       {
-        "file": "assets/kept-B6cOLauV.js",
+        "file": "assets/add-demo-DTCzor7I.js",
+        "bytes": 5384,
+        "gzip": 2229
+      },
+      {
+        "file": "assets/kept-BpOn4HW8.js",
         "bytes": 491,
-        "gzip": 342
+        "gzip": 341
       },
       {
         "file": "assets/pdf-YwugTw7Y.js",
@@ -38,32 +43,37 @@
         "gzip": 379243
       },
       {
-        "file": "assets/profiles-CmfSymNq.js",
-        "bytes": 11911,
-        "gzip": 4728
+        "file": "assets/profiles-DCG5Qv8a.js",
+        "bytes": 12975,
+        "gzip": 5157
+      },
+      {
+        "file": "assets/static-files-CRXenbGU.js",
+        "bytes": 2478,
+        "gzip": 1288
       }
     ]
   },
-  "sha": "e7b19782883879c30725ccae38c9cb5ef61b71cb",
+  "sha": "afc30b0054bff7045713b7f56cfd1dcc971d3c83",
   "tests": {
     "unit": {
-      "tests": 717,
-      "passed": 717,
+      "tests": 764,
+      "passed": 764,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 107,
-      "passed": 107,
+      "tests": 217,
+      "passed": 216,
       "failed": 0,
-      "skipped": 0
+      "skipped": 1
     }
   },
   "coverage": {
-    "lines": 99.69,
-    "branches": 98.44,
+    "lines": 99.63,
+    "branches": 98.45,
     "functions": 100,
-    "statements": 99.62
+    "statements": 99.59
   },
   "lighthouse": {
     "performance": 100,
@@ -72,6 +82,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 115
+    "seconds": 168
   }
 }
