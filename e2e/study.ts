@@ -193,7 +193,7 @@ export const studyStates = [
       const exercise = exerciseOf(page, "1.3");
       await fill(exercise, {
         "1": answers13["1"],
-        "2": "The bus is not lates",
+        "2": "The bus is not lote",
         "3": "We is home",
         "4": "My phone not in my bag",
       });

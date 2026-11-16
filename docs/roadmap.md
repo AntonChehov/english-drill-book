@@ -47,7 +47,14 @@ Accounts and sync of the attempt log between devices. To be specified, with its 
 
 Placement test (find the learner's level and the topics to skip). Own exercise bank (original drills per topic, built in). See `docs/product/05-program-and-levels.md`, section Later.
 
-Technical debt, decided by the owner on 2026-11-14: the speed of Study on WebKit. In the pipeline's WebKit (two pixels per CSS pixel) the first page of a unit is drawn in 1.5–2 s, against about 0.1 s on Chromium and Firefox, and the end-to-end check of that time is skipped there. WebKit is not a target of the app for now; the test of PROD-002 and C-13 may need the same answer.
+Technical debt, recorded at the owner's request on 2026-11-14 from the validation of `study-screen`:
+
+- The speed of Study on WebKit. In the pipeline's WebKit (two pixels per CSS pixel) the first page of a unit is drawn in 1.5–2 s, against about 0.1 s on Chromium and Firefox, and the end-to-end check of that time is skipped there. WebKit is not a target of the app for now; C-13, which requires the end-to-end tests on WebKit, may need the same answer.
+- A verdict counted by hand looks nearly the same as one the app gave: only the words «засчитано вручную» differ, not the colour or the sign.
+- Small touch targets on a phone: the "⋯" menu of a row is 36 × 36 px and an option chip about 34 px high, under the usual 44–48 px.
+- Tab stops on every row's "⋯" between the answer fields, so going through an exercise by keyboard takes twice the presses.
+- Twice in about 50 tries, right after a new build was served, the worker of the PDF library did not load and adding the demo said there was no connection; not seen again in 40 tries. A failed load of the app's own script could be retried once, or named for what it is.
+- The start screen reads the derived state of every exercise of both books again on each write in another tab; to be coalesced before real books.
 
 ## Done
 

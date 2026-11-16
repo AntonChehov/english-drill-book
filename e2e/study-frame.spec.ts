@@ -6,7 +6,9 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
   test(
     "@req PROD-001 every link on Study opens its destination in the same window",
     { tag: "@demo" },
-    async ({ page, context }) => {
+    async ({ page, context, browserName }) => {
+      // WebKit, not a target, opens a unit slowly: its speed is technical debt (docs/roadmap.md).
+      test.slow(browserName === "webkit");
       await openUnit(page, "1");
       await page.getByRole("button", { name: "Все разделы" }).click();
       const links = page.getByRole("link");
@@ -41,10 +43,14 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
       await expect(unitHeading(page)).toHaveText("Раздел 3. A and an");
       const address = page.url();
       await expect(page).toHaveTitle("Раздел 3. A and an — English Drill Book");
+      // Reloaded once the page is drawn: WebKit reports a worker of the PDF library cut off by a
+      // reload as a failed access check, which is the test's doing, not the app's.
+      await expect(page.locator("canvas[data-drawn]").first()).toBeVisible();
 
       await page.reload();
       await expect(page).toHaveURL(address);
       await expect(unitHeading(page)).toHaveText("Раздел 3. A and an");
+      await expect(page.locator("canvas[data-drawn]").first()).toBeVisible();
 
       await page.goto(`${unitAddress("3")}?ex=3.3`);
       await expect(exerciseOf(page, "3.3")).toBeInViewport();

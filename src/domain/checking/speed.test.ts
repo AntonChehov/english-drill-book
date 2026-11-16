@@ -191,10 +191,24 @@ describe("speed", () => {
   });
 
   it("@req CHK-014 checks a near answer against a key with 's and 'd in under 5 ms", () => {
-    const accept = "he's [ba|ca|da|fa|ga] [be|ce|de|fe|ge] [bi|ci|di|fi|gi] and she'd go";
-    const answer = "he's ga ge gi and she'd gx";
+    const accept = "he's [ba|ca|da|fa|ga] [be|ce|de|fe|ge] [bi|ci|di|fi|gi] and she'd travel";
+    const answer = "he's ga ge gi and she'd travek";
     expect(checkAnswer(keyOf([accept]), answer)).toBe("near");
     expect(measure("near", [accept], answer)).toBeLessThan(LIMIT_MS);
+  });
+
+  it("@req CHK-014 checks a long answer against keys one letter from it in many words in under 5 ms", () => {
+    const words = Array.from({ length: 80 }, () => "a");
+    const letters = "[b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z]";
+    const accept = Array.from({ length: 8 }, (_, index) => {
+      const key = [...words];
+      key[index * 10] = letters;
+      return key.join(" ");
+    });
+    const answer = words.join(" ");
+    expect(compileKey(accept).ok).toBe(true);
+    expect(checkAnswer(keyOf(accept), answer)).toBe("bad");
+    expect(measure("long answer, many near keys", accept, answer)).toBeLessThan(LIMIT_MS);
   });
 
   it("@req CHK-014 refuses the keys that would be slower, before any check", () => {
