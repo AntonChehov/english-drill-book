@@ -87,6 +87,18 @@ Verdict: approved
 - The WebKit matrix entries are now three: shards `1/3`, `2/3` and `3/3`, labelled `webkit-1-of-3` to `webkit-3-of-3`. The label still names the job, the JUnit file, the summary and both artifacts, and `scripts/metrics.mjs` collects every `e2e-*` artifact. Nothing else in `scripts/`, `.github/` or `docs/` names the old `of-2` labels.
 - `playwright test --project=webkit --shard=1/3 --list`, `2/3` and `3/3` list 21 tests each, the 63 of the project. Whether the pipeline now stays within C-19 is shown by the `evidence` check, not here.
 
+## Round 4
+
+Reviewed: c18ed35c1ae6
+Verdict: approved
+
+### Notes
+
+- The first reviewing agent could not be resumed, so this round is by a new agent that read rounds 1 to 3 first.
+- Range read: commit 9c65a41 (`git show`), which changes `e2e/study-frame.spec.ts` by four lines and adds task 2.5 to `tasks.md` (outside the hash). Nothing else changed since round 3, and the rest of `git diff origin/main...HEAD` is what rounds 1 to 3 covered.
+- The waits are sound. `canvas[data-drawn]` is the attribute `PagesPanel.vue` sets on a page's canvas once that page is drawn, so waiting for it to be visible means the PDF worker has loaded and finished before `page.reload()`. The second wait after the reload keeps the next navigation from cutting the new worker off. The test's other assertions and its address, title and heading checks are unchanged.
+- Run here: `pnpm check` passes (traceability 41 requirements) and `pnpm exec playwright test e2e/study-frame.spec.ts --project=chromium` passes 8 tests after `pnpm build`. WebKit cannot start on this machine; whether its parts now pass is task 2.5's evidence from the pipeline, not checked here.
+
 ## Requirement coverage
 
 | Requirement | Implemented | Tests |
