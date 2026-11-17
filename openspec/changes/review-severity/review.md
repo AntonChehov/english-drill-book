@@ -28,3 +28,26 @@ Severity: minor
 - The four documents agree on the rule itself: critical or minor, every finding fixed in rounds 1 and 2, only critical findings block approval from round 3, minor ones to `### Notes` and `docs/roadmap.md` (step 4 and `CLAUDE.md` name "Later, unscheduled", C-18 names only the file, which is fine), a round 4 or later only because of critical findings; the definitions of critical and minor stand once, in step 4, and the others point to it. The `Severity:` line of this record follows the text of step 4.
 - Proposal and tasks follow the archived changes (`review-follow-ups`, `near-grammar`): the sections, "Requirements delivered: none", `skip_specs` in `.openspec.yaml`, the group "Review and evidence" and the **(owner)** task. Not raised, for the author to take or leave: the proposal does not name `skip_specs` as the archived ones do, nor what is deliberately left for later (the rule in `openspec/config.yaml` asks for it; "Reviews of changes already merged are not redone" under Impact comes close); task 2.2 already shows "pull request #20" while unticked, where the archived records add the link when the task is done; task 2.1 does not say that the author fixes or declines each finding between rounds, as 3.3 of `review-follow-ups` does.
 - No constitution constraint is touched beyond C-14 and C-18 themselves; no code, test, schema or living spec changes, so no traceability, budget or accessibility check applies. Nothing from a published textbook is in the diff (C-01).
+
+## Round 2
+
+Reviewed: 682ef4cfea3a
+Verdict: approved
+
+- F1: fixed
+  `README.md`, `CLAUDE.md` and step 1 of `docs/process.md` now each say the design is omitted for a change of only texts or only documentation, in the words of step 2 and C-14.
+- F2: fixed
+  Step 4 now states the mechanics the check enforces: rounds 1 and 2 fix or decline with a reason; from round 3 on an open minor finding is closed as `declined — technical debt, recorded in docs/roadmap.md`, accepted once recorded under "Later, unscheduled", new minor observations go under `### Notes` only, critical findings are fixed in any round. `CLAUDE.md`, C-18 and `openspec/config.yaml` say the same, shorter, and point to step 4. Each of these outcomes is one the parser accepts in an approving round, so the texts and `scripts/review-record.mjs` agree.
+
+### Notes
+
+- Scope: `git diff 7c46ea3..HEAD` (commit 3025d2f: `README.md`, `CLAUDE.md`, `docs/process.md`, `docs/constitution.md`, `openspec/config.yaml`) read in full, and the whole diff `main...HEAD` again; the change's proposal, tasks and `.openspec.yaml` are unchanged since round 1. Reviewed by hand, as in round 1. Run here: `pnpm spec` (8 passed), `pnpm format:check` (passes), `pnpm review:hash review-severity` online.
+- The five documents now state one rule for the design exception and one for severity and rounds; the definitions of critical and minor stand once, in step 4. The notes of round 1 on the proposal and tasks were not raised and stand as they were.
+
+## Requirement coverage
+
+The change delivers no requirement of `docs/product/`: it changes the process documents only, so there is no implementation and no test to name.
+
+## Outside the listed requirements
+
+The whole change is outside listed requirements: `CLAUDE.md`, `README.md`, `docs/process.md` (steps 1, 2 and 4), `docs/constitution.md` (C-14, C-18), `openspec/config.yaml` (design and tasks rules), and the change's own `.openspec.yaml`, `proposal.md` and `tasks.md`. No code, schema, test or living spec.
