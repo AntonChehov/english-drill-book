@@ -19,11 +19,12 @@ rules:
     - 'Start every requirement title with its ID, for example "### Requirement: CHK-005 Correct answer".'
     - Use the wording of docs/product/ for the requirement; put examples and edge cases into scenarios.
   design:
+    - Omit design.md when the change is only texts (strings, demo content, translations) or only documentation; any change touching code, schema or tests has one.
     - State which constitution constraints the change touches and how each will be measured.
     - Record every new runtime dependency with what it replaces and its size (C-12).
   tasks:
     - Every task group lands its own tests; tests name the requirement IDs they verify (@req ID).
-    - End with a group "Review and evidence" containing the review rounds of C-18 item 2, made by a reviewing agent in review.md until a round approves the latest content, and the other checks of C-18.
+    - End with a group "Review and evidence" containing the review rounds of C-18 item 2, made by a reviewing agent in review.md until a round approves the latest content, where each finding carries a severity (critical or minor) and from round 3 on an open minor finding is declined as technical debt recorded in docs/roadmap.md and critical findings are fixed in any round, and the other checks of C-18.
 
 operations:
   apply:
