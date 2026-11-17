@@ -6,7 +6,6 @@
 
 Asked for by the owner on 2026-11-16, after the first release:
 
-- **The demo in Russian** (`russian-demo`, proposed): the PDFs stay English, standing for the learner's own books; the demo packs carry Russian unit titles, the explanation of each unit's grammar and what to do in each exercise, shown in Study beside the exercises; PACK-004, PLAY-020.
 - **The bar on a phone** (PROD-012, slice 1.8): a compact navigation fixed to the top of a narrow screen that hides on a scroll down and returns on a scroll up, replacing the page's top bar; a finished unit or book shown in green with a check mark drawn in.
 
 ## Milestones
@@ -60,6 +59,11 @@ Technical debt, recorded at the owner's request on 2026-11-14 from the validatio
 - Tab stops on every row's "⋯" between the answer fields, so going through an exercise by keyboard takes twice the presses.
 - Twice in about 50 tries, right after a new build was served, the worker of the PDF library did not load and adding the demo said there was no connection; not seen again in 40 tries. A failed load of the app's own script could be retried once, or named for what it is.
 - The start screen reads the derived state of every exercise of both books again on each write in another tab; to be coalesced before real books.
+- CI: `pnpm install` spends up to 70 s verifying the lockfile against supply-chain policies with the npm registry when it is slow, which pushed a run over C-19 (PR #22, run 44098893926); cache the verification or skip it when the lockfile is unchanged.
+- Offline after a fresh start, Today shows the "demo not added" state instead of the stored books and progress (validation of PR #22).
+- Checking a long exercise with Enter in its last field lets the verdicts push the focused field below the window (validation of PR #22).
+- In a clean browser, a link to a demo unit that does not exist promises the unit will open after adding the demo, then says not found (validation of PR #22).
+- At 360 px some touch targets are 34–38 px high (option pills, ⋯ ‹ › buttons, fields), below 44–48 px; tapping an option flashes the default tap highlight (validation of PR #22).
 
 ## Done
 
@@ -75,3 +79,4 @@ Technical debt, recorded at the owner's request on 2026-11-14 from the validatio
 - 2026-11-14 — slice 1.5 (`study-screen`, pull request #16): Study with the pages of a unit beside its exercises, verdicts, one answer on request, a verdict changed by hand, drafts and attempts kept, two tabs, the keyboard and layout by width, the address of a demo unit in a clean browser, WebKit end-to-end tests in two halves; PLAY-001 – PLAY-011, PLAY-013, PLAY-015, DOC-001, DOC-008, PROG-014, PROD-006, PROD-007. Archived; `openspec/specs/study`, `pages` and `today` hold its requirements.
 - 2026-11-16 — `near-grammar` (pull request #18): «Почти» only for a slip inside one word of at least 4 letters of the key that does not differ by an ending; the WebKit end-to-end tests wait longer and run in three parts; CHK-006 modified. Archived. Release 0.1.0 (pull request #4) after it: the first public version of the demo.
 - 2026-11-17 — `review-severity` (pull request #20): every review finding carries a severity, critical or minor; from round 3 on only critical findings must be fixed, minor ones become technical debt; `design.md` is optional for a change of only texts or only documentation. Archived.
+- 2026-11-17 — `russian-demo` (pull request #22): the demo packs carry Russian unit titles, the explanation of each unit's grammar and what to do in each exercise, shown in Study beside the exercises; PACK-004, PLAY-020. Archived.
