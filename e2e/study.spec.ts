@@ -46,7 +46,7 @@ test.describe("PLAY-001 Two panels", () => {
     async ({ page }) => {
       await openUnit(page, "1");
 
-      await expect(unitHeading(page)).toHaveText("Раздел 1. To be: am, is, are");
+      await expect(unitHeading(page)).toHaveText("Раздел 1. Глагол to be: am, is, are");
       const pages = page.getByRole("img", { name: /^Страница \d+$/ });
       expect(
         await pages.evaluateAll((all) => all.map((each) => each.getAttribute("aria-label"))),
@@ -68,7 +68,7 @@ test.describe("PLAY-001 Two panels", () => {
         "Упражнение 2.3",
       ]);
       await previous.click();
-      await expect(unitHeading(page)).toHaveText("Раздел 1. To be: am, is, are");
+      await expect(unitHeading(page)).toHaveText("Раздел 1. Глагол to be: am, is, are");
 
       await openUnit(page, "4");
       await expect(next).toBeDisabled();

@@ -39,17 +39,17 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
     { tag: "@demo" },
     async ({ page }) => {
       await page.goto(addressOf("/"));
-      await page.getByRole("link", { name: "Раздел 3. A and an" }).first().click();
-      await expect(unitHeading(page)).toHaveText("Раздел 3. A and an");
+      await page.getByRole("link", { name: "Раздел 3. Артикли a и an" }).first().click();
+      await expect(unitHeading(page)).toHaveText("Раздел 3. Артикли a и an");
       const address = page.url();
-      await expect(page).toHaveTitle("Раздел 3. A and an — English Drill Book");
+      await expect(page).toHaveTitle("Раздел 3. Артикли a и an — English Drill Book");
       // Reloaded once the page is drawn: WebKit reports a worker of the PDF library cut off by a
       // reload as a failed access check, which is the test's doing, not the app's.
       await expect(page.locator("canvas[data-drawn]").first()).toBeVisible();
 
       await page.reload();
       await expect(page).toHaveURL(address);
-      await expect(unitHeading(page)).toHaveText("Раздел 3. A and an");
+      await expect(unitHeading(page)).toHaveText("Раздел 3. Артикли a и an");
       await expect(page.locator("canvas[data-drawn]").first()).toBeVisible();
 
       await page.goto(`${unitAddress("3")}?ex=3.3`);
@@ -70,7 +70,7 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
       await expect(page.getByText("Everyday Grammar: A Demo Course")).toBeVisible();
       await page.getByRole("button", { name: "Добавить демо-книги и открыть раздел" }).click();
 
-      await expect(unitHeading(page)).toHaveText("Раздел 3. A and an");
+      await expect(unitHeading(page)).toHaveText("Раздел 3. Артикли a и an");
       await expect(unitHeading(page)).toBeFocused();
       await expect(exerciseOf(page, "3.2")).toBeInViewport();
       await page.getByRole("link", { name: "Сегодня" }).click();
