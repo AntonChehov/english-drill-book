@@ -41,7 +41,10 @@ export interface Item {
 export interface ItemsExercise {
   readonly id: string;
   readonly type: "items";
+  /** What the book prints. */
   readonly task: string;
+  /** What to do, in the language of the interface (PACK-004). */
+  readonly help?: string;
   readonly pages?: readonly PageRef[];
   readonly items: readonly Item[];
 }
@@ -50,6 +53,7 @@ export interface TextExercise {
   readonly id: string;
   readonly type: "text";
   readonly task: string;
+  readonly help?: string;
   readonly pages?: readonly PageRef[];
   readonly prompt?: string;
   readonly model: string;
@@ -59,6 +63,7 @@ export interface OpenExercise {
   readonly id: string;
   readonly type: "open";
   readonly task: string;
+  readonly help?: string;
   readonly pages?: readonly PageRef[];
   readonly prompt?: string;
   readonly sample?: string;
@@ -69,7 +74,10 @@ export type Exercise = ItemsExercise | TextExercise | OpenExercise;
 export interface Unit {
   readonly id: string;
   readonly title: string;
-  /** Markdown, safe subset (PACK-007). */
+  /**
+   * The explanation of the unit's grammar, in the language of the interface (PACK-004): plain
+   * paragraphs separated by a blank line; a span between two `*` is in the language being learned.
+   */
   readonly theory?: string;
   readonly pages?: readonly PageRef[];
   readonly exercises: readonly Exercise[];

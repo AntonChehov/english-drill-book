@@ -678,22 +678,60 @@ function layOut(book, fonts, starts = new Map(), keyPage = 0) {
   return { layout, starts, keyPage: key };
 }
 
+/** The limits of contracts/pack.schema.json on what the pack says to the learner (PACK-004). */
+const learnerLimits = { title: 200, theory: 20000, help: 1000 };
+
 /**
  * What demo/LAYOUT.md promises about the text, checked before anything is laid out: answers have
  * no digits, use `;` only between whole answers and `/` only between single words; prompts have
- * no square brackets and do not
- * start with a number; no text has a line break or a double space. Returns the problems found.
+ * no square brackets and do not start with a number; no text has a line break or a double space.
+ * Also what the pack promises about the `learner` texts (design D2 of `russian-demo`): every unit
+ * has a `title` and a `theory`, every exercise a `help`, none empty or over the schema's limit; a
+ * `theory` is paragraphs separated by one blank line, with every `*` span closed and not empty.
+ * Returns the problems found.
  */
 export function sourceProblems(source) {
   const problems = [];
   const plain = (where, text) => {
     if (/\n|\s{2}|^\s|\s$/u.test(text)) problems.push(`${where}: a line break or extra space`);
   };
+  const learnerText = (where, field, text) => {
+    if (typeof text !== "string" || text.length === 0) {
+      problems.push(`${where}: no learner ${field}`);
+      return false;
+    }
+    if ([...text].length > learnerLimits[field])
+      problems.push(`${where}: the learner ${field} is over ${learnerLimits[field]} characters`);
+    return true;
+  };
+  const theory = (where, text) => {
+    if (!learnerText(where, "theory", text)) return;
+    for (const part of text.split("\n\n")) {
+      if (part.length === 0) {
+        problems.push(`${where}: an empty paragraph in the theory`);
+        continue;
+      }
+      plain(`${where} theory`, part);
+      // Read as `theoryParagraphs` reads it, paragraph by paragraph: the parts between `*`
+      // alternate plain and learned, so touching spans (`*am**is*`) are two spans, an odd count
+      // of `*` leaves one unclosed and an empty learned part is an empty span.
+      const pieces = part.split("*");
+      if (pieces.length % 2 === 0) problems.push(`${where}: an unclosed * in the theory`);
+      else if (pieces.some((piece, index) => index % 2 === 1 && piece.length === 0))
+        problems.push(`${where}: an empty * span in the theory`);
+    }
+  };
   source.units.forEach((unit, unitIndex) => {
     plain(`unit ${unitIndex + 1} title`, unit.title);
+    const learner = unit.learner ?? {};
+    if (learnerText(`unit ${unitIndex + 1}`, "title", learner.title))
+      plain(`unit ${unitIndex + 1} learner title`, learner.title);
+    theory(`unit ${unitIndex + 1}`, learner.theory);
     unit.exercises.forEach((exercise, exerciseIndex) => {
       const where = `exercise ${unitIndex + 1}.${exerciseIndex + 1}`;
       plain(`${where} task`, exercise.task);
+      if (learnerText(where, "help", exercise.learner?.help))
+        plain(`${where} learner help`, exercise.learner.help);
       if (/^\d+\.\d+ /u.test(exercise.task))
         problems.push(`${where}: the task starts with a number`);
       const answers = [exercise.model, exercise.sample].filter((text) => text !== undefined);
@@ -851,7 +889,11 @@ function draw(pdf, layout, book, fonts) {
   });
 }
 
-/** The pack the reader must find in the book, page ranges and document included. */
+/**
+ * The pack the app must produce from the book: what the reader finds in the pages, joined with
+ * the `learner` texts of the source (design D2 of `russian-demo`), page ranges and document
+ * included.
+ */
 export function expectedPack(book, ranges, document) {
   const pages = (id) => {
     const range = ranges.get(id);
@@ -877,13 +919,15 @@ export function expectedPack(book, ranges, document) {
     },
     units: book.units.map((unit) => ({
       id: unit.id,
-      title: unit.title,
+      title: unit.learner.title,
+      theory: unit.learner.theory,
       pages: pages(`unit:${unit.id}`),
       exercises: unit.exercises.map((exercise) => {
         const common = {
           id: exercise.id,
           type: exercise.type,
           task: exercise.task,
+          help: exercise.learner.help,
           pages: pages(`exercise:${exercise.id}`),
         };
         if (exercise.type === "text")
@@ -968,6 +1012,29 @@ export function formatPack(pack) {
   return `${JSON.stringify(pack, null, 2)}\n`;
 }
 
+/** Where the app finds what the demo packs say to the learner, joined to a pack once read. */
+export function learnerPath(root) {
+  return join(root, "src", "domain", "books", "demo", "learner.json");
+}
+
+/**
+ * What each demo pack says to the learner (design D2 of `russian-demo`), from the packs built:
+ * per book, per unit ID its `title` and `theory`, per exercise ID its `help`.
+ */
+export function learnerOf(packs) {
+  const learner = {};
+  for (const [name, pack] of Object.entries(packs)) {
+    const units = {};
+    const helps = {};
+    for (const unit of pack.units) {
+      units[unit.id] = { title: unit.title, theory: unit.theory };
+      for (const exercise of unit.exercises) helps[exercise.id] = { help: exercise.help };
+    }
+    learner[name] = { units, exercises: helps };
+  }
+  return `${JSON.stringify(learner, null, 2)}\n`;
+}
+
 async function main() {
   const root = process.cwd();
   const packs = {};
@@ -983,6 +1050,7 @@ async function main() {
     );
   }
   writeFileSync(documentsPath(root), documentsOf(packs));
+  writeFileSync(learnerPath(root), learnerOf(packs));
 }
 
 if (isMain(import.meta.url)) await main();

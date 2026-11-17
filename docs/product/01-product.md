@@ -38,6 +38,7 @@ The app is for Russian speakers learning English: the interface is in Russian, t
 - **PROD-009 [M1]** The app never shows a blocking browser dialog (`alert`, `confirm`, `prompt`). Destructive actions use an inline two-step confirmation.
 - **PROD-010 [M2]** The app can be installed as a PWA and, once installed, starts offline.
 - **PROD-011 [M1]** A failure in one part (a corrupt pack, a storage error) shows a message in that part and leaves the rest of the app usable. No failure produces a blank page.
+- **PROD-012 [M1]** On a narrow screen (below 1024 px) the navigation is a compact bar fixed to the top of the screen, in place of the top bar of the page: it hides when the learner scrolls down and comes back when they scroll up, so that it takes no room while reading and is one gesture away. In Study it carries the unit's navigation. A unit whose exercises are all done is marked in the navigation in green with a check mark, drawn in, in addition to its count; a book whose units are all done, the same. Why: on a phone the top bar costs a fifth of the screen, and a learner should see at a glance what is finished. Asked for by the owner on 2026-11-16 after the first release; for slice 1.8.
 
 ## Non-goals for milestones 1–3
 

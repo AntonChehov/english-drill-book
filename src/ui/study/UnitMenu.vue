@@ -55,9 +55,7 @@ function onFocusOut(event: FocusEvent) {
           :aria-current="unit.id === current ? 'page' : undefined"
           @click="open = false"
         >
-          <span class="title">
-            Раздел {{ unit.id }}.&nbsp;<span lang="en">{{ unit.title }}</span>
-          </span>
+          <span class="title">Раздел {{ unit.id }}.&nbsp;{{ unit.title }}</span>
           <span class="count" :class="{ full: unit.progress.done === unit.progress.total }">
             {{ doneOf(unit.progress.done, unit.progress.total) }}
           </span>

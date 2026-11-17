@@ -24,7 +24,7 @@ export const views: readonly View[] = [
   {
     name: "study",
     path: "/study/demo-course/1",
-    heading: "Раздел 1. To be: am, is, are",
+    heading: "Раздел 1. Глагол to be: am, is, are",
     demo: true,
   },
 ];

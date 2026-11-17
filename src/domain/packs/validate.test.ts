@@ -167,6 +167,56 @@ describe("PACK-001 Validation of packs", () => {
     ]);
   });
 
+  it("@req PACK-001 @req PACK-004 accepts a theory of a unit and a help on an exercise of each kind", () => {
+    const help = "Перепишите предложение.";
+    const value = pack([
+      {
+        id: "1",
+        title: "Глагол to be",
+        theory: "Глагол *be* имеет три формы.\n\nВ вопросе он стоит первым: *Are you tired?*",
+        exercises: [
+          { ...exercise("1.1", items({ id: "1", accept: ["is"] })), help },
+          { id: "1.2", type: "text", task: "Rewrite.", help, model: "She is not here." },
+          { id: "1.3", type: "open", task: "Write.", help },
+        ],
+      },
+    ]);
+    expect(validatePack(value)).toEqual({ ok: true, pack: value });
+  });
+
+  it("@req PACK-001 @req PACK-004 refuses a help of 1001 characters at its path with maxLength, on each kind", () => {
+    const help = "п".repeat(1001);
+    const value = pack([
+      unit("1", [
+        { ...exercise("1.1", items({ id: "1", accept: ["is"] })), help },
+        { id: "1.2", type: "text", task: "Rewrite.", help, model: "She is not here." },
+        { id: "1.3", type: "open", task: "Write.", help },
+      ]),
+    ]);
+    expect(errorsOf(value)).toEqual([
+      { path: "/units/0/exercises/0/help", rule: "maxLength" },
+      { path: "/units/0/exercises/1/help", rule: "maxLength" },
+      { path: "/units/0/exercises/2/help", rule: "maxLength" },
+    ]);
+    expect(
+      validatePack({
+        ...value,
+        units: [
+          unit("1", [
+            { ...exercise("1.1", items({ id: "1", accept: ["is"] })), help: "п".repeat(1000) },
+          ]),
+        ],
+      }).ok,
+    ).toBe(true);
+  });
+
+  it("@req PACK-004 refuses an empty help with minLength", () => {
+    const value = pack([
+      unit("1", [{ ...exercise("1.1", items({ id: "1", accept: ["is"] })), help: "" }]),
+    ]);
+    expect(errorsOf(value)).toEqual([{ path: "/units/0/exercises/0/help", rule: "minLength" }]);
+  });
+
   it(`@req PACK-001 stops after ${MAX_ERRORS} errors`, () => {
     const many = Array.from({ length: 150 }, (_, index) => ({ id: `${index} `, accept: ["("] }));
     const errors = errorsOf(pack([unit("1", [exercise("1.1", many)])]));

@@ -43,7 +43,7 @@ describe("checkAttempt", () => {
       action: "check",
       exercise: "1.3",
       pack: "demo-course",
-      packVersion: "1.0.0",
+      packVersion: "1.1.0",
       answers: { "1": all["1"], "2": "The bus late", "3": all["3"], "5": all["5"] },
       results: { "1": "ok", "2": "bad", "3": "ok", "5": "ok" },
       complete: false,

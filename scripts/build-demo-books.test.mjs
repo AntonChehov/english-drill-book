@@ -8,6 +8,8 @@ import {
   documentsOf,
   documentsPath,
   formatPack,
+  learnerOf,
+  learnerPath,
   packPath,
   pdfPath,
   sourcePath,
@@ -16,6 +18,13 @@ import {
 
 const root = process.cwd();
 const source = (name) => JSON.parse(readFileSync(sourcePath(root, name), "utf8"));
+
+/** The problems of the drill book whose unit 1 has `theory` as its learner theory. */
+function withTheory(theory) {
+  const changed = source("drills");
+  changed.units[0].learner.theory = theory;
+  return sourceProblems(changed);
+}
 const built = Object.fromEntries(
   await Promise.all(books.map(async (name) => [name, await buildBook(source(name))])),
 );
@@ -101,6 +110,109 @@ describe("build-demo-books", () => {
       .flatMap((unit) => unit.exercises)
       .filter(({ pages: [range] }) => range.to > range.from);
     expect(spanning.map((exercise) => exercise.id)).toEqual(["3.3"]);
+  });
+
+  it("keeps the PDFs and documents.json as published before the sources gained the learner texts (PACK-004)", () => {
+    // The hashes the change `demo-books` published; the layout reads no `learner` text.
+    expect(JSON.parse(readFileSync(documentsPath(root), "utf8"))).toEqual({
+      course: {
+        sha256: "3fee82fb7bf060f52defd2091003414e5503c564caf1a9b0c26dac78b0873019",
+        pages: 12,
+      },
+      drills: {
+        sha256: "42121716a447b7d9d46b90703cc9e6d7c56cfda3c6b00ac9a7290f26c6b06a2f",
+        pages: 6,
+      },
+    });
+    for (const name of books) {
+      expect(createHash("sha256").update(built[name].bytes).digest("hex")).toBe(
+        JSON.parse(readFileSync(documentsPath(root), "utf8"))[name].sha256,
+      );
+    }
+  });
+
+  it("gives every unit of both packs its Russian title and theory and every exercise its help, the English as printed (PACK-004)", () => {
+    const russian = /[а-яё]/iu;
+    for (const name of books) {
+      const { units } = source(name);
+      built[name].pack.units.forEach((unit, unitIndex) => {
+        expect(unit.title).toBe(units[unitIndex].learner.title);
+        expect(unit.theory).toBe(units[unitIndex].learner.theory);
+        expect(unit.theory).toMatch(russian);
+        unit.exercises.forEach((exercise, exerciseIndex) => {
+          const printed = units[unitIndex].exercises[exerciseIndex];
+          expect(exercise.help).toBe(printed.learner.help);
+          expect(exercise.help).toMatch(russian);
+          expect(exercise.task).toBe(printed.task);
+          expect(exercise.task).not.toMatch(russian);
+          for (const item of exercise.items ?? []) {
+            expect(item.prompt).not.toMatch(russian);
+            for (const pattern of item.accept) expect(pattern).not.toMatch(russian);
+          }
+        });
+      });
+    }
+    expect(built.course.pack.units.map((unit) => unit.title)).toEqual([
+      "Глагол to be: am, is, are",
+      "Present simple",
+      "Артикли a и an",
+      "There is и there are",
+    ]);
+    expect(built.drills.pack.units.map((unit) => unit.title)).toEqual(
+      built.course.pack.units.map((unit) => unit.title),
+    );
+    expect(built.course.pack.title).toBe("Everyday Grammar: A Demo Course");
+    expect(built.drills.pack.title).toBe("Everyday Grammar: Demo Drills");
+  });
+
+  it("writes the learner texts of both packs where the app joins them to a read pack", () => {
+    const packs = Object.fromEntries(books.map((name) => [name, built[name].pack]));
+    expect(learnerOf(packs)).toBe(readFileSync(learnerPath(root), "utf8"));
+    const learner = JSON.parse(learnerOf(packs));
+    expect(Object.keys(learner)).toEqual(books);
+    expect(learner.course.units["1"]).toEqual({
+      title: built.course.pack.units[0].title,
+      theory: built.course.pack.units[0].theory,
+    });
+    expect(learner.drills.exercises["4.3"]).toEqual({
+      help: built.drills.pack.units[3].exercises[2].help,
+    });
+  });
+
+  it("refuses a source whose learner texts are missing, unclosed or over the limit", async () => {
+    const broken = source("drills");
+    delete broken.units[0].learner;
+    broken.units[1].learner.theory = "Глагол *be\n\n\n\nещё";
+    broken.units[1].learner.title = "т".repeat(201);
+    delete broken.units[1].exercises[0].learner;
+    broken.units[1].exercises[1].learner.help = "п".repeat(1001);
+    broken.units[1].exercises[2].learner.help = "";
+    expect(sourceProblems(broken)).toEqual([
+      "unit 1: no learner title",
+      "unit 1: no learner theory",
+      "unit 2: the learner title is over 200 characters",
+      "unit 2: an unclosed * in the theory",
+      "unit 2: an empty paragraph in the theory",
+      "exercise 2.1: no learner help",
+      "exercise 2.2: the learner help is over 1000 characters",
+      "exercise 2.3: no learner help",
+    ]);
+    await expect(buildBook(broken)).rejects.toThrow("The source breaks demo/LAYOUT.md");
+  });
+
+  it("checks the * of a theory paragraph by paragraph, as Study reads them", () => {
+    // Even over the whole text, unclosed in each paragraph.
+    expect(withTheory("Форма *am.\n\nФорма is*.")).toEqual([
+      "unit 1: an unclosed * in the theory",
+      "unit 1: an unclosed * in the theory",
+    ]);
+    expect(withTheory("Пустой ** отрезок.")).toEqual(["unit 1: an empty * span in the theory"]);
+  });
+
+  it("accepts touching spans such as *am**is*, which Study shows as two spans", () => {
+    const changed = source("drills");
+    changed.units[0].learner.theory = "Формы *am**is* и *are*.\n\nВторой абзац: *be*.";
+    expect(sourceProblems(changed)).toEqual([]);
   });
 
   it("refuses a source that breaks the layout", async () => {

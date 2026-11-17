@@ -135,7 +135,9 @@ test.describe("PROD-007 Keyboard", () => {
     { tag: "@demo" },
     async ({ page }) => {
       await page.goto(addressOf("/"));
-      const unitLink = page.getByRole("link", { name: "Раздел 1. To be: am, is, are" }).first();
+      const unitLink = page
+        .getByRole("link", { name: "Раздел 1. Глагол to be: am, is, are" })
+        .first();
       await tabTo(page, unitLink);
       await page.keyboard.press("Enter");
       await expect(unitHeading(page)).toHaveText(/Раздел 1\./);

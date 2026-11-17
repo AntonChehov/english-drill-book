@@ -10,6 +10,8 @@ Where a requirement of `01` – `07` says otherwise, the requirement wins and th
 
 A top bar on every screen: the app's name on the left, leading to Today; then the sections **Сегодня**, **Темы**, **Ошибки**; the current section is marked. Content sits in a centred column of cards on a quiet background. One accent colour; states are shown by colour and by a word or a sign, never by colour alone.
 
+On a narrow screen the top bar gives way to a compact bar fixed to the top of the screen, which slides out of view on a scroll down and back in on a scroll up (PROD-012). In Study it holds the unit's navigation: **‹**, the unit, **›** and the list of units. A unit with every exercise done is shown in green with a check mark that is drawn in when the last exercise is finished; so is a book with every unit done.
+
 ## Сегодня (Today)
 
 The first screen once a book is added. From top to bottom:
@@ -32,13 +34,13 @@ A filter (all, not passed, by level) and, per book, a card listing its topics in
 One screen for a unit, in two parts side by side:
 
 - **Left, wide: the pages** of the unit from the book's file, one under another, scrolling.
-- **Right, narrow: the panel.** A card **Упражнения** with a one-paragraph hint on how answers are compared, then each exercise of the unit as a block.
+- **Right, narrow: the panel.** A card **Упражнения** with a one-paragraph hint on how answers are compared, then each exercise of the unit as a block. Before that card, when the pack explains the unit, a foldable block **Объяснение** with the explanation, open when the unit opens (PLAY-020).
 
 The top bar of this screen carries the navigation of the book: the book, **‹** and **›** for the previous and next unit, a list of units in which each unit shows how many of its exercises are done, zoom **−** and **+**, and a quiet status of saving.
 
 **An exercise block:**
 
-- A head with the exercise's number, which scrolls the pages to where the exercise is printed, and the score "ok / total", highlighted when full.
+- A head with the exercise's number, which scrolls the pages to where the exercise is printed, and the score "ok / total", highlighted when full. Then the book's task and, when the pack has it, what to do in the learner's language (PLAY-020).
 - One row per item: its number, an input, and a place for the outcome under it. Spell-check and auto-completion are off. **Enter** moves to the next input and, on the last one, checks the exercise.
 - Typing in an input clears that item's outcome.
 - Buttons under the items: **Проверить** (primary) and the secondary actions.

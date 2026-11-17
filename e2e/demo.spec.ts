@@ -40,10 +40,10 @@ test.describe("PACK-003 The demo book", () => {
         const book = books.nth(index);
         await expect(book.getByRole("heading", { level: 3 })).toHaveText(title);
         await expect(book.getByRole("link")).toHaveText([
-          "Раздел 1. To be: am, is, are",
+          "Раздел 1. Глагол to be: am, is, are",
           "Раздел 2. Present simple",
-          "Раздел 3. A and an",
-          "Раздел 4. There is and there are",
+          "Раздел 3. Артикли a и an",
+          "Раздел 4. There is и there are",
         ]);
         await expect(book.getByText("сделано 0 из 3")).toHaveCount(4);
       }

@@ -5,6 +5,7 @@ import drillsPack from "../../../../demo/drills.pack.json";
 import drillsText from "../../../../demo/drills.text.json";
 import { validatePack } from "../../packs/validate";
 import type { Line, PageText, ReadProblem } from "../types";
+import { withLearnerTexts } from "./learner";
 import { demoBooks, demoCourse, demoDrills } from "./profiles";
 import { DEMO_SIZES, parseAnswers, readDemoBook } from "./reader";
 
@@ -14,6 +15,13 @@ const books = [
 ];
 
 const documentOf = (pack: typeof coursePack) => pack.source.documents[0]!;
+
+/**
+ * The reader finds the English of the pages; the pack of the source holds the Russian texts too,
+ * joined after reading (PACK-004), so a read result is compared with the pack once joined.
+ */
+const joined = (result: ReturnType<typeof readDemoBook>, book: typeof demoCourse) =>
+  result.ok ? { ok: true, pack: withLearnerTexts(result.pack, book.learner) } : result;
 
 /** The text with every line that `drop` matches left out. */
 function without(text: readonly PageText[], drop: (line: Line) => boolean): PageText[] {
@@ -50,8 +58,11 @@ const heading = (text: string, y = 700): Line => ({ text, x: 64, y, size: DEMO_S
 
 describe("PACK-003 The demo book: reading", () => {
   for (const { name, book, text, pack } of books) {
-    it(`@req PACK-003 reads the text of public/demo/${name}.pdf into exactly the pack of its source`, () => {
-      expect(readDemoBook(book.profile, text, documentOf(pack))).toEqual({ ok: true, pack });
+    it(`@req PACK-003 @req PACK-004 reads the text of public/demo/${name}.pdf into exactly the pack of its source, once joined with the Russian texts`, () => {
+      expect(joined(readDemoBook(book.profile, text, documentOf(pack)), book)).toEqual({
+        ok: true,
+        pack,
+      });
     });
 
     it(`@req PACK-001 @req PACK-003 reads public/demo/${name}.pdf into a pack that passes validation`, () => {
@@ -76,7 +87,7 @@ describe("PACK-003 The demo book: reading", () => {
           })),
         })),
       };
-      expect(readDemoBook(book.profile, shifted, documentOf(pack))).toEqual({
+      expect(joined(readDemoBook(book.profile, shifted, documentOf(pack)), book)).toEqual({
         ok: true,
         pack: expected,
       });
@@ -206,7 +217,7 @@ describe("PACK-003 The demo book: damaged text", () => {
   it("@req PACK-003 skips lines of other sizes and lines in the task size that start no exercise", () => {
     let damaged = withLine(course(), 4, { text: "1.9 small print", x: 64, y: 790, size: 8 });
     damaged = withLine(damaged, 3, task("The rule", 300));
-    expect(read(damaged)).toEqual({ ok: true, pack: coursePack });
+    expect(joined(read(damaged), demoCourse)).toEqual({ ok: true, pack: coursePack });
   });
 });
 

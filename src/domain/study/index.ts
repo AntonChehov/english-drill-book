@@ -14,6 +14,7 @@ export {
 export { gradeExercise, prepareKeys, type Answers, type Grading, type Keys } from "./grade";
 export { instantOf, millisecondsOf, notEarlierThan } from "./time";
 export { continueAt, progressOf, type Progress } from "./progress";
+export { theoryParagraphs, type TheoryParagraph, type TheoryRun } from "./theory";
 export {
   initialAnswers,
   judgedAnswers,

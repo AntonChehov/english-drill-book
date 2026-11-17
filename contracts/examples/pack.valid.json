@@ -12,12 +12,13 @@
     {
       "id": "u1",
       "title": "Present simple: negatives",
-      "theory": "## Negatives\n\nUse **do not** (*don't*) or **does not** (*doesn't*) before the verb.\n\n| Subject | Negative |\n| --- | --- |\n| I, you, we, they | do not work |\n| he, she, it | does not work |\n",
+      "theory": "Отрицание строится с *do not* (*don't*) или *does not* (*doesn't*) перед глаголом.\n\nПосле *I*, *you*, *we*, *they* — *do not work*; после *he*, *she*, *it* — *does not work*.",
       "exercises": [
         {
           "id": "u1.1",
           "type": "items",
           "task": "Make the sentence negative.",
+          "help": "Перепишите предложение в отрицательной форме.",
           "items": [
             { "id": "1", "prompt": "Our printer works on Mondays.", "accept": ["Our printer [does not|doesn't] work on Mondays"] },
             { "id": "2", "prompt": "The two cats share a bowl.", "accept": ["The (two) cats do not share a bowl"] },
@@ -37,6 +38,7 @@
           "id": "u1.3",
           "type": "text",
           "task": "Rewrite the note so that every sentence is negative.",
+          "help": "Перепишите записку так, чтобы каждое предложение стало отрицательным.",
           "prompt": "The lift works. We use the stairs.",
           "model": "The lift does not work. We do not use the stairs."
         },
@@ -44,6 +46,7 @@
           "id": "u1.4",
           "type": "open",
           "task": "Write three things you do not do at weekends.",
+          "help": "Напишите три предложения о том, чего вы не делаете по выходным.",
           "sample": "I do not set an alarm. I do not check my work mail. I do not cook."
         }
       ]

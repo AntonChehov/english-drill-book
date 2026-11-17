@@ -1,0 +1,3 @@
+rule: maxLength
+path: /units/0/exercises/0/help
+The help of exercise 1.1 is 1001 characters, over the 1000 allowed (PACK-004).

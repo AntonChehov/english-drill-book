@@ -1,9 +1,12 @@
 <script setup lang="ts">
 // Study (PLAY-001; design D3 of `study-screen`): the unit's pages beside its exercises, side by side
-// from 1024 px and stacked below that, with the unit's navigation in its header.
+// from 1024 px and stacked below that, with the unit's navigation in its header. Before the
+// exercises, the unit's explanation from the pack, foldable and open on every opening (PLAY-020;
+// design D3 of `russian-demo`).
 import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import { documentTitle } from "../../domain/document-title";
+import { theoryParagraphs } from "../../domain/study";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
 import { doneOf, draftNotKept } from "./messages";
@@ -40,6 +43,7 @@ const pagesTop = useTemplateRef<HTMLElement>("pagesTop");
 
 const role = computed(() => pack.value?.source?.documents?.[0]?.role ?? "book");
 const pages = computed(() => pageNumbers(unit.value?.pages, role.value));
+const theory = computed(() => theoryParagraphs(unit.value?.theory ?? ""));
 
 function go(to: string | undefined) {
   if (to !== undefined) void router.push(`/study/${packId}/${to}`);
@@ -156,7 +160,7 @@ watch(
             <span aria-hidden="true">‹</span>
           </button>
           <h1 ref="heading" class="unit-title" tabindex="-1">
-            Раздел {{ unit.id }}.&nbsp;<span lang="en">{{ unit.title }}</span>
+            Раздел {{ unit.id }}.&nbsp;{{ unit.title }}
           </h1>
           <button
             type="button"
@@ -192,6 +196,17 @@ watch(
       </div>
 
       <section class="exercises-column" aria-labelledby="exercises-heading">
+        <details v-if="theory.length > 0" class="theory card" open>
+          <summary class="theory-summary">Объяснение</summary>
+          <div class="theory-body">
+            <p v-for="(paragraph, index) in theory" :key="index">
+              <template v-for="(run, at) in paragraph" :key="at"
+                ><em v-if="run.learned" lang="en">{{ run.text }}</em
+                ><template v-else>{{ run.text }}</template></template
+              >
+            </p>
+          </div>
+        </details>
         <div class="intro card">
           <div class="intro-head">
             <h2 id="exercises-heading" ref="exercisesHeading" tabindex="-1">Упражнения</h2>
@@ -349,6 +364,29 @@ watch(
 
 .intro {
   padding: 1rem;
+}
+
+.theory {
+  padding: 0.75rem 1rem;
+}
+
+.theory-summary {
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 0.25rem 0;
+}
+
+.theory-body {
+  padding-top: 0.5rem;
+}
+
+.theory-body p {
+  margin: 0 0 0.75rem;
+}
+
+.theory-body p:last-child {
+  margin-bottom: 0;
 }
 
 .intro-head {

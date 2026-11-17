@@ -1,9 +1,10 @@
 // Adding the demo books (PACK-003, design D8): each PDF is fetched from the app's own origin and
 // checked to be the file published with the app; its text is read with pdf.js, read into a pack
-// by the reader of the demo layout and the pack validated (PACK-001) before it is shown. This
-// module is loaded only when the visitor asks for the demo, so neither it nor what it imports
-// weighs on the first screen.
+// by the reader of the demo layout, joined with what the pack says to the learner in Russian
+// (PACK-004) and validated (PACK-001) before it is shown. This module is loaded only when the
+// visitor asks for the demo, so neither it nor what it imports weighs on the first screen.
 
+import { withLearnerTexts } from "../../domain/books/demo/learner";
 import { demoBooks, type DemoBook } from "../../domain/books/demo/profiles";
 import { readDemoBook } from "../../domain/books/demo/reader";
 import type { PageText } from "../../domain/books/types";
@@ -81,7 +82,7 @@ export async function addDemo(onProgress: (progress: DemoProgress) => void): Pro
     const pages = await textOf(bytes, book);
     const read = readDemoBook(demo.profile, pages, demo.document);
     if (!read.ok) throw new DemoError({ kind: "unreadable", book });
-    const validation = validatePack(read.pack);
+    const validation = validatePack(withLearnerTexts(read.pack, demo.learner));
     if (!validation.ok) throw new DemoError({ kind: "unreadable", book });
     packs.push(validation.pack);
   }

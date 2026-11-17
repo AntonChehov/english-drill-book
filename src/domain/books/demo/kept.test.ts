@@ -7,6 +7,19 @@ const course = structuredClone(coursePack) as unknown;
 const drills = structuredClone(drillsPack) as unknown;
 const other = { kind: "pack", id: "my-own-book" };
 
+/** A demo pack as the app stored it at version 1.0.0: without the Russian texts (PACK-004). */
+const earlier = (pack: typeof coursePack) =>
+  JSON.parse(
+    JSON.stringify({
+      ...pack,
+      version: "1.0.0",
+      units: pack.units.map(({ theory: _theory, ...unit }) => ({
+        ...unit,
+        exercises: unit.exercises.map(({ help: _help, ...exercise }) => exercise),
+      })),
+    }),
+  ) as unknown;
+
 describe("the kept demo", () => {
   it("@req DATA-001 both stored demo packs are the kept demo, in the order of the books", () => {
     expect(keptDemo([drills, other, course])).toEqual({ kind: "kept", packs: [course, drills] });
@@ -24,6 +37,11 @@ describe("the kept demo", () => {
 
   it("@req DATA-001 a demo with one of its two packs missing is read again", () => {
     expect(keptDemo([course])).toEqual({ kind: "stale" });
+  });
+
+  it("@req PACK-004 the demo packs stored at version 1.0.0, without the Russian texts, are read again", () => {
+    expect(keptDemo([earlier(coursePack), earlier(drillsPack)])).toEqual({ kind: "stale" });
+    expect(keptDemo([course, earlier(drillsPack)])).toEqual({ kind: "stale" });
   });
 
   it("@req DATA-001 a demo pack read from another edition of the book or by another profile is read again", () => {
