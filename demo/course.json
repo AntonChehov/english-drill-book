@@ -1,6 +1,6 @@
 {
   "id": "demo-course",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "layout": "course",
   "title": "Everyday Grammar: A Demo Course",
   "subtitle": "Four short units of English grammar",
@@ -16,6 +16,10 @@
   "units": [
     {
       "title": "To be: am, is, are",
+      "learner": {
+        "title": "Глагол to be: am, is, are",
+        "theory": "Глагол *be* («быть») нужен, чтобы сказать, кто человек, где он и какой он. По-русски мы говорим «Я дома» без глагола, а по-английски глагол обязателен: *I am at home*. В настоящем времени у *be* три формы: *am*, *is* и *are*.\n\nФорма зависит от того, о ком речь. После *I* («я») — *am*: *I am cold*. После *he*, *she*, *it* («он», «она», «оно») и после одного человека или предмета — *is*: *She is at work*. После *we*, *you*, *they* («мы», «вы», «они») и после нескольких людей или предметов — *are*: *They are my neighbours*. В речи эти формы обычно сокращают: *I'm*, *she's*, *they're*.\n\nОтрицание: после *am*, *is* или *are* ставится *not*. Короткие формы — *isn't* и *aren't*; у *am not* короткой формы нет, говорят *I'm not*. Примеры: *I'm not late, the bus is early.* *The shop isn't open on Mondays.* *Our cats aren't in the house.*\n\nВопрос: глагол ставится перед тем, о ком спрашивают. Вопросительное слово, например *where* («где») или *how* («как»), идёт в самом начале: *Are you tired?* *Is this your scarf?* *Where is the station?*\n\nКраткий ответ на вопрос «да или нет» — это человек и глагол: *Yes, I am.* *No, she isn't.* В утвердительном кратком ответе сокращённая форма не используется: *Yes, we are*, а не *Yes, we're*."
+      },
       "explanation": [
         {
           "type": "paragraph",
@@ -60,6 +64,9 @@
         {
           "type": "items",
           "task": "Complete the sentences with am, is or are.",
+          "learner": {
+            "help": "Впишите в пропуск am, is или are."
+          },
           "items": [
             {
               "prompt": "My name ___ Marta.",
@@ -98,6 +105,9 @@
         {
           "type": "items",
           "task": "Choose the correct word.",
+          "learner": {
+            "help": "Выберите из вариантов правильную форму глагола be."
+          },
           "items": [
             {
               "prompt": "The keys ___ on the table.",
@@ -134,6 +144,9 @@
         {
           "type": "items",
           "task": "Make the sentences negative.",
+          "learner": {
+            "help": "Перепишите предложение в отрицательной форме: после am, is или are добавьте not. Пишите предложение целиком и без сокращений, например: He is late → He is not late."
+          },
           "answerLines": true,
           "items": [
             {
@@ -162,6 +175,10 @@
     },
     {
       "title": "Present simple",
+      "learner": {
+        "title": "Present simple",
+        "theory": "*Present simple* — настоящее простое время. Оно нужно для того, что верно вообще, и для того, что происходит регулярно: привычки, распорядок дня, расписание. *I work in a shop* — «Я работаю в магазине».\n\nУтвердительная форма: после *I*, *you*, *we*, *they* глагол стоит в словарной форме: *I work*, *they play*. После *he*, *she*, *it* к глаголу добавляется окончание *-s*: *She works in a bank*.\n\nОкончание пишется по правилам. Глаголы на *-ch*, *-sh*, *-s*, *-x* и *-o* получают *-es*: *watch — watches*, *go — goes*. Согласная и *y* на конце меняются на *-ies*: *study — studies*. Глагол *have* превращается в *has*.\n\nОтрицание и вопрос строятся с помощью *do* или *does*, а сам глагол остаётся в словарной форме, без *-s*. *Do* — для *I*, *you*, *we*, *they*; *does* — для *he*, *she*, *it*. Примеры: *I don't eat meat.* *Bruno doesn't drive.* *Do you like tea?* *Does she live here?* *Where do your parents work?*\n\nВнимание: *does* уже показывает, что речь о *he*, *she* или *it*, поэтому глагол после него остаётся без окончания: *Does he work?*, а не *Does he works?*"
+      },
       "explanation": [
         {
           "type": "paragraph",
@@ -201,6 +218,9 @@
         {
           "type": "items",
           "task": "Write the verb in brackets in the present simple.",
+          "learner": {
+            "help": "Поставьте глагол из скобок в present simple и впишите его в пропуск. Если в скобках стоит not, нужно отрицание: don't или doesn't и глагол."
+          },
           "items": [
             {
               "prompt": "My aunt ___ in a small town. (live)",
@@ -235,6 +255,9 @@
         {
           "type": "items",
           "task": "Choose do or does.",
+          "learner": {
+            "help": "Выберите do или does."
+          },
           "items": [
             {
               "prompt": "___ you speak French?",
@@ -271,6 +294,9 @@
         {
           "type": "text",
           "task": "Read about Omar. Write the text again with the verbs in the present simple.",
+          "learner": {
+            "help": "Прочитайте текст об Омаре. Перепишите его целиком в поле ниже, поставив глаголы из скобок в present simple."
+          },
           "prompt": "Omar (live) in a flat near the river. He (get) up at seven and (have) a quick breakfast. Then he (walk) to the library, where he (look) after old maps. In the evening he (cook) dinner and (call) his sister.",
           "model": "Omar lives in a flat near the river. He gets up at seven and has a quick breakfast. Then he walks to the library, where he looks after old maps. In the evening he cooks dinner and calls his sister."
         }
@@ -278,6 +304,10 @@
     },
     {
       "title": "A and an",
+      "learner": {
+        "title": "Артикли a и an",
+        "theory": "Артикли *a* и *an* — маленькие слова перед существительным; в русском языке их нет. *A* или *an* ставится перед существительным в единственном числе, когда речь об одном предмете или когда мы говорим, кто или что это такое: *a cup* («чашка»), *an egg* («яйцо»).\n\nКакой из двух выбрать, решает звук, с которого начинается следующее слово. Перед согласным звуком — *a*: *a cup*, *a lemon*, *a house*. Перед гласным звуком — *an*: *an egg*, *an onion*, *an idea*.\n\nВажен именно звук, а не буква. В слове *hour* («час») буква *h* не читается, слово начинается с гласного звука, поэтому *an hour*. Слова *uniform* и *university* начинаются со звука «й», как русское «юг», поэтому *a uniform*.\n\n*A* и *an* нужны, когда мы называем профессию: *She is a pilot.* *My cousin is an electrician.* *Is he a student?*\n\nВнимание: перед существительным во множественном числе *a* или *an* не ставится: *apples*, а не *an apples*. А перед названием профессии артикль нельзя пропускать: *I am a nurse*, а не *I am nurse*."
+      },
       "explanation": [
         {
           "type": "paragraph",
@@ -313,6 +343,9 @@
         {
           "type": "items",
           "task": "Choose a or an.",
+          "learner": {
+            "help": "Выберите a или an."
+          },
           "items": [
             {
               "prompt": "She eats ___ apple every day.",
@@ -359,6 +392,9 @@
         {
           "type": "items",
           "task": "Write a or an before each word.",
+          "learner": {
+            "help": "Впишите в пропуск a или an. Само слово переписывать не нужно."
+          },
           "items": [
             {
               "prompt": "___ egg",
@@ -397,6 +433,9 @@
         {
           "type": "items",
           "task": "What do these people do? Write a sentence about each person with a or an.",
+          "learner": {
+            "help": "Кем работают эти люди? Напишите о каждом предложение: имя, is, a или an и профессия. Например: Marta / cook → Marta is a cook."
+          },
           "answerLines": true,
           "items": [
             {
@@ -445,6 +484,10 @@
     },
     {
       "title": "There is and there are",
+      "learner": {
+        "title": "There is и there are",
+        "theory": "Оборот *there is* / *there are* нужен, чтобы сказать, что что-то есть или где что-то находится: *There is a bank in our street* — «На нашей улице есть банк». Слово *there* в этом обороте не переводится: это не «там».\n\nКакую форму выбрать, решает существительное после оборота. Перед существительным в единственном числе — *there is*: *There is a bank in our street.* Перед существительным во множественном числе — *there are*: *There are two parks near the school.*\n\nСокращённая форма *there is* — *there's*. В отрицании используются *isn't* и *aren't*: *There isn't a lift in this building.* В вопросе *is* или *are* ставится первым: *Are there any eggs in the fridge?* Краткие ответы: *Yes, there are.* *No, there aren't.*\n\nСо множественным числом используются слова *some* и *any*: *some* — в утвердительных предложениях, *any* — в отрицаниях и вопросах. *There are some cups.* *There aren't any spoons.* *Are there any forks?*"
+      },
       "explanation": [
         {
           "type": "paragraph",
@@ -480,6 +523,9 @@
         {
           "type": "items",
           "task": "Complete the sentences with there is or there are.",
+          "learner": {
+            "help": "Впишите в пропуск There is или There are. Пропуск стоит в начале предложения, поэтому первая буква заглавная."
+          },
           "items": [
             {
               "prompt": "___ a big tree in our garden.",
@@ -510,6 +556,9 @@
         {
           "type": "items",
           "task": "Choose the correct beginning.",
+          "learner": {
+            "help": "Выберите, с чего начинается предложение или вопрос."
+          },
           "items": [
             {
               "prompt": "___ a bank near here?",
@@ -541,6 +590,9 @@
         {
           "type": "open",
           "task": "Write four sentences about your room. Use there is and there are.",
+          "learner": {
+            "help": "Напишите четыре предложения о своей комнате: что в ней есть и где. Используйте there is и there are; слова из подсказки можно взять за основу."
+          },
           "prompt": "Ideas: a bed, a window, a desk, some books, a lamp, some pictures, a plant.",
           "sample": "There is a bed next to the window. There are some books on the desk. There isn't a television. There are two pictures on the wall."
         }
