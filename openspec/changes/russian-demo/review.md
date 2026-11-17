@@ -35,6 +35,19 @@ Checked and found right:
 
 Observations, not findings: the roadmap still calls `russian-demo` "proposed"; the summary «Объяснение» is styled like a heading but is not one, so it is not reached by heading navigation, which the spec does not ask for.
 
+## Round 2
+
+Reviewed: b9222ffb0dd8
+Verdict: approved
+- F1: fixed
+  The proposal now names PROD-012 under "Recorded, not implemented" and in Impact as documentation only, implemented in slice 1.8; the owner asked for it to be recorded here (2f2e0ff).
+- F2: fixed
+  `sourceProblems` splits `*` per paragraph as `theoryParagraphs` does: an odd count in a paragraph is unclosed, an empty learned piece is an empty span, touching spans pass; two new tests cover both (82586d9).
+
+### Notes
+
+Since round 1 only `scripts/build-demo-books.mjs`, its test and `proposal.md` changed; `src`, `e2e` and `public/demo` did not, so the rest of the whole diff stands as reviewed in round 1. Checked the new split against the renderer: a paragraph `**x` is refused as an empty span, `*am**is*` passes, and whitespace around a paragraph is still refused by the plain-text check, so an accepted source splits the same in the build and in Study. Gates run: the builder's tests (24 passed), `pnpm lint`, `pnpm format:check`, `pnpm spec`, `pnpm trace`. The proposal's Impact still expects the initial bundle to grow by 8–10 kB, while `learner.json` loads lazily with the profiles (round 1 notes); harmless.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Covered by |
@@ -44,4 +57,4 @@ Observations, not findings: the roadmap still calls `russian-demo` "proposed"; t
 
 ## Outside the listed requirements
 
-Unit titles lose `lang="en"` in `StudyView.vue`, `UnitMenu.vue` and `BookCards.vue` (design D3); the end-to-end tests and `e2e/views.ts` follow the Russian unit titles; `.prettierignore` gains the generated `learner.json`; `docs/product/08-interface-reference.md` describes the block and the help. Not part of this change: PROD-012 in `docs/product/01-product.md`, `08-interface-reference.md` and `docs/roadmap.md` (F1).
+Unit titles lose `lang="en"` in `StudyView.vue`, `UnitMenu.vue` and `BookCards.vue` (design D3); the end-to-end tests and `e2e/views.ts` follow the Russian unit titles; `.prettierignore` gains the generated `learner.json`; `docs/product/08-interface-reference.md` describes the block and the help. PROD-012 is recorded, not implemented, at the owner's request: its requirement in `docs/product/01-product.md`, the narrow-screen bar in `08-interface-reference.md`, and slice 1.8 in `docs/roadmap.md` (F1).
