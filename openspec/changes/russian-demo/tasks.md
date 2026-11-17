@@ -26,6 +26,6 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 - [x] 5.1 Update the end-to-end tests and `e2e/views.ts` to the Russian unit titles; verify the whole suite passes on Chromium and Firefox
 - [ ] 5.2 Run `pnpm verify`; verify it passes, WebKit by the pipeline; the pull request shows the changed screenshots beside those of `main` and `pnpm size` within C-06
 - [ ] 5.3 Open the pull request as the bot with the sections of C-18 item 1
-- [ ] 5.4 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; the same agent, resumed, writes each later round. Approve stays required; at most three rounds in the normal course, see `docs/process.md`. Verify the `evidence` check is green
+- [x] 5.4 A reviewing agent with a fresh context writes round 1 in `review.md`; fix or decline each finding; the same agent, resumed, writes each later round. Approve stays required; at most three rounds in the normal course, see `docs/process.md`. Verify the `evidence` check is green
 - [ ] 5.5 A validating agent runs the holdout scenarios of milestone 1 that touch Study and the demo against a production build; attach its report to the pull request
 - [ ] 5.6 **(owner)** Try the demo, read the pull request and the report; approve and merge
