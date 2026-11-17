@@ -195,10 +195,18 @@ const item = object(
 );
 
 const task = string({ minLength: 1, maxLength: 1000 });
+const help = task;
 
 const exerciseOfType: Readonly<Record<string, Check>> = {
   items: object(
-    { id: localId, type: constant("items"), task, pages, items: array(item, { minItems: 1 }) },
+    {
+      id: localId,
+      type: constant("items"),
+      task,
+      help,
+      pages,
+      items: array(item, { minItems: 1 }),
+    },
     ["id", "type", "task", "items"],
   ),
   text: object(
@@ -206,6 +214,7 @@ const exerciseOfType: Readonly<Record<string, Check>> = {
       id: localId,
       type: constant("text"),
       task,
+      help,
       pages,
       prompt: string({ maxLength: 5000 }),
       model: string({ minLength: 1, maxLength: 5000 }),
@@ -217,6 +226,7 @@ const exerciseOfType: Readonly<Record<string, Check>> = {
       id: localId,
       type: constant("open"),
       task,
+      help,
       pages,
       prompt: string({ maxLength: 5000 }),
       sample: string({ maxLength: 5000 }),
