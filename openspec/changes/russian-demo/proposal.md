@@ -2,21 +2,22 @@
 
 ## Why
 
-The demo books are in English from cover to cover: the explanations of grammar, the tasks of the exercises, the pages "How to use this book" and the answer key. The app is for Russian speakers (PROD-004), and the owner, trying the first release, asked on 2026-11-16 for the demo to speak Russian wherever it speaks to the learner, leaving in English only what the learner works on: the sentences, words and texts of the exercises and their answers. A visitor who does not read English explanations yet is exactly who the demo is for.
+The demo books are in English from cover to cover, and so is everything the app shows from them: unit titles, the explanation of each unit's grammar on its pages, the task of each exercise. The app is for Russian speakers (PROD-004), and the owner, trying the first release, asked on 2026-11-16 for a learner who does not read English yet to understand, in the demo, what each unit teaches and what each exercise asks.
 
-The books cannot simply be rewritten: they are laid out as PDFs with the standard fonts Helvetica, Helvetica-Bold and Helvetica-Oblique, which have no Cyrillic (`demo/LAYOUT.md`), and the reader finds units, exercises and the key by English words printed in them (`Unit 2`, `Answer key`, `Answers will vary. Example:`).
+Rebuilding the demo PDFs in Russian was proposed first and rejected on cost: a Cyrillic font, a new layout, a reader that follows it. The owner chose instead to leave the PDF as it is. It stands for the learner's own English textbook, which the app will one day read exactly as it reads the demo now; what helps the learner across the language comes from the pack, which is the app's own data, and is shown in Study beside the exercises.
 
 ## What Changes
 
-- **The demo books speak Russian.** In `demo/course.json` and `demo/drills.json`: the titles and subtitles of the books, the pages "How to use this book" and the contents, the explanations of grammar (paragraphs, rules, examples' labels, notes), the headings of the key, the tasks of every exercise, the ideas of the open exercise, the "continues on the next page" note and the footers are in Russian. In English stay: the prompts, choices and answers of items, the connected text and its model, the sample answer of the open exercise, and the English examples inside explanations (the words being explained, set in italics as now). The titles of units are in Russian with the English term kept where it is the point (*Глагол to be: am, is, are*; *Present simple*; *Артикли a и an*; *There is и there are*).
-- **A font with Cyrillic.** The builder embeds a free font (DejaVu Sans, regular, bold and oblique, from a copy committed under `demo/fonts/` with its licence) through `@pdf-lib/fontkit`, subset to the characters used. The same source still gives the same bytes.
-- **The reader follows the Russian layout.** `demo/LAYOUT.md` and `src/domain/books/demo/reader.ts` read `Раздел <n> <title>` as a unit heading, `Ответы` as the heading of the key, and `Ответы могут быть разными. Пример: …` as the key of an open exercise. Exercise and item numbers, and the way answers are printed in the key (CHK-001), do not change.
-- **The app shows the pack's language.** Unit titles, tasks and the ideas of an open exercise come from the pack in Russian now, so the interface marks them `lang="ru"`; prompts, choices, texts, samples and keys stay `lang="en"`. A pack says the language of its texts (`language` of the pack, `textLanguage` of the exercises, both optional and defaulting to English), so the interface marks each by what the pack says, not by guessing.
-- **Tests and screenshots** that name English titles and tasks of the demo (`Раздел 1. To be: am, is, are`, "Complete the sentences…") follow the new text.
+- **The pack says what the book says, in the learner's language.** A unit MAY carry a `theory`: the explanation of its grammar as plain paragraphs, with spans in the language being learned marked `*…*`. An exercise MAY carry a `help`: what to do in it, in one or two sentences. Both are addressed to the learner in the language of the interface, Russian, and are the app's own text (C-01). `theory` is already in the schema; this change states its form. `help` is new, optional on every kind of exercise. The book's own `task`, read from the page, stays as it is.
+- **The demo packs carry them.** `demo/course.json` and `demo/drills.json` gain, beside the English text of the pages, the Russian title of each unit, the `theory` of each unit and the `help` of each exercise. `pnpm demo:build` passes them through to `demo/<book>.pack.json` and to a file the app bundles, and ignores them when laying out the PDF: the PDFs and their hashes do not change. The reader is untouched; the texts are joined to the pack it returns.
+- **Russian unit titles.** The demo units are «Глагол to be: am, is, are», «Present simple», «Артикли a и an», «There is и there are» in both books. The titles of the books, which name the English books, stay «Everyday Grammar: A Demo Course» and «Everyday Grammar: Demo Drills». The interface stops marking unit titles as English.
+- **Study shows them.** At the top of the exercises column, before the card «Упражнения», a block «Объяснение» holds the unit's `theory`, open when the unit opens and foldable; the `*…*` spans are in italics and marked `lang="en"`. In each exercise, under the book's task and above the items, its `help`. Nothing else in the design changes.
+- **Stored packs are refreshed.** The demo packs' version becomes `1.1.0`, so a visitor who added the demo at `1.0.0` has it read again from the same PDFs on their next visit, as for any new edition; exercise and pack IDs do not change and their attempts stay.
+- **Tests and screenshots** that name the English unit titles follow the Russian ones.
 
-Requirements delivered: **PACK-004** (new, `02-content-packs.md`): the demo books' explanations, tasks and service pages are in Russian; the material of the exercises is in English. PROD-004 is kept: pack content is shown as authored and marked with its language.
+Requirements delivered: **PACK-004** (`02-content-packs.md`): a pack carries, in the language of the interface, the title and explanation of a unit and the help of an exercise, and the demo packs carry them for every unit and exercise; **PLAY-020** (`04-exercise-player.md`): Study shows them. PROD-004 is kept: pack content is shown as authored.
 
-Not changed: the structure of the books (four units of three exercises each, the same exercises and answers), the checker, the program.
+Left for later: a Markdown subset for `theory` beyond paragraphs and `*…*` (a table of forms, a list), a pack field naming the language of these texts for packs made for other learners, and any change to the pages or the reader. Not changed: the PDFs, `demo/LAYOUT.md`, the reader, the checker, the structure of the books, the English material of the exercises.
 
 ## Capabilities
 
@@ -26,12 +27,13 @@ None.
 
 ### Modified Capabilities
 
-- `content-packs`: PACK-004 added; the demo books' language.
+- `content-packs`: PACK-004 added; what a pack says to the learner in the language of the interface, and the demo packs.
+- `study`: PLAY-020 added; Study shows the unit's explanation and each exercise's help.
 
 ## Impact
 
-- Changed: `demo/course.json`, `demo/drills.json`, `demo/LAYOUT.md`, `scripts/build-demo-books.mjs` and its tests, `public/demo/*.pdf`, `demo/*.pack.json`, `demo/*.text.json`, `src/domain/books/demo/{reader,profiles,documents.json}` and tests, `contracts/pack.schema.json` (optional `language` fields), `src/ui/study/*` and `src/ui/components/BookCards.vue` (`lang`), end-to-end tests and the reference screenshots, `docs/product/02-content-packs.md`, `docs/roadmap.md`.
-- New: `demo/fonts/` (DejaVu Sans, Bitstream Vera licence), dev dependency `@pdf-lib/fontkit`.
-- The PDFs grow by the embedded subsets (about 60–90 kB each; the test "under 100 kB" moves to 200 kB). They are fetched only when the demo is added or Study opens (C-06 unaffected).
-- A visitor who added the demo before this change has the English packs stored: the profiles' hash of the PDF changes, so the stored packs are read again from the new PDFs on the next visit, as for any new edition (`kept.ts`); their attempts keep the same exercise IDs and stay valid.
+- Changed: `demo/course.json`, `demo/drills.json` (the Russian texts and the version), `scripts/build-demo-books.mjs` and its tests, `demo/*.pack.json`, `contracts/pack.schema.json`, `contracts/examples/*`, `src/domain/packs/{types,validate}.ts` and tests, `src/domain/books/demo/profiles.ts` (the version, the texts), `src/domain/study` (the paragraphs of a `theory`), `src/ui/study/{StudyView,ExerciseBlock,UnitMenu}.vue`, `src/ui/components/BookCards.vue`, `src/ui/demo/add-demo.ts`, end-to-end tests and the reference screenshots, `docs/product/02-content-packs.md`, `04-exercise-player.md`, `08-interface-reference.md`, `docs/roadmap.md`.
+- New: `src/domain/books/demo/learner.json`, written by `pnpm demo:build`, with the Russian texts of the demo packs; `src/domain/books/demo/learner.ts`, which joins them to a read pack.
+- Not changed: `public/demo/*.pdf`, `demo/*.text.json`, `documents.json`, `demo/LAYOUT.md`, `src/domain/books/demo/reader.ts`.
+- The initial bundle grows by the Russian texts, about 8–10 kB gzip, well within C-06; no new dependency.
 - Depends on: nothing in flight.

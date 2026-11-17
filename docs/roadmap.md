@@ -6,7 +6,7 @@
 
 Asked for by the owner on 2026-11-16, after the first release:
 
-- **The demo in Russian** (`russian-demo`, proposed): the explanations, tasks and service pages of the demo books in Russian, only the exercises themselves in English.
+- **The demo in Russian** (`russian-demo`, proposed): the PDFs stay English, standing for the learner's own books; the demo packs carry Russian unit titles, the explanation of each unit's grammar and what to do in each exercise, shown in Study beside the exercises; PACK-004, PLAY-020.
 - **The bar on a phone** (PROD-012, slice 1.8): a compact navigation fixed to the top of a narrow screen that hides on a scroll down and returns on a scroll up, replacing the page's top bar; a finished unit or book shown in green with a check mark drawn in.
 
 ## Milestones
