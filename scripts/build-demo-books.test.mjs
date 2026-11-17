@@ -18,6 +18,13 @@ import {
 
 const root = process.cwd();
 const source = (name) => JSON.parse(readFileSync(sourcePath(root, name), "utf8"));
+
+/** The problems of the drill book whose unit 1 has `theory` as its learner theory. */
+function withTheory(theory) {
+  const changed = source("drills");
+  changed.units[0].learner.theory = theory;
+  return sourceProblems(changed);
+}
 const built = Object.fromEntries(
   await Promise.all(books.map(async (name) => [name, await buildBook(source(name))])),
 );
@@ -184,13 +191,28 @@ describe("build-demo-books", () => {
       "unit 1: no learner title",
       "unit 1: no learner theory",
       "unit 2: the learner title is over 200 characters",
-      "unit 2: an empty paragraph in the theory",
       "unit 2: an unclosed * in the theory",
+      "unit 2: an empty paragraph in the theory",
       "exercise 2.1: no learner help",
       "exercise 2.2: the learner help is over 1000 characters",
       "exercise 2.3: no learner help",
     ]);
     await expect(buildBook(broken)).rejects.toThrow("The source breaks demo/LAYOUT.md");
+  });
+
+  it("checks the * of a theory paragraph by paragraph, as Study reads them", () => {
+    // Even over the whole text, unclosed in each paragraph.
+    expect(withTheory("Форма *am.\n\nФорма is*.")).toEqual([
+      "unit 1: an unclosed * in the theory",
+      "unit 1: an unclosed * in the theory",
+    ]);
+    expect(withTheory("Пустой ** отрезок.")).toEqual(["unit 1: an empty * span in the theory"]);
+  });
+
+  it("accepts touching spans such as *am**is*, which Study shows as two spans", () => {
+    const changed = source("drills");
+    changed.units[0].learner.theory = "Формы *am**is* и *are*.\n\nВторой абзац: *be*.";
+    expect(sourceProblems(changed)).toEqual([]);
   });
 
   it("refuses a source that breaks the layout", async () => {

@@ -707,12 +707,19 @@ export function sourceProblems(source) {
   const theory = (where, text) => {
     if (!learnerText(where, "theory", text)) return;
     for (const part of text.split("\n\n")) {
-      if (part.length === 0) problems.push(`${where}: an empty paragraph in the theory`);
-      else plain(`${where} theory`, part);
+      if (part.length === 0) {
+        problems.push(`${where}: an empty paragraph in the theory`);
+        continue;
+      }
+      plain(`${where} theory`, part);
+      // Read as `theoryParagraphs` reads it, paragraph by paragraph: the parts between `*`
+      // alternate plain and learned, so touching spans (`*am**is*`) are two spans, an odd count
+      // of `*` leaves one unclosed and an empty learned part is an empty span.
+      const pieces = part.split("*");
+      if (pieces.length % 2 === 0) problems.push(`${where}: an unclosed * in the theory`);
+      else if (pieces.some((piece, index) => index % 2 === 1 && piece.length === 0))
+        problems.push(`${where}: an empty * span in the theory`);
     }
-    if ((text.match(/\*/gu) ?? []).length % 2 === 1)
-      problems.push(`${where}: an unclosed * in the theory`);
-    if (text.includes("**")) problems.push(`${where}: an empty * span in the theory`);
   };
   source.units.forEach((unit, unitIndex) => {
     plain(`unit ${unitIndex + 1} title`, unit.title);
