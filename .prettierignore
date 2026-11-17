@@ -19,3 +19,4 @@ CHANGELOG.md
 demo/*.pack.json
 demo/*.text.json
 src/domain/books/demo/documents.json
+src/domain/books/demo/learner.json

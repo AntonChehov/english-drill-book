@@ -2,7 +2,7 @@
   "kind": "pack",
   "schemaVersion": 1,
   "id": "demo-drills",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Everyday Grammar: Demo Drills",
   "language": "en",
   "instructionLanguage": "en",
@@ -26,7 +26,8 @@
   "units": [
     {
       "id": "1",
-      "title": "To be: am, is, are",
+      "title": "Глагол to be: am, is, are",
+      "theory": "Упражнения на глагол *be* в настоящем времени: вопросы, краткие ответы и выбор формы *am*, *is* или *are*. Правило объясняется в разделе 1 курса «Everyday Grammar: A Demo Course».\n\nНапоминание: в вопросе глагол стоит перед тем, о ком спрашивают: *Are you ready?* Краткий ответ — это человек и глагол: *Yes, I am.* *No, he isn't.*",
       "pages": [
         {
           "document": "book",
@@ -39,6 +40,7 @@
           "id": "1.1",
           "type": "items",
           "task": "Write questions with the words.",
+          "help": "Составьте из слов вопрос: сначала Are или Is, затем остальные слова. Например: she / at home → Is she at home. Знак вопроса можно не ставить.",
           "pages": [
             {
               "document": "book",
@@ -95,6 +97,7 @@
           "id": "1.2",
           "type": "items",
           "task": "Give a short answer.",
+          "help": "Дайте краткий ответ; слово в скобках подсказывает, да или нет. Например: Is Marta here? (yes) → Yes, she is.",
           "pages": [
             {
               "document": "book",
@@ -154,6 +157,7 @@
           "id": "1.3",
           "type": "items",
           "task": "Choose the correct form.",
+          "help": "Выберите правильную форму глагола be.",
           "pages": [
             {
               "document": "book",
@@ -236,6 +240,7 @@
     {
       "id": "2",
       "title": "Present simple",
+      "theory": "Упражнения на *present simple*: отрицания, вопросы и выбор формы глагола. Правило объясняется в разделе 2 курса.\n\nНапоминание: отрицание и вопрос строятся с *do* или *does*, а глагол после них остаётся без *-s*: *We don't drink tea.* *Does Marta speak Italian?* После *he*, *she*, *it* в утверждении глагол получает окончание *-s*: *she works*, *he goes*.",
       "pages": [
         {
           "document": "book",
@@ -248,6 +253,7 @@
           "id": "2.1",
           "type": "items",
           "task": "Make the sentences negative.",
+          "help": "Перепишите предложение в отрицательной форме с don't или doesn't; глагол после них без окончания -s. Например: He likes tea → He doesn't like tea.",
           "pages": [
             {
               "document": "book",
@@ -304,6 +310,7 @@
           "id": "2.2",
           "type": "items",
           "task": "Write questions with the words.",
+          "help": "Составьте из слов вопрос: Do или Does, затем кто, затем глагол в словарной форме. Вопросительное слово, если оно есть, идёт в самом начале. Например: she / like / tea → Does she like tea.",
           "pages": [
             {
               "document": "book",
@@ -360,6 +367,7 @@
           "id": "2.3",
           "type": "items",
           "task": "Choose the correct form of the verb.",
+          "help": "Выберите правильную форму глагола: с окончанием -s или без него.",
           "pages": [
             {
               "document": "book",
@@ -440,7 +448,8 @@
     },
     {
       "id": "3",
-      "title": "A and an",
+      "title": "Артикли a и an",
+      "theory": "Упражнения на артикли *a* и *an*: выбор по звуку, поиск ошибок и ответы на вопросы. Правило объясняется в разделе 3 курса.\n\nНапоминание: *a* — перед согласным звуком, *an* — перед гласным; решает звук, а не буква: *an hour*, *a university*. Перед множественным числом артикля нет, а перед названием профессии он обязателен.",
       "pages": [
         {
           "document": "book",
@@ -453,6 +462,7 @@
           "id": "3.1",
           "type": "items",
           "task": "Choose a or an.",
+          "help": "Выберите a или an.",
           "pages": [
             {
               "document": "book",
@@ -533,6 +543,7 @@
           "id": "3.2",
           "type": "items",
           "task": "Find the mistake in each sentence. Write the correct sentence.",
+          "help": "В каждом предложении одна ошибка с артиклем: не тот артикль, лишний или пропущенный. Напишите всё предложение правильно.",
           "pages": [
             {
               "document": "book",
@@ -589,6 +600,7 @@
           "id": "3.3",
           "type": "items",
           "task": "Answer the questions. Use a or an and the word in brackets.",
+          "help": "Ответьте на вопрос словом из скобок с артиклем a или an. Достаточно короткого ответа. Например: What is a carrot? (vegetable) → a vegetable.",
           "pages": [
             {
               "document": "book",
@@ -651,7 +663,8 @@
     },
     {
       "id": "4",
-      "title": "There is and there are",
+      "title": "There is и there are",
+      "theory": "Упражнения на *there is* и *there are*: составление предложений, выбор *some* или *any* и короткий разговор. Правило объясняется в разделе 4 курса.\n\nНапоминание: *there is* — перед единственным числом, *there are* — перед множественным. *Some* — в утверждениях, *any* — в отрицаниях и вопросах: *There are some chairs.* *Are there any cups?*",
       "pages": [
         {
           "document": "book",
@@ -664,6 +677,7 @@
           "id": "4.1",
           "type": "items",
           "task": "Write sentences with there is or there are.",
+          "help": "Составьте предложение: There is или There are, затем остальные слова. Перед множественным числом можно добавить some. Например: a lamp / on the desk → There is a lamp on the desk.",
           "pages": [
             {
               "document": "book",
@@ -720,6 +734,7 @@
           "id": "4.2",
           "type": "items",
           "task": "Choose some or any.",
+          "help": "Выберите some или any.",
           "pages": [
             {
               "document": "book",
@@ -800,6 +815,7 @@
           "id": "4.3",
           "type": "items",
           "task": "Complete the conversation.",
+          "help": "Дополните разговор: впишите в пропуски is there, are there, is, are или isn't, как того требует вопрос или ответ.",
           "pages": [
             {
               "document": "book",
