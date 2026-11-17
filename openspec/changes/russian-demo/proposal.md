@@ -17,6 +17,8 @@ Rebuilding the demo PDFs in Russian was proposed first and rejected on cost: a C
 
 Requirements delivered: **PACK-004** (`02-content-packs.md`): a pack carries, in the language of the interface, the title and explanation of a unit and the help of an exercise, and the demo packs carry them for every unit and exercise; **PLAY-020** (`04-exercise-player.md`): Study shows them. PROD-004 is kept: pack content is shown as authored.
 
+Recorded, not implemented: **PROD-012** (the compact bar on a phone), asked for by the owner on 2026-11-16 to be written down now and implemented in slice 1.8; this change only documents it, in `docs/product/01-product.md`, `08-interface-reference.md` and `docs/roadmap.md`, and no code or test of it is part of this change.
+
 Left for later: a Markdown subset for `theory` beyond paragraphs and `*…*` (a table of forms, a list), a pack field naming the language of these texts for packs made for other learners, and any change to the pages or the reader. Not changed: the PDFs, `demo/LAYOUT.md`, the reader, the checker, the structure of the books, the English material of the exercises.
 
 ## Capabilities
@@ -34,6 +36,7 @@ None.
 
 - Changed: `demo/course.json`, `demo/drills.json` (the Russian texts and the version), `scripts/build-demo-books.mjs` and its tests, `demo/*.pack.json`, `contracts/pack.schema.json`, `contracts/examples/*`, `src/domain/packs/{types,validate}.ts` and tests, `src/domain/books/demo/profiles.ts` (the version, the texts), `src/domain/study` (the paragraphs of a `theory`), `src/ui/study/{StudyView,ExerciseBlock,UnitMenu}.vue`, `src/ui/components/BookCards.vue`, `src/ui/demo/add-demo.ts`, end-to-end tests and the reference screenshots, `docs/product/02-content-packs.md`, `04-exercise-player.md`, `08-interface-reference.md`, `docs/roadmap.md`.
 - New: `src/domain/books/demo/learner.json`, written by `pnpm demo:build`, with the Russian texts of the demo packs; `src/domain/books/demo/learner.ts`, which joins them to a read pack.
+- Documentation of PROD-012, asked for by the owner and implemented in slice 1.8: its requirement in `docs/product/01-product.md`, the narrow-screen bar in `docs/product/08-interface-reference.md`, its bullet and its place in slice 1.8 in `docs/roadmap.md`.
 - Not changed: `public/demo/*.pdf`, `demo/*.text.json`, `documents.json`, `demo/LAYOUT.md`, `src/domain/books/demo/reader.ts`.
 - The initial bundle grows by the Russian texts, about 8–10 kB gzip, well within C-06; no new dependency.
 - Depends on: nothing in flight.
