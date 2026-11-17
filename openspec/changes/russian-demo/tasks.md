@@ -5,7 +5,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 ## 1. The text
 
 - [x] 1.1 Write in `demo/course.json` and `demo/drills.json`, as design D2 states, the `learner` texts: the Russian title of each unit («Глагол to be: am, is, are», «Present simple», «Артикли a и an», «There is и there are»), the `theory` of each unit of the course (plain paragraphs, English spans marked `*…*`), the `theory` of each unit of the drill book (what the unit practises, with a pointer to the course), and the `help` of every exercise; set `version` to `1.1.0` in both; keep every English text as it is
-- [ ] 1.2 **(owner)** Read the Russian texts in both sources and correct them before the books are built
+- [x] 1.2 **(owner)** Read the Russian texts in both sources and correct them before the books are built
 
 ## 2. The pack
 
