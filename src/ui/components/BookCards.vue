@@ -64,7 +64,7 @@ watch(
           :class="{ next: index === book.next }"
         >
           <RouterLink class="unit-link" :to="`/study/${book.id}/${unit.id}`">
-            Раздел {{ unit.id }}.&nbsp;<span lang="en">{{ unit.title }}</span>
+            Раздел {{ unit.id }}.&nbsp;{{ unit.title }}
           </RouterLink>
           <span v-if="index === book.next" class="continue">продолжить</span>
           <span class="count" :class="{ full: unit.progress.done === unit.progress.total }">

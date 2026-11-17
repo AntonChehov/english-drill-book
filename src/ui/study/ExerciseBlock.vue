@@ -56,6 +56,7 @@ const answerOf = (item: string) => props.entry.answers[item] ?? "";
       </p>
     </header>
     <p class="task" lang="en">{{ exercise.task }}</p>
+    <p v-if="exercise.help" class="help">{{ exercise.help }}</p>
 
     <template v-if="view.kind === 'items'">
       <ol class="rows">
@@ -214,6 +215,13 @@ const answerOf = (item: string) => props.entry.answers[item] ?? "";
 .task {
   font-weight: 600;
   margin: 0.625rem 0 0.5rem;
+}
+
+/* What to do, in the learner's language (PLAY-020): the bold task stays the block's heading. */
+.help {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  margin: -0.25rem 0 0.625rem;
 }
 
 .rows {
