@@ -9,3 +9,9 @@ overrides:
 # tests read text only, so the native module is never needed.
 ignoredOptionalDependencies:
   - "@napi-rs/canvas"
+
+# GHSA-fc5q-39xc-vjpf: picomatch (high), dev-only, reached through vite, vue-tsc and openspec.
+# The patch 4.0.8 is not on npm yet (latest 4.0.7). Remove once picomatch >= 4.0.8 is published.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-fc5q-39xc-vjpf
