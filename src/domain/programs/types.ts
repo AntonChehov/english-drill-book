@@ -2,7 +2,6 @@
 // `demo-program`). Only the fields the app uses are typed; CI checks the whole file (PROG-010).
 
 export interface Topic {
-  readonly id: string;
   readonly title: string;
   readonly level: string;
   /** The unit of a lead book that teaches the topic. */
@@ -12,7 +11,6 @@ export interface Topic {
 }
 
 export interface Program {
-  readonly title: string;
   /** Level names, lowest first. */
   readonly scale: readonly string[];
   readonly goal: { readonly from: string; readonly to: string };

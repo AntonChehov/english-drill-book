@@ -32,7 +32,7 @@ The layout of Today follows `docs/product/08-interface-reference.md`, section С
 
 Why two levels for books that are both printed as A1: with one level the ladder, the share and the "+" (PROG-002 – PROG-004) would have nothing to show in the demo. The split is the program author's choice, which a program is free to make (`05-program-and-levels.md`, Model); the titles and level names are the program's own, no book text (C-01).
 
-Typing: `src/domain/programs/types.ts` declares `Program` with the fields the app reads (`title`, `scale`, `goal`, `rules`, `topics`); the JSON is imported and assigned to it, so `tsc` checks its shape against the type, and the CI check of D2 checks it against the schema.
+Typing: `src/domain/programs/types.ts` declares `Program` with the fields the app reads (`scale`, `goal`, `rules`, `topics`; of a topic its `title`, `level`, `lead` and `supplements`). The program's `title` and a topic's `id` are not typed: nothing on Today reads them, and the CI check of D2 reads the file through its own type. The JSON is imported and assigned to it, so `tsc` checks its shape against the type, and the CI check of D2 checks it against the schema.
 
 ### D2. The check of built-in programs in CI (PROG-010)
 

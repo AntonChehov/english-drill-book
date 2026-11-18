@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { addedHeading, startButton } from "./demo";
+import { addedHeading, databaseName, startButton } from "./demo";
 import { test as clean } from "./fixtures";
 import {
   checkButton,
@@ -133,40 +133,52 @@ test.describe("PROG-005 Today's topic", () => {
     "@req PROG-005 every topic passed: Today says the program is complete",
     { tag: "@demo" },
     async ({ page }) => {
-      // Doing all 24 exercises through Study would take long: the log gets a mark as done for
-      // each, as Study writes it, and the store derives their states from it on the next read.
+      // Doing all 24 exercises through Study would take long. The log gets, for each exercise of
+      // the stored packs, the attempt Study writes when it is done: a check with every item right,
+      // or for an exercise shown as open a mark as done; the store derives their states from it.
       await page.goto(addressOf("/"));
       await expect(goalCard(page)).toBeVisible();
-      await page.evaluate(async () => {
+      await page.evaluate(async (name) => {
+        interface StoredPack {
+          id: string;
+          version: string;
+          units: {
+            exercises: { id: string; type: string; items?: { id: string; accept: string[] }[] }[];
+          }[];
+        }
         const db = await new Promise<IDBDatabase>((resolve, reject) => {
-          const open = indexedDB.open("english-drill-book");
+          const open = indexedDB.open(name);
           open.addEventListener("success", () => resolve(open.result));
           open.addEventListener("error", () => reject(open.error));
         });
-        const tx = db.transaction("attempts", "readwrite");
-        for (const pack of ["demo-course", "demo-drills"]) {
-          for (const unit of [1, 2, 3, 4]) {
-            for (const n of [1, 2, 3]) {
+        const tx = db.transaction(["packs", "attempts"], "readwrite");
+        const read = tx.objectStore("packs").getAll();
+        read.addEventListener("success", () => {
+          for (const pack of read.result as StoredPack[]) {
+            for (const exercise of pack.units.flatMap((unit) => unit.exercises)) {
+              const items = exercise.type === "items" ? (exercise.items ?? []) : undefined;
               tx.objectStore("attempts").add({
                 id: crypto.randomUUID(),
-                at: new Date(Date.UTC(2026, 10, 18)).toISOString(),
-                pack,
-                packVersion: "1.1.0",
-                exercise: `${unit}.${n}`,
-                action: "mark-done",
-                answers: {},
-                results: {},
+                at: "2026-11-18T09:00:00.000Z",
+                pack: pack.id,
+                packVersion: pack.version,
+                exercise: exercise.id,
+                action: items ? "check" : "mark-done",
+                answers: items
+                  ? Object.fromEntries(items.map((item) => [item.id, item.accept[0]]))
+                  : { text: "" },
+                results: items ? Object.fromEntries(items.map((item) => [item.id, "ok"])) : {},
                 complete: true,
               });
             }
           }
-        }
+        });
         await new Promise((resolve, reject) => {
           tx.addEventListener("complete", resolve);
           tx.addEventListener("error", () => reject(tx.error));
         });
         db.close();
-      });
+      }, databaseName);
       await page.reload();
       await expect(todayCard(page)).toContainText("Программа пройдена: все темы зачтены.");
       await expect(todayCard(page).getByRole("heading", { level: 3 })).toHaveCount(0);
