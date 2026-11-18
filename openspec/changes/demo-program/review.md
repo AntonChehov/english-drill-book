@@ -54,6 +54,20 @@ Verdict: approved
 
 Since round 1 only `e2e/today.spec.ts`, `src/domain/programs/types.ts`, `proposal.md` and `design.md` changed; the rest of the whole diff stands as reviewed in round 1. No new export, branch or field without a reader. Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm spec`, `pnpm trace` (52 requirements), `vitest` on `src/domain/programs` (31 passed), `pnpm build`, and `e2e/today.spec.ts` on Chromium and Firefox three times over: 42 passed. The Firefox timing failure of round 1's notes did not recur here.
 
+## Round 3
+
+Reviewed: 82890e822af8
+Verdict: approved
+
+### Notes
+
+Since round 2: a merge of `main` without conflicts (the files of this change are untouched by it; `git diff origin/main...HEAD` still holds the same 19 files), task 3.3 ticked by the owner, and ab2e6a8, which moves the tests of a passed topic and of the done signs in `e2e/today.spec.ts` from work in Study to `completeInStore`, the helper the test of a complete program used since round 2 (F2), to keep the run within C-19.
+
+- The helper: it writes, with each stored pack's id and version, a `check` with every item's first accepted answer, `ok` and `complete: true`, or a `mark-done` with `{ text: "" }` for an exercise shown as open, which are what `checkAttempt` and `markDoneAttempt` write; `only` picks `pack/exercise`. The passed-topic test writes unit 1 of the course and drills 1.1 and 1.2, the scenario «Progress shown» of PROG-006; the done-signs test writes 1.1 and 1.2 of the course, the scenario «Not by colour alone». Both scenarios keep their assertions on Today.
+- UI coverage that remains: Today → Study is still driven by clicks in «the steps lead to Study» (course unit, course exercise, drill exercise). Study → Today is covered by `e2e/study-frame.spec.ts` (`@req PROG-014`): work done in Study, then «Сегодня», and the counts follow; the program card computes from the same `doneExercises` that `StartView.vue` reads on every mount, so it follows too, though no test now does work in Study and then reads the program card itself. Not a requirement of this change's scenarios, which state what Today shows for given done states.
+- Small points, not blocking: the test of a complete program reloads twice (once in the helper, once after it); an entry of `only` that names no stored exercise is skipped without a word, which a typo would turn into a failing assertion rather than a false pass.
+- Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm trace` (52 requirements), `pnpm build`, and `e2e/today.spec.ts` with `e2e/study-frame.spec.ts` on Chromium and Firefox three times over: 90 passed.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Covered by |
