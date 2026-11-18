@@ -38,3 +38,36 @@ Checked and found right:
 - Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm spec`, `pnpm trace` (52 requirements), `vitest` on `src/domain/programs` (31 passed), `pnpm build`, `pnpm size`; on Chromium and Firefox `e2e/today.spec.ts`, `demo.spec.ts`, `storage.spec.ts` and `a11y.spec.ts`, repeated: 321 of 322 passed. The one failure was "one action lists the course and the drill book" on Firefox in the first loaded run, which passed 6 of 6 alone and in a further 174-test repeated run; it carries a 2 s reading budget and looks like load timing, not this change, but the implementer may want to confirm on CI.
 
 Observation, not a finding: in `ProgramToday.vue` the drill chips use a precomputed `done`, while the course chips call `isDone` three times each in the template; mapping the unit's exercises the same way as `drills` would read more evenly.
+
+## Round 2
+
+Reviewed: ec10ae1531cd
+Verdict: approved
+- F1: fixed
+  `Program.title` and `Topic.id` are gone from `types.ts`; design D1 lists the typed fields and says why those two are not typed. `tsc` passes with the JSON assigned to the narrower type, and the CI check keeps its own `ProgramFile` (f462ac5).
+- F2: fixed
+  The test opens `databaseName`, reads the stored packs in the same transaction and writes, with each pack's own id and version, a `check` with every item's first accepted answer and `ok` and `complete: true` for an `items` exercise, and a `mark-done` with `{ text: "" }` for the open and the text exercise, which Study shows as open. Both match `checkAttempt` and `markDoneAttempt` of `src/domain/study/attempts.ts`; the comment now says so (f462ac5).
+- F3: fixed
+  Impact names `StartView.vue`, `BookCards.vue` and the three end-to-end helper files, and says the roadmap is updated at the archive (f462ac5).
+
+### Notes
+
+Since round 1 only `e2e/today.spec.ts`, `src/domain/programs/types.ts`, `proposal.md` and `design.md` changed; the rest of the whole diff stands as reviewed in round 1. No new export, branch or field without a reader. Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm spec`, `pnpm trace` (52 requirements), `vitest` on `src/domain/programs` (31 passed), `pnpm build`, and `e2e/today.spec.ts` on Chromium and Firefox three times over: 42 passed. The Firefox timing failure of round 1's notes did not recur here.
+
+## Requirement coverage
+
+| Requirement | Implemented in | Covered by |
+| --- | --- | --- |
+| PROG-001 | `src/domain/programs/progress.ts` (`topicProgress`) | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
+| PROG-002 | `src/domain/programs/progress.ts` (`levelShares`), `src/ui/components/ProgramToday.vue` | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
+| PROG-003 | `src/domain/programs/progress.ts` (`currentLevel`), `src/ui/components/ProgramToday.vue` | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
+| PROG-004 | `src/domain/programs/progress.ts` (`currentLevel`), `src/ui/components/ProgramToday.vue` | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
+| PROG-005 | `src/domain/programs/progress.ts` (`todayTopic`), `src/ui/components/ProgramToday.vue` | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
+| PROG-006 | `src/ui/components/ProgramToday.vue`, `src/ui/views/StartView.vue` | `e2e/today.spec.ts`, `e2e/a11y.spec.ts` (state `start-demo-added`) |
+| PROG-010 | `src/domain/programs/demo.json` (checked in the test, by design D2) | `src/domain/programs/programs.test.ts` |
+| PROG-013 | `src/ui/views/StartView.vue`, `src/domain/programs/index.ts` | `e2e/today.spec.ts` |
+| PROG-015 | `src/domain/programs/demo.json`, `src/domain/programs/types.ts` | `src/domain/programs/programs.test.ts` |
+
+## Outside the listed requirements
+
+Reading the done states moved from `BookCards.vue` to `StartView.vue` (design D4), with no change to what the book cards show (PROG-014). `e2e/demo.ts` gains `bookHeadings`, used by `e2e/demo.spec.ts` and `e2e/storage.spec.ts`, since Today's topic is now a heading of the same level as the book cards.
