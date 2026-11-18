@@ -41,6 +41,9 @@ export function pdfLibraryFiles(): string[] {
 export const startButton = (page: Page) => page.getByRole("button", { name: "Попробовать демо" });
 export const retryButton = (page: Page) =>
   page.getByRole("button", { name: "Попробовать ещё раз" });
+/** The headings of the book cards; Today's topic above them has a heading of the same level. */
+export const bookHeadings = (page: Page) =>
+  page.getByRole("heading", { level: 3, name: /^Everyday Grammar/ });
 export const addedHeading = (page: Page) =>
   page.getByRole("heading", { level: 2, name: "Демо-книги добавлены" });
 
