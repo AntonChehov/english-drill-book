@@ -13,7 +13,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 - [x] 3.1 Move the reading of done states from `BookCards.vue` to `StartView.vue` as in design D4; verify the existing end-to-end tests of the book cards (`@req PROG-014`) still pass
 - [x] 3.2 Add `src/ui/components/ProgramToday.vue` and show it from `StartView.vue` while the demo is added, as in design D5 and D6; verify with end-to-end tests named `@req PROG-005`, `@req PROG-006` and `@req PROG-013` the scenarios of the delta spec `today` (D7), axe on Today with the program in both themes, and the links reached by Tab
-- [ ] 3.3 **(owner)** Read the Russian texts of Today and the topic titles of the demo program on the running build and correct them
+- [x] 3.3 **(owner)** Read the Russian texts of Today and the topic titles of the demo program on the running build and correct them
 
 ## 4. Review and evidence
 
