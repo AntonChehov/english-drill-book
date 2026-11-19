@@ -68,6 +68,20 @@ Since round 2: a merge of `main` without conflicts (the files of this change are
 - Small points, not blocking: the test of a complete program reloads twice (once in the helper, once after it); an entry of `only` that names no stored exercise is skipped without a word, which a typo would turn into a failing assertion rather than a false pass.
 - Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm trace` (52 requirements), `pnpm build`, and `e2e/today.spec.ts` with `e2e/study-frame.spec.ts` on Chromium and Firefox three times over: 90 passed.
 
+## Round 4
+
+Reviewed: c7c3a18b4624
+Verdict: approved
+
+### Notes
+
+Since round 3 only 2a677b8, the answer to the validation that the owner approved: `next` of `topicProgress` and «Открыть раздел» opening it, the count of step 2 capped at the drills needed, the focus moved to «Сегодня» after adding the demo, three new scenarios of PROG-006 in the delta spec `today`, and two items of technical debt in `docs/roadmap.md`. No critical finding.
+
+- Spec ↔ code ↔ tests: «Steps lead to Study» now opens `?ex=1.1` (e2e); «The main action goes where the topic goes on» is covered by unit tests of `next` (first lead exercise before any drill, the first drill once the unit is done, none when passed) and by the e2e test of the link's address in both cases; «More drills than needed» by the e2e test «сделано 2 из 2 нужных»; «The focus after adding the demo» by the keyboard test in `e2e/demo.spec.ts`, which checks the focus on «Сегодня» and that Tab reaches «Открыть раздел».
+- Code: `next!` in `ProgramToday.vue` is sound: a topic not passed has a lead exercise not done, or fewer than `needed ≤ total` supplements done, so one not done. The focus lands because `StartView` renders `ProgramToday` in the same flush as the `added` state, before `DemoBooks` emits after `nextTick`; the quiet path (a kept demo on start) emits nothing, as D6 says. The heading «Демо-книги добавлены» lost its `tabindex` and ref with their only use; no export, field or branch without a caller. No earlier spec states where the focus goes after adding the demo, so moving it changes no requirement outside this change.
+- Minor, not blocking (round 4): design D6 still ends with "Opening the topic at its first unfinished step is PROG-007, in the second change", and the proposal still lists that clause of PROG-007 as left for the second change, while «Открыть раздел» now does it for the main action; D7 still describes the old end-to-end cases. The focus scenario of PROG-006 is tested by a test named `@req PACK-003`, so `pnpm trace` sees it only through the other PROG-006 tests. Worth aligning at the archive or in the second change.
+- Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm spec`, `pnpm trace` (52 requirements), `vitest` on `src/domain/programs` (33 passed), `pnpm build`, and `e2e/today.spec.ts`, `e2e/demo.spec.ts` and `e2e/a11y.spec.ts` on Chromium and Firefox twice over: 112 passed. The hash was taken against `main` as last fetched (63d93bc) and matches the one the implementer reported.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Covered by |
@@ -77,11 +91,11 @@ Since round 2: a merge of `main` without conflicts (the files of this change are
 | PROG-003 | `src/domain/programs/progress.ts` (`currentLevel`), `src/ui/components/ProgramToday.vue` | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
 | PROG-004 | `src/domain/programs/progress.ts` (`currentLevel`), `src/ui/components/ProgramToday.vue` | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
 | PROG-005 | `src/domain/programs/progress.ts` (`todayTopic`), `src/ui/components/ProgramToday.vue` | `src/domain/programs/progress.test.ts`, `e2e/today.spec.ts` |
-| PROG-006 | `src/ui/components/ProgramToday.vue`, `src/ui/views/StartView.vue` | `e2e/today.spec.ts`, `e2e/a11y.spec.ts` (state `start-demo-added`) |
+| PROG-006 | `src/ui/components/ProgramToday.vue`, `src/ui/views/StartView.vue`, `src/ui/components/DemoBooks.vue`, `src/domain/programs/progress.ts` (`next`) | `e2e/today.spec.ts`, `e2e/demo.spec.ts` (focus after adding), `src/domain/programs/progress.test.ts`, `e2e/a11y.spec.ts` (state `start-demo-added`) |
 | PROG-010 | `src/domain/programs/demo.json` (checked in the test, by design D2) | `src/domain/programs/programs.test.ts` |
 | PROG-013 | `src/ui/views/StartView.vue`, `src/domain/programs/index.ts` | `e2e/today.spec.ts` |
 | PROG-015 | `src/domain/programs/demo.json`, `src/domain/programs/types.ts` | `src/domain/programs/programs.test.ts` |
 
 ## Outside the listed requirements
 
-Reading the done states moved from `BookCards.vue` to `StartView.vue` (design D4), with no change to what the book cards show (PROG-014). `e2e/demo.ts` gains `bookHeadings`, used by `e2e/demo.spec.ts` and `e2e/storage.spec.ts`, since Today's topic is now a heading of the same level as the book cards.
+Reading the done states moved from `BookCards.vue` to `StartView.vue` (design D4), with no change to what the book cards show (PROG-014). `e2e/demo.ts` gains `bookHeadings`, used by `e2e/demo.spec.ts` and `e2e/storage.spec.ts`, since Today's topic is now a heading of the same level as the book cards. After validation, at the owner's request: `DemoBooks.vue` emits `added` instead of focusing its own heading, and `docs/roadmap.md` records two items of technical debt from the validation of PR #26 (a draft lost on unload, swapped letters not judged «Почти»).
