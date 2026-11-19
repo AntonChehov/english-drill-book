@@ -1,0 +1,121 @@
+{
+  "kind": "program",
+  "schemaVersion": 1,
+  "id": "demo",
+  "version": "1.0.0",
+  "title": "Демо-программа: грамматика A1–A2",
+  "scale": ["A1", "A2"],
+  "goal": {
+    "from": "A1",
+    "to": "A2"
+  },
+  "rules": {
+    "levelThreshold": 0.9,
+    "plusThreshold": 0.5,
+    "supplementMin": 2
+  },
+  "requires": [
+    {
+      "pack": "demo-course",
+      "major": 1
+    },
+    {
+      "pack": "demo-drills",
+      "major": 1
+    }
+  ],
+  "topics": [
+    {
+      "id": "t1",
+      "title": "Глагол to be: am, is, are",
+      "level": "A1",
+      "lead": {
+        "pack": "demo-course",
+        "unit": "1"
+      },
+      "supplements": [
+        {
+          "pack": "demo-drills",
+          "exercise": "1.1"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "1.2"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "1.3"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "title": "Present simple",
+      "level": "A1",
+      "lead": {
+        "pack": "demo-course",
+        "unit": "2"
+      },
+      "supplements": [
+        {
+          "pack": "demo-drills",
+          "exercise": "2.1"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "2.2"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "2.3"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "title": "Артикли a и an",
+      "level": "A2",
+      "lead": {
+        "pack": "demo-course",
+        "unit": "3"
+      },
+      "supplements": [
+        {
+          "pack": "demo-drills",
+          "exercise": "3.1"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "3.2"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "3.3"
+        }
+      ]
+    },
+    {
+      "id": "t4",
+      "title": "There is и there are",
+      "level": "A2",
+      "lead": {
+        "pack": "demo-course",
+        "unit": "4"
+      },
+      "supplements": [
+        {
+          "pack": "demo-drills",
+          "exercise": "4.1"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "4.2"
+        },
+        {
+          "pack": "demo-drills",
+          "exercise": "4.3"
+        }
+      ]
+    }
+  ]
+}

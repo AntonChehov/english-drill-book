@@ -64,6 +64,8 @@ Technical debt, recorded at the owner's request on 2026-11-14 from the validatio
 - Checking a long exercise with Enter in its last field lets the verdicts push the focused field below the window (validation of PR #22).
 - In a clean browser, a link to a demo unit that does not exist promises the unit will open after adding the demo, then says not found (validation of PR #22).
 - At 360 px some touch targets are 34–38 px high (option pills, ⋯ ‹ › buttons, fields), below 44–48 px; tapping an option flashes the default tap highlight (validation of PR #22).
+- Answers typed less than about 0.3 s before a reload or closing the tab are lost: the draft is not saved when the page unloads (validation of PR #26).
+- Two swapped letters in a long word are judged wrong, not «Почти» (validation of PR #26).
 - Remove `auditConfig.ignoreGhsas` (GHSA-fc5q-39xc-vjpf) from `pnpm-workspace.yaml` once picomatch >= 4.0.8 is published (change `audit-ignore-picomatch`): the high advisory is dev-only, through vite, vue-tsc and openspec.
 
 ## Done

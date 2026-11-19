@@ -1,5 +1,6 @@
 import type { Request } from "@playwright/test";
 import {
+  bookHeadings,
   addDemo,
   addedHeading,
   demoPdf,
@@ -125,7 +126,7 @@ test.describe("PACK-003 The demo book", () => {
       await expect(page.getByRole("alert")).toHaveText(
         "Демо-книгу «Everyday Grammar: Demo Drills» не удалось прочитать: файл повреждён или не той версии. Попробуйте ещё раз, а если не поможет, обновите страницу.",
       );
-      await expect(page.getByRole("heading", { level: 3 })).toHaveCount(0);
+      await expect(bookHeadings(page)).toHaveCount(0);
     },
   );
 
@@ -143,7 +144,7 @@ test.describe("PACK-003 The demo book", () => {
       await expect(page.getByRole("alert")).toHaveText(
         "Демо-книгу «Everyday Grammar: Demo Drills» не удалось прочитать: файл повреждён или не той версии. Попробуйте ещё раз, а если не поможет, обновите страницу.",
       );
-      await expect(page.getByRole("heading", { level: 3 })).toHaveCount(0);
+      await expect(bookHeadings(page)).toHaveCount(0);
     },
   );
 
@@ -163,7 +164,7 @@ test.describe("PACK-003 The demo book", () => {
       await retryButton(page).click();
 
       await expect(addedHeading(page)).toBeVisible();
-      await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+      await expect(bookHeadings(page)).toHaveText(demoTitles);
     },
   );
 
@@ -182,7 +183,7 @@ test.describe("PACK-003 The demo book", () => {
       await retryButton(page).click();
 
       await expect(addedHeading(page)).toBeVisible();
-      await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+      await expect(bookHeadings(page)).toHaveText(demoTitles);
       expect(
         await page.evaluate(() => (window as unknown as { stillHere?: boolean }).stillHere),
       ).toBe(true);
@@ -254,8 +255,11 @@ test.describe("PACK-003 The demo book", () => {
       await page.keyboard.press("Enter");
       release?.();
 
-      await expect(addedHeading(page)).toBeFocused();
-      await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+      // The focus goes to Today, just before its main action (PROG-006).
+      await expect(page.getByRole("heading", { level: 2, name: "Сегодня" })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("link", { name: "Открыть раздел" })).toBeFocused();
+      await expect(bookHeadings(page)).toHaveText(demoTitles);
     },
   );
 

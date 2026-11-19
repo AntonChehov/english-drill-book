@@ -1,15 +1,13 @@
 <script setup lang="ts">
 // The demo books as cards (PROG-014; design D2 of `study-screen`): each with how many of its
 // exercises are done and its units as links to Study with their counts, the first unit not finished
-// marked as the one to continue. The counts are read when the start screen opens and whenever the
-// store may have changed (DATA-012).
-import { computed, onMounted, onUnmounted, watch } from "vue";
+// marked as the one to continue. The start screen reads the counts (design D4 of `demo-program`).
+import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import { continueAt, progressOf } from "../../domain/study/progress";
-import { doneExercises, doneKey, readDone } from "../demo/progress";
+import { doneExercises, doneKey } from "../demo/progress";
 import type { DemoBookSummary } from "../demo/state";
 import { prefetchStudy } from "../router";
-import { onStoredDataChange } from "../storage";
 
 const props = defineProps<{ books: readonly DemoBookSummary[] }>();
 
@@ -33,17 +31,7 @@ function exercisesAfter(total: number): string {
   return total % 10 === 1 && total % 100 !== 11 ? "упражнения" : "упражнений";
 }
 
-let stop: (() => void) | undefined;
-onMounted(() => {
-  void readDone(props.books);
-  stop = onStoredDataChange(() => void readDone(props.books));
-  prefetchStudy();
-});
-onUnmounted(() => stop?.());
-watch(
-  () => props.books,
-  (books) => void readDone(books),
-);
+onMounted(prefetchStudy);
 </script>
 
 <template>

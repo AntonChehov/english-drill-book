@@ -1,5 +1,6 @@
 import type { Page, Request } from "@playwright/test";
 import {
+  bookHeadings,
   addDemo,
   addDemoNotKept,
   addedHeading,
@@ -40,7 +41,7 @@ test.describe("DATA-001 Data stays in the browser", () => {
       await page.reload();
 
       await expect(addedHeading(page)).toBeVisible();
-      await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+      await expect(bookHeadings(page)).toHaveText(demoTitles);
       await expect(page.getByText("сохранены в этом браузере")).toBeVisible();
       await expect(startButton(page)).toHaveCount(0);
       const library = pdfLibraryFiles();
@@ -83,7 +84,7 @@ test.describe("DATA-001 Data stays in the browser", () => {
       await page.reload();
 
       await expect(addedHeading(page)).toBeVisible();
-      await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+      await expect(bookHeadings(page)).toHaveText(demoTitles);
       expect(requests.map(pathOf).filter((path) => demoPdf.test(path))).toHaveLength(2);
       const stored = await databaseOf(page);
       const drills = stored.stores["packs"]?.find(
@@ -154,7 +155,7 @@ test.describe("DATA-004 Failed writes", () => {
       await expect(demo.getByRole("alert")).toBeVisible();
       await expect(retryButton(page)).toBeFocused();
       await expect(addedHeading(page)).toHaveCount(0);
-      await expect(page.getByRole("heading", { level: 3 })).toHaveCount(0);
+      await expect(bookHeadings(page)).toHaveCount(0);
 
       // The visitor allows storage and tries again: the books read before are kept, not read again.
       const requests = requestsOf(page);
@@ -164,7 +165,7 @@ test.describe("DATA-004 Failed writes", () => {
       await retryButton(page).click();
 
       await expect(addedHeading(page)).toBeVisible();
-      await expect(page.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+      await expect(bookHeadings(page)).toHaveText(demoTitles);
       expect(requests.map(pathOf).filter((path) => demoPdf.test(path))).toEqual([]);
     },
   );
@@ -258,7 +259,7 @@ test.describe("DATA-012 Two tabs", () => {
       await second.evaluate(() => window.dispatchEvent(new Event("focus")));
 
       await expect(addedHeading(second)).toBeVisible();
-      await expect(second.getByRole("heading", { level: 3 })).toHaveText(demoTitles);
+      await expect(bookHeadings(second)).toHaveText(demoTitles);
       expect(navigations, "the second tab was not reloaded").toEqual([]);
     },
   );
