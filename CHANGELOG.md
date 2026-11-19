@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/AntonChehov/english-drill-book/compare/v0.1.0...v0.2.0) (2026-11-19)
+
+
+### Features
+
+* **russian-demo:** Russian explanations and tasks in the demo ([20d05c1](https://github.com/AntonChehov/english-drill-book/commit/20d05c1800a44882f181e22d213a1d9c984db69a))
+* **today:** demo program on Today ([#26](https://github.com/AntonChehov/english-drill-book/issues/26)) ([8257282](https://github.com/AntonChehov/english-drill-book/commit/82572820e6179d4c1663d3e64c361224f2bbbdbc))
+
 ## 0.1.0 (2026-11-16)
 
 
