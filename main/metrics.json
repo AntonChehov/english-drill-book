@@ -2,30 +2,30 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-UHQzAwCE.js"
+        "assets/index-CTUe9uGL.js"
       ],
-      "bytes": 111090,
-      "gzip": 42116,
+      "bytes": 117719,
+      "gzip": 44218,
       "budget": 120000
     },
     "css": {
       "files": [
-        "assets/index-DjjVZP30.css"
+        "assets/index-KC5X8wuX.css"
       ],
-      "bytes": 5185,
-      "gzip": 1563,
+      "bytes": 7132,
+      "gzip": 1876,
       "budget": 20000
     },
     "later": [
       {
-        "file": "assets/StudyView-Bt5i2XOI.js",
+        "file": "assets/StudyView-DRYHRqgh.js",
         "bytes": 35446,
-        "gzip": 13140
+        "gzip": 13138
       },
       {
-        "file": "assets/add-demo-BxQjcFRV.js",
+        "file": "assets/add-demo-D0ntIQRI.js",
         "bytes": 5660,
-        "gzip": 2322
+        "gzip": 2324
       },
       {
         "file": "assets/kept-Bguq_1ME.js",
@@ -48,32 +48,32 @@
         "gzip": 9360
       },
       {
-        "file": "assets/static-files-C0MK6hcu.js",
+        "file": "assets/static-files-CtQlWZ4X.js",
         "bytes": 2478,
-        "gzip": 1288
+        "gzip": 1287
       }
     ]
   },
-  "sha": "8b4b02512b27c2cca4f615be51c6e096a9d1511a",
+  "sha": "82572820e6179d4c1663d3e64c361224f2bbbdbc",
   "tests": {
     "unit": {
-      "tests": 789,
-      "passed": 789,
+      "tests": 822,
+      "passed": 822,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 221,
-      "passed": 220,
+      "tests": 248,
+      "passed": 247,
       "failed": 0,
       "skipped": 1
     }
   },
   "coverage": {
-    "lines": 99.64,
-    "branches": 98.48,
+    "lines": 99.65,
+    "branches": 98.52,
     "functions": 100,
-    "statements": 99.6
+    "statements": 99.61
   },
   "lighthouse": {
     "performance": 100,
@@ -82,6 +82,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 159
+    "seconds": 140
   }
 }
