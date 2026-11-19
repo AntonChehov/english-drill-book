@@ -47,7 +47,7 @@ The checks are a function in the test file, not in `src`: nothing in the running
 
 `src/domain/programs/progress.ts`, pure:
 
-- `topicProgress(topic, leadExercises, isDone, supplementMin)` → `{ lead: Progress, drills: { done, needed, total }, passed, state }` (PROG-001). `leadExercises` are the exercise IDs of the lead unit, from the stored pack (the program names only the unit); `isDone(pack, exercise)`; `needed = min(supplementMin, total)`; `passed` when every lead exercise and at least `needed` supplements are done; `state` is `passed`, `started` when anything is done, else `new`. Every supplement is counted as available: the program is active only when both its books are stored (D5), and PROG-012 is milestone 3.
+- `topicProgress(topic, leadExercises, isDone, supplementMin)` → `{ lead: Progress, drills: { done, needed, total }, passed, state }` (PROG-001). `leadExercises` are the exercise IDs of the lead unit, from the stored pack (the program names only the unit); `isDone(pack, exercise)`; `needed = min(supplementMin, total)`; `passed` when every lead exercise and at least `needed` supplements are done; `state` is `passed`, `started` when anything is done, else `new`; `next` the first lead exercise not done, else the first supplement not done, none when passed. Every supplement is counted as available: the program is active only when both its books are stored (D5), and PROG-012 is milestone 3.
 - `levelShares(scale, topics, passed)` → per level of the scale, in order, `{ level, passed, total, share }`; `share` 1 for a level with no topics (PROG-002).
 - `currentLevel(shares, levelThreshold, plusThreshold)` → `{ index, plus }`: `index` of the highest level whose share and every lower share is at least the threshold, `-1` for "below" (PROG-003); `plus` when the next level exists and its share is at least `plusThreshold` (PROG-004), the next of "below" being the lowest level.
 - `todayTopic(topics, passed)` → the index of the first topic in order not passed, `-1` when every topic is passed (PROG-005 without the focus).
@@ -76,9 +76,12 @@ The demo program is the only built-in program. It is active exactly when the dem
 **Today card** (`<section>`, heading «Сегодня»):
 
 - In small print the course's title (`lang="en"`) and «раздел N»; the topic's title with its level as a tag; its state: «не начата», «в процессе», «пройдена».
-- **Step 1** «1. Курс: правило и упражнения · сделано X из Y»: a link styled as the primary button, «Открыть раздел», to `#/study/demo-course/<unit>`, and one link per exercise of the unit, «2.1», to `#/study/demo-course/<unit>?ex=2.1`, marked done by a sign «✓» and colour, its accessible name saying «сделано» or «не сделано».
-- **Step 2** «2. Сборник упражнений: практика · сделано X из N нужных»: one link per supplement, «Упр. 2.1», to `#/study/demo-drills/<unit of the exercise>?ex=2.1`, marked as in step 1; when more are offered than needed, the note «Для зачёта темы достаточно N из M.».
+- The main action, a link styled as the primary button, «Открыть раздел», to the step where the topic goes on: the first exercise of the course unit not done, else the first drill exercise not done (`next` of `topicProgress`, D3), as `#/study/<pack>/<unit>?ex=<exercise>`. Added after validation at the owner's request; PROG-007 (the two-step Study) builds on it.
+- **Step 1** «1. Курс: правило и упражнения · сделано X из Y»: one link per exercise of the unit, «2.1», to `#/study/demo-course/<unit>?ex=2.1`, marked done by a sign «✓» and colour, its accessible name saying «сделано» or «не сделано».
+- **Step 2** «2. Сборник упражнений: практика · сделано X из N нужных», X capped at N, since drills beyond the needed ones count as enough: one link per supplement, «Упр. 2.1», to `#/study/demo-drills/<unit of the exercise>?ex=2.1`, marked as in step 1; when more are offered than needed, the note «Для зачёта темы достаточно N из M.».
 - When every topic is passed, in place of the topic: «Программа пройдена: все темы зачтены.»
+
+Focus: when the learner adds the demo, the demo section emits `added` instead of focusing its own heading, and the start screen moves the focus to the heading «Сегодня» (`tabindex="-1"`, exposed as `focus()`), so the next Tab reaches the main action instead of passing through the book cards. Starting the app with the demo already added moves no focus.
 
 The unit of a supplement exercise is found in the stored pack's summary. The note «Для этой темы упражнения не подобраны» of the interface reference is not built: every topic of the demo program has supplements, so it would have no case to show.
 

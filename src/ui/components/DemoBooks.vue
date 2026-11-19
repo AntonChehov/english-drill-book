@@ -17,8 +17,9 @@ import { demoState, summaryOf, type DemoState } from "../demo/state";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
 import BookCards from "./BookCards.vue";
 
-const heading = useTemplateRef<HTMLElement>("heading");
 const action = useTemplateRef<HTMLButtonElement>("action");
+/** The visitor added the demo: the start screen moves the focus to Today. */
+const emit = defineEmits<{ added: [] }>();
 
 const reading = computed(() => demoState.value.phase === "reading");
 const retrying = computed(
@@ -53,7 +54,7 @@ async function add(quietly = false) {
     await (await getStore()).putPacks(packs);
     demoState.value = { phase: "added", books: summaryOf(packs) };
     await nextTick();
-    if (!quietly) heading.value?.focus();
+    if (!quietly) emit("added");
   } catch (error) {
     noteStorageFailure(error);
     demoState.value =
@@ -118,7 +119,7 @@ onUnmounted(() => stopWatching?.());
     :class="{ 'offer card': demoState.phase !== 'added' }"
     aria-labelledby="demo-heading"
   >
-    <h2 id="demo-heading" ref="heading" tabindex="-1">
+    <h2 id="demo-heading">
       {{ demoState.phase === "added" ? "Демо-книги добавлены" : "Демо-книги" }}
     </h2>
 

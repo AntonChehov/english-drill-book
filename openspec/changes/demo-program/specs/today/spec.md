@@ -46,9 +46,27 @@ Today SHALL show: the goal, the current level on the scale with the share of eac
 
 #### Scenario: Steps lead to Study
 
-- **GIVEN** Today shows topic 1
+- **GIVEN** Today shows topic 1 and nothing is done
 - **WHEN** the learner chooses «Открыть раздел», exercise 1.2 of step 1, or «Упр. 1.2» of step 2
-- **THEN** Study opens in the same window at unit 1 of the course, at exercise 1.2 of the course, or at exercise 1.2 of the drill book
+- **THEN** Study opens in the same window at exercise 1.1 of the course, at exercise 1.2 of the course, or at exercise 1.2 of the drill book
+
+#### Scenario: The main action goes where the topic goes on
+
+- **GIVEN** exercise 1.1 of the course is done
+- **WHEN** the learner chooses «Открыть раздел»
+- **THEN** Study opens at exercise 1.2 of the course; once unit 1 of the course and drill 1.1 are done, it opens at exercise 1.2 of the drill book
+
+#### Scenario: More drills than needed
+
+- **GIVEN** the three drill exercises of topic 1 are done and none of its course unit
+- **WHEN** Today is shown
+- **THEN** step 2 reads «сделано 2 из 2 нужных», not «3 из 2»
+
+#### Scenario: The focus after adding the demo
+
+- **GIVEN** the learner adds the demo with the keyboard
+- **WHEN** the books are stored
+- **THEN** the focus is on the heading «Сегодня», and the next Tab reaches «Открыть раздел»
 
 #### Scenario: Not by colour alone
 

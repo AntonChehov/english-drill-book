@@ -255,7 +255,10 @@ test.describe("PACK-003 The demo book", () => {
       await page.keyboard.press("Enter");
       release?.();
 
-      await expect(addedHeading(page)).toBeFocused();
+      // The focus goes to Today, just before its main action (PROG-006).
+      await expect(page.getByRole("heading", { level: 2, name: "Сегодня" })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("link", { name: "Открыть раздел" })).toBeFocused();
       await expect(bookHeadings(page)).toHaveText(demoTitles);
     },
   );

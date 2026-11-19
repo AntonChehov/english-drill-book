@@ -45,7 +45,7 @@ Review goes in rounds as `docs/process.md` step 4 states. Every finding carries 
 ## Impact
 
 - New: `src/domain/programs/` (`types.ts`, `progress.ts`, `demo.json`, unit tests, the CI check of built-in programs), `src/ui/components/ProgramToday.vue`, end-to-end tests of Today with the program.
-- Changed: `src/ui/views/StartView.vue` (shows the program above the demo section; reads the done states once for both), `src/ui/components/BookCards.vue` (no longer reads the done states itself), `e2e/demo.ts`, `e2e/demo.spec.ts` and `e2e/storage.spec.ts` (the book cards found by their titles, since Today's topic is a heading of the same level), the reference screenshots of Today. `docs/roadmap.md` is updated when the change is archived.
+- Changed: `src/ui/views/StartView.vue` (shows the program above the demo section; reads the done states once for both), `src/ui/components/BookCards.vue` (no longer reads the done states itself), `src/ui/components/DemoBooks.vue` (tells the start screen the demo was added, which moves the focus to Today), `e2e/demo.ts`, `e2e/demo.spec.ts` and `e2e/storage.spec.ts` (the book cards found by their titles, since Today's topic is a heading of the same level), the reference screenshots of Today. `docs/roadmap.md` gains two items of technical debt found by validation; its slice 1.6 entry is updated when the change is archived.
 - Not changed: `contracts/`, the demo books, packs and PDFs, the store and its schema, Study.
 - The initial bundle grows by the program (under 1 kB gzip) and the new component; no new dependency. `ajv` stays a development dependency, used only by tests.
 - Depends on: nothing in flight.

@@ -111,7 +111,7 @@ test.describe("PROG-006 What Today shows", () => {
       await page.goto(addressOf("/"));
       const today = todayCard(page);
       await today.getByRole("link", { name: "Открыть раздел" }).click();
-      await expect(page).toHaveURL((url) => url.hash === "#/study/demo-course/1");
+      await expect(page).toHaveURL((url) => url.hash === "#/study/demo-course/1?ex=1.1");
       await expect(unitHeading(page)).toHaveText(/Раздел 1\./);
 
       await page.getByRole("link", { name: "Сегодня" }).click();
@@ -142,6 +142,34 @@ test.describe("PROG-006 What Today shows", () => {
       await today.getByRole("link", { name: "Открыть раздел" }).focus();
       await page.keyboard.press("Tab");
       await expect(done).toBeFocused();
+    },
+  );
+});
+
+test.describe("PROG-006 Where the topic goes on", () => {
+  test(
+    "@req PROG-006 the main action opens the first exercise not done, the drills once the course unit is done",
+    { tag: "@demo" },
+    async ({ page }) => {
+      await page.goto(addressOf("/"));
+      await completeInStore(page, ["demo-course/1.1"]);
+      const open = todayCard(page).getByRole("link", { name: "Открыть раздел" });
+      await expect(open).toHaveAttribute("href", "#/study/demo-course/1?ex=1.2");
+
+      await completeInStore(page, ["demo-course/1.2", "demo-course/1.3", "demo-drills/1.1"]);
+      await expect(open).toHaveAttribute("href", "#/study/demo-drills/1?ex=1.2");
+    },
+  );
+
+  test(
+    "@req PROG-006 more drills done than needed read as enough",
+    { tag: "@demo" },
+    async ({ page }) => {
+      await page.goto(addressOf("/"));
+      await completeInStore(page, ["demo-drills/1.1", "demo-drills/1.2", "demo-drills/1.3"]);
+      const today = todayCard(page);
+      await expect(today).toContainText("сделано 2 из 2 нужных");
+      await expect(today).toContainText("сделано 0 из 3");
     },
   );
 });

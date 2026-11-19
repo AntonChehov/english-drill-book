@@ -2,7 +2,7 @@
 // Today with the demo program (PROG-005, PROG-006, PROG-013; design D5, D6 of `demo-program`): the
 // goal with the current level and the share of each level, and today's topic with its course unit
 // and drill exercises as links into Study. The done states are read by the start screen (D4).
-import { computed } from "vue";
+import { computed, useTemplateRef } from "vue";
 import { RouterLink } from "vue-router";
 import { countOf } from "../../domain/plural";
 import {
@@ -17,6 +17,10 @@ import { doneExercises, doneKey } from "../demo/progress";
 import type { DemoBookSummary } from "../demo/state";
 
 const props = defineProps<{ books: readonly DemoBookSummary[] }>();
+
+const heading = useTemplateRef<HTMLElement>("heading");
+/** Moves the focus to «Сегодня», just before the main action, once the demo is added. */
+defineExpose({ focus: () => heading.value?.focus() });
 
 const isDone = (pack: string, exercise: string) =>
   doneExercises.get(doneKey(pack, exercise)) === true;
@@ -54,11 +58,17 @@ const today = computed(() => {
   const topic = program.topics[todayTopic(program.topics, passed)];
   if (topic === undefined) return undefined;
   const unit = leadUnit(topic);
+  const current = progress.value.get(topic)!;
+  // A topic not passed has an exercise not done (PROG-001).
+  const next = current.next!;
   return {
     topic,
     unit,
     book: bookOf(topic.lead.pack).title,
-    progress: progress.value.get(topic)!,
+    progress: current,
+    // More drills done than needed count as enough, not as "3 of 2".
+    drillsDone: Math.min(current.drills.done, current.drills.needed),
+    next: `/study/${next.pack}/${unitOf(next.pack, next.exercise).id}?ex=${next.exercise}`,
     drills: topic.supplements.map(({ pack, exercise }) => ({
       pack,
       exercise,
@@ -97,7 +107,7 @@ const percent = (share: number) => `${Math.round(share * 100)}%`;
   </section>
 
   <section class="today card" aria-labelledby="today-heading">
-    <h2 id="today-heading">Сегодня</h2>
+    <h2 id="today-heading" ref="heading" tabindex="-1">Сегодня</h2>
     <p v-if="today === undefined">Программа пройдена: все темы зачтены.</p>
     <template v-else>
       <p class="where">
@@ -107,14 +117,12 @@ const percent = (share: number) => `${Math.round(share * 100)}%`;
         {{ today.topic.title }} <span class="tag">{{ today.topic.level }}</span>
       </h3>
       <p class="state">{{ stateWords[today.progress.state] }}</p>
+      <RouterLink class="action open" :to="today.next">Открыть раздел</RouterLink>
 
       <h4>
         1. Курс: правило и упражнения · сделано {{ today.progress.lead.done }} из
         {{ today.progress.lead.total }}
       </h4>
-      <RouterLink class="action open" :to="`/study/${today.topic.lead.pack}/${today.unit.id}`">
-        Открыть раздел
-      </RouterLink>
       <ul class="chips">
         <li v-for="exercise in today.unit.exercises" :key="exercise">
           <RouterLink
@@ -130,7 +138,7 @@ const percent = (share: number) => `${Math.round(share * 100)}%`;
       </ul>
 
       <h4>
-        2. Сборник упражнений: практика · сделано {{ today.progress.drills.done }} из
+        2. Сборник упражнений: практика · сделано {{ today.drillsDone }} из
         {{ today.progress.drills.needed }} нужных
       </h4>
       <ul class="chips">
@@ -256,6 +264,7 @@ p {
 
 .open {
   display: inline-block;
+  margin-top: 0.75rem;
   text-decoration: none;
 }
 

@@ -12,6 +12,11 @@ interface TopicProgress {
   readonly drills: { readonly done: number; readonly needed: number; readonly total: number };
   readonly passed: boolean;
   readonly state: TopicState;
+  /**
+   * Where the topic goes on: the first lead exercise not done, else the first supplement not
+   * done; none once the topic is passed.
+   */
+  readonly next: { readonly pack: string; readonly exercise: string } | undefined;
 }
 
 /**
@@ -31,7 +36,13 @@ export function topicProgress(
   const needed = Math.min(supplementMin, total);
   const passed = lead.done === lead.total && done >= needed;
   const state = passed ? "passed" : lead.done + done > 0 ? "started" : "new";
-  return { lead, drills: { done, needed, total }, passed, state };
+  const leadNext = leadExercises.find((exercise) => !isDone(topic.lead.pack, exercise));
+  const next = passed
+    ? undefined
+    : leadNext === undefined
+      ? topic.supplements.find(({ pack, exercise }) => !isDone(pack, exercise))
+      : { pack: topic.lead.pack, exercise: leadNext };
+  return { lead, drills: { done, needed, total }, passed, state, next };
 }
 
 interface LevelShare {

@@ -31,6 +31,7 @@ describe("topicProgress", () => {
       drills: { done: 1, needed: 2, total: 3 },
       passed: false,
       state: "started",
+      next: { pack: "demo-drills", exercise: "1.2" },
     });
   });
 
@@ -64,6 +65,16 @@ describe("topicProgress", () => {
 
   it("@req PROG-001 nothing done is a new topic", () => {
     expect(topicProgress(t1, unit1, doneOf(), 2).state).toBe("new");
+  });
+
+  it("@req PROG-006 the topic goes on at the first lead exercise not done, before any drill", () => {
+    const progress = topicProgress(t1, unit1, doneOf(...course("1.1"), ...drills("1.1")), 2);
+    expect(progress.next).toEqual({ pack: "demo-course", exercise: "1.2" });
+  });
+
+  it("@req PROG-006 a passed topic has nowhere to go on", () => {
+    const all = doneOf(...course(...unit1), ...drills("1.1", "1.2"));
+    expect(topicProgress(t1, unit1, all, 2).next).toBeUndefined();
   });
 });
 
