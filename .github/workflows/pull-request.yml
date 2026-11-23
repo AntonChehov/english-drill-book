@@ -15,6 +15,8 @@ concurrency:
 
 permissions:
   contents: read
+  # The `changes` job of checks.yml lists the files of the pull request.
+  pull-requests: read
 
 jobs:
   checks:
@@ -39,6 +41,8 @@ jobs:
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       EVIDENCE_PATH: pr-${{ github.event.pull_request.number }}/${{ github.event.pull_request.head.sha }}
+    # The build, the tests and the screenshots exist only when `changes` found code (D3); the
+    # evidence check decides again from the pull request's own files (D4).
     steps:
       - name: Require every check to pass
         if: ${{ needs.checks.result != 'success' }}
@@ -90,10 +94,12 @@ jobs:
           permission-pull-requests: write
 
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ needs.checks.outputs.code == 'true' }}
         with:
           path: artifacts
 
       - name: Numbers
+        if: ${{ needs.checks.outputs.code == 'true' }}
         env:
           SECONDS_TAKEN: ${{ steps.duration.outputs.seconds }}
         run: |
@@ -104,20 +110,24 @@ jobs:
 
       - name: Screenshots and numbers of main
         id: main
+        if: ${{ needs.checks.outputs.code == 'true' }}
         env:
           EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
         run: node scripts/evidence-branch.mjs fetch --path main --into main-evidence
 
       - name: Compare the screenshots with main
+        if: ${{ needs.checks.outputs.code == 'true' }}
         run: node scripts/screenshots.mjs evidence main-evidence --out evidence/comparison.json
 
       - name: Publish to the evidence branch
         id: published
+        if: ${{ needs.checks.outputs.code == 'true' }}
         env:
           EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
         run: node scripts/evidence-branch.mjs publish --path "$EVIDENCE_PATH" --from evidence
 
       - name: Evidence comment
+        if: ${{ needs.checks.outputs.code == 'true' }}
         env:
           EVIDENCE_TOKEN: ${{ steps.bot.outputs.token }}
           BOT_LOGIN: ${{ steps.bot.outputs.app-slug }}[bot]

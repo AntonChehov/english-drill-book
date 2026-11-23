@@ -1,7 +1,10 @@
 # The gates of the constitution for one commit (design D7), shared by the pull request
 # and main workflows. Jobs run in parallel; the browser jobs run in the Playwright image,
 # so no browser is downloaded per run. Every job leaves its results as an artifact for the
-# evidence job: unit, size, dist, e2e-<browser or shard>, lighthouse, screenshots.
+# evidence job: unit, size, dist, e2e-<browser or shard>, lighthouse, screenshots. The first
+# job, `changes`, says whether the pull request changes a file that a build or test reads;
+# if not, only `static` runs here and the build, the tests, Lighthouse and the screenshots are
+# skipped (workflow-retro D3, D4). On main it always says yes.
 name: Checks
 
 on:
@@ -15,15 +18,42 @@ on:
         description: The commit before the first one to lint; empty skips commitlint.
         type: string
         default: ""
+    outputs:
+      code:
+        description: '"true" when the build and the tests ran, "false" when they were skipped.'
+        value: ${{ jobs.changes.outputs.code }}
 
 permissions:
   contents: read
+  # `changes` lists the files of the pull request.
+  pull-requests: read
 
 env:
   COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
   OPENSPEC_TELEMETRY: "0"
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      code: ${{ steps.files.outputs.code }}
+    steps:
+      # Only the scripts, run by the runner's own Node: they use the standard library only.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          sparse-checkout: scripts
+          persist-credentials: false
+      - name: Files of the pull request
+        id: files
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: node scripts/changes.mjs
+
   static:
     name: static
     runs-on: ubuntu-latest
@@ -63,6 +93,8 @@ jobs:
 
   unit:
     name: unit
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -95,6 +127,8 @@ jobs:
 
   build:
     name: build
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
