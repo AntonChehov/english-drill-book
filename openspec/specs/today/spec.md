@@ -29,19 +29,37 @@ Until programs are delivered, Today SHALL list the units of the demo book in ord
 
 ### Requirement: PROG-005 Today's topic
 
-Today's topic SHALL be the first topic in order that is not passed. When every topic is passed, Today SHALL say the program is complete. (The focus topic of PROG-005 comes with Topics, in the next change.)
+Today's topic SHALL be the focus topic if one is set and not passed; otherwise the first topic in order that is not passed. When every topic is passed, Today SHALL say the program is complete.
 
 #### Scenario: The first topic not passed
 
-- **GIVEN** topic 1 of the demo program is passed and topic 2 is not
+- **GIVEN** no focus is set, topic 1 of the demo program is passed and topic 2 is not
 - **WHEN** Today is shown
 - **THEN** today's topic is topic 2
 
 #### Scenario: Not passed is not the same as not started
 
-- **GIVEN** topic 1 is in progress and topic 2 is passed
+- **GIVEN** no focus is set, topic 1 is in progress and topic 2 is passed
 - **WHEN** Today is shown
 - **THEN** today's topic is topic 1
+
+#### Scenario: The focus topic
+
+- **GIVEN** topic 3 is the focus and is not passed, and topic 1 is not passed
+- **WHEN** Today is shown
+- **THEN** today's topic is topic 3
+
+#### Scenario: A passed focus
+
+- **GIVEN** topic 3 was chosen as the focus and has since been passed, and topic 1 is not passed
+- **WHEN** Today is shown
+- **THEN** today's topic is topic 1
+
+#### Scenario: A focus the program does not have
+
+- **GIVEN** the stored focus names no topic of the demo program
+- **WHEN** Today is shown
+- **THEN** today's topic is the first topic not passed
 
 #### Scenario: Program complete
 
@@ -51,13 +69,14 @@ Today's topic SHALL be the first topic in order that is not passed. When every t
 
 ### Requirement: PROG-006 What Today shows
 
-Today SHALL show: the goal, the current level on the scale with the share of each level, and today's topic with its lead unit and supplements and their states. (The daily checklist of PROG-006 comes with PROG-009, in the next change.)
+Today SHALL show: the goal, the current level on the scale with the share of each level, today's topic with its lead unit and supplements and their states, and the daily checklist.
 
 #### Scenario: A fresh start
 
 - **GIVEN** the demo books were just added
 - **WHEN** Today is shown
 - **THEN** it shows the goal «A1 → A2», the level «ниже A1», a row per level with «пройдено 0 из 2 тем», and today's topic «Глагол to be: am, is, are» at A1, «не начата», with step 1 «сделано 0 из 3» and step 2 «сделано 0 из 2 нужных» and the note «Для зачёта темы достаточно 2 из 3.»
+- **AND** a card «Другие дела дня» with the three blocks of the demo program, none ticked
 
 #### Scenario: Progress shown
 
@@ -87,13 +106,19 @@ Today SHALL show: the goal, the current level on the scale with the share of eac
 
 - **GIVEN** the learner adds the demo with the keyboard
 - **WHEN** the books are stored
-- **THEN** the focus is on the heading «Сегодня», and the next Tab reaches «Открыть раздел»
+- **THEN** the focus is on the heading «Сегодня», and the next Tab reaches «другая тема», then «Открыть раздел»
 
 #### Scenario: Not by colour alone
 
 - **GIVEN** exercise 1.1 of the course is done and 1.2 is not
 - **WHEN** Today is shown
 - **THEN** each exercise link says by a sign and its accessible name whether it is done, and each level's share is given as text beside its bar
+
+#### Scenario: The checklist when the program is complete
+
+- **GIVEN** every topic is passed
+- **WHEN** Today is shown
+- **THEN** it says the program is complete and still shows «Другие дела дня»
 
 ### Requirement: PROG-013 One active program
 
@@ -110,3 +135,52 @@ Exactly one program SHALL be active at a time. With no active program, Today SHA
 - **GIVEN** a clean browser
 - **WHEN** Today is shown
 - **THEN** there is no goal card and no today card, only the offer to try the demo
+
+### Requirement: PROG-009 The daily checklist
+
+The daily checklist SHALL be per calendar day in the device's time zone. Ticks SHALL be stored for the day and start empty the next day.
+
+#### Scenario: A tick is kept for the day
+
+- **GIVEN** Today shows «Другие дела дня»
+- **WHEN** the learner ticks «Прочитать страницу текста на английском» and reloads the page
+- **THEN** that block is ticked and the other two are not
+
+#### Scenario: The next day
+
+- **GIVEN** a block was ticked on 23 November
+- **WHEN** Today is shown on 24 November in the device's time zone
+- **THEN** no block is ticked
+
+#### Scenario: The day of the device
+
+- **GIVEN** the device's time zone is three hours ahead of UTC
+- **WHEN** a block is ticked at 22:30 UTC on 23 November
+- **THEN** the tick belongs to 24 November
+
+#### Scenario: The tick could not be kept
+
+- **GIVEN** the browser refuses the write
+- **WHEN** the learner ticks a block
+- **THEN** the block stays unticked, a message beside the list says the tick could not be kept, and ticking again after the fault is gone keeps it
+
+### Requirement: PROG-018 Today answers the pointer
+
+On a device with a pointer, Today SHALL highlight the item under the pointer by its background: each step of today's topic and each rung of the level ladder. It SHALL show no tooltip for them.
+
+#### Scenario: A rung under the pointer
+
+- **GIVEN** Today shows the goal card
+- **WHEN** the pointer rests on the rung A1
+- **THEN** that rung's background differs from the rung A2's, and returns when the pointer leaves
+
+#### Scenario: A step under the pointer
+
+- **GIVEN** Today shows today's topic
+- **WHEN** the pointer rests on step 2
+- **THEN** step 2's background differs from step 1's
+
+#### Scenario: No tooltip
+
+- **WHEN** the pointer rests on a rung or a step
+- **THEN** no tooltip appears and no element of the goal or today card has a `title`
