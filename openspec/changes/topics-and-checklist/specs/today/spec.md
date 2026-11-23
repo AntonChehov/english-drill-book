@@ -30,7 +30,7 @@ Today's topic SHALL be the focus topic if one is set and not passed; otherwise t
 
 #### Scenario: A passed focus
 
-- **GIVEN** topic 3 is the focus and is passed, and topic 1 is not passed
+- **GIVEN** topic 3 was chosen as the focus and has since been passed, and topic 1 is not passed
 - **WHEN** Today is shown
 - **THEN** today's topic is topic 1
 

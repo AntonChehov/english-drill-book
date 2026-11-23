@@ -18,7 +18,7 @@ The layout follows `docs/product/08-interface-reference.md` (sections Сегод
 
 - Study opened for a topic, its two steps, the next-step offer, the pages panel's source switch, PROG-007: the change `two-step-study`.
 - A filter in Topics (the reference has one; PROG-008 does not ask for it), a way to clear the focus other than choosing another topic, export and import of ticks and focus (DATA-007, DATA-008), undoing «Выполнить упражнение».
-- The book cards on Today (PROG-014) stay as they are.
+- The book cards on Today (PROG-014) stay as they are; `two-step-study` decides their fate (owner's decision).
 
 ## Decisions
 
@@ -46,9 +46,9 @@ Route `/topics`, name `topics`, title «Темы», a lazy chunk like Study. The
 `TopicsView.vue`:
 
 - Heading 1 «Темы». Without the demo added: one sentence that topics appear once the demo is added, with a link to Today, where it is offered.
-- With the demo: one `<section>` per level of the scale, in order, heading 2 the level name («A1»), then a list of its topics in program order. A row is a `<button>` holding: «раздел N» (the lead unit), the title, the state as a word («не начата», «в процессе», «✓ пройдена»), and the counts «курс X из Y · практика X из N» (drills capped at the needed number, as on Today). Today's topic carries the text «тема дня».
+- With the demo: one `<section>` per level of the scale, in order, heading 2 the level name («A1»), then a list of its topics in program order. A row of a topic not passed is a `<button>` holding: «раздел N» (the lead unit), the title, the state as a word («не начата», «в процессе», «✓ пройдена»), and the counts «курс X из Y · практика X из N» (drills capped at the needed number, as on Today). Today's topic carries the text «тема дня».
 - Choosing a row calls `chooseFocus`; when it resolves, the router goes to `/`. When it fails, a message under the row (`role="alert"`) says the choice could not be kept and the row can be chosen again (DATA-004); nothing moves.
-- A passed topic can be chosen like any other (PROG-008). As PROG-005 says, a passed focus is not today's topic: Today shows the first topic not passed. See Risks.
+- A passed topic is a plain list item, not a button: it shows «✓ пройдена» and its counts and cannot be chosen (owner's decision on PROG-008). A focus passed after it was chosen is not today's topic (PROG-005): Today shows the first topic not passed.
 
 ### D4. The daily checklist (PROG-009, PROG-006)
 
@@ -64,7 +64,7 @@ Each step of the today card becomes a `<div class="step">` holding its heading a
 
 - `ExerciseBlock.vue`: one secondary button «Выполнить упражнение» in the actions of every exercise whose view is not done, items and open alike; for an open exercise it replaces «Отметить как сделанное» (one action, one label). Shown to every learner, no setting.
 - `unit.ts`: `markDone(entry)` as now, for every exercise: flushes the draft, then `keep(entry, "mark-done", …)`. `markDoneAttempt(context, answers)` now takes the typed answers of the exercise (all items, or `text`) instead of one text, so the log keeps what was typed when it was pressed. Results are empty: no item gets a verdict, and the items keep the verdicts they had.
-- The derivation is unchanged (`deriveExercise` already makes any exercise done on a `mark-done`, `doneAt` the first one), so `DERIVATION` stays 1 and no cached state is rebuilt. Done stays done (PLAY-010); there is no undo, as for an open exercise now.
+- The derivation is unchanged (`deriveExercise` already makes any exercise done on a `mark-done`, `doneAt` the first one), so `DERIVATION` stays 1 and no cached state is rebuilt. Done stays done (PLAY-010); there is no undo, as for an open exercise now (owner's decision).
 - The announcement and the failure message are those of the open exercise (`markedDoneMessage`, «Отметку «сделано»» in `KeptAction`).
 
 ### D7. The store-seeding helper and the newer version
@@ -86,7 +86,7 @@ Each step of the today card becomes a `<div class="step">` holding its heading a
 
 ### D9. Documentation
 
-- `docs/product/05-program-and-levels.md`: PROG-018, asked for by the owner.
+- `docs/product/05-program-and-levels.md`: PROG-018, asked for by the owner; PROG-008's last sentence becomes "The learner can set any topic not passed as the focus; a passed topic is shown as passed and cannot be chosen."
 - `docs/product/04-exercise-player.md`: PLAY-021, asked for by the owner; PLAY-009's last sentence becomes "Any exercise is done when the learner marks it done (`PLAY-013`, `PLAY-021`)."
 - `docs/product/08-interface-reference.md`: Topics grouped by level, without the filter; «Выполнить упражнение» among an exercise's buttons.
 
@@ -107,7 +107,6 @@ Each step of the today card becomes a `<div class="step">` holding its heading a
 
 ## Risks
 
-- **A passed focus.** PROG-005 says the focus counts only while not passed, and PROG-008 lets any topic be chosen: choosing a passed topic returns to Today, which shows the first topic not passed. The predecessor shows a passed topic chosen on purpose as a review; that needs PROG-005 changed and a second setting in the export format. Left to the owner (open question).
 - **No undo of «Выполнить упражнение».** A press by mistake makes the exercise done for good, as «Отметить как сделанное» does now; the exercise can still be answered and checked.
 - **Two tabs ticking the same day** at once: the later write wins for that day. Only the tick of the other tab can be lost, never attempts.
 - **Schema version 2** is the first real migration in a release; its fixture test is the guard (C-05).

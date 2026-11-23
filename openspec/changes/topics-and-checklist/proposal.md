@@ -13,7 +13,7 @@ Split rule: this change ends on screens that already exist (Today, Study by unit
 
 ## What Changes
 
-- **Topics** (`#/topics`, a section «Темы» in the top bar, and a link «другая тема» on Today's card): every topic of the program in order, grouped by level, with its state and done counts; today's topic marked. Choosing a topic stores it as the focus and returns to Today.
+- **Topics** (`#/topics`, a section «Темы» in the top bar, and a link «другая тема» on Today's card): every topic of the program in order, grouped by level, with its state and done counts; today's topic marked. Choosing a topic not passed stores it as the focus and returns to Today.
 - **The focus on Today.** Today's topic is the focus topic when one is set and not passed, else the first topic not passed. The focus is the setting `focusTopic` that the store and the export format already have.
 - **The daily checklist.** The demo program gains `dailyBlocks` (three activities outside the app, in the program's own words); Today shows them as a card «Другие дела дня» with a tick each. Ticks are stored per calendar day of the device's time zone and start empty the next day, in a new store `days` (schema version 2).
 - **Hover on Today** (owner's request): on a device with a pointer, each step of today's topic and each rung of the level ladder is highlighted under the pointer; no tooltip.
@@ -23,7 +23,7 @@ Requirements delivered:
 
 - **PROG-005** today's topic, now with the focus (modified; added without it in `demo-program`).
 - **PROG-006** what Today shows, now with the daily checklist (modified).
-- **PROG-008** Topics and the focus.
+- **PROG-008** Topics and the focus (modified at the owner's request: a passed topic cannot be chosen as the focus; `docs/product/05-program-and-levels.md` follows).
 - **PROG-009** the daily checklist per calendar day.
 - **PROG-018** (new, owner's request) the hover highlight of Today's items, no tooltip. Added to `docs/product/05-program-and-levels.md`.
 - **PLAY-021** (new, owner's request) «Выполнить упражнение» for every exercise. Added to `docs/product/04-exercise-player.md`.
@@ -52,7 +52,7 @@ Review goes in rounds as `docs/process.md` step 4 states. Every finding carries 
 
 - New: `src/ui/views/TopicsView.vue`, `src/ui/components/DailyChecklist.vue`, `src/ui/demo/program.ts` (the program's progress and the focus, shared by Today and Topics), `src/ui/demo/day.ts` (the device's calendar day), schema version 2 with its fixture `src/storage/db/fixtures/version-2.json`, end-to-end tests of Topics, the checklist, the hover and «Выполнить упражнение».
 - Changed: `src/domain/programs/` (`Topic.id`, `Program.dailyBlocks`, `todayTopic` with the focus, `demo.json` with `dailyBlocks`), `src/domain/study/attempts.ts` (`markDoneAttempt` takes the typed answers of any exercise), `src/storage/db/` (the store `days` and its two functions; the test-only next version becomes version 3), `src/ui/App.vue` (the section «Темы»), `src/ui/router.ts`, `src/ui/components/ProgramToday.vue`, `src/ui/views/StartView.vue`, `src/ui/study/ExerciseBlock.vue`, `src/ui/study/unit.ts`, `e2e/` helpers (the store-seeding helper shared, the newer-data helper one version higher), the reference screenshots of Today, Study and the new Topics.
-- Documentation: PROG-018 in `docs/product/05-program-and-levels.md`; PLAY-021 and the new wording of PLAY-009 in `docs/product/04-exercise-player.md`; Topics grouped by level and «Выполнить упражнение» in `docs/product/08-interface-reference.md`; `docs/roadmap.md`.
+- Documentation: PROG-018 and the new sentence of PROG-008 in `docs/product/05-program-and-levels.md`; PLAY-021 and the new wording of PLAY-009 in `docs/product/04-exercise-player.md`; Topics grouped by level and «Выполнить упражнение» in `docs/product/08-interface-reference.md`; `docs/roadmap.md`.
 - Not changed: `contracts/` (the export format already has `days` and `settings.focusTopic`; the program format already has `dailyBlocks`), the demo books and packs, the derivation (`DERIVATION` stays 1), the pages panel.
 - Learner data: schema version 2 only adds an empty store; every pack, attempt, draft and setting of version 1 is kept as it is (C-05, by the fixture of version 1).
 - No new dependency. The initial bundle grows by the checklist and the shared program module; Topics is a chunk of its own.

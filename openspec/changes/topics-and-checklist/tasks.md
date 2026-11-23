@@ -24,7 +24,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 5. Documentation
 
-- [ ] 5.1 Write PROG-018, PLAY-021 and PLAY-009's new sentence into `docs/product/` and correct `08-interface-reference.md` (design D9)
+- [ ] 5.1 Write PROG-018, PROG-008's new sentence, PLAY-021 and PLAY-009's new sentence into `docs/product/` and correct `08-interface-reference.md` (design D9)
 - [ ] 5.2 **(owner)** Read the Russian texts of Topics, the checklist and «Выполнить упражнение» on the running build and correct them
 
 ## 6. Review and evidence

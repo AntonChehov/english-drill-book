@@ -8,7 +8,7 @@ The list of the active program's topics, where the learner sees where each stand
 
 ### Requirement: PROG-008 Topics
 
-Topics SHALL list every topic in order, grouped by level, with its state (not started, in progress, passed) and done counts. The learner SHALL be able to set any topic as the focus.
+Topics SHALL list every topic in order, grouped by level, with its state (not started, in progress, passed) and done counts. The learner SHALL be able to set any topic not passed as the focus; a passed topic is shown as passed and cannot be chosen.
 
 #### Scenario: Grouped by level
 
@@ -21,7 +21,7 @@ Topics SHALL list every topic in order, grouped by level, with its state (not st
 
 - **GIVEN** topic 1 is passed
 - **WHEN** Topics is shown
-- **THEN** topic 1 reads «✓ пройдена»
+- **THEN** topic 1 reads «✓ пройдена» and offers no choice as the focus
 
 #### Scenario: Choosing the focus
 
