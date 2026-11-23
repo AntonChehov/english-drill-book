@@ -8,21 +8,21 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 2. The archive commit in the evidence check (D1, D2)
 
-- [ ] 2.1 Add `archiveOf(root, head)` to `scripts/review-hash.mjs` and hash a change that the head commit archives at that commit's parent, in `reviewHash` and in the command without a name; verify with tests on a temporary repository: the hash before and after `openspec archive` is the same, a merge commit or a commit archiving nothing gives `undefined`
-- [ ] 2.2 In `scripts/pr-evidence.mjs` accept the archived change in checks 1 – 3, add check 7 with its four conditions and its message before the archive commit, and remove the archive pull request exemption (`archiveProblems` as an exemption, `exemptions().archive`, `notArchive`, the archive branch of `exemption()`); verify with tests for each condition of check 7, the change in flight (check 7 fails, checks 1 – 4 as before), and the release pull request still exempt
-- [ ] 2.3 Show the review line of an archived change in `scripts/evidence-comment.mjs` through `reviewHash`; verify with its tests
+- [x] 2.1 Add `archiveOf(root, head)` to `scripts/review-hash.mjs` and hash a change that the head commit archives at that commit's parent, in `reviewHash` and in the command without a name; verify with tests on a temporary repository: the hash before and after `openspec archive` is the same, a merge commit or a commit archiving nothing gives `undefined`
+- [x] 2.2 In `scripts/pr-evidence.mjs` accept the archived change in checks 1 – 3, add check 7 with its four conditions and its message before the archive commit, and remove the archive pull request exemption (`archiveProblems` as an exemption, `exemptions().archive`, `notArchive`, the archive branch of `exemption()`); verify with tests for each condition of check 7, the change in flight (check 7 fails, checks 1 – 4 as before), and the release pull request still exempt
+- [x] 2.3 Show the review line of an archived change in `scripts/evidence-comment.mjs` through `reviewHash`; verify with its tests
 
 ## 3. Pull requests without code (D3, D4)
 
-- [ ] 3.1 Add `scripts/changes.mjs` (`releaseFiles`, `withoutCode`, `needsBuild`, the command and its output `code`); verify with tests: documentation only, OpenSpec only, `.claude/` only, the release branch with its three files, the release files on another branch, one file of code, no pull request number
-- [ ] 3.2 Add the `changes` job and the output `code` to `.github/workflows/checks.yml`, make `unit` and `build` depend on it, and in `.github/workflows/pull-request.yml` run the artifact steps of `evidence` only when `code` is `true`; verify `pnpm format:check` and, where installed, `actionlint`
-- [ ] 3.3 In `scripts/pr-evidence.mjs` report checks 5 and 6 as not applicable when `withoutCode` holds for the pull request's own diff, keeping the newer-commit line of check 5; verify with tests that a pull request with code and no screenshots or metrics still fails both
+- [x] 3.1 Add `scripts/changes.mjs` (`releaseFiles`, `withoutCode`, `needsBuild`, the command and its output `code`); verify with tests: documentation only, OpenSpec only, `.claude/` only, the release branch with its three files, the release files on another branch, one file of code, no pull request number
+- [x] 3.2 Add the `changes` job and the output `code` to `.github/workflows/checks.yml`, make `unit` and `build` depend on it, and in `.github/workflows/pull-request.yml` run the artifact steps of `evidence` only when `code` is `true`; verify `pnpm format:check` and, where installed, `actionlint`
+- [x] 3.3 In `scripts/pr-evidence.mjs` report checks 5 and 6 as not applicable when `withoutCode` holds for the pull request's own diff, keeping the newer-commit line of check 5; verify with tests that a pull request with code and no screenshots or metrics still fails both
 
 ## 4. The format of `review.md` (D6)
 
-- [ ] 4.1 Reduce `scripts/review-record.mjs` to the line forms of D6, add the `Severity:` check, and remove the closing sections and the messages of D6; reduce its tests to match and add tests for a missing, repeated and unknown severity
-- [ ] 4.2 Remove the coverage comparison from `scripts/pr-evidence.mjs` and its tests
-- [ ] 4.3 Verify that no script reads a record under `openspec/changes/archive/` other than the one the head commit archives (`git grep` over `scripts/`), and that `pnpm test` passes with the archived records untouched
+- [x] 4.1 Reduce `scripts/review-record.mjs` to the line forms of D6, add the `Severity:` check, and remove the closing sections and the messages of D6; reduce its tests to match and add tests for a missing, repeated and unknown severity
+- [x] 4.2 Remove the coverage comparison from `scripts/pr-evidence.mjs` and its tests
+- [x] 4.3 Verify that no script reads a record under `openspec/changes/archive/` other than the one the head commit archives (`git grep` over `scripts/`), and that `pnpm test` passes with the archived records untouched
 
 ## 5. Agents and the skill (D7, D8)
 
@@ -34,10 +34,10 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 6. Process text (D5, D9)
 
-- [ ] 6.1 Rewrite the steps of `docs/process.md` as D5 and D9 say, and update `docs/process/validator-prompt.md` for reruns
-- [ ] 6.2 Edit C-14 and C-18 of `docs/constitution.md` as D9 says; leave C-19 as it is
+- [x] 6.1 Rewrite the steps of `docs/process.md` as D5 and D9 say, and update `docs/process/validator-prompt.md` for reruns
+- [x] 6.2 Edit C-14 and C-18 of `docs/constitution.md` as D9 says; leave C-19 as it is
 - [ ] 6.3 Shorten the review paragraph of `CLAUDE.md` and update the task rule of `openspec/config.yaml`; verify `pnpm spec` passes
-- [ ] 6.4 Record the change in `docs/roadmap.md` (Done) and the one-time check of the release pull request after the merge (Risks of the design)
+- [x] 6.4 Record the change in `docs/roadmap.md` (Done) and the one-time check of the release pull request after the merge (Risks of the design)
 
 ## 7. Review and evidence
 

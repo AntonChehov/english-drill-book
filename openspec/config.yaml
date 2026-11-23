@@ -24,7 +24,7 @@ rules:
     - Record every new runtime dependency with what it replaces and its size (C-12).
   tasks:
     - Every task group lands its own tests; tests name the requirement IDs they verify (@req ID).
-    - End with a group "Review and evidence" containing the review rounds of C-18 item 2, made by a reviewing agent in review.md until a round approves the latest content, where each finding carries a severity (critical or minor) and from round 3 on an open minor finding is declined as technical debt recorded in docs/roadmap.md and critical findings are fixed in any round, and the other checks of C-18.
+    - End with a group "Review and evidence" containing the review rounds of C-18 item 2, made by a reviewing agent in review.md until a round approves the latest content, where each finding carries a severity (critical or minor) and from round 3 on an open minor finding is declined as technical debt recorded in docs/roadmap.md and critical findings are fixed in any round, and the other checks of C-18. The group ends with the archive commit of docs/process.md step 6 as its last task, and has no task for the merge, which is the owner's act recorded by GitHub.
 
 operations:
   apply:
