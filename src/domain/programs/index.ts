@@ -7,4 +7,5 @@ import type { Program } from "./types";
 export const demoProgram: Program = demo;
 
 export { currentLevel, levelShares, todayTopic, topicProgress, topicStep } from "./progress";
+export type { TopicStep } from "./progress";
 export type { Topic } from "./types";

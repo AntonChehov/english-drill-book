@@ -122,7 +122,7 @@ test.describe("DOC-001 The pages of a unit", () => {
                   if (
                     at.heading !== undefined &&
                     at.placed === undefined &&
-                    document.querySelector('[aria-labelledby="pages-heading"] canvas')
+                    document.querySelector("section.pages canvas")
                   )
                     at.placed = elapsed;
                   if (at.placed !== undefined && document.querySelector("canvas[data-drawn]")) {

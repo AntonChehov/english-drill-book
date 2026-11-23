@@ -103,7 +103,7 @@ In step 2, `StudyView.vue` puts at the top of the pages column a group of two bu
 - «Сборник упражнений» — the shown unit's own pages, pressed when Study opens;
 - «Курс: раздел N» — the pages of the topic's course unit (`topic.course`), with `pageNumbers` of that unit in its pack's document role.
 
-A second `PagesPanel` for the course is mounted the first time the switch is pressed and kept; the two panels are shown by `v-show`, so going back and forth draws nothing again, and each keeps its failure message (DOC-008) of its own. `PagesPanel` does not change: a hidden panel has no width and draws nothing, as its resize observer already ignores a width of 0. `bookOf` opens the course PDF once for the app, as for a course unit.
+A second `PagesPanel` for the course is mounted the first time the switch is pressed and kept; the two panels are shown by `v-show`, so going back and forth draws nothing again, and each keeps its failure message (DOC-008) of its own. `PagesPanel` changes only in its heading id, made unique with `useId()` so that each panel's `aria-labelledby` names its own heading; a hidden panel has no width and draws nothing, as its resize observer already ignores a width of 0. `bookOf` opens the course PDF once for the app, as for a course unit.
 
 - Pressing a button shows its pages from their first page: the pages column is scrolled to its top when it is above the window.
 - Pressing an exercise's number while the course is shown first shows the drill book again, then scrolls to that exercise's page (DOC-001), so the number keeps meaning "this exercise in its book".

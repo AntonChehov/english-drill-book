@@ -50,8 +50,8 @@ None.
 ## Impact
 
 - New: `topicStep` in `src/domain/programs/progress.ts` with unit tests; `src/ui/study/TopicSteps.vue` (the step bar); end-to-end tests of the steps, the offer, the switch and PROG-007; two states of Study for the accessibility check and the screenshots.
-- Changed: `src/ui/study/unit.ts` (reads the active program's topic of the unit, and the course unit's pack for the switch), `src/ui/study/StudyView.vue` (the step bar, the offer, the switch and a second pages panel), `src/domain/programs/index.ts`, `e2e/study.ts`, the reference screenshots of Study.
-- Not changed: the store and its schema, `contracts/`, the demo books and packs, the program file, `PagesPanel.vue`, Today, Topics, the book cards.
+- Changed: `src/ui/study/PagesPanel.vue` (a unique heading id), `src/ui/study/unit.ts` (reads the active program's topic of the unit, and the course unit's pack for the switch), `src/ui/study/StudyView.vue` (the step bar, the offer, the switch and a second pages panel), `src/domain/programs/index.ts`, `e2e/study.ts`, the reference screenshots of Study.
+- Not changed: the store and its schema, `contracts/`, the demo books and packs, the program file, Today, Topics, the book cards.
 - Learner data: nothing new is stored. The switch's choice is not kept; each opening shows the unit's own pages.
 - Documentation: PROG-014's new wording in `docs/product/05-program-and-levels.md`; the step bar and the switch in the Study section of `docs/product/08-interface-reference.md`; `docs/roadmap.md`.
 - PROG-014, owner's decision: the recommendation is to keep the cards in slice 1.6, as the only list of every unit on Today, which the demo flow on three browsers and the end-to-end helpers use, and to replace them with the per-book bars of the interface reference later, in a change of their own. The alternative, removing the cards and PROG-014 here, rewrites the demo flow and the end-to-end tests of seven files that find the books or open units by their cards, and would make this change too large to review in one sitting.

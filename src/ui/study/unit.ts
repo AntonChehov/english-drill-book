@@ -7,7 +7,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef }
 import type { Exercise, Pack, Unit } from "../../domain/packs/types";
 import { demoBooks } from "../../domain/books/demo/profiles";
 import { validatePack } from "../../domain/packs/validate";
-import { demoProgram, topicStep } from "../../domain/programs";
+import { demoProgram, topicStep, type TopicStep } from "../../domain/programs";
 import { deriveExercise, type Attempt, type ExerciseState } from "../../domain/progress";
 import {
   checkAttempt,
@@ -88,7 +88,7 @@ export interface UnitLink {
 /** The topic a unit belongs to, with the links of its two steps and the course unit (PLAY-017). */
 export interface TopicOfUnit {
   readonly title: string;
-  readonly step: "course" | "drills";
+  readonly step: TopicStep["step"];
   readonly courseLink: string;
   readonly drillsLink: string;
   readonly course: { readonly pack: Pack; readonly unit: Unit };
