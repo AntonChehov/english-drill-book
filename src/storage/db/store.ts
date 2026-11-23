@@ -1,6 +1,6 @@
 // The store of the learner's data (capability `progress-data`, design D1 – D6 of the change
-// `storage`): packs, the attempt log with the cached state of each exercise, drafts and settings,
-// behind functions that hide IndexedDB from the screens. Attempts are only ever added (D2); an
+// `storage`): packs, the attempt log with the cached state of each exercise, drafts, settings and
+// the ticks of each day, behind functions that hide IndexedDB from the screens. Attempts are only ever added (D2); an
 // attempt and the state derived with it are written in one transaction (D3); every function
 // settles when its transaction has committed or not, and rejects with a `StorageError` (D4).
 
@@ -29,6 +29,12 @@ export interface Settings {
   readonly theme: "system" | "light" | "dark";
   readonly activeProgram: string;
   readonly focusTopic: string;
+}
+
+/** The ticks of a day, as one entry of `days` of contracts/export.schema.json. */
+interface DayRecord {
+  readonly day: string;
+  readonly blocks: string[];
 }
 
 /**
@@ -71,6 +77,10 @@ export interface Store {
   deleteDraft(pack: string, exercise: string): Promise<void>;
   getSetting<K extends keyof Settings>(name: K): Promise<Settings[K] | undefined>;
   putSetting<K extends keyof Settings>(name: K, value: Settings[K]): Promise<void>;
+  /** The daily blocks ticked on `day` (`YYYY-MM-DD`, the device's day); none for a day not stored. */
+  getDayTicks(day: string): Promise<string[]>;
+  /** Replaces the blocks ticked on `day` (PROG-009). */
+  putDayTicks(day: string, blocks: readonly string[]): Promise<void>;
   /**
    * Calls `listener` when another tab of the app has written (design D6); returns a function that
    * stops it. Only with the option `channel` and where the browser has `BroadcastChannel`.
@@ -299,6 +309,14 @@ export async function openStore(options: StoreOptions = {}): Promise<Store> {
     putSetting: (name, value) =>
       write([STORES.settings], (tx) => {
         tx.store(STORES.settings).put({ name, value });
+        return () => undefined;
+      }),
+
+    getDayTicks: async (day) => (await getOne<DayRecord>(STORES.days, day))?.blocks ?? [],
+
+    putDayTicks: (day, blocks) =>
+      write([STORES.days], (tx) => {
+        tx.store(STORES.days).put({ day, blocks: [...blocks] } satisfies DayRecord);
         return () => undefined;
       }),
 

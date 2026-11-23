@@ -1,5 +1,5 @@
 // Helpers of the storage tests: databases in memory (fake-indexeddb), fixtures of earlier schema
-// versions, the shape of a schema, and a version 2 that exists only in tests (design D5).
+// versions, the shape of a schema, and a next version that exists only in tests (design D5).
 
 import { IDBFactory } from "fake-indexeddb";
 import { newAttempt, type Attempt } from "../../domain/progress";
@@ -7,6 +7,7 @@ import type { Pack } from "../../domain/packs/types";
 import { DATABASE_NAME, MIGRATIONS } from "./schema";
 import type { Migration } from "./idb";
 import version1 from "./fixtures/version-1.json";
+import version2 from "./fixtures/version-2.json";
 
 /** A database as an earlier version of the app wrote it. */
 export interface DatabaseFixture {
@@ -24,7 +25,10 @@ export interface DatabaseFixture {
 }
 
 /** The fixture of every earlier schema version, by version (C-05). */
-export const fixtures: readonly DatabaseFixture[] = [version1 as DatabaseFixture];
+export const fixtures: readonly DatabaseFixture[] = [
+  version1 as DatabaseFixture,
+  version2 as DatabaseFixture,
+];
 
 /** A fresh, empty IndexedDB for one test. */
 export const freshFactory = () => new IDBFactory();
@@ -109,11 +113,11 @@ export function rawOpen(factory: IDBFactory, version?: number, name = DATABASE_N
 }
 
 /**
- * A version 2 for tests only: it proves the harness with a migration that adds a store and an
- * index and rewrites data. The app never ships it.
+ * A version after the app's, for tests only: it proves the harness with a migration that adds a
+ * store and an index and rewrites data. The app never ships it.
  */
-export const testVersion2: Migration = (database, transaction) => {
-  database.createObjectStore("days", { keyPath: "day" });
+export const testNextVersion: Migration = (database, transaction) => {
+  database.createObjectStore("future", { keyPath: "id" });
   const attempts = transaction.objectStore("attempts");
   attempts.createIndex("action", "action");
   const settings = transaction.objectStore("settings");
@@ -121,16 +125,19 @@ export const testVersion2: Migration = (database, transaction) => {
   cursor.addEventListener("success", () => {
     const current = cursor.result;
     if (current === null) return;
-    current.update({ ...(current.value as object), migrated: 2 });
+    current.update({ ...(current.value as object), migrated: true });
     current.continue();
   });
 };
 
-export const migrationsWithVersion2 = [...MIGRATIONS, testVersion2];
+export const migrationsWithNext = [...MIGRATIONS, testNextVersion];
 
-/** A version 2 that fails halfway, after it has changed the schema and the data. */
-export const failingVersion2: Migration = (database, transaction) => {
-  testVersion2(database, transaction);
+/** The version of `testNextVersion`. */
+export const NEXT_VERSION = migrationsWithNext.length - 1;
+
+/** A next version that fails halfway, after it has changed the schema and the data. */
+export const failingNextVersion: Migration = (database, transaction) => {
+  testNextVersion(database, transaction);
   throw new Error("The test migration fails here");
 };
 

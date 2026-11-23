@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DERIVATION, deriveExercise, emptyExerciseState, newAttempt } from "../../domain/progress";
 import { attemptOf, freshFactory, packOf, rawOpen, snapshot } from "./db.fixture";
 import { StorageError } from "./errors";
+import { SCHEMA_VERSION } from "./schema";
 import { openStore, type DerivedRecord } from "./store";
 
 afterEach(() => {
@@ -289,7 +290,7 @@ describe("failed writes", () => {
     const replaced = vi.fn<() => void>();
     const store = await openStore({ factory, onVersionChange: replaced });
 
-    (await rawOpen(factory, 2)).close();
+    (await rawOpen(factory, SCHEMA_VERSION + 1)).close();
 
     expect(replaced).toHaveBeenCalledOnce();
     await expect(store.getPacks()).rejects.toThrow(new StorageError("newer-version"));
@@ -384,6 +385,17 @@ describe("packs, drafts and settings", () => {
 
     expect(await store.getSetting("theme")).toBe("dark");
     expect(await store.getSetting("focusTopic")).toBe("2");
+  });
+
+  it("@req PROG-009 the ticks of a day are kept by day, none for a day not stored", async () => {
+    const { store } = await setUp();
+
+    expect(await store.getDayTicks("2026-11-23")).toEqual([]);
+    await store.putDayTicks("2026-11-23", ["read"]);
+    await store.putDayTicks("2026-11-23", ["read", "words"]);
+
+    expect(await store.getDayTicks("2026-11-23")).toEqual(["read", "words"]);
+    expect(await store.getDayTicks("2026-11-24")).toEqual([]);
   });
 
   it("@req DATA-001 what is kept is there when the database is opened again", async () => {
