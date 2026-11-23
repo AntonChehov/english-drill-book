@@ -23,9 +23,9 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 ## 5. Review and evidence
 
-- [ ] 5.1 Add the states `study-drills-course` and `study-course-done` to `studyStates` (design D7); verify axe in both themes and the screenshots of both, the whole end-to-end suite on Chromium and Firefox, and the pipeline within C-19
-- [ ] 5.2 Run `pnpm verify`; verify it passes, WebKit by the pipeline; the pull request shows Study's changed screenshots beside those of `main` and `pnpm size` within C-06
-- [ ] 5.3 Open the pull request as the bot with the sections of C-18 item 1
-- [ ] 5.4 A reviewing agent with a fresh context writes round 1 in `review.md`, each finding with `Severity: critical` or `Severity: minor`; fix or decline each finding; the same agent, resumed, writes each later round. In rounds 1 and 2 every finding is fixed or declined with a reason; from round 3 on an open minor finding is declined as technical debt recorded in `docs/roadmap.md` under "Later, unscheduled", new minor observations go under `### Notes`, and critical findings are fixed in any round (`docs/process.md` step 4). Verify the `evidence` check is green
-- [ ] 5.5 A validating agent runs the holdout scenarios that touch Today, Topics and Study against a production build; attach its report to the pull request
-- [ ] 5.6 **(owner)** Try the demo, read the pull request and the report; approve and merge
+- [x] 5.1 Add the states `study-drills-course` and `study-course-done` to `studyStates` (design D7); verify axe in both themes and the screenshots of both, the whole end-to-end suite on Chromium and Firefox, and the pipeline within C-19
+- [x] 5.2 Run `pnpm verify`; verify it passes, WebKit by the pipeline; the pull request shows Study's changed screenshots beside those of `main` and `pnpm size` within C-06
+- [x] 5.3 Open the pull request as the bot with the sections of C-18 item 1
+- [x] 5.4 A reviewing agent with a fresh context writes round 1 in `review.md`, each finding with `Severity: critical` or `Severity: minor`; fix or decline each finding; the same agent, resumed, writes each later round. In rounds 1 and 2 every finding is fixed or declined with a reason; from round 3 on an open minor finding is declined as technical debt recorded in `docs/roadmap.md` under "Later, unscheduled", new minor observations go under `### Notes`, and critical findings are fixed in any round (`docs/process.md` step 4). Verify the `evidence` check is green
+- [x] 5.5 A validating agent runs the holdout scenarios that touch Today, Topics and Study against a production build; attach its report to the pull request
+- [x] 5.6 **(owner)** Try the demo, read the pull request and the report; approve and merge
