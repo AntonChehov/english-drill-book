@@ -159,7 +159,7 @@ describe("viewOfExercise of free exercises", () => {
   });
 
   it("@req PLAY-013 marked as done, it is done", () => {
-    const log = [markDoneAttempt(contextOf(1, "4.3"), "There is a lamp.")];
+    const log = [markDoneAttempt(contextOf(1, "4.3"), { text: "There is a lamp." })];
     expect(viewOfExercise(exerciseOf("4.3"), deriveExercise(log), {}, log)).toMatchObject({
       status: "done",
       done: true,

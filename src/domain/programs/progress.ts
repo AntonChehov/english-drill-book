@@ -5,7 +5,7 @@ import type { Topic } from "./types";
 
 type TopicState = "new" | "started" | "passed";
 
-interface TopicProgress {
+export interface TopicProgress {
   /** The exercises of the lead unit. */
   readonly lead: Progress;
   /** The supplements: how many are done, how many the topic needs and how many it offers. */
@@ -85,7 +85,17 @@ export function currentLevel(
   return { index, plus: next !== undefined && next.share >= plusThreshold };
 }
 
-/** The index of the first topic not passed; -1 when every topic is passed (PROG-005). */
-export function todayTopic(topics: readonly Topic[], passed: (topic: Topic) => boolean): number {
+/**
+ * Today's topic (PROG-005): the index of the topic whose id is `focus` when it is not passed, else
+ * of the first topic not passed; -1 when every topic is passed. A `focus` that names no topic is
+ * ignored.
+ */
+export function todayTopic(
+  topics: readonly Topic[],
+  passed: (topic: Topic) => boolean,
+  focus?: string,
+): number {
+  const focused = topics.findIndex((topic) => topic.id === focus);
+  if (focused !== -1 && !passed(topics[focused]!)) return focused;
   return topics.findIndex((topic) => !passed(topic));
 }

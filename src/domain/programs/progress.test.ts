@@ -130,4 +130,17 @@ describe("todayTopic", () => {
   it("@req PROG-005 every topic passed: the program is complete", () => {
     expect(todayTopic(demoProgram.topics, () => true)).toBe(-1);
   });
+
+  it("@req PROG-005 the focus topic when it is not passed", () => {
+    expect(todayTopic(demoProgram.topics, () => false, t3.id)).toBe(2);
+  });
+
+  it("@req PROG-005 a passed focus gives way to the first topic not passed", () => {
+    expect(todayTopic(demoProgram.topics, (topic) => topic === t3, t3.id)).toBe(0);
+  });
+
+  it("@req PROG-005 a focus the program does not have is ignored", () => {
+    expect(todayTopic(demoProgram.topics, (topic) => topic === t1, "t9")).toBe(1);
+    expect(t4.id).toBe("t4");
+  });
 });

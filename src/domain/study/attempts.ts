@@ -51,12 +51,15 @@ export function revealAttempt(context: AttemptContext, item: string, answers: An
   });
 }
 
-/** An open exercise, or one shown as open, marked as done by the learner (PLAY-013). */
-export function markDoneAttempt(context: AttemptContext, text: string): Attempt {
+/**
+ * Any exercise marked as done by the learner, with the answers typed so far and no verdict
+ * (PLAY-013, PLAY-021).
+ */
+export function markDoneAttempt(context: AttemptContext, answers: Answers): Attempt {
   return newAttempt({
     ...context,
     action: "mark-done",
-    answers: { [TEXT]: text },
+    answers: typed(answers),
     results: {},
     complete: true,
   });
