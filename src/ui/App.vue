@@ -19,6 +19,7 @@ const wide = computed(() => route.meta.wide === true);
         <RouterLink class="app-name" to="/">{{ appName }}</RouterLink>
         <ul class="sections">
           <li><RouterLink class="section" to="/">Сегодня</RouterLink></li>
+          <li><RouterLink class="section" to="/topics">Темы</RouterLink></li>
           <li><RouterLink class="section" to="/about">О приложении</RouterLink></li>
         </ul>
       </nav>

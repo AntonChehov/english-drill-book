@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // An exercise of the unit (design D4 of `study-screen`): its number, which shows its page, its
 // task, its state and score, its rows and **Проверить**; or, for an open exercise and for now a
-// connected text, one field, the sample on request and "mark as done" (PLAY-013).
+// connected text, one field and the sample on request (PLAY-013). Every exercise not done offers
+// «Выполнить упражнение», which marks it done (PLAY-021).
 import { computed } from "vue";
 import { TEXT, type ExerciseView, type RowView } from "../../domain/study";
 import ItemRow from "./ItemRow.vue";
@@ -83,6 +84,15 @@ const answerOf = (item: string) => props.entry.answers[item] ?? "";
         >
           Проверить
         </button>
+        <button
+          v-if="view.status !== 'done'"
+          type="button"
+          class="secondary"
+          :aria-disabled="entry.busy || undefined"
+          @click="emit('markDone')"
+        >
+          Выполнить упражнение
+        </button>
         <p v-if="entry.notice" class="notice">{{ entry.notice }}</p>
       </div>
     </template>
@@ -115,7 +125,7 @@ const answerOf = (item: string) => props.entry.answers[item] ?? "";
           :aria-disabled="entry.busy || undefined"
           @click="emit('markDone')"
         >
-          Отметить как сделанное
+          Выполнить упражнение
         </button>
         <button
           v-if="view.sample !== null && !view.sampleShown"

@@ -18,6 +18,8 @@ const widths = [1280, 390] as const;
 test.beforeAll(() => mkdirSync(directory, { recursive: true }));
 
 async function capture(page: Page, name: string) {
+  // The pointer is left where the last click was; off the page, it highlights nothing (PROG-018).
+  await page.mouse.move(0, 0);
   await page.screenshot({
     path: join(directory, `${name}.png`),
     fullPage: true,

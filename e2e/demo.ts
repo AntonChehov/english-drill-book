@@ -100,7 +100,7 @@ export async function addDemoNotKept(page: Page) {
  * Before the app starts, writes the app's database with a version above the app's, with a store
  * and a record of its own, as a newer version of the app would leave it.
  */
-export async function writeNewerData(page: Page, version = 2) {
+export async function writeNewerData(page: Page, version = 3) {
   await page.addInitScript(
     ({ name, newer }) => {
       const request = indexedDB.open(name, newer);

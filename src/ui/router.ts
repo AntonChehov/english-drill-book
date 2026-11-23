@@ -34,6 +34,12 @@ export const routes: RouteRecordRaw[] = [
     component: studyView,
     meta: { title: "Занятие", wide: true },
   },
+  {
+    path: "/topics",
+    name: "topics",
+    component: () => import("./views/TopicsView.vue"),
+    meta: { title: "Темы" },
+  },
   { path: "/about", name: "about", component: AboutView, meta: { title: "О приложении" } },
   {
     path: "/:unknown(.*)*",

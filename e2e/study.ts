@@ -1,5 +1,5 @@
 import type { Browser, Locator, Page } from "@playwright/test";
-import { addDemo, demoPdf, failedLoad } from "./demo";
+import { addDemo, databaseName, demoPdf, failedLoad } from "./demo";
 import { expect, guardContext, test as base } from "./fixtures";
 import { addressOf } from "./views";
 
@@ -229,4 +229,112 @@ export const studyStates = [
       await expect(pagesPanel(page).getByRole("alert")).toBeVisible();
     },
   },
+  {
+    // Topics with the demo: topic 1 passed, topic 2 in progress (PROG-008). Not Study, but it needs
+    // the demo added, as Study does.
+    name: "topics-demo",
+    reach: async (page: Page) => {
+      await page.goto(addressOf("/"));
+      await completeInStore(page, [...topic1Passed, "demo-course/2.1"]);
+      await page.goto(addressOf("/topics"));
+      await expect(page.getByRole("button", { name: /Present simple/ })).toBeVisible();
+    },
+  },
 ] as const;
+
+/** The exercises that pass topic 1 of the demo program: its course unit and two drills. */
+export const topic1Passed = [
+  "demo-course/1.1",
+  "demo-course/1.2",
+  "demo-course/1.3",
+  "demo-drills/1.1",
+  "demo-drills/1.2",
+] as const;
+
+/**
+ * Makes the browser refuse the next write by `IDBObjectStore.put` into the store named by
+ * `failNextPut`, as a disk that fails would. Runs before the app on every load.
+ */
+export async function refusePuts(page: Page) {
+  await page.addInitScript(() => {
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (
+      this: IDBObjectStore,
+      ...args: [unknown, IDBValidKey?]
+    ) {
+      const state = window as unknown as { refusedPut?: string };
+      if (state.refusedPut === this.name) {
+        state.refusedPut = undefined;
+        throw new DOMException("The write failed.", "UnknownError");
+      }
+      return put.apply(this, args);
+    };
+  });
+}
+
+/** Lets the next write by `put` into `store` fail (after `refusePuts`). */
+export function failNextPut(page: Page, store: "settings" | "days") {
+  return page.evaluate((name) => {
+    (window as unknown as { refusedPut?: string }).refusedPut = name;
+  }, store);
+}
+
+/** The goal card and the today card of Today (PROG-006). */
+export const goalCard = (page: Page) => page.getByRole("region", { name: "Цель" });
+export const todayCard = (page: Page) => page.getByRole("region", { name: "Сегодня" });
+
+/**
+ * Makes exercises done without going through Study, which is slow on WebKit (C-19): for each
+ * exercise of the stored packs named in `only` (`pack/exercise`), or for every one, the log gets
+ * the attempt Study writes when it is done (a check with every item right, or for an exercise
+ * shown as open a mark as done). The store derives their states from it once the page reloads.
+ */
+export async function completeInStore(page: Page, only?: readonly string[]) {
+  await expect(goalCard(page)).toBeVisible();
+  await page.evaluate(
+    async ({ name, chosen }) => {
+      interface StoredPack {
+        id: string;
+        version: string;
+        units: {
+          exercises: { id: string; type: string; items?: { id: string; accept: string[] }[] }[];
+        }[];
+      }
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const open = indexedDB.open(name);
+        open.addEventListener("success", () => resolve(open.result));
+        open.addEventListener("error", () => reject(open.error));
+      });
+      const tx = db.transaction(["packs", "attempts"], "readwrite");
+      const read = tx.objectStore("packs").getAll();
+      read.addEventListener("success", () => {
+        for (const pack of read.result as StoredPack[]) {
+          for (const exercise of pack.units.flatMap((unit) => unit.exercises)) {
+            if (chosen !== undefined && !chosen.includes(`${pack.id}/${exercise.id}`)) continue;
+            const items = exercise.type === "items" ? (exercise.items ?? []) : undefined;
+            tx.objectStore("attempts").add({
+              id: crypto.randomUUID(),
+              at: "2026-11-18T09:00:00.000Z",
+              pack: pack.id,
+              packVersion: pack.version,
+              exercise: exercise.id,
+              action: items ? "check" : "mark-done",
+              answers: items
+                ? Object.fromEntries(items.map((item) => [item.id, item.accept[0]]))
+                : { text: "" },
+              results: items ? Object.fromEntries(items.map((item) => [item.id, "ok"])) : {},
+              complete: true,
+            });
+          }
+        }
+      });
+      await new Promise((resolve, reject) => {
+        tx.addEventListener("complete", resolve);
+        tx.addEventListener("error", () => reject(tx.error));
+      });
+      db.close();
+    },
+    { name: databaseName, chosen: only },
+  );
+  await page.reload();
+}

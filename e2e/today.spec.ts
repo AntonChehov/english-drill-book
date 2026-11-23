@@ -1,67 +1,19 @@
-import type { Page } from "@playwright/test";
-import { addedHeading, databaseName, startButton } from "./demo";
+import type { Locator, Page } from "@playwright/test";
+import { addedHeading, startButton } from "./demo";
 import { test as clean } from "./fixtures";
-import { expect, test, unitHeading } from "./study";
+import {
+  completeInStore,
+  expect,
+  failNextPut,
+  goalCard,
+  refusePuts,
+  test,
+  todayCard,
+  topic1Passed,
+  unitHeading,
+} from "./study";
 import { addressOf } from "./views";
 
-const goalCard = (page: Page) => page.getByRole("region", { name: "Цель" });
-const todayCard = (page: Page) => page.getByRole("region", { name: "Сегодня" });
-
-/**
- * Makes exercises done without going through Study, which is slow on WebKit (C-19): for each
- * exercise of the stored packs named in `only` (`pack/exercise`), or for every one, the log gets
- * the attempt Study writes when it is done (a check with every item right, or for an exercise
- * shown as open a mark as done). The store derives their states from it once the page reloads.
- */
-async function completeInStore(page: Page, only?: readonly string[]) {
-  await expect(goalCard(page)).toBeVisible();
-  await page.evaluate(
-    async ({ name, chosen }) => {
-      interface StoredPack {
-        id: string;
-        version: string;
-        units: {
-          exercises: { id: string; type: string; items?: { id: string; accept: string[] }[] }[];
-        }[];
-      }
-      const db = await new Promise<IDBDatabase>((resolve, reject) => {
-        const open = indexedDB.open(name);
-        open.addEventListener("success", () => resolve(open.result));
-        open.addEventListener("error", () => reject(open.error));
-      });
-      const tx = db.transaction(["packs", "attempts"], "readwrite");
-      const read = tx.objectStore("packs").getAll();
-      read.addEventListener("success", () => {
-        for (const pack of read.result as StoredPack[]) {
-          for (const exercise of pack.units.flatMap((unit) => unit.exercises)) {
-            if (chosen !== undefined && !chosen.includes(`${pack.id}/${exercise.id}`)) continue;
-            const items = exercise.type === "items" ? (exercise.items ?? []) : undefined;
-            tx.objectStore("attempts").add({
-              id: crypto.randomUUID(),
-              at: "2026-11-18T09:00:00.000Z",
-              pack: pack.id,
-              packVersion: pack.version,
-              exercise: exercise.id,
-              action: items ? "check" : "mark-done",
-              answers: items
-                ? Object.fromEntries(items.map((item) => [item.id, item.accept[0]]))
-                : { text: "" },
-              results: items ? Object.fromEntries(items.map((item) => [item.id, "ok"])) : {},
-              complete: true,
-            });
-          }
-        }
-      });
-      await new Promise((resolve, reject) => {
-        tx.addEventListener("complete", resolve);
-        tx.addEventListener("error", () => reject(tx.error));
-      });
-      db.close();
-    },
-    { name: databaseName, chosen: only },
-  );
-  await page.reload();
-}
 test.describe("PROG-006 What Today shows", () => {
   test(
     "@req PROG-006 @req PROG-005 a fresh start shows the goal, the level below A1 and topic 1",
@@ -88,13 +40,7 @@ test.describe("PROG-006 What Today shows", () => {
     { tag: "@demo" },
     async ({ page }) => {
       await page.goto(addressOf("/"));
-      await completeInStore(page, [
-        "demo-course/1.1",
-        "demo-course/1.2",
-        "demo-course/1.3",
-        "demo-drills/1.1",
-        "demo-drills/1.2",
-      ]);
+      await completeInStore(page, topic1Passed);
       const goal = goalCard(page);
       await expect(goal).toContainText("Ваш уровень: почти A1");
       await expect(goal.getByRole("listitem").first()).toContainText("пройдено 1 из 2 тем");
@@ -217,4 +163,84 @@ clean.describe("PROG-013 No books, no program", () => {
       await expect(todayCard(page)).toHaveCount(0);
     },
   );
+});
+
+const checklist = (page: Page) => page.getByRole("region", { name: "Другие дела дня" });
+
+test.describe("PROG-009 The daily checklist", () => {
+  test("@req PROG-009 @req PROG-006 a tick is kept for the day and the next day starts empty", async ({
+    page,
+  }) => {
+    await page.clock.setFixedTime(new Date("2026-11-23T10:00:00"));
+    await page.goto(addressOf("/"));
+    const blocks = checklist(page).getByRole("checkbox");
+    await expect(blocks).toHaveCount(3);
+    await expect(checklist(page).getByRole("checkbox", { checked: true })).toHaveCount(0);
+
+    const read = checklist(page).getByRole("checkbox", {
+      name: "Прочитать страницу текста на английском",
+    });
+    await read.click();
+    await expect(read).toBeChecked();
+    await page.reload();
+    await expect(read).toBeChecked();
+    await expect(checklist(page).getByRole("checkbox", { checked: true })).toHaveCount(1);
+
+    await page.clock.setFixedTime(new Date("2026-11-24T10:00:00"));
+    await page.reload();
+    await expect(blocks).toHaveCount(3);
+    await expect(read).not.toBeChecked();
+  });
+
+  test("@req PROG-009 a tick the browser refuses is not shown, said beside the list, and can be repeated", async ({
+    page,
+  }) => {
+    await refusePuts(page);
+    await page.goto(addressOf("/"));
+    const listen = checklist(page).getByRole("checkbox", { name: /Послушать/ });
+    await expect(listen).toBeVisible();
+    await failNextPut(page, "days");
+    await listen.click();
+    await expect(checklist(page).getByRole("alert")).toContainText("не удалось сохранить");
+    await expect(listen).not.toBeChecked();
+
+    await listen.click();
+    await expect(listen).toBeChecked();
+    await expect(checklist(page).getByRole("alert")).toHaveCount(0);
+  });
+
+  test("@req PROG-006 the checklist stays when the program is complete", async ({ page }) => {
+    await page.goto(addressOf("/"));
+    await completeInStore(page);
+    await expect(todayCard(page)).toContainText("Программа пройдена");
+    await expect(checklist(page).getByRole("checkbox")).toHaveCount(3);
+  });
+});
+
+const background = (locator: Locator) =>
+  locator.evaluate((element) => getComputedStyle(element).backgroundColor);
+
+test.describe("PROG-018 Today answers the pointer", () => {
+  test("@req PROG-018 a rung and a step are highlighted under the pointer, with no tooltip", async ({
+    page,
+  }) => {
+    await page.goto(addressOf("/"));
+    const rungs = goalCard(page).getByRole("listitem");
+    const steps = todayCard(page).locator(".step");
+    await expect(rungs).toHaveCount(2);
+    const plain = await background(rungs.nth(1));
+
+    await rungs.nth(0).hover();
+    await expect.poll(() => background(rungs.nth(0))).not.toBe(plain);
+    expect(await background(rungs.nth(1))).toBe(plain);
+
+    await steps.nth(1).hover();
+    await expect.poll(() => background(steps.nth(1))).not.toBe(await background(steps.nth(0)));
+    await expect.poll(() => background(rungs.nth(0))).toBe(plain);
+
+    await expect(page.getByRole("tooltip")).toHaveCount(0);
+    for (const card of [goalCard(page), todayCard(page)]) {
+      await expect(card.locator("[title]")).toHaveCount(0);
+    }
+  });
 });

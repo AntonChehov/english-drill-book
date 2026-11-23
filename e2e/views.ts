@@ -19,6 +19,7 @@ export interface View {
 
 export const views: readonly View[] = [
   { name: "start", path: "/", heading: "English Drill Book" },
+  { name: "topics", path: "/topics", heading: "Темы" },
   { name: "about", path: "/about", heading: "О приложении" },
   { name: "not-found", path: "/no-such-page", heading: "Страница не найдена" },
   {
