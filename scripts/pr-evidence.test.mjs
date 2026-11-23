@@ -1,15 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { sections } from "./common.mjs";
+import { parseNameStatus, sections } from "./common.mjs";
 import { markerFor, renderComment } from "./evidence-comment.mjs";
 import { messages } from "./review-record.mjs";
 import {
   archiveProblems,
   checkEvidence,
   exemption,
-  exemptions,
   isReleasePullRequest,
   parseDescription,
-  parseNameStatus,
   report,
   reviewOf,
 } from "./pr-evidence.mjs";
@@ -45,11 +43,13 @@ const review = (overrides = {}) => {
       "",
       "### F1 Retry loop never ends",
       "",
+      "Severity: critical",
       "- Where: scripts/evidence-branch.mjs:70",
       "- Problem: the loop has no limit.",
       "",
       "### F2 Rename a variable",
       "",
+      "Severity: minor",
       "- Where: scripts/size.mjs:12",
       "- Problem: the name is vague.",
       "",
@@ -64,16 +64,6 @@ const review = (overrides = {}) => {
       "- F2: declined — the name matches the design.",
       "",
     ].join("\n"),
-    coverage: [
-      "## Requirement coverage",
-      "",
-      "| ID | Implemented in | Test |",
-      "| --- | --- | --- |",
-      "| PROD-001 | src/ui/App.vue | e2e/app-shell.spec.ts |",
-      "| PROD-008 | src/ui/router.ts | e2e/app-shell.spec.ts |",
-      "",
-    ].join("\n"),
-    outside: "## Outside the listed requirements\n\nThe CI pipeline.\n",
     ...overrides,
   };
   return Object.values(parts).join("\n");
@@ -102,17 +92,45 @@ const comment = (sha = head) => ({
   }),
 });
 
+const archived = `openspec/changes/archive/2026-11-12-${change}`;
+const ticked = "# Tasks\n\n- [x] 1.1 Done\n- [x] 1.2 **(owner)** Merge\n";
+/** What the head commit archives when it moves `change`, as `gather` reads it. */
+const archiveCommit = (overrides = {}) => ({
+  change,
+  directory: `2026-11-12-${change}`,
+  parent: "p".repeat(40),
+  files: [
+    { status: "D", path: `openspec/changes/${change}/tasks.md` },
+    { status: "D", path: `openspec/changes/${change}/review.md` },
+    { status: "D", path: `openspec/changes/${change}/specs/shell/spec.md` },
+    { status: "A", path: `${archived}/tasks.md` },
+    { status: "A", path: `${archived}/review.md` },
+    { status: "A", path: `${archived}/specs/shell/spec.md` },
+    { status: "M", path: "openspec/specs/shell/spec.md" },
+    { status: "M", path: "docs/roadmap.md" },
+  ],
+  // The file of the same path name at the parent has the same blob, tasks.md aside.
+  blob: (path) => `blob:${path.slice(archived.length)}`,
+  parentBlob: (path) => `blob:${path.slice(`openspec/changes/${change}`.length)}`,
+  ...overrides,
+});
+/** The files of the archive commit's head: the archived tasks and record. */
+const archivedFiles = (path) =>
+  ({ [`${archived}/tasks.md`]: ticked, [`${archived}/review.md`]: "# Review\n" })[path];
+
 /** A pull request that passes every check; each test breaks one thing. */
 function input(overrides = {}) {
   return {
     description: description(),
     headSha: head,
-    changes: [change, "other-change"],
+    changes: ["other-change"],
+    archive: archiveCommit(),
+    readFile: archivedFiles,
     deltaSpecIds: (name) => (name === change ? ["PROD-001", "PROD-008"] : ["CHK-001"]),
     testedIds: new Set(["PROD-001", "PROD-008", "CHK-001"]),
     readReview: (name) => (name === change ? review() : undefined),
     contentHash: (name) => (name === change ? current : "000000000000"),
-    changedFiles: ["src/ui/App.vue", "scripts/size.mjs"],
+    changedFiles: ["src/ui/App.vue", "scripts/size.mjs", `${archived}/review.md`],
     comment: comment(),
     metrics,
     comparison,
@@ -132,6 +150,15 @@ describe("a complete pull request", () => {
   it("passes with a review of one round that has no findings", () => {
     const first = `## Round 1\n\nReviewed: ${current}\nVerdict: approved\n`;
     expect(problemsOf(withReview({ first, last: "" }))).toEqual([]);
+  });
+
+  it("reads the delta specs and the record of the change from the archive", () => {
+    const seen = [];
+    problemsOf({
+      deltaSpecIds: (name) => (seen.push(name), ["PROD-001", "PROD-008"]),
+      readReview: (name) => (seen.push(name), review()),
+    });
+    expect(seen).toEqual([change, change]);
   });
 
   it("passes without requirements when the description says none", () => {
@@ -171,7 +198,7 @@ describe("1. description", () => {
     });
   });
 
-  it("fails when the change does not exist", () => {
+  it("fails when the change is neither in flight nor archived by the head commit", () => {
     expect(
       problemsOf({ description: description({ change: "Change: no-such\n" }) }),
     ).toContainEqual({
@@ -214,10 +241,15 @@ describe("3. review record", () => {
   it("fails on a record in the format before rounds", () => {
     const old = `# Review\n\nReviewed commit: ${head}\n\n## Findings\n\nnone\n`;
     expect(problemsOf({ readReview: () => old })).toEqual([
-      { check: 3, problem: messages.textBeforeRounds(`Reviewed commit: ${head}`) },
-      { check: 3, problem: messages.unknownSection("Findings") },
       { check: 3, problem: messages.noRound() },
       { check: 4, problem: messages.noRoundToCompare({ current, change }) },
+    ]);
+  });
+
+  it("fails on a finding without a severity", () => {
+    const first = review().split("\n## Round 2")[0].replace("Severity: critical\n", "");
+    expect(problemsOf(withReview({ first }))).toEqual([
+      { check: 3, problem: messages.noSeverity(1, "F1") },
     ]);
   });
 
@@ -228,30 +260,13 @@ describe("3. review record", () => {
     ]);
   });
 
-  it("fails while the last round requests changes, and does not yet ask for coverage", () => {
-    expect(problemsOf(withReview({ last: "", coverage: "", outside: "" }))).toEqual([
+  it("fails while the last round requests changes", () => {
+    expect(problemsOf(withReview({ last: "" }))).toEqual([
       { check: 3, problem: messages.changesRequested(1, ["F1", "F2"]) },
       {
         check: 4,
         problem: messages.stale({ round: 1, reviewed: earlier, current, change }),
       },
-    ]);
-  });
-
-  it("fails when a listed requirement has no coverage row", () => {
-    const coverage =
-      "## Requirement coverage\n\n| ID | Implemented in | Test |\n| --- | --- | --- |\n| PROD-001 | a | b |\n";
-    expect(problemsOf(withReview({ coverage }))).toEqual([
-      { check: 3, problem: messages.notCovered("PROD-008") },
-    ]);
-  });
-
-  it("fails without the coverage or the outside sections once approved", () => {
-    expect(problemsOf(withReview({ coverage: "", outside: "" }))).toEqual([
-      { check: 3, problem: messages.noCoverage() },
-      { check: 3, problem: messages.noOutside() },
-      { check: 3, problem: messages.notCovered("PROD-001") },
-      { check: 3, problem: messages.notCovered("PROD-008") },
     ]);
   });
 });
@@ -303,7 +318,6 @@ describe("the messages of checks 3 and 4", () => {
     roundOrder: [3, 2],
     noHash: [2],
     noVerdict: [2],
-    notAFinding: [1, "Notes"],
     raisedTwice: ["F2", 1, 2],
     unknownFinding: [2, "F7"],
     badOutcome: [2, "F1", "later"],
@@ -315,28 +329,17 @@ describe("the messages of checks 3 and 4", () => {
     approvedButNotFixed: [2, ["F1"]],
     requestsWithoutCause: [2],
     changesRequested: [2, ["F1", "F3"]],
-    noCoverage: [],
-    noOutside: [],
-    notCovered: ["PROD-001"],
     stale: [{ round: 2, reviewed: earlier, current, change }],
     noChangeRecord: [],
     noChangeContent: [],
     noRoundToCompare: [{ current, change }],
     lastRoundNoHash: [{ round: 2, current, change }],
     lastNotApproved: [2],
-    unknownSection: ["Round 2 (again)"],
-    repeatedSection: ["Requirement coverage"],
-    textBeforeRounds: ["Notes `with` a | pipe"],
     repeatedLine: [2, "Verdict"],
-    unknownLine: [2, "Looks good to me."],
-    unknownHeading: [2, "#### F1 Hidden"],
-    misplacedLine: [2, "under finding F1", "Verdict: approved"],
-    repeatedNotes: [2],
     statedTwice: [2, "F1"],
-    roundAfterClosing: [3],
-    misplacedInClosing: ["Requirement coverage", "- F1: fixed"],
-    headingInClosing: ["Outside the listed requirements", "### F2 Hidden"],
-    unclosedFence: [12],
+    noSeverity: [1, "F1"],
+    repeatedSeverity: [1, "F1"],
+    badSeverity: [1, "F1", "major `x` | y"],
     htmlComment: [7],
   };
 
@@ -467,6 +470,14 @@ describe("parsing", () => {
 });
 
 describe("the release pull request", () => {
+  it("names its exemption in the report, and no other pull request has one", () => {
+    expect(exemption({ release: true })).toContain("release pull request");
+    expect(exemption({})).toBeUndefined();
+    expect(report([], { exempt: exemption({ release: true }) })).toContain(
+      "Exempt: the release pull request",
+    );
+  });
+
   const release = {
     headRef: "release-please--branches--main",
     author: "bot[bot]",
@@ -489,169 +500,172 @@ describe("the release pull request", () => {
   });
 });
 
-/** The files of an archived change that has a review record and no tasks. */
-const noTasks = (path) => (path.endsWith("review.md") ? "# Review\n" : undefined);
-/** In the head commit of a complete move, the change's old directory is gone. */
-const nothingInFlight = () => false;
-
-describe("the archive pull request", () => {
-  const archived = "openspec/changes/archive/2026-11-12-some-change";
-  const ticked = "# Tasks\n\n- [x] 1.1 Done\n- [x] 1.2 **(owner)** Merge\n";
-  const archive = (overrides = {}) => ({
-    headRef: "archive/some-change",
-    author: "bot[bot]",
-    botLogin: "bot[bot]",
-    files: [
-      { status: "D", path: "openspec/changes/some-change/tasks.md" },
-      { status: "D", path: "openspec/changes/some-change/review.md" },
-      { status: "D", path: "openspec/changes/some-change/specs/shell/spec.md" },
-      { status: "A", path: `${archived}/tasks.md` },
-      { status: "A", path: `${archived}/review.md` },
-      { status: "A", path: `${archived}/specs/shell/spec.md` },
-      { status: "M", path: "openspec/specs/shell/spec.md" },
-      { status: "M", path: "docs/roadmap.md" },
-    ],
-    readFile: (path) =>
-      ({ [`${archived}/tasks.md`]: ticked, [`${archived}/review.md`]: "# Review\n" })[path],
-    exists: nothingInFlight,
+const problemsWith = (overrides) =>
+  archiveProblems({
+    change,
+    archive: archiveCommit(),
+    inFlight: false,
+    readFile: archivedFiles,
     ...overrides,
   });
-  /** Ticked tasks and a review record wherever they are read. */
-  const complete = (path) => (path.endsWith("tasks.md") ? ticked : "# Review\n");
-  const withFile = (status, path) => ({ files: [...archive().files, { status, path }] });
+const withFile = (status, path) => ({
+  archive: archiveCommit({ files: [...archiveCommit().files, { status, path }] }),
+});
 
-  /**
-   * Builds the pull request as `gather` does: one unmet condition, so it is not exempt and
-   * the six checks judge it (here they fail on the missing description and comment).
-   */
-  const judged = (overrides) => {
-    const { archive: exempt, notArchive } = exemptions(archive(overrides));
-    expect(exempt).toBe(false);
-    expect(notArchive).toHaveLength(1);
-    expect(checksOf({ archive: exempt, description: "", comment: undefined })).toEqual(
-      expect.arrayContaining([1, 5]),
-    );
-    return notArchive[0];
-  };
+/** The files of an archived change with one more task, unticked. */
+const withTask = (task) => (path) =>
+  path.endsWith("tasks.md") ? `${ticked}${task} 1.3 Later\n` : "# Review\n";
 
-  it("is exempt from the checks when it meets every condition", () => {
-    expect(archiveProblems(archive())).toEqual([]);
-    const result = exemptions(archive());
-    expect(result).toEqual({ release: false, archive: true, notArchive: [] });
-    expect(checkEvidence({ ...input({ description: "", comment: undefined }), ...result })).toEqual(
-      [],
-    );
+describe("7. archive (workflow-retro D2)", () => {
+  it("passes for the archive commit of the change", () => {
+    expect(problemsWith({})).toEqual([]);
+    expect(checksOf({})).toEqual([]);
   });
 
-  it("is judged when someone else opened it", () => {
-    expect(judged({ author: "someone" })).toBe("it was opened by someone, not by the bot");
-  });
-
-  it("is judged when its branch is not an archive/ branch, without listing why", () => {
-    expect(archiveProblems(archive({ headRef: "chore/archive" }))).toEqual([
-      "its branch chore/archive does not start with archive/",
+  it("fails before the archive commit, telling what to do, and keeps checks 1 to 4 as they were", () => {
+    const problems = problemsOf({ archive: undefined, changes: [change, "other-change"] });
+    expect(problems).toEqual([
+      {
+        check: 7,
+        problem: `the last commit does not archive \`${change}\`: when the review approves and validation passes, run \`openspec archive\` as the last commit (docs/process.md, step 6)`,
+      },
     ]);
-    expect(exemptions(archive({ headRef: "chore/archive" }))).toMatchObject({
-      archive: false,
-      notArchive: [],
+  });
+
+  it("fails when the last commit archives another change", () => {
+    expect(
+      problemsOf({ changes: [change], archive: archiveCommit({ change: "other-change" }) }),
+    ).toContainEqual(expect.objectContaining({ check: 7 }));
+  });
+
+  it("fails when the commit changes a file other than the move, the living specs of the delta specs and the roadmap", () => {
+    for (const [status, path] of [
+      ["M", "scripts/pr-evidence.mjs"],
+      ["M", "openspec/specs/other/spec.md"],
+      ["D", "openspec/specs/shell/spec.md"],
+      ["M", `openspec/changes/${change}/design.md`],
+      ["A", "openspec/changes/archive/2026-01-01-old/review.md"],
+      ["D", "docs/roadmap.md"],
+    ]) {
+      const named = problemsWith(withFile(status, path)).some((problem) => problem.includes(path));
+      expect([path, named]).toEqual([path, true]);
+    }
+    const outside = problemsWith(withFile("M", "docs/constitution.md"));
+    expect(outside).toEqual([
+      "it changes more than the move of the change, the living specs of its delta specs and docs/roadmap.md: docs/constitution.md",
+    ]);
+  });
+
+  it("fails when an archived file differs from the file it replaces, tasks.md excepted", () => {
+    const edited = archiveCommit({
+      blob: (path) =>
+        path.endsWith("review.md") ? "edited" : `blob:${path.slice(archived.length)}`,
     });
-  });
-
-  it("is judged when it changes a file outside openspec/changes/, openspec/specs/ and the roadmap", () => {
-    expect(judged(withFile("M", "scripts/pr-evidence.mjs"))).toBe(
-      "it changes files outside openspec/changes/, openspec/specs/ and docs/roadmap.md: scripts/pr-evidence.mjs",
-    );
-    expect(judged(withFile("M", "docs/constitution.md"))).toContain("docs/constitution.md");
-    expect(judged(withFile("M", "openspec/config.yaml"))).toContain("openspec/config.yaml");
-  });
-
-  it("is judged when it starts, edits or deletes a change it does not archive", () => {
-    const message = "it adds, edits or deletes files of a change it does not archive: ";
-    expect(judged(withFile("A", "openspec/changes/next/tasks.md"))).toBe(
-      `${message}openspec/changes/next/tasks.md`,
-    );
-    expect(judged(withFile("M", "openspec/changes/next/design.md"))).toContain("next/design.md");
-    expect(judged(withFile("D", "openspec/changes/next/tasks.md"))).toContain("next/tasks.md");
-    expect(judged(withFile("M", "openspec/changes/some-change/tasks.md"))).toContain(
-      "some-change/tasks.md",
+    expect(problemsWith({ archive: edited })).toEqual([
+      `${archived}/review.md differs from openspec/changes/${change}/review.md`,
+    ]);
+    const ticks = archiveCommit({ blob: (path) => (path.endsWith("tasks.md") ? "ticked" : "x") });
+    expect(problemsWith({ archive: ticks })).not.toContainEqual(
+      expect.stringContaining("tasks.md"),
     );
   });
 
-  it("is judged when it edits or deletes what the archive already holds", () => {
-    const old = "openspec/changes/archive/2026-01-01-old/review.md";
-    expect(judged(withFile("M", old))).toBe(
-      `it edits or deletes what the archive already holds: ${old}`,
-    );
-    expect(judged(withFile("D", old))).toContain(old);
-    expect(judged(withFile("A", "openspec/changes/archive/notes.md"))).toContain("notes.md");
-  });
-
-  it("is judged when it adds to an older archived change instead of moving one", () => {
-    const old = "openspec/changes/archive/2026-01-01-old";
-    const files = [
-      { status: "A", path: `${old}/note.md` },
-      { status: "M", path: "docs/roadmap.md" },
-    ];
-    expect(judged({ files, readFile: complete })).toBe(
-      `${old} is not moved from openspec/changes/old/`,
+  it("fails when the archive holds a file the change did not have, or drops one", () => {
+    const added = withFile("A", `${archived}/notes.md`);
+    expect(
+      problemsWith({ ...added, archive: { ...added.archive, parentBlob: () => undefined } }),
+    ).toContainEqual(`${archived}/notes.md is new: the archive commit only moves files`);
+    const dropped = archiveCommit({
+      files: archiveCommit().files.filter((file) => file.path !== `${archived}/review.md`),
+    });
+    expect(problemsWith({ archive: dropped })).toContainEqual(
+      `openspec/changes/${change}/review.md is deleted and not archived`,
     );
   });
-
-  it("is judged when the change is still in flight after the move", () => {
-    expect(judged({ exists: (path) => path === "openspec/changes/some-change" })).toBe(
-      "openspec/changes/some-change/ is still in flight after the move",
-    );
-  });
-
-  it("is judged when it deletes a living spec or changes one no archived delta spec touches", () => {
-    const message = "it deletes living specs or changes ones no archived delta spec touches: ";
-    expect(judged(withFile("M", "openspec/specs/other/spec.md"))).toBe(
-      `${message}openspec/specs/other/spec.md`,
-    );
-    const files = archive().files.map((file) =>
-      file.path === "openspec/specs/shell/spec.md" ? { ...file, status: "D" } : file,
-    );
-    expect(judged({ files })).toBe(`${message}openspec/specs/shell/spec.md`);
-  });
-
-  /** An archived change's files with one more task, unticked. */
-  const withTask = (task) => (path) =>
-    path.endsWith("tasks.md") ? `${ticked}${task} 1.3 Later\n` : "# Review\n";
-  const noReview = (path) => (path.endsWith("tasks.md") ? ticked : undefined);
 
   for (const task of ["- [ ]", "* [ ]", "+ [ ]", "-  [ ]", "1. [ ]", "2) [ ]"]) {
-    it(`is judged when an archived change has an unticked task written "${task}"`, () => {
-      expect(judged({ readFile: withTask(task) })).toBe(
+    it(`fails when the archived tasks have an unticked task written "${task}"`, () => {
+      expect(problemsWith({ readFile: withTask(task) })).toEqual([
         `${archived}/tasks.md has 1 unticked task(s)`,
-      );
+      ]);
     });
   }
 
-  it("is judged when an archived change has no review record or no tasks", () => {
-    expect(judged({ readFile: noReview })).toBe(`${archived}/review.md does not exist`);
-    expect(judged({ readFile: noTasks })).toBe(`${archived}/tasks.md does not exist`);
+  it("fails without the archived record or tasks", () => {
+    expect(
+      problemsWith({ readFile: (path) => (path.endsWith("tasks.md") ? ticked : undefined) }),
+    ).toEqual([`${archived}/review.md does not exist`]);
+    expect(
+      problemsWith({ readFile: (path) => (path.endsWith("review.md") ? "# Review\n" : undefined) }),
+    ).toEqual([`${archived}/tasks.md does not exist`]);
   });
 
-  it("is judged when it moves no change into the archive", () => {
-    const files = [{ status: "M", path: "docs/roadmap.md" }];
-    expect(judged({ files })).toBe("it moves no change into openspec/changes/archive/");
+  it("fails when the change is still in flight at the head", () => {
+    expect(problemsWith({ inFlight: true })).toEqual([
+      `openspec/changes/${change}/ is still in flight after the archive`,
+    ]);
   });
 
-  it("names its exemption in the report", () => {
-    expect(exemption({ archive: true })).toContain("archive pull request");
-    expect(exemption({ release: true })).toContain("release pull request");
-    expect(exemption({})).toBeUndefined();
-    expect(report([], { exempt: exemption({ archive: true }) })).toContain(
-      "Exempt: the archive pull request",
-    );
+  it("is not asked when the description names no known change", () => {
+    expect(checksOf({ description: description({ change: "" }), archive: undefined })).toEqual([
+      1, 3, 4,
+    ]);
+  });
+});
+
+describe("a pull request without code (workflow-retro D4)", () => {
+  const docsOnly = {
+    changedFiles: ["docs/process.md", `${archived}/review.md`],
+    comment: undefined,
+    metrics: undefined,
+    comparison: undefined,
+  };
+
+  it("needs neither screenshots nor numbers", () => {
+    expect(problemsOf(docsOnly)).toEqual([]);
+    expect(problemsOf({ ...docsOnly, changedFiles: [".claude/agents/reviewer.md"] })).toEqual([]);
   });
 
-  it("lists in the report why an archive/ branch is not exempt", () => {
-    const markdown = report([{ check: 1, problem: "x" }], {
-      notArchive: ["it was opened by someone, not by the bot"],
-    });
+  it("still fails when a newer commit was pushed", () => {
+    expect(problemsOf({ ...docsOnly, latestSha: "f".repeat(40) })).toEqual([
+      {
+        check: 5,
+        problem: "a newer commit fffffff was pushed; this run's evidence is for ccccccc",
+      },
+    ]);
+  });
+
+  it("does not trust the workflow: a pull request with code and no evidence fails both checks", () => {
+    expect(checksOf({ ...docsOnly, changedFiles: ["docs/process.md", "src/ui/App.vue"] })).toEqual([
+      5, 6,
+    ]);
+    expect(checksOf({ ...docsOnly, changedFiles: [".github/workflows/checks.yml"] })).toEqual([
+      5, 6,
+    ]);
+  });
+
+  it("still judges the review and the archive", () => {
+    expect(
+      checksOf({
+        ...docsOnly,
+        contentHash: () => "1b2c3d4e5f60",
+        changes: [change],
+        archive: undefined,
+      }),
+    ).toEqual([4, 7]);
+  });
+
+  it("says in the report that checks 5 and 6 do not apply", () => {
+    const markdown = report([], { noCode: true });
     expect(markdown).toContain(
-      "Not exempt as an archive pull request:\n- it was opened by someone, not by the bot",
+      "| 5 | Screenshots | not applicable: no file the build or tests read changed |",
+    );
+    expect(markdown).toContain(
+      "| 6 | Numbers | not applicable: no file the build or tests read changed |",
+    );
+    expect(markdown).toContain("| 7 | Archive | passed |");
+    expect(report([{ check: 5, problem: "x" }], { noCode: true })).toContain(
+      "| 5 | Screenshots | x |",
     );
   });
 });
@@ -664,23 +678,6 @@ describe("the changed files", () => {
     ]);
     expect(parseNameStatus("")).toEqual([]);
   });
-
-  it("make the release pull request exempt through the same wiring", () => {
-    const files = [
-      { status: "M", path: "CHANGELOG.md" },
-      { status: "M", path: "package.json" },
-    ];
-    expect(
-      exemptions({
-        headRef: "release-please--branches--main",
-        author: "bot[bot]",
-        botLogin: "bot[bot]",
-        files,
-        readFile: noTasks,
-        exists: nothingInFlight,
-      }),
-    ).toMatchObject({ release: true, archive: false, notArchive: [] });
-  });
 });
 
 describe("report", () => {
@@ -690,6 +687,7 @@ describe("report", () => {
     expect(markdown).toContain("| 3 | Review record | review.md does not exist |");
     expect(markdown).toContain("| 4 | Reviewed content | passed |");
     expect(markdown).toContain("| 6 | Numbers | passed |");
+    expect(markdown).toContain("| 7 | Archive | passed |");
   });
 
   it("tells an incomplete review from an out-of-date one", () => {

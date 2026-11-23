@@ -182,6 +182,16 @@ describe("reviewOfChange", () => {
       `Review: round 1, approved, read \`${current}\`; the content of this commit is \`${current}\`, the same.`,
     );
   });
+
+  it("reads the record of a change that the commit archives, hashed as it was reviewed", () => {
+    const before = reviewOfChange(root, "c", head);
+    git("add", "--all");
+    git("commit", "--quiet", "--no-verify", "-m", "docs: review c");
+    mkdirSync(join(root, "openspec/changes/archive"), { recursive: true });
+    git("mv", "openspec/changes/c", "openspec/changes/archive/2026-01-02-c");
+    git("commit", "--quiet", "--no-verify", "-m", "chore: archive c");
+    expect(reviewOfChange(root, "c", git("rev-parse", "HEAD"))).toBe(before);
+  });
 });
 
 function fakeGithub(comments) {

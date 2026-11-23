@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  archiveOf,
   changeOfPaths,
   changedPaths,
   defaultBase,
@@ -281,5 +282,60 @@ describe("round 1 of the review of review-rounds", () => {
     expect(offline.status).toBe(0);
     expect(offline.stdout).toBe(reviewHash(clone, { change }).short);
     expect(offline.stderr).toContain("may differ from the one CI computes");
+  });
+});
+
+const archived = `openspec/changes/archive/2026-01-02-${change}`;
+
+/** The archive commit of `change` on top of `repo`'s branch, as `openspec archive` makes it. */
+function archiveCommit(repo) {
+  mkdirSync(join(repo.root, "openspec/changes/archive"), { recursive: true });
+  repo.git("mv", `openspec/changes/${change}`, archived);
+  repo.write(`${archived}/tasks.md`, "- [x] 1.1 Do\n");
+  repo.write("openspec/specs/x/spec.md", "spec\n");
+  repo.commit(`chore: archive ${change}`);
+}
+
+describe("the archive commit (workflow-retro D2)", () => {
+  it("is found by what it adds under the archive: the change, its directory and its parent", () => {
+    const repo = repository();
+    expect(archiveOf(repo.root)).toBeUndefined();
+    const parent = repo.git("rev-parse", "HEAD");
+    archiveCommit(repo);
+    const found = archiveOf(repo.root);
+    expect(found).toMatchObject({ change, directory: `2026-01-02-${change}`, parent });
+    expect(found?.files).toContainEqual({ status: "A", path: `${archived}/review.md` });
+    expect(found?.files).toContainEqual({ status: "D", path: record });
+  });
+
+  it("gives the hash the parent has, so the archive commit does not make a review stale", () => {
+    const repo = repository();
+    const before = repo.hash();
+    archiveCommit(repo);
+    expect(repo.hash()).toBe(before);
+    expect(() => reviewHash(repo.root, { change: "other", base: "main" })).toThrow(
+      "There is no change `other`",
+    );
+  });
+
+  it("is not the archive commit when it edits the archive or merges", () => {
+    const repo = repository();
+    archiveCommit(repo);
+    repo.write(`${archived}/tasks.md`, "- [x] 1.1 Done\n");
+    repo.commit("docs: edit the archived tasks");
+    expect(archiveOf(repo.root)).toBeUndefined();
+    // A change in flight is hashed at the head again once nothing archives it.
+    expect(() => repo.hash()).toThrow("There is no change `some-change`");
+    repo.git("switch", "--quiet", "main");
+    repo.git("merge", "--quiet", "--no-ff", "--no-edit", "--no-verify", "feature");
+    expect(archiveOf(repo.root)).toBeUndefined();
+  });
+
+  it("is named by the command without a change name", () => {
+    const repo = repository();
+    const before = repo.hash();
+    archiveCommit(repo);
+    repo.git("update-ref", "refs/remotes/origin/main", "main");
+    expect(command(repo.root, "--offline")).toMatchObject({ status: 0, stdout: before });
   });
 });

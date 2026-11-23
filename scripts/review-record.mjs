@@ -1,5 +1,5 @@
-// The review record of constitution C-18 item 2, kept in rounds (review-rounds design D2),
-// and the messages of the evidence check about it (D4). Each message states the fact, then
+// The review record of constitution C-18 item 2, kept in rounds (review-rounds design D2,
+// reduced by workflow-retro D6), and the messages of the evidence check about it. Each message states the fact, then
 // the action, and stands on its own in one cell of the job summary. No message names a
 // particular skill: the reader may use any, so they say "the review skill".
 import { shownLength } from "./review-hash.mjs";
@@ -37,36 +37,18 @@ export const messages = {
     `Round ${round} has no line \`Reviewed: <hash>\` with the ${shownLength} characters that \`pnpm review:hash\` prints. Add the hash of the content that round read.`,
   noVerdict: (round) =>
     `Round ${round} has no line \`Verdict: approved\` or \`Verdict: changes requested\`. Add the verdict the round reached.`,
-  unknownSection: (title) =>
-    `\`review.md\` has a section \`## ${quote(title)}\`, which the record does not know. Write a round as \`## Round <n>\` and the closing sections as \`## Requirement coverage\` and \`## Outside the listed requirements\`.`,
-  repeatedSection: (title) =>
-    `\`review.md\` has the section \`## ${quote(title)}\` more than once. Keep one.`,
-  textBeforeRounds: (line) =>
-    `\`review.md\` has the line \`${quote(line)}\` before its first round. Before \`## Round 1\` the record holds only its title, \`# Review\`: move the line under \`### Notes\` of a round, which any round may have.`,
   htmlComment: (line) =>
     `\`review.md\` has an HTML comment on line ${line}. A comment is not shown on the pull request, so the record would hold text its reader cannot see: delete it, or write the text openly under \`### Notes\`; to mention the characters themselves, write \`&lt;!--\`.`,
-  unclosedFence: (line) =>
-    `\`review.md\` has a fenced block, opened on line ${line}, that is never closed, so everything after it is read as text. Close it with a line that repeats its opening fence.`,
   repeatedLine: (round, name) =>
     `Round ${round} has more than one line \`${name}:\`. Keep one: a round has one hash and one verdict.`,
-  unknownLine: (round, line) =>
-    `Round ${round} has the line \`${quote(line)}\`, which the record does not know. Before its first \`###\` subsection a round holds only \`Reviewed: <hash>\`, \`Verdict:\` and lines \`- F<n>: <outcome>\`, each of which may be followed by lines indented under it; put other text under \`### Notes\`, which any round may have, or under a finding.`,
-  unknownHeading: (round, heading) =>
-    `Round ${round} has the heading \`${quote(heading)}\`, which the record does not know. A round's only headings are its findings \`### F<n> <title>\` and one \`### Notes\`; inside them use paragraphs and list items, not headings.`,
-  misplacedLine: (round, where, line) =>
-    `Round ${round} has the line \`${quote(line)}\` ${where}. The lines \`Reviewed:\`, \`Verdict:\` and \`- F<n>: <outcome>\` stand unindented at the start of the round, before its first \`###\` subsection; elsewhere say it in words.`,
-  notAFinding: (round, heading) =>
-    `Round ${round} has a heading \`### ${quote(heading)}\` that is neither a finding nor \`### Notes\`. Write a finding as \`### F<n> <title>\`, numbered through the whole record, and other text under \`### Notes\`.`,
-  repeatedNotes: (round) =>
-    `Round ${round} has \`### Notes\` more than once. Keep one and put all the round's notes there.`,
+  noSeverity: (round, id) =>
+    `${id} of round ${round} has no line \`Severity: critical\` or \`Severity: minor\`. Add one under its heading, before the next heading.`,
+  repeatedSeverity: (round, id) =>
+    `${id} of round ${round} has more than one line \`Severity:\`. Keep one.`,
+  badSeverity: (round, id, text) =>
+    `${id} of round ${round} has the severity \`${quote(text)}\`, which is neither critical nor minor. Write \`Severity: critical\` or \`Severity: minor\`.`,
   statedTwice: (round, id) =>
     `Round ${round} states the outcome of ${id} more than once. Keep one line \`- ${id}: <outcome>\`: a round gives each finding one outcome.`,
-  roundAfterClosing: (round) =>
-    `\`## Round ${round}\` comes after the closing sections. Rounds come first: move it above \`## Requirement coverage\` and \`## Outside the listed requirements\`.`,
-  misplacedInClosing: (section, line) =>
-    `\`## ${section}\` has the line \`${quote(line)}\`, which belongs to a round. \`Reviewed:\`, \`Verdict:\` and \`- F<n>: <outcome>\` stand at the start of a round, above the closing sections; here say it in words.`,
-  headingInClosing: (section, heading) =>
-    `\`## ${section}\` has the heading \`${quote(heading)}\`. The closing sections hold text and tables, not headings: a finding goes in a round as \`### F<n> <title>\`, notes as \`### Notes\`.`,
   raisedTwice: (id, first, second) =>
     `${id} is raised twice, in round ${first} and in round ${second}. Number the findings through the whole record: give the later one the next free number.`,
   unknownFinding: (round, id) =>
@@ -91,12 +73,6 @@ export const messages = {
     `The last round, round ${round}, requests changes; open: ${list(open)}. Fix or decline each, then run the review again with the review skill and add round ${round + 1}.`,
   lastNotApproved: (round) =>
     `The last round, round ${round}, requests changes, so the review has not approved this content. Run the review again with the review skill and add round ${round + 1}, which approves once no finding is open.`,
-  noCoverage: () =>
-    "`review.md` has no section `## Requirement coverage`. The approving round adds it: for each listed requirement, where it is implemented and which test covers it.",
-  noOutside: () =>
-    "`review.md` has no section `## Outside the listed requirements` with content. The approving round adds it: what changed outside the listed requirements, or `none`.",
-  notCovered: (id) =>
-    `\`review.md\` does not state where ${id} is implemented and tested. Add a row for ${id} to \`## Requirement coverage\`.`,
   stale: ({ round, reviewed, current, change }) =>
     `The review is out of date: round ${round} read the content \`${reviewed}\`, and the content of this commit is \`${current}\`, so the files of this pull request changed after it. Run the review again with the review skill on the whole diff and add round ${round + 1} with \`Reviewed: ${current}\`, the hash that \`pnpm review:hash ${change}\` prints once it has fetched \`main\`.`,
   noChangeContent: () =>
@@ -107,41 +83,13 @@ export const messages = {
     `No content was compared: the last round, round ${round}, has no line \`Reviewed: <hash>\` (see check 3), and the content of this commit is \`${current}\`. Add to round ${round} the hash of the content it read; if that was not this content, run the review again with the review skill and add round ${round + 1} with the hash that \`pnpm review:hash ${change}\` prints.`,
 };
 
-const requirementId = /\b[A-Z][A-Z0-9]*-\d{3}\b/g;
-const closingSections = ["Requirement coverage", "Outside the listed requirements"];
-/** A fence as CommonMark has it: three or more backticks with no backtick after, or tildes. */
-const fenceLine = /^\s*(`{3,}(?=[^`]*$)|~{3,})/;
-/** An ATX heading of up to three spaces' indentation. */
-const headingLine = /^ {0,3}(#{1,6})(?:[ \t]+(.*?))?[ \t]*$/;
+/** An unindented line of the record that is read by its form (workflow-retro D6). */
+const roundHeading = /^##[ \t]+Round[ \t]+(\d+)[ \t]*$/i;
+const findingHeading = /^###[ \t]+F(\d+)[:.]?[ \t]+(\S.*?)[ \t]*$/;
+const anyHeading = /^#{2,3}(?:[ \t]|$)/;
 const outcomeLine = /^[-*+]\s+F(\d+)\s*:\s*(.*?)\s*$/;
 const fieldLine = /^(Reviewed|Verdict)\s*:\s*(.*?)\s*$/i;
-/** Indented under the line before it: two spaces or a tab, as a list item's content is. */
-const indented = /^(?: {2,}|\t)\S/;
-
-/**
- * Whether a line, wherever it stands, reads as one of a round's own lines: `Reviewed:`,
- * `Verdict:` or an outcome in any list form. Free text may not hold one.
- */
-const looksLikeRoundLine = (trimmed) =>
-  fieldLine.test(trimmed) || /^(?:[-*+]|\d+[.)])\s+F\d+\s*:/.test(trimmed);
-const isHeading = (trimmed) => /^#{1,6}(?:[ \t]|$)/.test(trimmed);
-
-/**
- * What free text may not hold: a heading, also one in a block quote or underlined (a setext
- * heading, made of the free line before it), or one of a round's own lines, also quoted.
- * @param {string} trimmed  the line without its indentation
- * @param {string | undefined} previous  the line before, when it was free text of the same place
- * @returns {{ heading: string } | { roundLine: true } | undefined}
- */
-function forbiddenInText(trimmed, previous) {
-  const inner = trimmed.replace(/^(?:>\s*)+/, "");
-  if (isHeading(inner)) return { heading: trimmed };
-  const underlinesListItem = previous !== undefined && /^(?:[-*+]|\d+[.)])\s/.test(previous);
-  if (previous !== undefined && !underlinesListItem && /^(?:=+|-+)$/.test(inner))
-    return { heading: previous };
-  if (looksLikeRoundLine(inner)) return { roundLine: true };
-  return undefined;
-}
+const severityLine = /^Severity\s*:\s*(.*?)\s*$/i;
 
 /**
  * The numbers of the lines that hold an HTML comment's opening `<!--`, wherever it stands,
@@ -157,7 +105,7 @@ function commentLines(markdown) {
   return lines;
 }
 
-/** An outcome exactly as D2 writes it, or undefined. */
+/** An outcome exactly as D6 writes it, or undefined. */
 function parseOutcome(text) {
   if (/^fixed\.?$/i.test(text)) return { outcome: "fixed", note: "" };
   const match = /^(not fixed|declined)(?:\s*[—–-]\s*(.*))?$/i.exec(text);
@@ -166,169 +114,55 @@ function parseOutcome(text) {
 }
 
 /**
- * Reads a review record in rounds, line by line, by the grammar of design D2 as clarified
- * (rounds 1 and 2 of the review of review-rounds, F2 and F8). Everything in it is either
- * recognised or reported; free text has three places only: indented under an outcome, under
- * a finding and under a round's `### Notes`, plus the two closing sections. `problems`
- * lists, as messages of check 3, what breaks a rule of design D2 or D3 other than the
- * coverage of listed requirements, which needs the description and is checked by the caller.
- * @returns {{ rounds: object[], last: object | undefined, open: string[],
- *   coveredIds: Set<string>, problems: string[] }}
+ * Reads a review record in rounds, line by line, by the grammar of workflow-retro D6: an
+ * unindented line is read by its form wherever it stands in a round (`## Round <n>`,
+ * `Reviewed:`, `Verdict:`, `- F<n>: <outcome>`, `### F<n> <title>`, `Severity:`); every other
+ * line, and everything before the first round, is free text. `problems` lists, as messages
+ * of check 3, what breaks a rule of design D2, D3 or D6.
+ * @returns {{ rounds: object[], last: object | undefined, open: string[], problems: string[] }}
  */
 export function parseRecord(markdown) {
   const problems = [];
   const rounds = [];
-  const closing = new Map();
-  /**
-   * Where the line being read belongs: `preamble`, `round` (its `part` is `head` before the
-   * first `###`, else the subsection), `closing` or `unknown`.
-   */
-  let place = { kind: "preamble", titled: false };
-  /** The fence of the open fenced block and the line it opened on, while one is open. */
-  let openFence;
-
-  /** The previous line, when it was free text: a setext underline makes it a heading. */
-  let lastFree;
-
   const commented = commentLines(markdown ?? "");
+  /** The finding whose heading was the last heading read, until the next `##` or `###`. */
+  let finding;
 
   for (const [index, line] of (markdown ?? "").split(/\r?\n/).entries()) {
-    // Reported before anything else on the line, and the line is then read as before, so its
-    // other problems are reported too.
     if (commented.has(index + 1)) problems.push(messages.htmlComment(index + 1));
-    const trimmed = line.trim();
-    const round = place.kind === "round" ? place.round : undefined;
-    const previous = lastFree;
-    lastFree = undefined;
+    const number = roundHeading.exec(line)?.[1];
+    if (number !== undefined) {
+      const expected = rounds.length + 1;
+      if (Number(number) !== expected) problems.push(messages.roundOrder(Number(number), expected));
+      rounds.push({
+        number: Number(number),
+        reviewed: undefined,
+        verdict: undefined,
+        raised: [],
+        stated: [],
+        seen: new Set(),
+      });
+      finding = undefined;
+      continue;
+    }
+    const round = rounds.at(-1);
+    if (!round) continue;
 
-    // Fenced blocks: free text wherever free text may stand, and nothing else.
-    if (openFence) {
-      const close = /^\s*(`{3,}|~{3,})\s*$/.exec(line)?.[1];
-      if (close && close[0] === openFence.marker[0] && close.length >= openFence.marker.length)
-        openFence = undefined;
-      if (place.kind === "closing") place.content.push(line);
+    const heading = findingHeading.exec(line);
+    if (anyHeading.test(line)) {
+      finding = heading && {
+        id: `F${Number(heading[1])}`,
+        title: heading[2],
+        severities: [],
+      };
+      if (finding) round.raised.push(finding);
       continue;
     }
-    const marker = fenceLine.exec(line)?.[1];
-    if (marker) {
-      openFence = { marker, line: index + 1 };
-      if (place.kind === "preamble") problems.push(messages.textBeforeRounds(line));
-      else if (round && round.part === "head") {
-        if (!(indented.test(line) && round.outcome))
-          problems.push(messages.unknownLine(round.number, line));
-      } else if (place.kind === "closing") place.content.push(line);
+    const severity = severityLine.exec(line);
+    if (severity) {
+      finding?.severities.push(severity[1]);
       continue;
     }
-
-    const heading = headingLine.exec(line);
-    if (heading?.[1] === "##") {
-      const title = heading[2] ?? "";
-      const number = /^Round\s+(\d+)$/i.exec(title)?.[1];
-      if (number !== undefined) {
-        const expected = rounds.length + 1;
-        if (Number(number) !== expected)
-          problems.push(messages.roundOrder(Number(number), expected));
-        if (closing.size > 0) problems.push(messages.roundAfterClosing(Number(number)));
-        const next = {
-          number: Number(number),
-          reviewed: undefined,
-          verdict: undefined,
-          raised: [],
-          stated: [],
-          seen: new Set(),
-          part: "head",
-          outcome: undefined,
-          notes: false,
-        };
-        rounds.push(next);
-        place = { kind: "round", round: next };
-      } else if (closingSections.includes(title)) {
-        if (closing.has(title)) problems.push(messages.repeatedSection(title));
-        const content = [];
-        closing.set(title, content);
-        place = { kind: "closing", title, content };
-      } else {
-        problems.push(messages.unknownSection(title));
-        place = { kind: "unknown" };
-      }
-      continue;
-    }
-    if (place.kind === "unknown") continue;
-    if (trimmed === "") {
-      if (place.kind === "closing") place.content.push(line);
-      continue;
-    }
-
-    if (place.kind === "closing") {
-      const forbidden = forbiddenInText(trimmed, previous);
-      if (forbidden?.heading)
-        problems.push(messages.headingInClosing(place.title, forbidden.heading));
-      else if (forbidden) problems.push(messages.misplacedInClosing(place.title, trimmed));
-      else {
-        place.content.push(line);
-        lastFree = trimmed;
-      }
-      continue;
-    }
-
-    if (place.kind === "preamble") {
-      if (heading?.[1] === "#" && !place.titled) place.titled = true;
-      else problems.push(messages.textBeforeRounds(line));
-      continue;
-    }
-
-    // In a round: its subsections first.
-    if (heading?.[1] === "###") {
-      const title = heading[2] ?? "";
-      const finding = /^F(\d+)[:.]?\s+(\S.*)$/.exec(title);
-      if (finding) {
-        const id = `F${Number(finding[1])}`;
-        round.raised.push({ id, title: finding[2] });
-        round.part = `under finding ${id}`;
-      } else if (title === "Notes") {
-        if (round.notes) problems.push(messages.repeatedNotes(round.number));
-        round.notes = true;
-        round.part = "under `### Notes`";
-      } else {
-        problems.push(messages.notAFinding(round.number, title));
-        round.part = `under \`### ${quote(title)}\``;
-      }
-      continue;
-    }
-    if (isHeading(trimmed)) {
-      problems.push(messages.unknownHeading(round.number, trimmed));
-      continue;
-    }
-    if (round.part !== "head") {
-      const forbidden = forbiddenInText(trimmed, previous);
-      if (forbidden?.heading)
-        problems.push(messages.unknownHeading(round.number, forbidden.heading));
-      else if (forbidden) problems.push(messages.misplacedLine(round.number, round.part, trimmed));
-      else lastFree = trimmed;
-      continue;
-    }
-
-    // The head of a round: its own lines, and the lines indented under an outcome.
-    if (indented.test(line)) {
-      const forbidden = round.outcome && forbiddenInText(trimmed, previous);
-      if (!round.outcome) problems.push(messages.unknownLine(round.number, trimmed));
-      else if (forbidden?.heading)
-        problems.push(messages.unknownHeading(round.number, forbidden.heading));
-      else if (forbidden)
-        problems.push(
-          messages.misplacedLine(
-            round.number,
-            `indented under the outcome of ${round.outcome.id}`,
-            trimmed,
-          ),
-        );
-      else {
-        round.outcome.lines.push(trimmed);
-        lastFree = trimmed;
-      }
-      continue;
-    }
-    round.outcome = undefined;
     const field = fieldLine.exec(line);
     if (field) {
       const name = field[1].toLowerCase() === "reviewed" ? "Reviewed" : "Verdict";
@@ -348,32 +182,26 @@ export function parseRecord(markdown) {
     if (outcome) {
       const id = `F${Number(outcome[1])}`;
       const parsed = parseOutcome(outcome[2]);
-      // Lines indented under it belong to it, whatever it is.
-      round.outcome = { id, lines: [] };
       if (round.stated.some((entry) => entry.id === id)) {
         problems.push(messages.statedTwice(round.number, id));
       } else if (!parsed) {
         problems.push(messages.badOutcome(round.number, id, outcome[2]));
       } else {
-        round.outcome = { id, ...parsed, lines: [] };
-        round.stated.push(round.outcome);
+        round.stated.push({ id, ...parsed });
       }
-      continue;
     }
-    problems.push(messages.unknownLine(round.number, trimmed));
   }
 
-  if (openFence) problems.push(messages.unclosedFence(openFence.line));
   for (const round of rounds) {
     if (!round.reviewed) problems.push(messages.noHash(round.number));
     if (!round.verdict) problems.push(messages.noVerdict(round.number));
-    // The lines indented under an outcome extend its reason, or note how a fix was checked.
-    round.stated = round.stated.map(({ id, outcome, note, lines }) => ({
-      id,
-      outcome,
-      note: [note, ...lines].filter(Boolean).join("\n"),
-    }));
-    for (const key of ["seen", "part", "outcome", "notes"]) delete round[key];
+    for (const { id, severities } of round.raised) {
+      if (severities.length === 0) problems.push(messages.noSeverity(round.number, id));
+      else if (severities.length > 1) problems.push(messages.repeatedSeverity(round.number, id));
+      else if (!/^(critical|minor)$/i.test(severities[0]))
+        problems.push(messages.badSeverity(round.number, id, severities[0]));
+    }
+    delete round.seen;
   }
   if (rounds.length === 0) problems.push(messages.noRound());
 
@@ -388,20 +216,20 @@ export function parseRecord(markdown) {
     }
     const notFixed = [];
     for (const { id, outcome, note } of round.stated) {
-      const finding = findings.get(id);
-      if (!finding) {
+      const known = findings.get(id);
+      if (!known) {
         problems.push(messages.unknownFinding(round.number, id));
-      } else if (finding.raisedIn === round.number) {
+      } else if (known.raisedIn === round.number) {
         // An outcome answers the author, so it comes in a round after the one that raised it.
         problems.push(messages.outcomeInOwnRound(round.number, id));
       } else if (outcome === "fixed") {
-        finding.open = false;
+        known.open = false;
       } else if (outcome === "declined") {
-        if (note) finding.open = false;
+        if (note) known.open = false;
         else problems.push(messages.declinedWithoutReason(round.number, id));
       } else {
         notFixed.push(id);
-        finding.open = true;
+        known.open = true;
         if (!note) problems.push(messages.notFixedWithoutWhat(round.number, id));
       }
     }
@@ -412,7 +240,7 @@ export function parseRecord(markdown) {
     }
     // The verdict follows from the round (D2): approved when it raises nothing and marks
     // nothing not fixed.
-    const raised = round.raised.map((finding) => finding.id);
+    const raised = round.raised.map((entry) => entry.id);
     if (round.verdict === "approved") {
       if (raised.length > 0) problems.push(messages.approvedButRaises(round.number, raised));
       if (notFixed.length > 0) problems.push(messages.approvedButNotFixed(round.number, notFixed));
@@ -431,20 +259,7 @@ export function parseRecord(markdown) {
         : messages.lastNotApproved(last.number),
     );
   }
-
-  // Written once, by the approving round: required only when the last round approves.
-  const coverage = closing.get("Requirement coverage");
-  if (last?.verdict === "approved") {
-    if (coverage === undefined) problems.push(messages.noCoverage());
-    if (!closing.get("Outside the listed requirements")?.join("\n").trim())
-      problems.push(messages.noOutside());
-  }
-  const coveredIds = new Set(
-    (coverage ?? [])
-      .filter((line) => line.startsWith("|"))
-      .flatMap((line) => line.split("|")[1]?.match(requirementId) ?? []),
-  );
-  return { rounds, last, open, coveredIds, problems };
+  return { rounds, last, open, problems };
 }
 
 /**

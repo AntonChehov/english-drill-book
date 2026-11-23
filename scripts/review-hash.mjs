@@ -4,8 +4,10 @@
 // main and the head commit, each as its path, its mode and its git blob ID at the head (or
 // `deleted`), sorted by path. `review.md` and `tasks.md` of the change's own directory are
 // left out: the record cannot hold its own hash, and ticking a task is not a change to
-// review. The reviewer runs this module as `pnpm review:hash`; scripts/pr-evidence.mjs
-// imports it in CI, where the checkout has just fetched main.
+// review. When the head commit is the archive commit of the change (workflow-retro D2), the
+// change is hashed at that commit's parent, where it is still in flight, so the hash is the
+// one the reviewer recorded. The reviewer runs this module as `pnpm review:hash`;
+// scripts/pr-evidence.mjs imports it in CI, where the checkout has just fetched main.
 // Usage: node scripts/review-hash.mjs [<change>] [--head <commit>] [--base <ref>] [--files]
 //          [--offline]
 //   <change>   the change under openspec/changes/; when omitted, the one in-flight change
@@ -17,7 +19,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { parseArgs } from "node:util";
-import { isMain } from "./common.mjs";
+import { isMain, parseNameStatus } from "./common.mjs";
 
 /** How many hexadecimal characters of the hash a review record shows. */
 export const shownLength = 12;
@@ -95,20 +97,49 @@ export function changesAt(root, head = "HEAD") {
     .filter((name) => name && name !== "archive");
 }
 
+const archivedPath = /^openspec\/changes\/archive\/(\d{4}-\d{2}-\d{2}-[^/]+)\//;
+
 /**
- * The hash of the content a review of `change` reads at `head`.
+ * Whether `head` is the archive commit of a change: one parent, and its diff to that parent
+ * adds files under `openspec/changes/archive/<date>-<name>/`.
+ * @returns {{ change: string, directory: string, parent: string,
+ *   files: { status: string, path: string }[] } | undefined}
+ */
+export function archiveOf(root, head = "HEAD") {
+  const [, ...parents] = git(root, "rev-list", "--parents", "-n", "1", head).trim().split(" ");
+  const [parent] = parents;
+  if (parents.length !== 1 || !parent) return undefined;
+  const files = parseNameStatus(
+    git(root, "diff", "--name-status", "--no-renames", "-z", parent, head),
+  );
+  const directories = new Set(
+    files
+      .filter((file) => file.status === "A")
+      .map((file) => archivedPath.exec(file.path)?.[1])
+      .filter(Boolean),
+  );
+  if (directories.size !== 1) return undefined;
+  const [directory] = directories;
+  return { change: directory.slice("0000-00-00-".length), directory, parent, files };
+}
+
+/**
+ * The hash of the content a review of `change` reads at `head`; at the parent of `head`
+ * when `head` archives the change.
  * @returns {{ hash: string, short: string, files: { path: string, blob: string }[] }}
  */
 export function reviewHash(root, { change, head = "HEAD", base = defaultBase(root) }) {
   // A name that is not a change would hash its own review.md and tasks.md and never match.
-  const changes = changesAt(root, head);
+  const archive = archiveOf(root, head);
+  const at = archive?.change === change ? archive.parent : head;
+  const changes = changesAt(root, at);
   if (!changes.includes(change))
     throw new Error(
       `There is no change \`${change}\` in openspec/changes/ at ${head}. The changes there: ${changes.join(", ") || "none"}.`,
     );
   const excluded = excludedFiles(change);
-  const paths = changedPaths(root, { head, base }).filter((path) => !excluded.includes(path));
-  const files = blobsAt(root, head, paths);
+  const paths = changedPaths(root, { head: at, base }).filter((path) => !excluded.includes(path));
+  const files = blobsAt(root, at, paths);
   const hash = hashEntries(files);
   return { hash, short: hash.slice(0, shownLength), files };
 }
@@ -154,7 +185,10 @@ function main() {
     }
   }
   const base = values.base ?? defaultBase(root);
-  const change = positionals[0] ?? changeOfPaths(changedPaths(root, { head: values.head, base }));
+  const change =
+    positionals[0] ??
+    archiveOf(root, values.head)?.change ??
+    changeOfPaths(changedPaths(root, { head: values.head, base }));
   if (!change)
     throw new Error(
       "This branch touches no change directory, or more than one. Name the change: pnpm review:hash <change>",
