@@ -9,6 +9,7 @@ import {
   topicProgress,
   type Topic,
 } from "../../domain/programs";
+import type { TopicProgress } from "../../domain/programs/progress";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
 import { doneExercises, doneKey, readDone } from "./progress";
 import { demoState, type DemoBookSummary } from "./state";
@@ -64,9 +65,9 @@ export function useProgram(books: () => readonly DemoBookSummary[]) {
   const unitOf = (pack: string, exercise: string) =>
     bookOf(pack).units.find((unit) => unit.exercises.includes(exercise))!;
 
-  const progress = computed(
+  const progress = computed<ReadonlyMap<Topic, TopicProgress>>(
     () =>
-      new Map(
+      new Map<Topic, TopicProgress>(
         program.topics.map((topic) => [
           topic,
           topicProgress(topic, leadUnit(topic).exercises, isDone, program.rules.supplementMin),

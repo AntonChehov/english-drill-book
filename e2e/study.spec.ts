@@ -383,11 +383,13 @@ test.describe("PLAY-021 Do the exercise in one action", () => {
     await openUnit(page, "1");
     const exercise = exerciseOf(page, "1.1");
     const action = exercise.getByRole("button", { name: "Выполнить упражнение" });
-    await action.click();
+    await action.focus();
+    await page.keyboard.press("Enter");
     await expect(exercise).toContainText("✓ Сделано");
     await expect(page.getByText("сделано 1 из 3")).toBeVisible();
     await expect(exercise).not.toContainText(/Верно|Неверно|Почти/);
     await expect(action).toHaveCount(0);
+    await expect(exercise.getByRole("button", { name: "Упражнение 1.1" })).toBeFocused();
     expect(await logOf(page)).toMatchObject([
       { action: "mark-done", exercise: "1.1", answers: {}, results: {} },
     ]);

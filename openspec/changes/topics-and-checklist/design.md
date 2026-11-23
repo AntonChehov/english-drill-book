@@ -32,12 +32,16 @@ No other domain code: the day of the checklist is a key, not computed in the dom
 
 ### D2. The program's state, shared by Today and Topics
 
-`src/ui/demo/program.ts` takes from `ProgramToday.vue` what both screens need, and nothing more:
+`src/ui/demo/program.ts` takes from `ProgramToday.vue` and `StartView.vue` what both screens need, and nothing more:
 
-- `useDemoProgram(books)`: reads the done states (`readDone`, moved here from `StartView.vue`) and the setting `focusTopic` on mount, when the books change and on `onStoredDataChange`; returns `progress` (topic → `topicProgress`), `today` (index from `todayTopic` with the focus) and the helpers `leadUnit`, `unitOf` already in `ProgramToday.vue`.
-- `chooseFocus(topic)`: `putSetting("focusTopic", topic.id)`; resolves when written, rejects with the store's error.
+- `demoBooks`: the stored demo books while the demo is added, else `undefined`.
+- `useStoredProgress()`: reads the done states (`readDone`, moved here from `StartView.vue`) and the setting `focusTopic` while the demo is added, on mount, when the books change and on `onStoredDataChange`.
+- `useProgram(books)`: `progress` (topic → `topicProgress`), `passed`, `today` (index from `todayTopic` with the focus), and the helpers `bookOf`, `leadUnit`, `unitOf` already in `ProgramToday.vue`, with `program`.
+- `isDone(pack, exercise)` from the done states read; `chooseFocus(topic)`: `putSetting("focusTopic", topic.id)`; resolves when written, rejects with the store's error.
 
-`StartView.vue` and `TopicsView.vue` call `useDemoProgram` while the demo is added. Both read and listen as `StartView.vue` does now, so a focus or a done exercise from another tab shows after the window regains focus (DATA-012).
+`StartView.vue` and `TopicsView.vue` call `useStoredProgress`; `ProgramToday.vue` and `TopicsView.vue` call `useProgram`. A focus or a done exercise from another tab shows after the window regains focus (DATA-012).
+
+`src/ui/demo/check.ts` holds `checkDemo(readAgain?)`, moved out of `DemoBooks.vue`, which calls it with its own re-reading of stale packs. Topics calls it without, on mount and on `onStoredDataChange`, so that, opened first (after a reload or from a bookmark), it finds out itself whether the demo is stored; stale packs leave the phase `loading` for the start screen to read again.
 
 ### D3. Topics (PROG-008)
 
@@ -45,16 +49,16 @@ Route `/topics`, name `topics`, title «Темы», a lazy chunk like Study. The
 
 `TopicsView.vue`:
 
-- Heading 1 «Темы». Without the demo added: one sentence that topics appear once the demo is added, with a link to Today, where it is offered.
+- Heading 1 «Темы». While the demo check is under way (`loading`, `reading`) nothing more. Without the demo added (`idle`, `failed`): one sentence that topics appear once the demo is added, with a link to Today, where it is offered.
 - With the demo: one `<section>` per level of the scale, in order, heading 2 the level name («A1»), then a list of its topics in program order. A row of a topic not passed is a `<button>` holding: «раздел N» (the lead unit), the title, the state as a word («не начата», «в процессе», «✓ пройдена»), and the counts «курс X из Y · практика X из N» (drills capped at the needed number, as on Today). Today's topic carries the text «тема дня».
 - Choosing a row calls `chooseFocus`; when it resolves, the router goes to `/`. When it fails, a message under the row (`role="alert"`) says the choice could not be kept and the row can be chosen again (DATA-004); nothing moves.
 - A passed topic is a plain list item, not a button: it shows «✓ пройдена» and its counts and cannot be chosen (owner's decision on PROG-008). A focus passed after it was chosen is not today's topic (PROG-005): Today shows the first topic not passed.
 
 ### D4. The daily checklist (PROG-009, PROG-006)
 
-- **Storage.** Schema version 2 adds the store `days`, key `day`, records `{ day: "2026-11-23", blocks: ["listen"] }`, the shape of `days` of the export format. The migration only creates the store; version 1 data is untouched. The store gains `getDayTicks(day): Promise<string[]>` (empty for a day not stored) and `putDayTicks(day, blocks)` (replaces the day's record; writes are announced to other tabs as every write is). Earlier days stay stored, for the export of DATA-007.
+- **Storage.** Schema version 2 adds the store `days`, key `day`, records `{ day: "2026-11-23", blocks: ["listen"] }`: one record holds one property of `days` of the export format, its key (`day`) and its value (`blocks`). The migration only creates the store; version 1 data is untouched. The store gains `getDayTicks(day): Promise<string[]>` (empty for a day not stored) and `putDayTicks(day, blocks)` (replaces the day's record; writes are announced to other tabs as every write is). Earlier days stay stored, for the export of DATA-007.
 - **The day.** `src/ui/demo/day.ts`: `localDay(now: Date)` → `YYYY-MM-DD` from the device's local year, month and day. It is in `ui`, since the domain has no clock (C-08). The day is taken again whenever the checklist reads (mount, `onStoredDataChange`), so a tab left open overnight shows an empty list once it is looked at again.
-- **Today.** `DailyChecklist.vue`, a `<section>` «Другие дела дня» below the today card, shown while the program is active, also when the program is complete. One checkbox per block, its label the block's title. Ticking writes the whole set for the day; the box shows the new state only once the write has succeeded; a failure says so beside the list and the tick can be repeated (DATA-004). Single column: the second column of the reference waits for a wider Today.
+- **Today.** `DailyChecklist.vue`, a `<section>` «Другие дела дня» below the today card, shown while the program is active, also when the program is complete. One checkbox per block, its label the block's title. Ticks are written one after another, each built from the set the previous one wrote, so a quick second tick loses none; each writes the whole set for the day; the box shows the new state only once the write has succeeded; a failure says so beside the list and the tick can be repeated (DATA-004). Single column: the second column of the reference waits for a wider Today.
 
 ### D5. Hover on Today (PROG-018)
 
@@ -65,6 +69,7 @@ Each step of the today card becomes a `<div class="step">` holding its heading a
 - `ExerciseBlock.vue`: one secondary button «Выполнить упражнение» in the actions of every exercise whose view is not done, items and open alike; for an open exercise it replaces «Отметить как сделанное» (one action, one label). Shown to every learner, no setting.
 - `unit.ts`: `markDone(entry)` as now, for every exercise: flushes the draft, then `keep(entry, "mark-done", …)`. `markDoneAttempt(context, answers)` now takes the typed answers of the exercise (all items, or `text`) instead of one text, so the log keeps what was typed when it was pressed. Results are empty: no item gets a verdict, and the items keep the verdicts they had.
 - The derivation is unchanged (`deriveExercise` already makes any exercise done on a `mark-done`, `doneAt` the first one), so `DERIVATION` stays 1 and no cached state is rebuilt. Done stays done (PLAY-010); there is no undo, as for an open exercise now (owner's decision).
+- After a successful mark, which removes the focused button, the focus goes to the exercise's number (its heading button), so a keyboard or screen-reader user stays in the exercise.
 - The announcement and the failure message are those of the open exercise (`markedDoneMessage`, «Отметку «сделано»» in `KeptAction`).
 
 ### D7. The store-seeding helper and the newer version

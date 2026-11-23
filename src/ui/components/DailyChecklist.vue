@@ -23,11 +23,18 @@ async function read() {
   }
 }
 
-async function toggle(block: string, box: HTMLInputElement) {
+/** The writes of ticks, one after another: each is built from the set the one before wrote. */
+let writing = Promise.resolve();
+
+function toggle(block: string, box: HTMLInputElement) {
+  box.checked = ticks.value.includes(block);
+  writing = writing.then(() => write(block));
+}
+
+async function write(block: string) {
   const today = localDay(new Date());
   const current = today === day.value ? ticks.value : [];
   const next = current.includes(block) ? current.filter((id) => id !== block) : [...current, block];
-  box.checked = current.includes(block);
   try {
     await (await getStore()).putDayTicks(today, next);
     day.value = today;

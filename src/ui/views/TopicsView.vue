@@ -7,7 +7,8 @@ import { RouterLink, useRouter } from "vue-router";
 import type { Topic } from "../../domain/programs";
 import { checkDemo } from "../demo/check";
 import { chooseFocus, demoBooks, useProgram, useStoredProgress } from "../demo/program";
-import { onStoredDataChange } from "../storage";
+import { demoState } from "../demo/state";
+import { noteStorageFailure, onStoredDataChange } from "../storage";
 
 const router = useRouter();
 
@@ -44,7 +45,8 @@ async function choose(topic: Topic) {
     await chooseFocus(topic);
     failed.value = undefined;
     await router.push("/");
-  } catch {
+  } catch (error) {
+    noteStorageFailure(error);
     failed.value = topic.id;
   }
 }
@@ -60,11 +62,11 @@ onUnmounted(() => stop?.());
 
 <template>
   <h1>Темы</h1>
-  <p v-if="demoBooks === undefined" class="lead">
+  <p v-if="demoState.phase === 'idle' || demoState.phase === 'failed'" class="lead">
     Темы появятся, когда вы добавите демо-книги на экране
     <RouterLink to="/">«Сегодня»</RouterLink>.
   </p>
-  <template v-else>
+  <template v-else-if="demoBooks !== undefined">
     <p class="lead">Выберите тему, чтобы заниматься ею на экране «Сегодня».</p>
     <section
       v-for="group in levels"

@@ -192,6 +192,24 @@ test.describe("PROG-009 The daily checklist", () => {
     await expect(read).not.toBeChecked();
   });
 
+  test("@req PROG-009 two ticks in quick succession are both kept", async ({ page }) => {
+    await page.goto(addressOf("/"));
+    const boxes = checklist(page).getByRole("checkbox");
+    await expect(boxes).toHaveCount(3);
+    // Both changes in one task, so that the second is made before the first is written.
+    await boxes.first().evaluate((first) => {
+      const all = first.closest("ul")!.querySelectorAll("input");
+      all[0]!.click();
+      all[2]!.click();
+    });
+    await expect(boxes.nth(0)).toBeChecked();
+    await expect(boxes.nth(2)).toBeChecked();
+    await page.reload();
+    await expect(boxes.nth(0)).toBeChecked();
+    await expect(boxes.nth(1)).not.toBeChecked();
+    await expect(boxes.nth(2)).toBeChecked();
+  });
+
   test("@req PROG-009 a tick the browser refuses is not shown, said beside the list, and can be repeated", async ({
     page,
   }) => {

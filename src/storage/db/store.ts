@@ -31,7 +31,10 @@ export interface Settings {
   readonly focusTopic: string;
 }
 
-/** The ticks of a day, as one entry of `days` of contracts/export.schema.json. */
+/**
+ * The ticks of a day: one property of `days` of contracts/export.schema.json, its key (`day`) and
+ * its value (`blocks`).
+ */
 interface DayRecord {
   readonly day: string;
   readonly blocks: string[];

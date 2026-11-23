@@ -5,6 +5,7 @@ import type { Topic } from "./types";
 
 type TopicState = "new" | "started" | "passed";
 
+/** What a topic's progress says; Today and Topics show it (PROG-001, PROG-008). */
 export interface TopicProgress {
   /** The exercises of the lead unit. */
   readonly lead: Progress;

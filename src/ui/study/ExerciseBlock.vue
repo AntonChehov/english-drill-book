@@ -3,7 +3,7 @@
 // task, its state and score, its rows and **Проверить**; or, for an open exercise and for now a
 // connected text, one field and the sample on request (PLAY-013). Every exercise not done offers
 // «Выполнить упражнение», which marks it done (PLAY-021).
-import { computed } from "vue";
+import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { TEXT, type ExerciseView, type RowView } from "../../domain/study";
 import ItemRow from "./ItemRow.vue";
 import { statusLabel } from "./messages";
@@ -30,6 +30,26 @@ const full = computed(
   () => props.view.kind === "items" && props.view.score?.ok === props.view.score?.total,
 );
 const answerOf = (item: string) => props.entry.answers[item] ?? "";
+
+// «Выполнить упражнение» goes away once the exercise is done: the focus it had, left on the page's
+// body, goes to the exercise's number, so that the learner stays in the exercise (PLAY-021).
+const number = useTemplateRef<HTMLButtonElement>("number");
+let marking = false;
+function markDone() {
+  marking = true;
+  emit("markDone");
+}
+watch(
+  () => props.view.status === "done",
+  async (done) => {
+    if (!done || !marking) return;
+    marking = false;
+    await nextTick();
+    if (document.activeElement === null || document.activeElement === document.body) {
+      number.value?.focus();
+    }
+  },
+);
 </script>
 
 <template>
@@ -38,6 +58,7 @@ const answerOf = (item: string) => props.entry.answers[item] ?? "";
       <h3 :id="`${base}-heading`" class="heading">
         <button
           type="button"
+          ref="number"
           class="number"
           title="Показать страницу упражнения"
           aria-describedby="show-page-hint"
@@ -89,7 +110,7 @@ const answerOf = (item: string) => props.entry.answers[item] ?? "";
           type="button"
           class="secondary"
           :aria-disabled="entry.busy || undefined"
-          @click="emit('markDone')"
+          @click="markDone"
         >
           Выполнить упражнение
         </button>
@@ -123,7 +144,7 @@ const answerOf = (item: string) => props.entry.answers[item] ?? "";
           type="button"
           class="action"
           :aria-disabled="entry.busy || undefined"
-          @click="emit('markDone')"
+          @click="markDone"
         >
           Выполнить упражнение
         </button>

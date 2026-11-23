@@ -141,6 +141,5 @@ describe("todayTopic", () => {
 
   it("@req PROG-005 a focus the program does not have is ignored", () => {
     expect(todayTopic(demoProgram.topics, (topic) => topic === t1, "t9")).toBe(1);
-    expect(t4.id).toBe("t4");
   });
 });
