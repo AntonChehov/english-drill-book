@@ -42,6 +42,27 @@ Task 4.2 is an owner task and is ticked in 4cbfdca by the bot. I cannot tell fro
 
 Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm trace` (59 requirements), `pnpm spec` (10 passed), `vitest` on `src/domain/programs` (41 passed). A production build into a scratch directory (not `dist/`) under `vite preview`: `study-steps`, `study-a11y` and `study` on Chromium (33 passed); `study-steps`, `study-a11y`, `today` and `topics` on Firefox (all passed).
 
+## Round 2
+
+Reviewed: e5f113e09ebb
+Verdict: approved
+- F1: fixed
+  `PagesPanel.vue` takes `headingId = useId()` and labels its section by its own heading, so two panels no longer share an id. Nothing else in `src`, `e2e` or the specs names `pages-heading`; the one selector that did (`e2e/pages.spec.ts`, the DOC-001 timing) now reads `section.pages canvas`. Design D5 and the proposal's Impact say that `PagesPanel` changes in its heading id.
+- F2: fixed
+  `TopicStep` is re-exported as a type from `src/domain/programs/index.ts` and `TopicOfUnit.step` is `TopicStep["step"]`, so the export has its caller and the union is written once.
+- F3: fixed
+  Task 5.1 is unticked until the pull request shows the pipeline within C-19.
+
+### Notes
+
+Since round 1 only 1bfa332 changed: 7 files. The rest of the whole diff stands as reviewed in round 1. No new export without a caller, no dead code, no regression found.
+
+The proposal's Impact lists `e2e/study.ts` among the changed files but not `e2e/pages.spec.ts`, whose selector changed with F1; trivial, not a finding.
+
+Task 4.2 was confirmed by the owner, as the coordinator states; it is no longer open.
+
+Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm trace` (59 requirements), `pnpm spec` (10 passed). A production build into a scratch directory (not `dist/`) under `vite preview`: `study-steps`, `study-a11y`, `pages` and `study` on Chromium and Firefox, 55 passed, including the DOC-001 timing test and axe on both new states in both themes.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Covered by |
