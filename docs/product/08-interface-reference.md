@@ -50,6 +50,8 @@ The top bar of this screen carries the navigation of the book: the book, **‹**
 
 Where the predecessor differs from the requirements and the requirements win: it shows the key of a wrong item at once and has "Показать ключ" for the whole exercise (PLAY-004 and PLAY-007 allow the key of one item, on request); it has "Сбросить" that forgets the results (PLAY-010 and the attempt log keep them).
 
+In the public app a unit that belongs to a topic of the active program shows, under its title, the topic and its two steps, «1. Курс: правило и упражнения» and «2. Сборник упражнений: практика»: the current one marked «сейчас», the other a link (PLAY-017). When every exercise of the course unit is done, a card below the exercises offers «Перейти к практике». In step 2 the pages panel has a switch, «Сборник упражнений» and «Курс: раздел N», that shows the course unit's pages in place of the drill book's (PLAY-018).
+
 On a narrow screen the pages and the panel are stacked, and both are reachable.
 
 ## Ошибки (Mistakes)
