@@ -19,7 +19,7 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 
 - [x] 4.1 Write PROG-014's new wording into `docs/product/05-program-and-levels.md` and the steps and the switch into the Study section of `docs/product/08-interface-reference.md` (design D6, D8)
 - [x] 4.2 **(owner)** Decide PROG-014: keep the book cards (recommended, this change) or remove them in a change of their own
-- [ ] 4.3 **(owner)** Read the Russian texts of the steps, the offer and the switch on the running build and correct them
+- [x] 4.3 **(owner)** Read the Russian texts of the steps, the offer and the switch on the running build and correct them
 
 ## 5. Review and evidence
 
