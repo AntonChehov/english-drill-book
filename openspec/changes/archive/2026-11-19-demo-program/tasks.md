@@ -22,4 +22,4 @@ Tasks marked **(owner)** need the owner and cannot be done by an agent.
 - [x] 4.3 Open the pull request as the bot with the sections of C-18 item 1
 - [x] 4.4 A reviewing agent with a fresh context writes round 1 in `review.md`, each finding with `Severity: critical` or `Severity: minor`; fix or decline each finding; the same agent, resumed, writes each later round. In rounds 1 and 2 every finding is fixed or declined with a reason; from round 3 on an open minor finding is declined as technical debt recorded in `docs/roadmap.md` under "Later, unscheduled", new minor observations go under `### Notes`, and critical findings are fixed in any round (`docs/process.md` step 4). Verify the `evidence` check is green
 - [x] 4.5 A validating agent runs the holdout scenarios of milestone 1 that touch Today and the demo against a production build; attach its report to the pull request
-- [ ] 4.6 **(owner)** Try the demo, read the pull request and the report; approve and merge
+- [x] 4.6 **(owner)** Try the demo, read the pull request and the report; approve and merge
