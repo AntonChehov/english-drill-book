@@ -58,6 +58,22 @@ describe("two tabs", () => {
     second.close();
   });
 
+  it("@req PROG-009 @req DATA-012 a tick in one tab is announced to the other", async () => {
+    const factory = freshFactory();
+    const first = await openStore({ factory, channel: "test-two-tabs-days" });
+    const second = await openStore({ factory, channel: "test-two-tabs-days" });
+    const heard = new Promise<void>((resolve) => {
+      second.onOtherTabWrite(resolve);
+    });
+
+    await first.putDayTicks("2026-11-23", ["listen"]);
+    await heard;
+
+    expect(await second.getDayTicks("2026-11-23")).toEqual(["listen"]);
+    first.close();
+    second.close();
+  });
+
   it("@req DATA-012 without a channel, nothing is announced", async () => {
     const store = await openStore({ factory: freshFactory() });
     const stop = store.onOtherTabWrite(() => undefined);

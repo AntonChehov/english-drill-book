@@ -2,6 +2,8 @@
 // `demo-program`). Only the fields the app uses are typed; CI checks the whole file (PROG-010).
 
 export interface Topic {
+  /** Unique in the program; the focus names a topic by it (PROG-008). */
+  readonly id: string;
   readonly title: string;
   readonly level: string;
   /** The unit of a lead book that teaches the topic. */
@@ -20,4 +22,6 @@ export interface Program {
     readonly supplementMin: number;
   };
   readonly topics: readonly Topic[];
+  /** The checklist of the day: activities outside the app (PROG-009). */
+  readonly dailyBlocks: readonly { readonly id: string; readonly title: string }[];
 }

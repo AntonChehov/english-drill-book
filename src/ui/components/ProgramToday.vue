@@ -1,19 +1,13 @@
 <script setup lang="ts">
-// Today with the demo program (PROG-005, PROG-006, PROG-013; design D5, D6 of `demo-program`): the
-// goal with the current level and the share of each level, and today's topic with its course unit
-// and drill exercises as links into Study. The done states are read by the start screen (D4).
+// Today with the demo program (PROG-005, PROG-006, PROG-013, PROG-018; design D5, D6 of
+// `demo-program`, D3, D5 of `topics-and-checklist`): the goal with the current level and the share
+// of each level, and today's topic with its course unit and drill exercises as links into Study.
+// The done states and the focus are read by the start screen.
 import { computed, useTemplateRef } from "vue";
 import { RouterLink } from "vue-router";
 import { countOf } from "../../domain/plural";
-import {
-  currentLevel,
-  demoProgram as program,
-  levelShares,
-  todayTopic,
-  topicProgress,
-  type Topic,
-} from "../../domain/programs";
-import { doneExercises, doneKey } from "../demo/progress";
+import { currentLevel, levelShares } from "../../domain/programs";
+import { isDone, useProgram } from "../demo/program";
 import type { DemoBookSummary } from "../demo/state";
 
 const props = defineProps<{ books: readonly DemoBookSummary[] }>();
@@ -22,29 +16,16 @@ const heading = useTemplateRef<HTMLElement>("heading");
 /** Moves the focus to «Сегодня», just before the main action, once the demo is added. */
 defineExpose({ focus: () => heading.value?.focus() });
 
-const isDone = (pack: string, exercise: string) =>
-  doneExercises.get(doneKey(pack, exercise)) === true;
-
-// The program's packs, units and exercises exist in the stored demo books: CI checks the program
-// against the books' profiles (PROG-010), and the program is shown only while both are stored.
-const bookOf = (pack: string) => props.books.find((book) => book.id === pack)!;
-const leadUnit = (topic: Topic) =>
-  bookOf(topic.lead.pack).units.find((unit) => unit.id === topic.lead.unit)!;
-const unitOf = (pack: string, exercise: string) =>
-  bookOf(pack).units.find((unit) => unit.exercises.includes(exercise))!;
-
-const { levelThreshold, plusThreshold, supplementMin } = program.rules;
-
-const progress = computed(
-  () =>
-    new Map(
-      program.topics.map((topic) => [
-        topic,
-        topicProgress(topic, leadUnit(topic).exercises, isDone, supplementMin),
-      ]),
-    ),
-);
-const passed = (topic: Topic) => progress.value.get(topic)!.passed;
+const {
+  program,
+  bookOf,
+  leadUnit,
+  unitOf,
+  progress,
+  passed,
+  today: todayIndex,
+} = useProgram(() => props.books);
+const { levelThreshold, plusThreshold } = program.rules;
 
 const shares = computed(() => levelShares(program.scale, program.topics, passed));
 const level = computed(() => {
@@ -55,7 +36,7 @@ const level = computed(() => {
 });
 
 const today = computed(() => {
-  const topic = program.topics[todayTopic(program.topics, passed)];
+  const topic = program.topics[todayIndex.value];
   if (topic === undefined) return undefined;
   const unit = leadUnit(topic);
   const current = progress.value.get(topic)!;
@@ -107,7 +88,10 @@ const percent = (share: number) => `${Math.round(share * 100)}%`;
   </section>
 
   <section class="today card" aria-labelledby="today-heading">
-    <h2 id="today-heading" ref="heading" tabindex="-1">Сегодня</h2>
+    <div class="today-head">
+      <h2 id="today-heading" ref="heading" tabindex="-1">Сегодня</h2>
+      <RouterLink class="other" to="/topics">другая тема</RouterLink>
+    </div>
     <p v-if="today === undefined">Программа пройдена: все темы зачтены.</p>
     <template v-else>
       <p class="where">
@@ -119,44 +103,48 @@ const percent = (share: number) => `${Math.round(share * 100)}%`;
       <p class="state">{{ stateWords[today.progress.state] }}</p>
       <RouterLink class="action open" :to="today.next">Открыть раздел</RouterLink>
 
-      <h4>
-        1. Курс: правило и упражнения · сделано {{ today.progress.lead.done }} из
-        {{ today.progress.lead.total }}
-      </h4>
-      <ul class="chips">
-        <li v-for="exercise in today.unit.exercises" :key="exercise">
-          <RouterLink
-            class="chip"
-            :class="{ done: isDone(today.topic.lead.pack, exercise) }"
-            :to="`/study/${today.topic.lead.pack}/${today.unit.id}?ex=${exercise}`"
-            :aria-label="`Упражнение ${exercise}, ${isDone(today.topic.lead.pack, exercise) ? 'сделано' : 'не сделано'}`"
-          >
-            <span v-if="isDone(today.topic.lead.pack, exercise)" aria-hidden="true">✓ </span
-            >{{ exercise }}
-          </RouterLink>
-        </li>
-      </ul>
+      <div class="step">
+        <h4>
+          1. Курс: правило и упражнения · сделано {{ today.progress.lead.done }} из
+          {{ today.progress.lead.total }}
+        </h4>
+        <ul class="chips">
+          <li v-for="exercise in today.unit.exercises" :key="exercise">
+            <RouterLink
+              class="chip"
+              :class="{ done: isDone(today.topic.lead.pack, exercise) }"
+              :to="`/study/${today.topic.lead.pack}/${today.unit.id}?ex=${exercise}`"
+              :aria-label="`Упражнение ${exercise}, ${isDone(today.topic.lead.pack, exercise) ? 'сделано' : 'не сделано'}`"
+            >
+              <span v-if="isDone(today.topic.lead.pack, exercise)" aria-hidden="true">✓ </span
+              >{{ exercise }}
+            </RouterLink>
+          </li>
+        </ul>
+      </div>
 
-      <h4>
-        2. Сборник упражнений: практика · сделано {{ today.drillsDone }} из
-        {{ today.progress.drills.needed }} нужных
-      </h4>
-      <ul class="chips">
-        <li v-for="drill in today.drills" :key="`${drill.pack}/${drill.exercise}`">
-          <RouterLink
-            class="chip"
-            :class="{ done: drill.done }"
-            :to="`/study/${drill.pack}/${drill.unit}?ex=${drill.exercise}`"
-            :aria-label="`Упр. ${drill.exercise}, ${drill.done ? 'сделано' : 'не сделано'}`"
-          >
-            <span v-if="drill.done" aria-hidden="true">✓ </span>Упр. {{ drill.exercise }}
-          </RouterLink>
-        </li>
-      </ul>
-      <p v-if="today.progress.drills.total > today.progress.drills.needed" class="note">
-        Для зачёта темы достаточно {{ today.progress.drills.needed }} из
-        {{ today.progress.drills.total }}.
-      </p>
+      <div class="step">
+        <h4>
+          2. Сборник упражнений: практика · сделано {{ today.drillsDone }} из
+          {{ today.progress.drills.needed }} нужных
+        </h4>
+        <ul class="chips">
+          <li v-for="drill in today.drills" :key="`${drill.pack}/${drill.exercise}`">
+            <RouterLink
+              class="chip"
+              :class="{ done: drill.done }"
+              :to="`/study/${drill.pack}/${drill.unit}?ex=${drill.exercise}`"
+              :aria-label="`Упр. ${drill.exercise}, ${drill.done ? 'сделано' : 'не сделано'}`"
+            >
+              <span v-if="drill.done" aria-hidden="true">✓ </span>Упр. {{ drill.exercise }}
+            </RouterLink>
+          </li>
+        </ul>
+        <p v-if="today.progress.drills.total > today.progress.drills.needed" class="note">
+          Для зачёта темы достаточно {{ today.progress.drills.needed }} из
+          {{ today.progress.drills.total }}.
+        </p>
+      </div>
     </template>
   </section>
 </template>
@@ -209,8 +197,10 @@ p {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
+  border-radius: 0.375rem;
   gap: 0.25rem 0.75rem;
-  padding: 0.25rem 0;
+  margin: 0 -0.375rem;
+  padding: 0.25rem 0.375rem;
 }
 
 .rung-level {
@@ -290,6 +280,37 @@ p {
   background: var(--color-ok-soft);
   border-color: var(--color-ok);
   color: var(--color-ok);
+}
+
+.today-head {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.today-head h2 {
+  margin: 0;
+}
+
+.step {
+  border-radius: 0.5rem;
+  margin: 0.5rem -0.5rem 0;
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.step h4 {
+  margin-top: 0.5rem;
+}
+
+/* PROG-018: the item under the pointer is highlighted; no tooltip. */
+@media (hover: hover) {
+  .step:hover,
+  .rung:hover {
+    background: var(--color-surface-muted);
+  }
 }
 
 .chips + .note {

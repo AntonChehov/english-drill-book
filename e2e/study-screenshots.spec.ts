@@ -21,6 +21,8 @@ for (const state of studyStates) {
         await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
         await state.reach(page, allowConsoleError);
         await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+        // The pointer is left where the last click was; off the page, it highlights nothing.
+        await page.mouse.move(0, 0);
 
         await page.screenshot({
           path: join(directory, `${state.name}-${theme}-${width}.png`),

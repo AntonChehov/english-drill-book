@@ -197,7 +197,7 @@ test.describe("DATA-005 Versioned schema", () => {
       await expect(page.getByRole("button")).toHaveText(["Обновить страницу"]);
       await expect(page.getByRole("link")).toHaveCount(0);
       expect(await databaseOf(page)).toEqual({
-        version: 2,
+        version: 3,
         stores: { future: [{ id: "kept", n: 1 }] },
       });
 
@@ -218,7 +218,7 @@ test.describe("DATA-005 Versioned schema", () => {
       const version = await other.evaluate(
         (name) =>
           new Promise<number>((resolve, reject) => {
-            const request = indexedDB.open(name, 2);
+            const request = indexedDB.open(name, 3);
             request.addEventListener("blocked", () => reject(new Error("blocked")));
             request.addEventListener("error", () => reject(request.error));
             request.addEventListener("success", () => {
@@ -229,7 +229,7 @@ test.describe("DATA-005 Versioned schema", () => {
         databaseName,
       );
 
-      expect(version).toBe(2);
+      expect(version).toBe(3);
       await expect(newerHeading(page)).toBeVisible();
       await expect(page.getByRole("button")).toHaveText(["Обновить страницу"]);
     },

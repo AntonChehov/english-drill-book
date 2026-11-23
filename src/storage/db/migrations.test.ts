@@ -6,11 +6,12 @@ import { validatePack } from "../../domain/packs/validate";
 import {
   contentsOf,
   snapshot,
-  failingVersion2,
+  failingNextVersion,
   fixtures,
   freshFactory,
   loadFixture,
-  migrationsWithVersion2,
+  migrationsWithNext,
+  NEXT_VERSION,
   rawOpen,
   schemaOf,
 } from "./db.fixture";
@@ -31,14 +32,17 @@ describe("the fixtures of earlier versions", () => {
     );
   });
 
-  it("@req DATA-005 the fixture of version 1 has the schema the migrations to version 1 create", async () => {
-    const fromFixture = freshFactory();
-    await loadFixture(fromFixture, version1);
-    const fromMigrations = freshFactory();
-    (await openStore({ factory: fromMigrations, migrations: MIGRATIONS.slice(0, 2) })).close();
+  for (const fixture of fixtures) {
+    it(`@req DATA-005 the fixture of version ${fixture.version} has the schema the migrations to it create`, async () => {
+      const fromFixture = freshFactory();
+      await loadFixture(fromFixture, fixture);
+      const fromMigrations = freshFactory();
+      const migrations = MIGRATIONS.slice(0, fixture.version + 1);
+      (await openStore({ factory: fromMigrations, migrations })).close();
 
-    expect(schemaOf(await rawOpen(fromFixture))).toEqual(schemaOf(await rawOpen(fromMigrations)));
-  });
+      expect(schemaOf(await rawOpen(fromFixture))).toEqual(schemaOf(await rawOpen(fromMigrations)));
+    });
+  }
 
   it("@req DATA-005 the packs and attempts of the fixtures are valid", () => {
     for (const fixture of fixtures) {
@@ -75,27 +79,40 @@ describe("older data", () => {
         fixture.stores["drafts"]!.records[0],
       );
       expect(await store.getSetting("theme")).toBe("dark");
+      expect(await store.getDayTicks("2026-11-23")).toEqual(fixture.version >= 2 ? ["read"] : []);
       store.close();
       expect((await rawOpen(factory)).version).toBe(SCHEMA_VERSION);
     });
   }
 
-  it("@req DATA-005 a test-only version 2 migrates the data of version 1 in place, losing nothing", async () => {
+  it("@req DATA-005 @req PROG-009 version 1 data opens at version 2 with an empty store of days", async () => {
     const factory = freshFactory();
     await loadFixture(factory, version1);
     const before = await snapshot(factory);
 
-    const store = await openStore({ factory, migrations: migrationsWithVersion2 });
+    (await openStore({ factory })).close();
+
+    const after = await snapshot(factory);
+    expect(after).toEqual({ ...before, days: [] });
+  });
+
+  it("@req DATA-005 a test-only next version migrates the data of version 1 in place, losing nothing", async () => {
+    const factory = freshFactory();
+    await loadFixture(factory, version1);
+    const before = await snapshot(factory);
+
+    const store = await openStore({ factory, migrations: migrationsWithNext });
     store.close();
 
     const database = await rawOpen(factory);
-    expect(database.version).toBe(2);
+    expect(database.version).toBe(NEXT_VERSION);
     const after = await contentsOf(database);
     expect(after["attempts"]).toEqual(before["attempts"]);
     expect(after["packs"]).toEqual(before["packs"]);
     expect(after["drafts"]).toEqual(before["drafts"]);
-    expect(after["settings"]).toEqual([{ name: "theme", value: "dark", migrated: 2 }]);
+    expect(after["settings"]).toEqual([{ name: "theme", value: "dark", migrated: true }]);
     expect(after["days"]).toEqual([]);
+    expect(after["future"]).toEqual([]);
     expect(schemaOf(database)["attempts"]?.indexes).toHaveProperty("action", "action");
   });
 
@@ -105,7 +122,7 @@ describe("older data", () => {
     const before = await snapshot(factory);
 
     await expect(
-      openStore({ factory, migrations: [...MIGRATIONS, failingVersion2] }),
+      openStore({ factory, migrations: [...MIGRATIONS, failingNextVersion] }),
     ).rejects.toThrow(new StorageError("failed"));
 
     const database = await rawOpen(factory);
@@ -128,13 +145,13 @@ describe("newer data", () => {
   it("@req DATA-005 data of a newer version stops the store and is left unchanged", async () => {
     const factory = freshFactory();
     await loadFixture(factory, version1);
-    (await openStore({ factory, migrations: migrationsWithVersion2 })).close();
+    (await openStore({ factory, migrations: migrationsWithNext })).close();
     const before = await snapshot(factory);
 
     await expect(openStore({ factory })).rejects.toThrow(new StorageError("newer-version"));
 
     const database = await rawOpen(factory);
-    expect(database.version).toBe(2);
+    expect(database.version).toBe(NEXT_VERSION);
     expect(await contentsOf(database)).toEqual(before);
   });
 });
@@ -147,10 +164,10 @@ describe("another tab upgrades", () => {
     const blocked = vi.fn<() => void>();
 
     const newer = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = factory.open("english-drill-book", 2);
+      const request = factory.open("english-drill-book", NEXT_VERSION);
       request.addEventListener("blocked", blocked);
       request.addEventListener("upgradeneeded", () => {
-        for (const migrate of migrationsWithVersion2.slice(2)) {
+        for (const migrate of migrationsWithNext.slice(NEXT_VERSION)) {
           migrate?.(request.result, request.transaction!);
         }
       });
@@ -158,7 +175,7 @@ describe("another tab upgrades", () => {
       request.addEventListener("error", () => reject(request.error));
     });
 
-    expect(newer.version).toBe(2);
+    expect(newer.version).toBe(NEXT_VERSION);
     expect(blocked).not.toHaveBeenCalled();
     expect(replaced).toHaveBeenCalledOnce();
     await expect(store.getPacks()).rejects.toThrow(new StorageError("newer-version"));

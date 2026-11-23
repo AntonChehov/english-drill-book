@@ -89,11 +89,25 @@ describe("revealAttempt", () => {
 describe("markDoneAttempt", () => {
   it("@req PLAY-009 marks an open exercise done with its text", () => {
     const open = contextOf(1, "4.3");
-    const { log, state } = run(() => markDoneAttempt(open, "There is a bed."));
+    const { log, state } = run(() => markDoneAttempt(open, { text: "There is a bed." }));
 
     expect(log[0]).toMatchObject({ action: "mark-done", answers: { text: "There is a bed." } });
     expect(state.done).toBe(true);
     expect(state.doneAt).toBe(open.at);
+  });
+
+  it("@req PLAY-021 @req PLAY-009 marks an exercise of typed answers done with what was typed and no verdicts", () => {
+    const { log, state } = run(() => markDoneAttempt(ctx(1), { "1": "I am not tired", "2": " " }));
+
+    expect(log[0]).toMatchObject({
+      action: "mark-done",
+      answers: { "1": "I am not tired" },
+      results: {},
+      complete: true,
+    });
+    expect(state.done).toBe(true);
+    expect(state.doneAt).toBe(ctx(1).at);
+    expect(state.verdicts).toEqual({});
   });
 });
 

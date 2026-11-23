@@ -15,6 +15,7 @@ import {
   rowAction,
   rowOf,
   test,
+  todayCard,
   unitHeading,
 } from "./study";
 
@@ -354,7 +355,7 @@ test.describe("PLAY-013 Open exercises", () => {
       await expect(exercise.getByText("Образец", { exact: true })).toBeVisible();
       await expect(exercise).toContainText("There is a bed next to the window.");
 
-      await exercise.getByRole("button", { name: "Отметить как сделанное" }).click();
+      await exercise.getByRole("button", { name: "Выполнить упражнение" }).click();
       await expect(exercise).toContainText("✓ Сделано");
       await expect(page.getByText("сделано 1 из 3")).toBeVisible();
       expect((await logOf(page)).map(({ action }) => action)).toEqual(["reveal", "mark-done"]);
@@ -368,9 +369,67 @@ test.describe("PLAY-013 Open exercises", () => {
       await openUnit(page, "2");
       const exercise = exerciseOf(page, "2.3");
       await expect(exercise.getByRole("textbox", { name: "Ваш текст" })).toBeVisible();
-      await expect(exercise.getByRole("button", { name: "Отметить как сделанное" })).toBeVisible();
+      await expect(exercise.getByRole("button", { name: "Выполнить упражнение" })).toBeVisible();
       await exercise.getByRole("button", { name: "Показать образец" }).click();
       await expect(exercise).toContainText("Omar lives in a flat near the river.");
     },
   );
+});
+
+test.describe("PLAY-021 Do the exercise in one action", () => {
+  test("@req PLAY-021 @req PLAY-009 an exercise left empty is done by one action, counted in the unit and on Today", async ({
+    page,
+  }) => {
+    await openUnit(page, "1");
+    const exercise = exerciseOf(page, "1.1");
+    const action = exercise.getByRole("button", { name: "Выполнить упражнение" });
+    await action.focus();
+    await page.keyboard.press("Enter");
+    await expect(exercise).toContainText("✓ Сделано");
+    await expect(page.getByText("сделано 1 из 3")).toBeVisible();
+    await expect(exercise).not.toContainText(/Верно|Неверно|Почти/);
+    await expect(action).toHaveCount(0);
+    await expect(exercise.getByRole("button", { name: "Упражнение 1.1" })).toBeFocused();
+    expect(await logOf(page)).toMatchObject([
+      { action: "mark-done", exercise: "1.1", answers: {}, results: {} },
+    ]);
+
+    await page.getByRole("link", { name: "Сегодня" }).click();
+    await expect(todayCard(page)).toContainText("сделано 1 из 3");
+    await expect(
+      todayCard(page).getByRole("link", { name: "Упражнение 1.1, сделано" }),
+    ).toBeVisible();
+  });
+
+  test("@req PLAY-021 the answers typed so far are kept with the mark, and stay in their fields", async ({
+    page,
+  }) => {
+    await openUnit(page, "1");
+    const exercise = exerciseOf(page, "1.3");
+    await fill(exercise, { "1": answers13["1"], "2": answers13["2"] });
+    await exercise.getByRole("button", { name: "Выполнить упражнение" }).click();
+    await expect(exercise).toContainText("✓ Сделано");
+    expect(await logOf(page)).toMatchObject([
+      {
+        action: "mark-done",
+        answers: { "1": answers13["1"], "2": answers13["2"] },
+        results: {},
+      },
+    ]);
+    await expect(fieldOf(exercise, "2")).toHaveValue(answers13["2"]);
+  });
+
+  test("@req PLAY-021 a mark the browser refuses is said in the exercise, which is not done", async ({
+    page,
+  }) => {
+    await refuseAttempts(page);
+    await openUnit(page, "1");
+    const exercise = exerciseOf(page, "1.1");
+    await failNextAttempts(page);
+    await exercise.getByRole("button", { name: "Выполнить упражнение" }).click();
+    await expect(exercise.getByRole("alert")).toBeVisible();
+    await expect(exercise).not.toContainText("✓ Сделано");
+    await exercise.getByRole("button", { name: "Повторить" }).click();
+    await expect(exercise).toContainText("✓ Сделано");
+  });
 });

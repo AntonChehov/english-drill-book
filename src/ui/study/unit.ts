@@ -441,7 +441,7 @@ export function useUnit(packId: string, unitId: string) {
     void keep(
       entry,
       "mark-done",
-      () => markDoneAttempt(contextOf(entry), entry.answers[TEXT] ?? ""),
+      () => markDoneAttempt(contextOf(entry), { ...entry.answers }),
       () => markedDoneMessage(entry.exercise.id),
     );
   }

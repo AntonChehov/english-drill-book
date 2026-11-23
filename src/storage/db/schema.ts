@@ -7,7 +7,7 @@ import type { Migration } from "./idb";
 
 export const DATABASE_NAME = "english-drill-book";
 
-/** The stores of version 1. */
+/** The stores of version 1, and `days` of version 2. */
 export const STORES = {
   /** The attempt log: added to, never changed (DATA-002). Key `id`. */
   attempts: "attempts",
@@ -19,6 +19,8 @@ export const STORES = {
   packs: "packs",
   /** Theme and later settings. Key `name`. */
   settings: "settings",
+  /** The daily blocks ticked on each day (PROG-009), from version 2. Key `day`. */
+  days: "days",
 } as const;
 
 /** The indexes of the attempt log. */
@@ -40,8 +42,13 @@ const version1: Migration = (database) => {
   database.createObjectStore(STORES.settings, { keyPath: "name" });
 };
 
+/** Version 2: the ticks of the daily checklist (design D4 of `topics-and-checklist`). */
+const version2: Migration = (database) => {
+  database.createObjectStore(STORES.days, { keyPath: "day" });
+};
+
 /** `MIGRATIONS[n]` upgrades from version `n − 1` to `n`. */
-export const MIGRATIONS: readonly (Migration | undefined)[] = [undefined, version1];
+export const MIGRATIONS: readonly (Migration | undefined)[] = [undefined, version1, version2];
 
 /** The version of the schema this build of the app writes. */
 export const SCHEMA_VERSION = MIGRATIONS.length - 1;
