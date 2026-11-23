@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { demoProgram } from ".";
-import { currentLevel, levelShares, todayTopic, topicProgress } from "./progress";
+import { currentLevel, levelShares, todayTopic, topicProgress, topicStep } from "./progress";
 import type { Topic } from "./types";
 
 const [t1, t2, t3, t4] = demoProgram.topics as [Topic, Topic, Topic, Topic];
@@ -141,5 +141,42 @@ describe("todayTopic", () => {
 
   it("@req PROG-005 a focus the program does not have is ignored", () => {
     expect(todayTopic(demoProgram.topics, (topic) => topic === t1, "t9")).toBe(1);
+  });
+});
+
+describe("topicStep", () => {
+  it("@req PLAY-017 the unit a topic leads is its course step", () => {
+    expect(topicStep(demoProgram.topics, "demo-course", "2", ["2.1"])).toEqual({
+      topic: t2,
+      step: "course",
+    });
+  });
+
+  it("@req PLAY-017 the unit holding a topic's supplements is its drills step", () => {
+    expect(topicStep(demoProgram.topics, "demo-drills", "1", ["1.1", "1.2", "1.3"])).toEqual({
+      topic: t1,
+      step: "drills",
+    });
+  });
+
+  it("@req PLAY-017 of two matching topics the first in program order", () => {
+    const twin: Topic = { ...t2, lead: t1.lead };
+    expect(topicStep([twin, t1], "demo-course", "1", [])?.topic).toBe(twin);
+    expect(topicStep([t2, t1], "demo-drills", "1", ["1.1"])?.topic).toBe(t1);
+    expect(
+      topicStep([{ ...t2, supplements: t1.supplements }, t1], "demo-drills", "1", ["1.2"])?.topic
+        .id,
+    ).toBe("t2");
+  });
+
+  it("@req PLAY-017 a topic without supplements has one step and is skipped", () => {
+    const alone: Topic = { ...t1, supplements: [] };
+    expect(topicStep([alone], "demo-course", "1", ["1.1"])).toBeUndefined();
+  });
+
+  it("@req PLAY-017 a unit of no topic, and a pack the program does not use", () => {
+    expect(topicStep(demoProgram.topics, "demo-course", "9", ["9.1"])).toBeUndefined();
+    expect(topicStep(demoProgram.topics, "demo-drills", "1", ["9.1"])).toBeUndefined();
+    expect(topicStep(demoProgram.topics, "other", "1", ["1.1"])).toBeUndefined();
   });
 });

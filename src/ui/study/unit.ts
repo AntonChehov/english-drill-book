@@ -7,6 +7,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef }
 import type { Exercise, Pack, Unit } from "../../domain/packs/types";
 import { demoBooks } from "../../domain/books/demo/profiles";
 import { validatePack } from "../../domain/packs/validate";
+import { demoProgram, topicStep } from "../../domain/programs";
 import { deriveExercise, type Attempt, type ExerciseState } from "../../domain/progress";
 import {
   checkAttempt,
@@ -84,6 +85,15 @@ export interface UnitLink {
   readonly progress: Progress;
 }
 
+/** The topic a unit belongs to, with the links of its two steps and the course unit (PLAY-017). */
+export interface TopicOfUnit {
+  readonly title: string;
+  readonly step: "course" | "drills";
+  readonly courseLink: string;
+  readonly drillsLink: string;
+  readonly course: { readonly pack: Pack; readonly unit: Unit };
+}
+
 const idOf = (value: unknown): unknown =>
   typeof value === "object" && value !== null && "id" in value ? value.id : undefined;
 
@@ -109,6 +119,41 @@ const unsaved = (entry: ExerciseEntry) => entry.stored !== entry.edits;
 
 /** Nothing of `entry` is on its way to the store: what is stored is what the screen holds. */
 const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
+
+/**
+ * The topic of `shown` in the demo program, when both of its books are stored and valid and hold
+ * its course unit and its first supplement (design D2 of `two-step-study`); else none.
+ */
+function topicOf(packs: readonly unknown[], from: Pack, shown: Unit): TopicOfUnit | undefined {
+  const found = topicStep(
+    demoProgram.topics,
+    from.id,
+    shown.id,
+    shown.exercises.map((exercise) => exercise.id),
+  );
+  if (found === undefined) return;
+  const { topic, step } = found;
+  const first = topic.supplements[0]!;
+  const packOf = (id: string) => {
+    if (id === from.id) return from;
+    const stored = packs.find((value) => idOf(value) === id);
+    const validation = stored === undefined ? undefined : validatePack(stored);
+    return validation?.ok ? validation.pack : undefined;
+  };
+  const coursePack = packOf(topic.lead.pack);
+  const course = coursePack?.units.find(({ id }) => id === topic.lead.unit);
+  const drills = packOf(first.pack)?.units.find(({ exercises }) =>
+    exercises.some(({ id }) => id === first.exercise),
+  );
+  if (coursePack === undefined || course === undefined || drills === undefined) return;
+  return {
+    title: topic.title,
+    step,
+    courseLink: `/study/${coursePack.id}/${course.id}`,
+    drillsLink: `/study/${first.pack}/${drills.id}?ex=${first.exercise}`,
+    course: { pack: coursePack, unit: course },
+  };
+}
 
 /** The states of every exercise of the pack, and what the store holds for the exercises of `shown`. */
 async function readUnit(store: Store, from: Pack, shown: Unit) {
@@ -140,6 +185,7 @@ export function useUnit(packId: string, unitId: string) {
   const phase = ref<UnitPhase>("loading");
   const pack = shallowRef<Pack>();
   const unit = shallowRef<Unit>();
+  const topic = shallowRef<TopicOfUnit>();
   const entries = ref<ExerciseEntry[]>([]);
   /** Exercise id → done, for every exercise of the pack (the unit list counts them). */
   const done = reactive(new Map<string, boolean>());
@@ -194,7 +240,8 @@ export function useUnit(packId: string, unitId: string) {
     phase.value = "loading";
     try {
       const store = await getStore();
-      const found = (await store.getPacks()).find((value) => idOf(value) === packId);
+      const packs = await store.getPacks();
+      const found = packs.find((value) => idOf(value) === packId);
       const validation = found === undefined ? undefined : validatePack(found);
       const shown = validation?.ok
         ? validation.pack.units.find(({ id }) => id === unitId)
@@ -206,6 +253,7 @@ export function useUnit(packId: string, unitId: string) {
       const read = await readUnit(store, validation.pack, shown);
       pack.value = validation.pack;
       unit.value = shown;
+      topic.value = topicOf(packs, validation.pack, shown);
       for (const [id, state] of read.states) done.set(id, state.done);
       entries.value = read.exercises.map(({ exercise, state, attempts, answers }) => ({
         exercise,
@@ -494,6 +542,7 @@ export function useUnit(packId: string, unitId: string) {
     phase,
     pack,
     unit,
+    topic,
     entries,
     units,
     progress,

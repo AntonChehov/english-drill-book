@@ -100,3 +100,28 @@ export function todayTopic(
   if (focused !== -1 && !passed(topics[focused]!)) return focused;
   return topics.findIndex((topic) => !passed(topic));
 }
+
+export interface TopicStep {
+  readonly topic: Topic;
+  readonly step: "course" | "drills";
+}
+
+/**
+ * The topic a unit belongs to, and which of its two steps the unit is (PLAY-017): the first topic
+ * in program order that the unit leads is `course`, else the first with a supplement among
+ * `exercises` of the pack is `drills`. A topic without supplements has one step and is skipped.
+ */
+export function topicStep(
+  topics: readonly Topic[],
+  pack: string,
+  unit: string,
+  exercises: readonly string[],
+): TopicStep | undefined {
+  const stepped = topics.filter((topic) => topic.supplements.length > 0);
+  const lead = stepped.find((topic) => topic.lead.pack === pack && topic.lead.unit === unit);
+  if (lead) return { topic: lead, step: "course" };
+  const drills = stepped.find((topic) =>
+    topic.supplements.some((each) => each.pack === pack && exercises.includes(each.exercise)),
+  );
+  return drills && { topic: drills, step: "drills" };
+}

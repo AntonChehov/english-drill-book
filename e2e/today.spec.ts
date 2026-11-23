@@ -137,7 +137,7 @@ test.describe("PROG-005 Today's topic", () => {
 
 test.describe("PROG-013 One active program", () => {
   test(
-    "@req PROG-013 with the demo books the program is shown above the book cards, also after a reload",
+    "@req PROG-013 @req PROG-014 with the demo books the program is shown above the book cards, also after a reload",
     { tag: "@demo" },
     async ({ page }) => {
       await page.goto(addressOf("/"));

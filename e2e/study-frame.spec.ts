@@ -107,7 +107,7 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
   );
 });
 
-test.describe("PROG-014 Today before programs", () => {
+test.describe("PROG-014 The units of the added books", () => {
   test(
     "@req PROG-014 a unit chosen on the start screen opens Study for that unit",
     { tag: "@demo" },

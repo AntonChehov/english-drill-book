@@ -169,7 +169,7 @@ export const pagesPanel = (page: Page) => page.getByRole("region", { name: "Ст
 
 /**
  * The states of Study for the accessibility check and the screenshots (design of `study-screen`,
- * C-07): each starts from the demo added and ends with unit 1 of the demo course on screen.
+ * C-07): each starts from the demo added and ends in Study, or on Topics.
  */
 export const studyStates = [
   {
@@ -227,6 +227,27 @@ export const studyStates = [
       await page.route(demoPdf, (route) => route.abort("internetdisconnected"));
       await openUnit(page, "1");
       await expect(pagesPanel(page).getByRole("alert")).toBeVisible();
+    },
+  },
+  {
+    // Unit 1 of the drill book with the course's pages shown in its place (PLAY-018).
+    name: "study-drills-course",
+    reach: async (page: Page) => {
+      await openUnit(page, "1", "demo-drills");
+      await page.getByRole("button", { name: "Курс: раздел 1", exact: true }).click();
+      await expect(pagesPanel(page).locator("canvas[data-drawn]").first()).toBeVisible();
+    },
+  },
+  {
+    // Every exercise of course unit 1 done: the next step is offered (PLAY-017).
+    name: "study-course-done",
+    reach: async (page: Page) => {
+      await page.goto(addressOf("/"));
+      await completeInStore(page, ["demo-course/1.1", "demo-course/1.2", "demo-course/1.3"]);
+      await openUnit(page, "1");
+      const offer = page.getByRole("link", { name: "Перейти к практике" });
+      await offer.scrollIntoViewIfNeeded();
+      await expect(offer).toBeVisible();
     },
   },
   {
