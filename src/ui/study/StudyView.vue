@@ -3,8 +3,9 @@
 // from 1024 px and stacked below that, with the unit's navigation in its header. Before the
 // exercises, the unit's explanation from the pack, foldable and open on every opening (PLAY-020;
 // design D3 of `russian-demo`).
-import { computed, nextTick, useTemplateRef, watch } from "vue";
+import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
+import type { Pack } from "../../domain/packs/types";
 import { documentTitle } from "../../domain/document-title";
 import { theoryParagraphs } from "../../domain/study";
 import { appName } from "../router";
@@ -12,6 +13,7 @@ import ExerciseBlock from "./ExerciseBlock.vue";
 import { doneOf, draftNotKept } from "./messages";
 import { pageNumbers } from "./pages";
 import PagesPanel from "./PagesPanel.vue";
+import TopicSteps from "./TopicSteps.vue";
 import UnitMenu from "./UnitMenu.vue";
 import { useUnit, type ExerciseEntry } from "./unit";
 
@@ -25,6 +27,7 @@ const {
   phase,
   pack,
   unit,
+  topic,
   entries,
   units,
   progress,
@@ -40,20 +43,42 @@ const heading = useTemplateRef<HTMLElement>("heading");
 const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
 const exercisesHeading = useTemplateRef<HTMLElement>("exercisesHeading");
 const pagesTop = useTemplateRef<HTMLElement>("pagesTop");
+const pagesColumn = useTemplateRef<HTMLElement>("pagesColumn");
 
-const role = computed(() => pack.value?.source?.documents?.[0]?.role ?? "book");
-const pages = computed(() => pageNumbers(unit.value?.pages, role.value));
+const roleOf = (of: Pack | undefined) => of?.source?.documents?.[0]?.role ?? "book";
+const pages = computed(() => pageNumbers(unit.value?.pages, roleOf(pack.value)));
+const coursePages = computed(() =>
+  pageNumbers(topic.value?.course.unit.pages, roleOf(topic.value?.course.pack)),
+);
+
+/** Step 2 shows the course's pages in place of the drill book's; the course panel is made once. */
+const showCourse = ref(false);
+const courseOpened = ref(false);
+
+async function showSource(course: boolean) {
+  showCourse.value = course;
+  courseOpened.value ||= course;
+  await nextTick();
+  if (pagesColumn.value && pagesColumn.value.getBoundingClientRect().top < 0) {
+    pagesColumn.value.scrollIntoView({ block: "start" });
+  }
+}
 const theory = computed(() => theoryParagraphs(unit.value?.theory ?? ""));
 
 function go(to: string | undefined) {
   if (to !== undefined) void router.push(`/study/${packId}/${to}`);
 }
 
-function showPage(entry: ExerciseEntry) {
-  const first = pageNumbers(entry.exercise.pages, role.value).find((page) =>
+async function showPage(entry: ExerciseEntry) {
+  const first = pageNumbers(entry.exercise.pages, roleOf(pack.value)).find((page) =>
     pages.value.includes(page),
   );
-  if (first !== undefined) panel.value?.scrollToPage(first);
+  if (first === undefined) return;
+  if (showCourse.value) {
+    showCourse.value = false;
+    await nextTick();
+  }
+  panel.value?.scrollToPage(first);
 }
 
 /** The jump links of a narrow screen, where the pages and the exercises are stacked (D3). */
@@ -182,17 +207,42 @@ watch(
         <p v-if="draftFailed" class="draft-failed">{{ draftNotKept }}</p>
         <UnitMenu :pack="pack.id" :current="unit.id" :units="units" />
       </div>
+      <TopicSteps v-if="topic" :topic="topic" />
     </header>
 
     <div class="body">
-      <div class="pages-column">
+      <div ref="pagesColumn" class="pages-column">
         <p class="jump">
           <button type="button" class="jump-link" @click="jump(exercisesHeading)">
             К упражнениям <span aria-hidden="true">↓</span>
           </button>
         </p>
         <span ref="pagesTop" tabindex="-1" class="visually-hidden">Страницы книги</span>
-        <PagesPanel ref="panel" :pack="pack" :pages="pages" />
+        <div v-if="topic?.step === 'drills'" class="source" role="group" aria-label="Страницы">
+          <button
+            type="button"
+            class="source-button"
+            :aria-pressed="!showCourse"
+            @click="showSource(false)"
+          >
+            Сборник упражнений
+          </button>
+          <button
+            type="button"
+            class="source-button"
+            :aria-pressed="showCourse"
+            @click="showSource(true)"
+          >
+            Курс: раздел {{ topic.course.unit.id }}
+          </button>
+        </div>
+        <PagesPanel v-show="!showCourse" ref="panel" :pack="pack" :pages="pages" />
+        <PagesPanel
+          v-if="topic && courseOpened"
+          v-show="showCourse"
+          :pack="topic.course.pack"
+          :pages="coursePages"
+        />
       </div>
 
       <section class="exercises-column" aria-labelledby="exercises-heading">
@@ -235,6 +285,12 @@ watch(
           @show-page="showPage(entry)"
           @leave="study.flush(entry)"
         />
+        <div v-if="topic?.step === 'course'" class="next-step" role="status">
+          <div v-if="progress && progress.done === progress.total" class="card offer">
+            <p>Курс по этой теме пройден. Дальше — практика в сборнике упражнений.</p>
+            <RouterLink class="action" :to="topic.drillsLink">Перейти к практике</RouterLink>
+          </div>
+        </div>
       </section>
     </div>
 
@@ -412,6 +468,41 @@ watch(
   margin: 0 0 0.75rem;
 }
 
+.source {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+}
+
+.source-button {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.375rem;
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.375rem 0.75rem;
+}
+
+.source-button[aria-pressed="true"] {
+  background: var(--color-surface-muted);
+  border-color: var(--color-text);
+  font-weight: 600;
+}
+
+.offer {
+  padding: 1rem;
+}
+
+.offer p {
+  margin: 0 0 0.75rem;
+}
+
+.offer .action {
+  display: inline-block;
+  text-decoration: none;
+}
+
 .intro-head .jump {
   margin: 0;
 }
@@ -452,6 +543,14 @@ watch(
 
   .jump {
     display: none;
+  }
+
+  .source {
+    background: var(--color-bg);
+    padding: 0.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 }
 </style>

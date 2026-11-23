@@ -34,7 +34,7 @@ The link between books — which exercises of a drill book belong to which topic
 - **PROG-012 [M3]** Without a lead book its topics are shown as unavailable, with the action to add the book; they count as not passed. Without a supplementary book its exercises are shown as available after adding the book and do not count towards the topic's requirement. Why: a learner with only the grammar course must still be able to progress.
 - **PROG-016 [M3]** A topic passed on the lead unit alone, because a supplementary book is not added, is marked as passed without drills. The topic, Today and Topics carry a note recommending the drills in that book for consolidation. When the book is added later the topic stays passed, and its drills are offered as recommended work.
 - **PROG-013 [M2]** Exactly one program is active at a time. With no active program, Today offers the units of the added books directly.
-- **PROG-014 [M1]** Until programs are delivered, Today lists the units of the demo book in order with their done counts and links to Study.
+- **PROG-014 [M1]** Today lists the units of each added book in order with their done counts and links to Study; while a program is active, below it.
 - **PROG-015 [M2]** The demo program runs over two demo books, a short course and a short drill book, so that the public demo shows the joining of books.
 - **PROG-017 [M3]** The first real program: English grammar on the Murphy courses with Golitsynsky as the supplementary book.
 

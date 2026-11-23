@@ -2,11 +2,21 @@
 // The pages of the unit beside its exercises (DOC-001, DOC-008; design D8 of `study-screen`):
 // one under another, each drawn on a canvas at the panel's width and the device's pixel ratio when
 // it comes near the viewport, its place held before that so the scroll bar is honest.
-import { nextTick, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from "vue";
+import {
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowRef,
+  useId,
+  useTemplateRef,
+  watch,
+} from "vue";
 import type { Pack } from "../../domain/packs/types";
 import { pagesFailed, pagesMissing, pagesOffline } from "./messages";
 import { bookOf, PagesError, type PagesFailure, type PdfPages } from "./pages";
 
+const headingId = useId();
 const props = defineProps<{ pack: Pack; pages: readonly number[] }>();
 
 /** The proportions of an A4 page, held for a page whose own size is not known yet. */
@@ -130,8 +140,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="pages" aria-labelledby="pages-heading">
-    <h2 id="pages-heading" class="visually-hidden">Страницы книги</h2>
+  <section class="pages" :aria-labelledby="headingId">
+    <h2 :id="headingId" class="visually-hidden">Страницы книги</h2>
     <div v-if="failure" class="message card" role="alert">
       <p>{{ messages[failure] }}</p>
       <button v-if="failure !== 'missing'" type="button" class="secondary" @click="open">
