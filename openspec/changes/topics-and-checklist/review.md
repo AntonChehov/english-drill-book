@@ -71,6 +71,35 @@ Checked and found right:
 - **Flaky PACK-003 on Firefox.** The implementer's report did not reproduce. `demo.spec.ts` ran 5 times over on Firefox (55 of 55 passed), and the targeted set ran twice over on both browsers. The test has a 2 s reading budget, and this change touches it only with one more Tab. That points to load timing, as round 1 of `demo-program` also observed, not to this change. Worth watching on CI, not a finding.
 - **Gates run:** `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm spec` (9 passed), `pnpm trace` (56 requirements), and `vitest` with coverage (819 passed, 99.61 % of statements). Also a production build into a scratch directory (not `dist/`) served by `vite preview`, against which `topics`, `today`, `study`, `study-a11y`, `a11y`, `demo` and `storage` ran on Chromium and Firefox twice over: 250 passed in 1.5 min.
 
+## Round 2
+
+Reviewed: 3c8786e2df67
+Verdict: approved
+- F1: fixed
+  `TopicProgress` is no longer re-exported from the barrel. `src/ui/demo/program.ts` now imports it to type `progress` as `ReadonlyMap<Topic, TopicProgress>`, so the export has a caller (d911f85).
+- F2: fixed
+  D2 lists `demoBooks`, `useStoredProgress`, `useProgram`, `isDone`, `chooseFocus` and `src/ui/demo/check.ts` with its two callers. D3 says what Topics shows during the check. Impact names `check.ts` and `DemoBooks.vue`.
+- F3: fixed
+  D4 and `DayRecord` say that one record holds one property of `days` of the export format, its key and its value.
+- F4: fixed
+  `choose` passes the error to `noteStorageFailure` before showing the alert.
+- F5: fixed
+  The sentence shows only in `idle` and `failed`. During `loading` and `reading` Topics shows only its h1, and the topics only once the demo is `added`. These are all five phases of `DemoState`.
+- F6: fixed
+  Writes are chained on one promise, and each builds its set from `ticks.value` after the previous write. `write` catches its own error, so the chain never rejects and a failure does not block later ticks. A new e2e test clicks two boxes in one task and finds both kept after a reload.
+- F7: fixed
+  `ExerciseBlock.vue` remembers that its own button was pressed. Once the view turns done it moves the focus to the exercise's number, but only if the focus fell to `body`, so a learner who moved on is not pulled back. The e2e test now presses Enter on the button and checks the focus on «Упражнение 1.1». A refused or busy press leaves the flag set, which is harmless because of the `body` guard.
+- F8: fixed
+  The filler assertion is gone.
+
+### Notes
+
+Since round 1 only d911f85 changed: 13 files and the owner's tick of task 5.2. The rest of the whole diff stands as reviewed in round 1. No new export without a caller, no new dependency, no regression found.
+
+PACK-003 (both books read within 2 s) on Firefox: the implementer saw it fail locally with two browsers running in parallel. I judge it local load, not a flaky test of this change, for three reasons. The change does not touch the reading path (`src/ui/demo/add-demo.ts`, `src/storage/pdf`, `src/domain/books` are unchanged). The pipeline runs one project per job (`checks.yml`: chromium and firefox in 2 shards each, webkit in 3), so two browsers never share a runner. Here, with Chromium and Firefox in parallel and repeated three times, the times read 1495 – 1943 ms and every run passed. The margin under local load is thin, though. Recording it in `docs/roadmap.md` under "Later, unscheduled" is worth it, for example a budget measured per project or the test run alone, but that is not part of this change.
+
+Gates run: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm spec` (9 passed), `pnpm trace` (56 requirements), and `vitest` with coverage (819 passed, 99.61 % of statements). Also a production build into a scratch directory (not `dist/`) under `vite preview`, against which `topics`, `today`, `study`, `study-a11y`, `a11y` and `demo` ran on Chromium and Firefox three times over: 312 passed.
+
 ## Requirement coverage
 
 | Requirement | Implemented in | Covered by |
