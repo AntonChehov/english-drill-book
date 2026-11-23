@@ -2,28 +2,33 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-CTUe9uGL.js"
+        "assets/index-CHUI7Yie.js"
       ],
-      "bytes": 117719,
-      "gzip": 44218,
+      "bytes": 120612,
+      "gzip": 45221,
       "budget": 120000
     },
     "css": {
       "files": [
-        "assets/index-KC5X8wuX.css"
+        "assets/index-DrN0RNUn.css"
       ],
-      "bytes": 7132,
-      "gzip": 1876,
+      "bytes": 8074,
+      "gzip": 2063,
       "budget": 20000
     },
     "later": [
       {
-        "file": "assets/StudyView-DRYHRqgh.js",
-        "bytes": 35446,
-        "gzip": 13138
+        "file": "assets/StudyView-DIMsB3Sd.js",
+        "bytes": 35855,
+        "gzip": 13233
       },
       {
-        "file": "assets/add-demo-D0ntIQRI.js",
+        "file": "assets/TopicsView-LAJL0c68.js",
+        "bytes": 2616,
+        "gzip": 1455
+      },
+      {
+        "file": "assets/add-demo-WI8jxQsj.js",
         "bytes": 5660,
         "gzip": 2324
       },
@@ -48,30 +53,30 @@
         "gzip": 9360
       },
       {
-        "file": "assets/static-files-CtQlWZ4X.js",
+        "file": "assets/static-files-Ymvy6bFx.js",
         "bytes": 2478,
-        "gzip": 1287
+        "gzip": 1288
       }
     ]
   },
-  "sha": "dfc63276ff2187eb951ba81590ce56582b646652",
+  "sha": "1bb83c2d0cf69594ee4f40882d8a5aae97c7bf60",
   "tests": {
     "unit": {
-      "tests": 822,
-      "passed": 822,
+      "tests": 833,
+      "passed": 833,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 248,
-      "passed": 247,
+      "tests": 273,
+      "passed": 272,
       "failed": 0,
       "skipped": 1
     }
   },
   "coverage": {
     "lines": 99.65,
-    "branches": 98.52,
+    "branches": 98.53,
     "functions": 100,
     "statements": 99.61
   },
@@ -82,6 +87,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 138
+    "seconds": 142
   }
 }
