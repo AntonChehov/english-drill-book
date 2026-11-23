@@ -29,6 +29,8 @@ Before milestone 2 brings programs and levels, Today shows the Today card for th
 
 A filter (all, not passed, by level) and, per book, a card listing its topics in the book's order. A row: "юнит N", the title, the level tag, and the state — "✓ пройдена" or the counts "done/total · drill done/needed". The current topic is marked. Choosing a row makes it the focus and returns to Today.
 
+The public app groups the topics by level instead of by book, without the filter (PROG-008), and a passed topic cannot be chosen.
+
 ## Занятие (Study)
 
 One screen for a unit, in two parts side by side:
@@ -43,7 +45,7 @@ The top bar of this screen carries the navigation of the book: the book, **‹**
 - A head with the exercise's number, which scrolls the pages to where the exercise is printed, and the score "ok / total", highlighted when full. Then the book's task and, when the pack has it, what to do in the learner's language (PLAY-020).
 - One row per item: its number, an input, and a place for the outcome under it. Spell-check and auto-completion are off. **Enter** moves to the next input and, on the last one, checks the exercise.
 - Typing in an input clears that item's outcome.
-- Buttons under the items: **Проверить** (primary) and the secondary actions.
+- Buttons under the items: **Проверить** (primary) and the secondary actions; in the public app, **Выполнить упражнение**, which marks the exercise done without its answers, until it is done (PLAY-021).
 - After a check each row shows its state: "✓" for correct; "≈ почти" with advice to check the spelling; "✗" for wrong. Items left empty are not judged.
 
 Where the predecessor differs from the requirements and the requirements win: it shows the key of a wrong item at once and has "Показать ключ" for the whole exercise (PLAY-004 and PLAY-007 allow the key of one item, on request); it has "Сбросить" that forgets the results (PLAY-010 and the attempt log keep them).
