@@ -2,10 +2,10 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-CHUI7Yie.js"
+        "assets/index-xmy-ObFe.js"
       ],
-      "bytes": 120612,
-      "gzip": 45221,
+      "bytes": 120994,
+      "gzip": 45352,
       "budget": 120000
     },
     "css": {
@@ -18,17 +18,17 @@
     },
     "later": [
       {
-        "file": "assets/StudyView-DIMsB3Sd.js",
-        "bytes": 35855,
-        "gzip": 13233
+        "file": "assets/StudyView-D-IVsno1.js",
+        "bytes": 38922,
+        "gzip": 14123
       },
       {
-        "file": "assets/TopicsView-LAJL0c68.js",
-        "bytes": 2616,
+        "file": "assets/TopicsView-Dc2vXgfA.js",
+        "bytes": 2618,
         "gzip": 1455
       },
       {
-        "file": "assets/add-demo-WI8jxQsj.js",
+        "file": "assets/add-demo-CDExgCJ2.js",
         "bytes": 5660,
         "gzip": 2324
       },
@@ -53,30 +53,30 @@
         "gzip": 9360
       },
       {
-        "file": "assets/static-files-Ymvy6bFx.js",
+        "file": "assets/static-files-37jlHytL.js",
         "bytes": 2478,
-        "gzip": 1288
+        "gzip": 1287
       }
     ]
   },
-  "sha": "c66fdadc05d60d84e8dcbfad896e875ab783944f",
+  "sha": "29135d1e2e1f86a653ad853aaa07884ff84322b3",
   "tests": {
     "unit": {
-      "tests": 833,
-      "passed": 833,
+      "tests": 838,
+      "passed": 838,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 273,
-      "passed": 272,
+      "tests": 281,
+      "passed": 280,
       "failed": 0,
       "skipped": 1
     }
   },
   "coverage": {
     "lines": 99.65,
-    "branches": 98.53,
+    "branches": 98.55,
     "functions": 100,
     "statements": 99.61
   },
@@ -87,6 +87,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 147
+    "seconds": 142
   }
 }
