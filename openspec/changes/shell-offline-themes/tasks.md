@@ -15,7 +15,7 @@
 
 ## 4. Languages and first launch
 
-- [ ] 4.1 Add `e2e/languages.spec.ts` and fix any gap (design D5); named `@req PROD-004`
+- [x] 4.1 Add `e2e/languages.spec.ts` and fix any gap (design D5); named `@req PROD-004`
 - [ ] 4.2 Add the line about own books (design D6); verify with a StartView test named `@req PROD-002`
 
 ## 5. Housekeeping
