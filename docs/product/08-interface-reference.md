@@ -35,10 +35,10 @@ The public app groups the topics by level instead of by book, without the filter
 
 One screen for a unit, in two parts side by side:
 
-- **Left, wide: the pages** of the unit from the book's file, one under another, scrolling.
+- **Left, wide: the pages** of the unit from the book's file, one under another, scrolling. Above them a header with **Увеличить** and **Уменьшить** (50 % to 300 %, as a share of the panel's width), the zoom level, **По ширине** (back to 100 %) and **Скрыть страницы**; the zoom is kept for each book (DOC-002). Under the last page **Следующая страница** and above the first **Предыдущая страница** add one page of the book each press, up to its first and last page (DOC-003). The text of a page can be selected and copied (DOC-009).
 - **Right, narrow: the panel.** A card **Упражнения** with a one-paragraph hint on how answers are compared, then each exercise of the unit as a block. Before that card, when the pack explains the unit, a foldable block **Объяснение** with the explanation, open when the unit opens (PLAY-020).
 
-The top bar of this screen carries the navigation of the book: the book, **‹** and **›** for the previous and next unit, a list of units in which each unit shows how many of its exercises are done, zoom **−** and **+**, and a quiet status of saving.
+The top bar of this screen carries the navigation of the book: the book, **‹** and **›** for the previous and next unit, a list of units in which each unit shows how many of its exercises are done, and a quiet status of saving. The zoom is not here: it is in the pages panel.
 
 **An exercise block:**
 
@@ -52,7 +52,9 @@ Where the predecessor differs from the requirements and the requirements win: it
 
 In the public app a unit that belongs to a topic of the active program shows, under its title, the topic and its two steps, «1. Курс: правило и упражнения» and «2. Сборник упражнений: практика»: the current one marked «сейчас», the other a link (PLAY-017). When every exercise of the course unit is done, a card below the exercises offers «Перейти к практике». In step 2 the pages panel has a switch, «Сборник упражнений» and «Курс: раздел N», that shows the course unit's pages in place of the drill book's (PLAY-018).
 
-On a narrow screen the pages and the panel are stacked, and both are reachable.
+From 1024 px a separator between the two parts, dragged with the pointer or moved with the arrow keys, Home and End, sets how much of the row the pages take, from 30 % to 75 % (60 % at first); the split is kept. **Скрыть страницы** and **Скрыть упражнения** collapse a part to a narrow strip with one button that shows it again; only one part is collapsed at a time, and the choice is kept (DOC-006).
+
+On a narrow screen the pages and the panel are stacked, and both are reachable; there is no separator and nothing is collapsed.
 
 ## Ошибки (Mistakes)
 
