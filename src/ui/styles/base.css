@@ -1,5 +1,6 @@
-/* Colours follow the system setting (PROD-005 adds a manual override later). One accent colour;
-   states are shown by a word or a sign as well as by colour (PLAY-003, 08-interface-reference). */
+/* Colours follow the system setting unless «О приложении» chose a theme, which `applyTheme` puts in
+   `data-theme` of the page (PROD-005). One accent colour; states are shown by a word or a sign as
+   well as by colour (PLAY-003, 08-interface-reference). */
 :root {
   color-scheme: light dark;
   --color-bg: #f4f5f7;
@@ -27,8 +28,40 @@
   --radius: 0.625rem;
 }
 
+/* The dark colours are written twice: a selector cannot test the system setting and the absence of
+   a choice at once. The two sets are kept equal by a test (src/ui/theme.test.ts). */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #111318;
+  --color-surface: #1a1d24;
+  --color-surface-muted: #20242c;
+  --color-text: #ececec;
+  --color-muted: #b8bcc4;
+  --color-border: #353a44;
+  --color-border-strong: #7d8490;
+  --color-link: #93b4ff;
+  --color-focus: #93b4ff;
+  --color-accent: #93b4ff;
+  --color-accent-soft: #23304d;
+  --color-button: #93b4ff;
+  --color-button-hover: #b9cdff;
+  --color-button-text: #111318;
+  --color-error: #ff8a80;
+  --color-ok: #6ee7a0;
+  --color-ok-soft: #173325;
+  --color-near: #fbc96b;
+  --color-near-soft: #3a2d14;
+  --color-bad: #ff8a80;
+  --color-bad-soft: #3d1d1b;
+  --shadow-card: none;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --color-bg: #111318;
     --color-surface: #1a1d24;
     --color-surface-muted: #20242c;
