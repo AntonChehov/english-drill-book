@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   commentSha,
   markerFor,
@@ -133,9 +133,9 @@ describe("renderComment", () => {
 });
 
 describe("reviewOfChange", () => {
-  // A repository of its own: main, and a branch with a change, its record and a script.
-  const root = mkdtempSync(join(tmpdir(), "evidence-comment-"));
-  afterAll(() => rmSync(root, { recursive: true, force: true }));
+  // A repository of its own for each test (C-10): main, and a branch with a change and a script.
+  let root;
+  let head;
   const env = {
     ...process.env,
     GIT_CONFIG_GLOBAL: "/dev/null",
@@ -153,16 +153,21 @@ describe("reviewOfChange", () => {
     mkdirSync(join(root, path, ".."), { recursive: true });
     writeFileSync(join(root, path), text);
   };
-  git("init", "--quiet", "--initial-branch=main");
-  write("a.mjs", "a\n");
-  git("add", "--all");
-  git("commit", "--quiet", "--no-verify", "-m", "chore: start");
-  git("switch", "--quiet", "-c", "feature");
-  write("a.mjs", "a changed\n");
-  write("openspec/changes/c/tasks.md", "- [x] 1.1\n");
-  git("add", "--all");
-  git("commit", "--quiet", "--no-verify", "-m", "feat: a");
-  const head = git("rev-parse", "HEAD");
+  const contentHash = () => /`([0-9a-f]{12})`\.$/.exec(reviewOfChange(root, "c", head) ?? "")?.[1];
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), "evidence-comment-"));
+    git("init", "--quiet", "--initial-branch=main");
+    write("a.mjs", "a\n");
+    git("add", "--all");
+    git("commit", "--quiet", "--no-verify", "-m", "chore: start");
+    git("switch", "--quiet", "-c", "feature");
+    write("a.mjs", "a changed\n");
+    write("openspec/changes/c/tasks.md", "- [x] 1.1\n");
+    git("add", "--all");
+    git("commit", "--quiet", "--no-verify", "-m", "feat: a");
+    head = git("rev-parse", "HEAD");
+  });
+  afterEach(() => rmSync(root, { recursive: true, force: true }));
 
   it("shows nothing when no change is named or it does not exist", () => {
     expect(reviewOfChange(root, undefined, head)).toBeUndefined();
@@ -173,7 +178,7 @@ describe("reviewOfChange", () => {
     expect(reviewOfChange(root, "c", head)).toMatch(
       /^Review: no record in `openspec\/changes\/c\/review\.md`; the content of this commit is `[0-9a-f]{12}`\.$/,
     );
-    const current = /`([0-9a-f]{12})`\.$/.exec(reviewOfChange(root, "c", head) ?? "")?.[1];
+    const current = contentHash();
     write(
       "openspec/changes/c/review.md",
       `## Round 1\n\nReviewed: ${current}\nVerdict: approved\n`,
@@ -184,6 +189,10 @@ describe("reviewOfChange", () => {
   });
 
   it("reads the record of a change that the commit archives, hashed as it was reviewed", () => {
+    write(
+      "openspec/changes/c/review.md",
+      `## Round 1\n\nReviewed: ${contentHash()}\nVerdict: approved\n`,
+    );
     const before = reviewOfChange(root, "c", head);
     git("add", "--all");
     git("commit", "--quiet", "--no-verify", "-m", "docs: review c");
