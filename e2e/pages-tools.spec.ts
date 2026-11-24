@@ -33,6 +33,18 @@ const exercisesPanel = (page: Page) => page.getByRole("region", { name: "Упр�
 const pressUnseen = (button: ReturnType<typeof previousPage>) =>
   button.evaluate((element) => (element as HTMLButtonElement).click());
 
+/**
+ * Presses `button` `times` times from within the page, one frame apart, so that a press does not
+ * wait for the pages to be drawn again at the zoom before it (the last draw is the one that counts).
+ */
+const pressFrames = (button: ReturnType<typeof previousPage>, times: number) =>
+  button.evaluate(async (element, count) => {
+    for (let press = 0; press < count; press++) {
+      (element as HTMLButtonElement).click();
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+  }, times);
+
 test.describe("DOC-002 Zoom", () => {
   test(
     "@req DOC-002 the pages are zoomed in and out, kept per book over a reload, and the book's own zoom is shown when another opens",
@@ -79,14 +91,16 @@ test.describe("DOC-002 Zoom", () => {
     async ({ page }) => {
       await openUnit(page, "1");
       await zoomIn(page).focus();
-      for (let presses = 0; presses < 5; presses++) await page.keyboard.press("Enter");
+      for (let presses = 0; presses < 2; presses++) await page.keyboard.press("Enter");
+      await expect(level(page)).toHaveText("150 %");
+      await pressFrames(zoomIn(page), 3);
 
       await expect(level(page)).toHaveText("300 %");
       await expect(zoomIn(page)).toBeDisabled();
       await expect(zoomIn(page), "the focus stays where it was").toBeFocused();
       await expect(zoomOut(page)).toBeEnabled();
 
-      for (let presses = 0; presses < 7; presses++) await zoomOut(page).click();
+      await pressFrames(zoomOut(page), 7);
 
       await expect(level(page)).toHaveText("50 %");
       await expect(zoomOut(page)).toBeDisabled();
@@ -164,7 +178,19 @@ test.describe("DOC-003 A page before or after", () => {
 
       await nextPage(page).click();
       expect(await numbersOf(page)).toEqual([1, 2, 3, 4, 5]);
-      while ((await nextPage(page).count()) > 0) await nextPage(page).click();
+      // Pressed in the page up to the last page, which has no button: the pages far below are
+      // not drawn, and each press does not wait for them.
+      await page.evaluate(async () => {
+        for (let press = 0; press < 100; press++) {
+          const next = [...document.querySelectorAll("button")].find(
+            (button) => button.textContent?.trim() === "Следующая страница",
+          );
+          if (next === undefined) return;
+          next.click();
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+      });
+      await expect(nextPage(page), "the book's last page").toHaveCount(0);
       const numbers = await numbersOf(page);
       expect(numbers.at(-1), "the book's last page").toBeGreaterThan(11);
       expect(numbers).toEqual(Array.from({ length: numbers.length }, (_, at) => at + 1));
