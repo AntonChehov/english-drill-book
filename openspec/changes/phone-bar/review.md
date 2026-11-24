@@ -49,7 +49,7 @@ Verdict: approved
 ### Notes
 
 - Fresh agent for round 2; the round-1 agent was not resumed.
-- F2: `src/ui/components/BookCards.test.ts` renders one book with all units done and one partly done, and checks the `finished` class and «выполнено» in the heading of the first only, and nothing marked when nothing is done. It clears the shared `doneExercises` after each test, so it does not depend on order.
-- F3: `scroll-padding-top: 6rem` on the root below 1024 px in `src/ui/styles/base.css`, larger than the two-row bar of Study. The new end-to-end test in `e2e/phone-bar.spec.ts` scrolls a field of Study to the top edge from below with the bar away, waits for the bar to return, then checks the field sits below its bottom edge; `scrollIntoView` honours `scroll-padding-top` as focus scrolling does.
+- On F2, `src/ui/components/BookCards.test.ts` renders one book with all units done and one partly done, and checks the `finished` class and «выполнено» in the heading of the first only, and nothing marked when nothing is done. It clears the shared `doneExercises` after each test, so it does not depend on order.
+- On F3, `scroll-padding-top: 6rem` on the root below 1024 px in `src/ui/styles/base.css`, larger than the two-row bar of Study. The new end-to-end test in `e2e/phone-bar.spec.ts` scrolls a field of Study to the top edge from below with the bar away, waits for the bar to return, then checks the field sits below its bottom edge; `scrollIntoView` honours `scroll-padding-top` as focus scrolling does.
 - 7c8ca4a only widens a line of `docs/tech-debt.md` (the offline reload, H-05, pre-existing on main) by the owner's decision; no code.
 - The CI check `evidence` waits for this round.
