@@ -53,3 +53,16 @@ Verdict: approved
 - The loop to the last page finds the button by `textContent` across the whole document, not by role and name inside the pages panel. Today «Следующая страница» exists only in `PagesPanel.vue`, and the next line checks with the role locator that no such button is left, so the test is sound. Scoping the query to the panel would read better.
 - The run on c027d78 failed DOC-003 on chromium-1-of-2 (the race that c649bf3 fixes). On c649bf3 every e2e shard, Lighthouse and the screenshots passed, but the evidence job measured 187 s, over the 180 s of C-19. 85991a4 adds shards (WebKit 6, Chromium 3) and had no run when this round was written. Nothing else depends on the shard labels: the evidence job takes whatever `e2e-*` results there are. This approval assumes a green `pr-evidence` run on this commit, which enforces the C-19 budget (`ENFORCE_DURATION_BUDGET`). If that run is over 180 s or a test fails, the approval does not stand and the next round gets a critical finding.
 - No text from a textbook was found in the new commits. Every requirement ID is still named by a test.
+
+## Round 3
+
+Reviewed: 2471abf04e3b
+Verdict: approved
+
+### Notes
+
+- I am a fresh agent for this round, not the reviewer of rounds 1 or 2. No finding is open from round 2. The review covers the whole diff against `main`; the only commit since round 2 that changes code or tests is b394b16 (the two archive commits were reverted, and 0bf5f54 rewords notes of round 2).
+- PROD-001 is checked at least as strongly as before. The old test found the links at run time and asked only for seven or more. The new guard reads the `href` of every `a` on Study's unit 1 with the list of units open, in order, and requires exactly the nine listed. So a new link, a removed one or a changed destination fails the guard, where the old test would have passed on a removed link. Each listed link then gets its own test with the same checks as before: no `target`, the address after the click is the link's own, a level-1 heading is shown, and no other window or tab was opened. The two links to `#/` are told apart by their accessible names.
+- One small gap: the guard counts `a` elements, while the old test counted the role `link`. An element given `role="link"` that is not an `a` would not be caught. Study has none today, so this does not weaken the check in practice. Counting `getByRole("link")` beside the `a` elements would close the gap.
+- `test.slow` for WebKit is dropped. Each test now opens one unit and follows one link, so the old reason for it is gone. The test names carry `@req PROD-001`, and the list holds only the demo course's own titles. No text from a textbook was found.
+- When this round was written, PR #38 showed no checks on b394b16. This approval assumes a green `pr-evidence` run on this commit, inside the 180 s of C-19. If that run is over budget or a test fails, the approval does not stand and the next round gets a critical finding.
