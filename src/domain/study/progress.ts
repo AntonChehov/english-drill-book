@@ -18,3 +18,8 @@ export function progressOf(
 export function continueAt(units: readonly Progress[]): number {
   return units.findIndex(({ done, total }) => done < total);
 }
+
+/** Every exercise is done, and there is at least one (PROD-012). */
+export function isFinished({ done, total }: Progress): boolean {
+  return total > 0 && done === total;
+}

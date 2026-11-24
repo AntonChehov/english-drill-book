@@ -1,18 +1,21 @@
 <script setup lang="ts">
 // Study (PLAY-001; design D3 of `study-screen`): the unit's pages beside its exercises, side by side
-// from 1024 px and stacked below that, with the unit's navigation in its header. Before the
-// exercises, the unit's explanation from the pack, foldable and open on every opening (PLAY-020;
-// design D3 of `russian-demo`).
+// from 1024 px and stacked below that, with the unit's navigation in its header, or in the bar of
+// the frame below 1024 px (PROD-012). Before the exercises, the unit's explanation from the pack,
+// foldable and open on every opening (PLAY-020; design D3 of `russian-demo`).
 import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import type { Pack } from "../../domain/packs/types";
 import { documentTitle } from "../../domain/document-title";
-import { theoryParagraphs } from "../../domain/study";
+import { isFinished, theoryParagraphs } from "../../domain/study";
+import { useNarrow } from "../bar";
+import CheckMark from "../components/CheckMark.vue";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
 import { doneOf, draftNotKept } from "./messages";
 import { pageNumbers } from "./pages";
 import PagesPanel from "./PagesPanel.vue";
+import StepButton from "./StepButton.vue";
 import TopicSteps from "./TopicSteps.vue";
 import UnitMenu from "./UnitMenu.vue";
 import { useUnit, type ExerciseEntry } from "./unit";
@@ -38,6 +41,9 @@ const {
   adding,
   demoTitle,
 } = study;
+
+const narrow = useNarrow();
+const finished = computed(() => progress.value !== undefined && isFinished(progress.value));
 
 const heading = useTemplateRef<HTMLElement>("heading");
 const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
@@ -170,33 +176,24 @@ watch(
   </section>
 
   <div v-else-if="pack && unit" class="study">
+    <Teleport v-if="narrow" to="#bar-unit">
+      <StepButton direction="previous" :to="previous" @go="go" />
+      <p class="bar-title">
+        Раздел {{ unit.id }}
+        <CheckMark :done="finished" />
+      </p>
+      <StepButton direction="next" :to="next" @go="go" />
+      <UnitMenu :pack="pack.id" :current="unit.id" :units="units" />
+    </Teleport>
     <header class="unit-bar card">
       <div class="unit-main">
         <p class="book" lang="en">{{ pack.title }}</p>
         <div class="unit-line">
-          <button
-            type="button"
-            class="step"
-            aria-label="Предыдущий раздел"
-            title="Предыдущий раздел"
-            :disabled="previous === undefined"
-            @click="go(previous)"
-          >
-            <span aria-hidden="true">‹</span>
-          </button>
+          <StepButton v-if="!narrow" direction="previous" :to="previous" @go="go" />
           <h1 ref="heading" class="unit-title" tabindex="-1">
             Раздел {{ unit.id }}.&nbsp;{{ unit.title }}
           </h1>
-          <button
-            type="button"
-            class="step"
-            aria-label="Следующий раздел"
-            title="Следующий раздел"
-            :disabled="next === undefined"
-            @click="go(next)"
-          >
-            <span aria-hidden="true">›</span>
-          </button>
+          <StepButton v-if="!narrow" direction="next" :to="next" @go="go" />
         </div>
       </div>
       <div class="unit-meta">
@@ -205,7 +202,7 @@ watch(
           <span class="visually-hidden">упражнений этого раздела</span>
         </p>
         <p v-if="draftFailed" class="draft-failed">{{ draftNotKept }}</p>
-        <UnitMenu :pack="pack.id" :current="unit.id" :units="units" />
+        <UnitMenu v-if="!narrow" :pack="pack.id" :current="unit.id" :units="units" />
       </div>
       <TopicSteps v-if="topic" :topic="topic" />
     </header>
@@ -353,29 +350,14 @@ watch(
   min-width: 0;
 }
 
-.step {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.375rem;
-  color: var(--color-text);
-  cursor: pointer;
-  flex: none;
-  font: inherit;
-  font-size: 1.25rem;
-  height: 2.25rem;
-  line-height: 1;
-  width: 2.25rem;
-}
-
-.step:hover:not(:disabled) {
-  background: var(--color-surface-muted);
-  border-color: var(--color-text);
-}
-
-.step:disabled {
-  border-color: var(--color-border);
-  color: var(--color-border-strong);
-  cursor: default;
+.bar-title {
+  flex: 1 1 auto;
+  font-weight: 600;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .unit-meta {
