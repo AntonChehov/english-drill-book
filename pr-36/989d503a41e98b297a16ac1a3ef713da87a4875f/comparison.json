@@ -1,0 +1,322 @@
+[
+  {
+    "file": "about-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "about-dark-390.png",
+    "status": "changed",
+    "share": 0.12518589743589745
+  },
+  {
+    "file": "about-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "about-light-390.png",
+    "status": "changed",
+    "share": 0.1252371794871795
+  },
+  {
+    "file": "newer-version-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-dark-390.png",
+    "status": "changed",
+    "share": 0.08402564102564103
+  },
+  {
+    "file": "not-found-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-light-390.png",
+    "status": "changed",
+    "share": 0.08409615384615385
+  },
+  {
+    "file": "start-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-dark-390.png",
+    "status": "changed",
+    "share": 0.24936538461538463
+  },
+  {
+    "file": "start-demo-added-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-added-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-failed-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-failed-dark-390.png",
+    "status": "changed",
+    "share": 0.2890897435897436
+  },
+  {
+    "file": "start-demo-failed-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-failed-light-390.png",
+    "status": "changed",
+    "share": 0.2941346153846154
+  },
+  {
+    "file": "start-demo-kept-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-kept-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-not-kept-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-not-kept-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-not-kept-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-not-kept-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-light-390.png",
+    "status": "changed",
+    "share": 0.25443910256410257
+  },
+  {
+    "file": "study-checked-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-checked-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-checked-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-checked-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-course-done-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-course-done-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-drills-course-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-drills-course-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-not-kept-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-not-kept-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-not-kept-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-not-kept-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-pages-offline-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-pages-offline-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-untouched-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-untouched-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "topics-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-dark-390.png",
+    "status": "changed",
+    "share": 0.07378846153846154
+  },
+  {
+    "file": "topics-demo-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-dark-390.png",
+    "status": "changed",
+    "share": 0.2881730769230769
+  },
+  {
+    "file": "topics-demo-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-light-390.png",
+    "status": "changed",
+    "share": 0.2951826923076923
+  },
+  {
+    "file": "topics-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-light-390.png",
+    "status": "changed",
+    "share": 0.07395192307692308
+  }
+]
