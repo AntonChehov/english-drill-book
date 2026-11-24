@@ -86,3 +86,26 @@ I read the fix commit 76559c3 against 9fc52be. C-18 now says the release pull re
 I did not run `openspec new change --schema lite` myself; a scratch run was not permitted in round 1. The process text now agrees with the `lite` proposal instruction and with design D7.
 
 Checks run: `vitest run scripts` passes (310 tests), lint passes, and Prettier passes on the changed files. The design has 941 of 1 000 words. Nothing else changed since round 1.
+
+## Round 3
+
+Reviewed: 4a418e948c01
+Verdict: approved
+
+### Notes
+
+Fresh agent for round 3; the reviewer of rounds 1 and 2 was not resumed.
+
+What I read: the whole diff against `origin/main`, with a focus on 8307e71 (archive), 80bda54 (its revert) and b8106f2 (the file check moved from a job of its own into a first step `files` of `unit` and of `build`). There are no open findings from earlier rounds.
+
+D4 still holds. If the step `files` fails (an API error or a missing variable), the steps after it are skipped by the implicit `success()`. The job fails, `checks` is not `success`, and the first step of `evidence` fails. If the step passes with `false`, both jobs are green and do nothing. `build.outputs.code` is `false`, so `e2e`, `lighthouse` and `screenshots` are skipped, and `evidence` skips the artifact steps. `scripts/pr-evidence.mjs` still decides on its own diff, so a wrong `false` fails checks 5 and 6 and cannot pass them. If `unit` and `build` gave different answers (two API calls on the same head), the result is still safe. A `true` from `build` with a skipped `unit` makes `scripts/metrics.mjs` fail on the missing `unit` artifact. A `false` from `build` falls back to the evidence check's own diff. On `main`, `PR_NUMBER` is empty, so both answer `true`.
+
+When code changes, `e2e`, `lighthouse` and `screenshots` run. Their `if:` compares `needs.build.outputs.code` with `'true'` and adds the implicit `success()`, so they run after a green `build` and are skipped after a red one, as before. Job outputs are set even when a later step fails, and the workflow output `code` now comes from `build`.
+
+The texts match the workflow. The header of `checks.yml`, the permission comments of `main.yml` and `pull-request.yml`, the comment above the evidence steps, D3 with its new rejected alternative, the risk line and task 2.2 all describe a step, not a job. The constitution and `docs/process.md` describe only the outcome, and that is unchanged.
+
+New minor observation, not a finding (round 3): the header comment of `scripts/changes.mjs` still says that `checks.yml` "runs this as its first job". It is now the first step of `unit` and `build`.
+
+Not verified: no CI run exists yet for b8106f2, so I could not confirm that the run is now within the 180 s of C-19. That cannot become falsely green either, since `scripts/duration.mjs` enforces the budget in `evidence`. The next CI run on the new archive commit shows it.
+
+Checks run: `pnpm review:hash workflow-retro` only. The change touches workflow YAML and three texts; no script or test changed since round 2.
