@@ -2,7 +2,8 @@
 // Study (PLAY-001; design D3 of `study-screen`): the unit's pages beside its exercises, side by side
 // from 1024 px and stacked below that, with the unit's navigation in its header, or in the bar of
 // the frame below 1024 px (PROD-012). Before the exercises, the unit's explanation from the pack,
-// foldable and open on every opening (PLAY-020; design D3 of `russian-demo`).
+// foldable and open on every opening (PLAY-020; design D3 of `russian-demo`). From 1024 px the
+// border between the two is draggable and either can be collapsed to a strip (DOC-006).
 import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import type { Pack } from "../../domain/packs/types";
@@ -16,6 +17,8 @@ import ExerciseBlock from "./ExerciseBlock.vue";
 import { doneOf, draftNotKept } from "./messages";
 import { pageNumbers } from "./pages";
 import PagesPanel from "./PagesPanel.vue";
+import { useStudyPreferences, type Panel } from "./preferences";
+import SplitSeparator from "./SplitSeparator.vue";
 import StepButton from "./StepButton.vue";
 import TopicSteps from "./TopicSteps.vue";
 import UnitMenu from "./UnitMenu.vue";
@@ -44,6 +47,9 @@ const {
 } = study;
 
 const narrow = useNarrow();
+const preferences = useStudyPreferences();
+/** The collapsed panel; none below 1024 px, where the panels are stacked. */
+const collapsed = computed(() => (narrow.value ? undefined : preferences.collapsed.value));
 const finished = computed(() => progress.value !== undefined && isFinished(progress.value));
 
 const heading = useTemplateRef<HTMLElement>("heading");
@@ -52,6 +58,10 @@ const exercisesHeading = useTemplateRef<HTMLElement>("exercisesHeading");
 const exercisesColumn = useTemplateRef<HTMLElement>("exercisesColumn");
 const pagesTop = useTemplateRef<HTMLElement>("pagesTop");
 const pagesColumn = useTemplateRef<HTMLElement>("pagesColumn");
+const coursePanel = useTemplateRef<InstanceType<typeof PagesPanel>>("coursePanel");
+const showPagesButton = useTemplateRef<HTMLButtonElement>("showPagesButton");
+const showExercisesButton = useTemplateRef<HTMLButtonElement>("showExercisesButton");
+const hideExercisesButton = useTemplateRef<HTMLButtonElement>("hideExercisesButton");
 
 const roleOf = (of: Pack | undefined) => of?.source?.documents?.[0]?.role ?? "book";
 const pages = computed(() => pageNumbers(unit.value?.pages, roleOf(pack.value)));
@@ -73,6 +83,21 @@ async function showSource(course: boolean) {
 }
 const theory = computed(() => theoryParagraphs(unit.value?.theory ?? ""));
 
+/** Collapses `side` to a strip; the focus goes to the button that restores it. */
+async function collapse(side: Panel) {
+  preferences.setCollapsed(side);
+  await nextTick();
+  (side === "pages" ? showPagesButton : showExercisesButton).value?.focus();
+}
+
+/** Restores the collapsed `side`; the focus goes to the button that collapses it. */
+async function restore(side: Panel) {
+  preferences.setCollapsed(undefined);
+  await nextTick();
+  if (side === "exercises") hideExercisesButton.value?.focus();
+  else (showCourse.value ? coursePanel : panel).value?.focusHide();
+}
+
 function go(to: string | undefined) {
   if (to !== undefined) void router.push(`/study/${packId}/${to}`);
 }
@@ -82,6 +107,11 @@ async function showPage(entry: ExerciseEntry) {
     pages.value.includes(page),
   );
   if (first === undefined) return;
+  // The page asked for is on the panel that is collapsed: it is restored first.
+  if (collapsed.value === "pages") {
+    preferences.setCollapsed(undefined);
+    await nextTick();
+  }
   if (showCourse.value) {
     showCourse.value = false;
     await nextTick();
@@ -209,8 +239,17 @@ watch(
       <TopicSteps v-if="topic" :topic="topic" />
     </header>
 
-    <div class="body">
-      <div ref="pagesColumn" class="pages-column">
+    <div
+      class="body"
+      :class="collapsed && `${collapsed}-collapsed`"
+      :style="{ '--pages': `${preferences.split.value * 100}%` }"
+    >
+      <div
+        v-show="collapsed !== 'pages'"
+        ref="pagesColumn"
+        class="pages-column"
+        :class="{ 'with-source': topic?.step === 'drills' }"
+      >
         <FailureBoundary>
           <p class="jump">
             <button
@@ -240,18 +279,52 @@ watch(
               Курс: раздел {{ topic.course.unit.id }}
             </button>
           </div>
-          <PagesPanel v-show="!showCourse" ref="panel" :pack="pack" :pages="pages" />
+          <PagesPanel
+            v-show="!showCourse"
+            ref="panel"
+            :pack="pack"
+            :pages="pages"
+            :zoom="preferences.zoomOf(pack.id)"
+            :collapsible="!narrow"
+            @zoom="(zoom) => preferences.setZoom(pack!.id, zoom)"
+            @hide="collapse('pages')"
+          />
           <PagesPanel
             v-if="topic && courseOpened"
             v-show="showCourse"
+            ref="coursePanel"
             :pack="topic.course.pack"
             :pages="coursePages"
+            :zoom="preferences.zoomOf(topic.course.pack.id)"
+            :collapsible="!narrow"
+            @zoom="(zoom) => preferences.setZoom(topic!.course.pack.id, zoom)"
+            @hide="collapse('pages')"
           />
         </FailureBoundary>
       </div>
+      <button
+        v-if="collapsed === 'pages'"
+        ref="showPagesButton"
+        type="button"
+        class="secondary strip"
+        @click="restore('pages')"
+      >
+        Показать страницы
+      </button>
+      <SplitSeparator
+        v-else-if="!narrow && collapsed === undefined"
+        :split="preferences.split.value"
+        @move="preferences.setSplit"
+      />
 
       <!-- Named by its own text, not by the heading: the heading is gone while the column failed. -->
-      <section ref="exercisesColumn" class="exercises-column" aria-label="Упражнения" tabindex="-1">
+      <section
+        v-show="collapsed !== 'exercises'"
+        ref="exercisesColumn"
+        class="exercises-column"
+        aria-label="Упражнения"
+        tabindex="-1"
+      >
         <FailureBoundary>
           <details v-if="theory.length > 0" class="theory card" open>
             <summary class="theory-summary">Объяснение</summary>
@@ -267,6 +340,15 @@ watch(
           <div class="intro card">
             <div class="intro-head">
               <h2 id="exercises-heading" ref="exercisesHeading" tabindex="-1">Упражнения</h2>
+              <button
+                v-if="!narrow"
+                ref="hideExercisesButton"
+                type="button"
+                class="secondary"
+                @click="collapse('exercises')"
+              >
+                Скрыть упражнения
+              </button>
               <button type="button" class="jump-link jump" @click="jump(pagesTop)">
                 <span aria-hidden="true">↑</span> К страницам
               </button>
@@ -300,6 +382,15 @@ watch(
           </div>
         </FailureBoundary>
       </section>
+      <button
+        v-if="collapsed === 'exercises'"
+        ref="showExercisesButton"
+        type="button"
+        class="secondary strip"
+        @click="restore('exercises')"
+      >
+        Показать упражнения
+      </button>
     </div>
 
     <p class="visually-hidden" role="status">{{ announcement }}</p>
@@ -514,17 +605,36 @@ watch(
    window; the exercises keep a comfortable width and scroll on their own beside them. Below that
    everything scrolls with the window, so the on-screen keyboard never hides the field typed in. */
 @media (min-width: 1024px) {
+  /* The pages take the share of the row that `--pages` says, the exercises the rest and at least
+     22rem, and the border between them is 0.75rem wide (DOC-006). A collapsed panel is a strip. */
   .body {
-    align-items: flex-start;
-    flex-direction: row;
+    align-items: start;
+    display: grid;
+    gap: 0;
+    grid-template-columns:
+      minmax(0, min(var(--pages), calc(100% - 22rem - 0.75rem)))
+      0.75rem minmax(0, 1fr);
   }
 
-  .pages-column {
-    flex: 1 1 auto;
+  .body.pages-collapsed {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+  }
+
+  .body.exercises-collapsed {
+    grid-template-columns: minmax(0, 1fr) 2.75rem;
+  }
+
+  .strip {
+    align-self: start;
+    min-height: 10rem;
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    width: 2.75rem;
+    writing-mode: vertical-rl;
   }
 
   .exercises-column {
-    flex: 0 0 clamp(26rem, 36vw, 34rem);
     max-height: 100vh;
     max-height: 100dvh;
     overflow-y: auto;
@@ -538,9 +648,16 @@ watch(
     display: none;
   }
 
+  /* The header of the pages hangs under the switch, which is as high as `--pages-head-top`. */
+  .with-source {
+    --pages-head-top: 2.75rem;
+  }
+
   .source {
+    align-items: center;
     background: var(--color-bg);
-    padding: 0.25rem 0;
+    height: 2.75rem;
+    margin: 0;
     position: sticky;
     top: 0;
     z-index: 1;

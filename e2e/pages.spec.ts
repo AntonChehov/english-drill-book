@@ -1,33 +1,20 @@
-import type { Page } from "@playwright/test";
 import { demoPdf, failedLoad } from "./demo";
 import {
   answers11,
   checkButton,
+  drawnPages,
   exerciseOf,
   expect,
   fill,
+  numbersOf,
   openUnit,
+  pagesOf,
   pagesPanel,
   rowOf,
   test,
+  topOf,
   unitHeading,
 } from "./study";
-
-// Not through the panel: `evaluateAll` on a role inside a role crashes the page in Firefox.
-const pagesOf = (page: Page) => page.getByRole("img", { name: /^Страница \d+$/ });
-const drawnPages = (page: Page) => pagesPanel(page).locator("canvas[data-drawn]");
-
-/** The numbers of the pages the panel shows, in the order it shows them. */
-const numbersOf = async (page: Page) =>
-  (
-    await pagesOf(page).evaluateAll((all) => all.map((each) => each.getAttribute("aria-label")))
-  ).map((label) => Number(label?.replace("Страница ", "")));
-
-/** Where the top of page `number` is, in CSS pixels from the top of the window. */
-const topOf = (page: Page, number: number) =>
-  pagesPanel(page)
-    .locator(`[data-page="${number}"]`)
-    .evaluate((element) => element.getBoundingClientRect().top);
 
 const offlineMessage = "Страницы демо-книги показываются только при подключении к интернету.";
 
