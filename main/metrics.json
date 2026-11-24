@@ -2,13 +2,13 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-DVblkli3.js",
+        "assets/index-9QPVLifG.js",
         "assets/preload-helper-7y9sWmk5.js",
-        "assets/program-GcyIc4J1.js",
-        "assets/router-B7Jtv-mY.js"
+        "assets/program-CHajSZWO.js",
+        "assets/router-0Amq0Hm3.js"
       ],
-      "bytes": 129354,
-      "gzip": 50261,
+      "bytes": 129507,
+      "gzip": 50311,
       "budget": 120000
     },
     "css": {
@@ -22,14 +22,14 @@
     },
     "later": [
       {
-        "file": "assets/StudyView-BeAMBNjI.js",
-        "bytes": 39850,
-        "gzip": 14437
+        "file": "assets/StudyView-D7_xIIma.js",
+        "bytes": 48079,
+        "gzip": 17210
       },
       {
-        "file": "assets/TopicsView-D3xiQRDc.js",
+        "file": "assets/TopicsView-D15CoufP.js",
         "bytes": 2623,
-        "gzip": 1451
+        "gzip": 1454
       },
       {
         "file": "assets/add-demo-D0q_73LW.js",
@@ -63,19 +63,19 @@
       }
     ]
   },
-  "sha": "f4dbcc2f63a1f8aa6baad043926ec656608f29a4",
+  "sha": "d98dbbc44e4c0f2cf01c1cefa4aabe0517b54209",
   "tests": {
     "unit": {
-      "tests": 838,
-      "passed": 838,
+      "tests": 851,
+      "passed": 851,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 297,
-      "passed": 296,
+      "tests": 379,
+      "passed": 377,
       "failed": 0,
-      "skipped": 1
+      "skipped": 2
     }
   },
   "coverage": {
@@ -91,6 +91,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 146
+    "seconds": 151
   }
 }
