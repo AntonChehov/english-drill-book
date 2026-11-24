@@ -55,3 +55,12 @@ export function sections(markdown, level) {
   }
   return result;
 }
+
+/** Parses `git diff --name-status --no-renames -z`: NUL-separated status and path pairs. */
+export function parseNameStatus(output) {
+  const fields = output.split("\0").filter(Boolean);
+  const files = [];
+  for (let index = 0; index + 1 < fields.length; index += 2)
+    files.push({ status: fields[index], path: fields[index + 1] });
+  return files;
+}

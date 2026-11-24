@@ -4,6 +4,8 @@
 
 **M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Slice 1.2 is done: the answer checker is in `src/domain/checking`, not yet called by any screen. Slice 1.3 is done: two demo books are served with the app, read into packs in the browser and listed on the start screen. Slice 1.4 is done: packs, the attempt log and its derived state are kept in the browser, and the demo stays added. Slice 1.5 is done: a unit of either demo book opens in Study, its pages beside its exercises, which are answered, checked and kept. The change `near-grammar` narrowed «Почти» to a slip inside a longer word. Version 0.1.0 is released (2026-11-16): the demo with Study on both demo books. Slice 1.6 is done: three changes, `demo-program` (the demo program on Today), `topics-and-checklist` (Topics with the focus, the daily checklist, a hover highlight on Today items, «Выполнить упражнение» for all users) and `two-step-study` (PLAY-017, PLAY-018, PROG-007: the two-step Study, pages switching to the course, a topic opened at its first unfinished step).
 
+After the merge of `workflow-retro`, once: the open release pull request, which release-please updates, must run only `static` and `evidence` and go green. If it goes red because of the skipped jobs, fix the `if` conditions of `.github/workflows/checks.yml` and `pull-request.yml` in a follow-up.
+
 Asked for by the owner on 2026-11-16, after the first release:
 
 - **The bar on a phone** (PROD-012, slice 1.8): a compact navigation fixed to the top of a narrow screen that hides on a scroll down and returns on a scroll up, replacing the page's top bar; a finished unit or book shown in green with a check mark drawn in.
@@ -51,27 +53,7 @@ Accounts and sync of the attempt log between devices. To be specified, with its 
 
 Placement test (find the learner's level and the topics to skip). Own exercise bank (original drills per topic, built in). See `docs/product/05-program-and-levels.md`, section Later.
 
-Technical debt, recorded at the owner's request on 2026-11-14 from the validation of `study-screen`:
-
-- The speed of Study on WebKit. In the pipeline's WebKit (two pixels per CSS pixel) the first page of a unit is drawn in 1.5–2 s, against about 0.1 s on Chromium and Firefox, and the end-to-end check of that time is skipped there. WebKit is not a target of the app for now; C-13, which requires the end-to-end tests on WebKit, may need the same answer.
-- A verdict counted by hand looks nearly the same as one the app gave: only the words «засчитано вручную» differ, not the colour or the sign.
-- Small touch targets on a phone: the "⋯" menu of a row is 36 × 36 px and an option chip about 34 px high, under the usual 44–48 px.
-- Tab stops on every row's "⋯" between the answer fields, so going through an exercise by keyboard takes twice the presses.
-- Twice in about 50 tries, right after a new build was served, the worker of the PDF library did not load and adding the demo said there was no connection; not seen again in 40 tries. A failed load of the app's own script could be retried once, or named for what it is.
-- The start screen reads the derived state of every exercise of both books again on each write in another tab; to be coalesced before real books.
-- CI: `pnpm install` spends up to 70 s verifying the lockfile against supply-chain policies with the npm registry when it is slow, which pushed a run over C-19 (PR #22, run 44098893926); cache the verification or skip it when the lockfile is unchanged.
-- Offline after a fresh start, Today shows the "demo not added" state instead of the stored books and progress (validation of PR #22).
-- Checking a long exercise with Enter in its last field lets the verdicts push the focused field below the window (validation of PR #22).
-- In a clean browser, a link to a demo unit that does not exist promises the unit will open after adding the demo, then says not found (validation of PR #22).
-- At 360 px some touch targets are 34–38 px high (option pills, ⋯ ‹ › buttons, fields), below 44–48 px; tapping an option flashes the default tap highlight (validation of PR #22).
-- Answers typed less than about 0.3 s before a reload or closing the tab are lost: the draft is not saved when the page unloads (validation of PR #26).
-- Two swapped letters in a long word are judged wrong, not «Почти» (validation of PR #26).
-- Remove `auditConfig.ignoreGhsas` (GHSA-fc5q-39xc-vjpf) from `pnpm-workspace.yaml` once picomatch >= 4.0.8 is published (change `audit-ignore-picomatch`): the high advisory is dev-only, through vite, vue-tsc and openspec.
-- The demo read time of PACK-003 has a small margin to its 2 s limit; the check fails locally when two browsers run in parallel.
-- The same unit open in two tabs: an unchecked draft from one tab can arrive about 0.5 s later and overwrite text just typed in the other; the newest edit should win.
-- A failed demo download shows a technical code such as "(ошибка 503)" to the learner.
-- After a reload with the network off, «Открыть раздел» on Today does nothing, with no message.
-- Opening a unit by an exercise link scrolls the page so the top header is out of view.
+Technical debt is in [`docs/tech-debt.md`](tech-debt.md).
 
 ## Done
 
@@ -89,3 +71,4 @@ Technical debt, recorded at the owner's request on 2026-11-14 from the validatio
 - 2026-11-17 — `review-severity` (pull request #20): every review finding carries a severity, critical or minor; from round 3 on only critical findings must be fixed, minor ones become technical debt; `design.md` is optional for a change of only texts or only documentation. Archived.
 - 2026-11-17 — `russian-demo` (pull request #22): the demo packs carry Russian unit titles, the explanation of each unit's grammar and what to do in each exercise, shown in Study beside the exercises; PACK-004, PLAY-020. Archived.
 - 2026-11-23 — slice 1.6 (`two-step-study`, pull request #32): Study with the two steps of a topic, pages of the course switched in step 2, «Открыть раздел» on Today opens a topic at its first unfinished step; PLAY-017, PLAY-018, PROG-007. Archived; `openspec/specs/pages` and `study` hold its requirements, `today` is updated.
+- 2026-11-23 — `workflow-retro`: the archive is the last commit of the change's own pull request (no archive pull request); a pull request without code, and the release pull request, run only the static and evidence checks; validation runs alongside review round 1 and reruns only the scenarios the fixes may touch; `review.md` keeps a smaller frozen form with a severity per finding; a small change uses the schema `lite` (a proposal and tasks, no design and no delta spec) and a requirement's wording lives only in `docs/product/`; word limits for artifacts; a moratorium on process changes for three product changes; technical debt moved to `docs/tech-debt.md`.

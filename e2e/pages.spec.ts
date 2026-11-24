@@ -97,7 +97,7 @@ test.describe("DOC-001 The pages of a unit", () => {
     "@req DOC-001 with the book already fetched, the first page of a unit is visible within 2 seconds",
     { tag: "@demo" },
     async ({ page, browserName }) => {
-      // WebKit is not a target of the app; its speed is technical debt (docs/roadmap.md).
+      // WebKit is not a target of the app; its speed is technical debt (docs/tech-debt.md).
       test.skip(browserName === "webkit", "the time is not held on WebKit");
       await openUnit(page, "1");
       await expect(drawnPages(page).first()).toBeVisible();

@@ -1,0 +1,44 @@
+name: lite
+version: 1
+description: Small change - a proposal and tasks, no design and no delta specs
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: Why, what changes and the requirements delivered
+    template: proposal.md
+    instruction: |
+      Write the proposal of a small change, at most 300 words.
+
+      A change is small when it is about 400 changed lines or fewer, has at most
+      3 requirements and changes no schema or storage format. Otherwise use the
+      schema spec-driven.
+
+      Sections:
+      - **Why**: one or two sentences.
+      - **What Changes**: a short list.
+      - **Requirements**: the IDs from docs/product/ that the change delivers, and
+        what is left for later. Their wording stays in docs/product/; there is no
+        delta spec, and the tests named with @req carry the requirement.
+      - **Capabilities**: "None" (the change sets skip_specs: true).
+    requires: []
+
+  - id: tasks
+    generates: tasks.md
+    description: Implementation checklist, at most 300 words
+    template: tasks.md
+    instruction: |
+      List the tasks, at most 300 words.
+
+      Each tracked task is a checkbox `- [ ] X.Y Task description` and states how it
+      is verified (a test, a command, an observable behaviour). Each group lands its
+      own tests; tests name the requirement IDs (@req ID). Review, evidence and the
+      archive commit are steps of docs/process.md, not tasks.
+    requires:
+      - proposal
+
+apply:
+  requires: [tasks]
+  tracks: tasks.md
+  instruction: |
+    Read the proposal, work through pending tasks, mark complete as you go.
+    Pause if you hit blockers or need clarification.

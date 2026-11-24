@@ -14,8 +14,8 @@ import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { isMain, readJson, requireEnv } from "./common.mjs";
 import { createGithub } from "./github.mjs";
-import { reviewHash } from "./review-hash.mjs";
-import { changeNamedIn, parseRecord, recordPath, reviewLine } from "./review-record.mjs";
+import { archiveOf, reviewHash } from "./review-hash.mjs";
+import { changeNamedIn, parseRecord, reviewLine } from "./review-record.mjs";
 import { formatKb } from "./size.mjs";
 
 export const marker = "<!-- pr-evidence";
@@ -157,8 +157,15 @@ export function renderComment({ sha, metrics, mainMetrics, comparison, urls, run
  * hash of the commit's content. Undefined when no change is named or it does not exist.
  */
 export function reviewOfChange(root, change, sha) {
-  if (!change || !existsSync(join(root, "openspec", "changes", change))) return undefined;
-  const path = join(root, recordPath(change));
+  if (!change) return undefined;
+  // A change that `sha` archives is read from the archive, and hashed as it was reviewed.
+  const archive = archiveOf(root, sha);
+  const directory =
+    archive?.change === change
+      ? `openspec/changes/archive/${archive.directory}`
+      : `openspec/changes/${change}`;
+  if (!existsSync(join(root, directory))) return undefined;
+  const path = join(root, directory, "review.md");
   return reviewLine({
     change,
     record: existsSync(path) ? parseRecord(readFileSync(path, "utf8")) : undefined,

@@ -41,7 +41,7 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
       // WebKit, not a target of the app, draws pages and opens units slowly in the pipeline: its
-      // speed is technical debt (docs/roadmap.md), so its waits are longer than the default 5 s.
+      // speed is technical debt (docs/tech-debt.md), so its waits are longer than the default 5 s.
       expect: { timeout: 15_000 },
       grep: /@demo/,
       testIgnore: /screenshots\.spec\.ts/,

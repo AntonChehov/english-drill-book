@@ -14,6 +14,8 @@ concurrency:
 
 permissions:
   contents: read
+  # The step `files` of the jobs `unit` and `build` of checks.yml lists the files of the pull request.
+  pull-requests: read
 
 jobs:
   checks:

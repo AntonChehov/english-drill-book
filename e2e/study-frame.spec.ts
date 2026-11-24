@@ -7,7 +7,7 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
     "@req PROD-001 every link on Study opens its destination in the same window",
     { tag: "@demo" },
     async ({ page, context, browserName }) => {
-      // WebKit, not a target, opens a unit slowly: its speed is technical debt (docs/roadmap.md).
+      // WebKit, not a target, opens a unit slowly: its speed is technical debt (docs/tech-debt.md).
       test.slow(browserName === "webkit");
       await openUnit(page, "1");
       await page.getByRole("button", { name: "Все разделы" }).click();

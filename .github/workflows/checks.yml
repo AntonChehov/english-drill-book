@@ -1,7 +1,11 @@
 # The gates of the constitution for one commit (design D7), shared by the pull request
 # and main workflows. Jobs run in parallel; the browser jobs run in the Playwright image,
 # so no browser is downloaded per run. Every job leaves its results as an artifact for the
-# evidence job: unit, size, dist, e2e-<browser or shard>, lighthouse, screenshots.
+# evidence job: unit, size, dist, e2e-<browser or shard>, lighthouse, screenshots. The first
+# step of `unit` and of `build`, `files`, says whether the pull request changes a file that a
+# build or test reads; if not, the other steps of both are skipped, and so are the jobs after
+# `build`: only `static` does work (workflow-retro D3, D4). No job runs before them, so the
+# answer costs seconds, not a job. On main it always says yes.
 name: Checks
 
 on:
@@ -15,9 +19,15 @@ on:
         description: The commit before the first one to lint; empty skips commitlint.
         type: string
         default: ""
+    outputs:
+      code:
+        description: '"true" when the build and the tests ran, "false" when they were skipped.'
+        value: ${{ jobs.build.outputs.code }}
 
 permissions:
   contents: read
+  # The step `files` of `unit` and `build` lists the files of the pull request.
+  pull-requests: read
 
 env:
   COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
@@ -70,20 +80,29 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           persist-credentials: false
+      - name: Files of the pull request
+        id: files
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: node scripts/changes.mjs
       - uses: ./.github/actions/setup
+        if: ${{ steps.files.outputs.code == 'true' }}
       - name: Unit tests with coverage of src/domain
+        if: ${{ steps.files.outputs.code == 'true' }}
         run: pnpm test:coverage
       - name: Speed of the checker (CHK-014), without coverage instrumentation
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.files.outputs.code == 'true' }}
         run: pnpm test:speed
       - name: Summary
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.files.outputs.code == 'true' }}
         run: node scripts/junit.mjs "Unit tests" reports/unit-junit.xml
       - name: Summary of the speed tests
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.files.outputs.code == 'true' }}
         run: node scripts/junit.mjs "Speed of the checker" reports/speed-junit.xml
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.files.outputs.code == 'true' }}
         with:
           name: unit
           path: |
@@ -97,17 +116,30 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      code: ${{ steps.files.outputs.code }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.ref }}
           persist-credentials: false
+      - name: Files of the pull request
+        id: files
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: node scripts/changes.mjs
       - uses: ./.github/actions/setup
+        if: ${{ steps.files.outputs.code == 'true' }}
       - name: Production build
+        if: ${{ steps.files.outputs.code == 'true' }}
         run: pnpm build
       - name: Bundle budgets
+        if: ${{ steps.files.outputs.code == 'true' }}
         run: pnpm size
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ steps.files.outputs.code == 'true' }}
         with:
           name: dist
           path: dist
@@ -116,7 +148,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.files.outputs.code == 'true' }}
         with:
           name: size
           path: metrics.json
@@ -126,6 +158,7 @@ jobs:
   e2e:
     name: e2e (${{ matrix.label }})
     needs: build
+    if: ${{ needs.build.outputs.code == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     container:
@@ -180,6 +213,7 @@ jobs:
   lighthouse:
     name: lighthouse
     needs: build
+    if: ${{ needs.build.outputs.code == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     container:
@@ -209,6 +243,7 @@ jobs:
   screenshots:
     name: screenshots
     needs: build
+    if: ${{ needs.build.outputs.code == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     container:
