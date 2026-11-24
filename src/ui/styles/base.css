@@ -60,6 +60,14 @@
   box-sizing: border-box;
 }
 
+/* The sticky bar of a screen below 1024 px (PROD-012) must not cover a focused element that the browser
+   scrolls to the top edge: the bar is up to two rows high in Study. */
+@media (max-width: 1023.98px) {
+  html {
+    scroll-padding-top: 6rem;
+  }
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text);

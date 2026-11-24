@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { exerciseOf, expect, finishUnit1, openUnit, test, unitHeading } from "./study";
+import { exerciseOf, expect, fieldOf, finishUnit1, openUnit, test, unitHeading } from "./study";
 import { addressOf } from "./views";
 
 const phone = { width: 360, height: 740 };
@@ -43,6 +43,28 @@ test.describe("PROD-012 The compact bar and the mark of a finished unit", () => 
     await expectAway(page);
     await scrollTo(page, 0);
     await expectInView(page);
+  });
+
+  test("@req PROD-012 a field scrolled to the top edge from below stays clear of the bar that returns", async ({
+    page,
+  }) => {
+    await page.setViewportSize(phone);
+    await openUnit(page, "1");
+    await scrollTo(page, 5000);
+    await expectAway(page);
+
+    // A browser that scrolls a focused field to the top edge (Shift+Tab) scrolls upwards, so the bar
+    // comes back over the top of the window; `scrollIntoView` does the same in every browser.
+    const field = fieldOf(exerciseOf(page, "1.1"), "1");
+    await field.evaluate((element) => element.scrollIntoView({ block: "start" }));
+    await expectInView(page);
+    const barBottom = async () => {
+      const box = (await bar(page).boundingBox())!;
+      return box.y + box.height;
+    };
+    await expect
+      .poll(async () => (await field.boundingBox())!.y)
+      .toBeGreaterThanOrEqual(await barBottom());
   });
 
   test("@req PROD-012 the bar stays while the list of units is open", async ({ page }) => {
