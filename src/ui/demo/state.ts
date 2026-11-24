@@ -3,6 +3,7 @@
 // the store, which the start screen reads when it opens.
 
 import { shallowRef } from "vue";
+import type { UnreadableBook } from "../../domain/books/demo/kept";
 import type { Pack } from "../../domain/packs/types";
 
 export interface DemoUnitSummary {
@@ -33,6 +34,16 @@ export type DemoState =
   | { readonly phase: "failed"; readonly message: string; readonly packs?: readonly Pack[] };
 
 export const demoState = shallowRef<DemoState>({ phase: "loading" });
+
+/**
+ * The demo books stored while they are not all usable (PROD-011): those that read, as cards, and
+ * those whose stored pack fails validation, whose cards say so. Empty when the demo is whole or
+ * not stored.
+ */
+export const partialDemo = shallowRef<{
+  readonly books: readonly DemoBookSummary[];
+  readonly unreadable: readonly UnreadableBook[];
+}>({ books: [], unreadable: [] });
 
 /** What the start screen lists of the demo packs. */
 export function summaryOf(packs: readonly Pack[]): DemoBookSummary[] {

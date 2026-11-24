@@ -14,7 +14,7 @@ import {
   progressMessage,
 } from "../demo/messages";
 import { checkDemo } from "../demo/check";
-import { demoState, summaryOf } from "../demo/state";
+import { demoState, partialDemo, summaryOf } from "../demo/state";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
 import BookCards from "./BookCards.vue";
 
@@ -109,6 +109,15 @@ onUnmounted(() => stopWatching?.());
     <p class="status" role="status">
       {{ demoState.phase === "reading" ? demoState.message : "" }}
     </p>
+
+    <BookCards
+      v-if="
+        (demoState.phase === 'idle' || demoState.phase === 'failed') &&
+        (partialDemo.books.length > 0 || partialDemo.unreadable.length > 0)
+      "
+      :books="partialDemo.books"
+      :unreadable="partialDemo.unreadable"
+    />
 
     <template v-if="demoState.phase === 'added'">
       <p class="kept">

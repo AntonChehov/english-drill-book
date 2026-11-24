@@ -10,7 +10,7 @@
 ## 3. Failures and dialogs
 
 - [x] 3.1 Add `FailureBoundary.vue` around the route and Study's columns (design D3); verify with component tests named `@req PROD-011`
-- [ ] 3.2 Show an unreadable stored pack on its card (design D3); verify with a test named `@req PROD-011`
+- [x] 3.2 Show an unreadable stored pack on its card (design D3); verify with a test named `@req PROD-011`
 - [ ] 3.3 Turn on `no-alert` (design D4); verify with a test named `@req PROD-009`
 
 ## 4. Languages and first launch

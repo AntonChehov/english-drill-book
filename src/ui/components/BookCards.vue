@@ -4,13 +4,18 @@
 // marked as the one to continue. The start screen reads the counts (design D4 of `demo-program`).
 import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
+import type { UnreadableBook } from "../../domain/books/demo/kept";
 import { continueAt, isFinished, progressOf } from "../../domain/study/progress";
 import { doneExercises, doneKey } from "../demo/progress";
 import type { DemoBookSummary } from "../demo/state";
 import { prefetchStudy } from "../router";
 import CheckMark from "./CheckMark.vue";
 
-const props = defineProps<{ books: readonly DemoBookSummary[] }>();
+const props = defineProps<{
+  books: readonly DemoBookSummary[];
+  /** Books whose stored pack fails validation: a card that says so (PROD-011). */
+  unreadable?: readonly UnreadableBook[];
+}>();
 
 const cards = computed(() =>
   props.books.map((book) => {
@@ -73,6 +78,10 @@ onMounted(prefetchStudy);
         </li>
       </ol>
     </li>
+    <li v-for="book in unreadable" :key="book.id" class="book card">
+      <h3 lang="en">{{ book.title }}</h3>
+      <p class="unreadable">Книгу не удалось прочитать</p>
+    </li>
   </ul>
 </template>
 
@@ -100,6 +109,12 @@ h3 {
 
 .book.finished h3 {
   color: var(--color-ok);
+}
+
+.unreadable {
+  border-left: 4px solid var(--color-error);
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.25rem 0 0.25rem 0.75rem;
 }
 
 .total {

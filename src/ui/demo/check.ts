@@ -2,7 +2,7 @@
 // Topics, which can be the first screen opened (design D3 of `topics-and-checklist`).
 
 import { getStore, noteStorageFailure } from "../storage";
-import { demoState, summaryOf, type DemoState } from "./state";
+import { demoState, partialDemo, summaryOf, type DemoState } from "./state";
 
 let checking = false;
 const phaseNow = (): DemoState["phase"] => demoState.value.phase;
@@ -30,6 +30,10 @@ export async function checkDemo(readAgain?: () => Promise<void>): Promise<void> 
     // Read again: the visitor may have added the demo while the store was read.
     const now = phaseNow();
     if (now === "reading") return;
+    partialDemo.value =
+      kept.kind === "stale"
+        ? { books: summaryOf(kept.readable), unreadable: kept.unreadable }
+        : { books: [], unreadable: [] };
     if (kept.kind === "kept") {
       if (now !== "added") demoState.value = { phase: "added", books: summaryOf(kept.packs) };
     } else if (kept.kind === "stale" && starting) {

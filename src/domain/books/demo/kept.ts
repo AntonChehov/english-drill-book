@@ -11,8 +11,22 @@ export type KeptDemo =
   | { readonly kind: "kept"; readonly packs: readonly Pack[] }
   /** No demo pack is stored. */
   | { readonly kind: "none" }
-  /** A demo pack is stored that cannot be used as it is: the books must be read again. */
-  | { readonly kind: "stale" };
+  /**
+   * A demo pack is missing or cannot be used as it is: the books must be read again. `readable`
+   * are the packs that can be used, `unreadable` the books whose stored pack fails validation
+   * (PROD-011).
+   */
+  | {
+      readonly kind: "stale";
+      readonly readable: readonly Pack[];
+      readonly unreadable: readonly UnreadableBook[];
+    };
+
+/** A demo book whose stored pack fails validation. */
+export interface UnreadableBook {
+  readonly id: string;
+  readonly title: string;
+}
 
 const idOf = (value: unknown): unknown =>
   typeof value === "object" && value !== null && "id" in value ? value.id : undefined;
@@ -29,11 +43,15 @@ function isCurrent(pack: Pack, { profile, document }: DemoBook): boolean {
 export function keptDemo(stored: readonly unknown[]): KeptDemo {
   const found = demoBooks.map((book) => stored.find((value) => idOf(value) === book.profile.id));
   if (found.every((value) => value === undefined)) return { kind: "none" };
-  const packs: Pack[] = [];
+  const readable: Pack[] = [];
+  const unreadable: UnreadableBook[] = [];
   for (const [index, book] of demoBooks.entries()) {
+    if (found[index] === undefined) continue;
     const validation = validatePack(found[index]);
-    if (!validation.ok || !isCurrent(validation.pack, book)) return { kind: "stale" };
-    packs.push(validation.pack);
+    if (!validation.ok) unreadable.push({ id: book.profile.id, title: book.profile.title });
+    else if (isCurrent(validation.pack, book)) readable.push(validation.pack);
   }
-  return { kind: "kept", packs };
+  return readable.length === demoBooks.length
+    ? { kind: "kept", packs: readable }
+    : { kind: "stale", readable, unreadable };
 }

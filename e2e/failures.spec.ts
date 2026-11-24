@@ -1,3 +1,5 @@
+import { addDemo, databaseName, demoTitles, drillsPdf, failedLoad } from "./demo";
+import { test as withoutDemo } from "./fixtures";
 import { expect, openUnit, pagesPanel, test } from "./study";
 import { addressOf } from "./views";
 
@@ -47,4 +49,49 @@ test.describe("PROD-011 A failure stays in its part", () => {
     await expect(failure).toHaveCount(0);
     await expect(exercises).toBeVisible();
   });
+
+  withoutDemo(
+    "@req PROD-011 a stored book that no longer reads says so on its card; the other book and the rest of Today stay usable",
+    async ({ page, allowConsoleError }) => {
+      allowConsoleError(failedLoad);
+      await addDemo(page);
+      await page.evaluate(
+        (name) =>
+          new Promise<void>((resolve, reject) => {
+            const request = indexedDB.open(name);
+            request.addEventListener("error", () => reject(request.error));
+            request.addEventListener("success", () => {
+              const database = request.result;
+              const transaction = database.transaction(["packs"], "readwrite");
+              const packs = transaction.objectStore("packs");
+              const drills = packs.get("demo-drills");
+              drills.addEventListener("success", () => {
+                packs.put({ ...(drills.result as object), units: [] });
+              });
+              transaction.addEventListener("complete", () => {
+                database.close();
+                resolve();
+              });
+            });
+          }),
+        databaseName,
+      );
+      // The book cannot be read again either, so its card stays as it is.
+      await page.route(drillsPdf, (route) => route.abort("internetdisconnected"));
+
+      await page.reload();
+
+      const [course, drills] = demoTitles;
+      const cards = page
+        .getByRole("listitem")
+        .filter({ has: page.getByRole("heading", { level: 3 }) });
+      await expect(cards.filter({ hasText: drills })).toContainText("Книгу не удалось прочитать");
+      await expect(cards.filter({ hasText: course })).not.toContainText(
+        "Книгу не удалось прочитать",
+      );
+      await expect(cards.filter({ hasText: course }).getByRole("link").first()).toBeVisible();
+      await page.getByRole("link", { name: "Темы" }).click();
+      await expect(page.getByRole("heading", { level: 1, name: "Темы" })).toBeVisible();
+    },
+  );
 });
