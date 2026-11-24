@@ -2,40 +2,44 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-611ss3jJ.js"
+        "assets/index-DVblkli3.js",
+        "assets/preload-helper-7y9sWmk5.js",
+        "assets/program-GcyIc4J1.js",
+        "assets/router-B7Jtv-mY.js"
       ],
-      "bytes": 125609,
-      "gzip": 47149,
+      "bytes": 129354,
+      "gzip": 50261,
       "budget": 120000
     },
     "css": {
       "files": [
-        "assets/index-Dxy46jId.css"
+        "assets/index-BHaWx-yU.css",
+        "assets/router-CE3lI3Kv.css"
       ],
-      "bytes": 9496,
-      "gzip": 2421,
+      "bytes": 11035,
+      "gzip": 2916,
       "budget": 20000
     },
     "later": [
       {
-        "file": "assets/StudyView-tSC5Ypsr.js",
-        "bytes": 39631,
-        "gzip": 14372
+        "file": "assets/StudyView-BeAMBNjI.js",
+        "bytes": 39850,
+        "gzip": 14437
       },
       {
-        "file": "assets/TopicsView-BkUQ0Fxo.js",
-        "bytes": 2620,
-        "gzip": 1454
+        "file": "assets/TopicsView-D3xiQRDc.js",
+        "bytes": 2623,
+        "gzip": 1451
       },
       {
-        "file": "assets/add-demo-koNAG7KF.js",
+        "file": "assets/add-demo-D0q_73LW.js",
         "bytes": 5660,
-        "gzip": 2325
+        "gzip": 2324
       },
       {
-        "file": "assets/kept-Bguq_1ME.js",
-        "bytes": 491,
-        "gzip": 344
+        "file": "assets/kept-Cwlg10sK.js",
+        "bytes": 604,
+        "gzip": 397
       },
       {
         "file": "assets/pdf-YwugTw7Y.js",
@@ -53,30 +57,30 @@
         "gzip": 9360
       },
       {
-        "file": "assets/static-files-DGDG1xqJ.js",
-        "bytes": 2478,
-        "gzip": 1287
+        "file": "assets/static-files-CPpGVwzf.js",
+        "bytes": 2487,
+        "gzip": 1292
       }
     ]
   },
-  "sha": "9e59bca9f012aa620d0de9d3d2c08d0ba4c4f8f6",
+  "sha": "f4dbcc2f63a1f8aa6baad043926ec656608f29a4",
   "tests": {
     "unit": {
-      "tests": 816,
-      "passed": 816,
+      "tests": 838,
+      "passed": 838,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 288,
-      "passed": 287,
+      "tests": 297,
+      "passed": 296,
       "failed": 0,
       "skipped": 1
     }
   },
   "coverage": {
     "lines": 99.65,
-    "branches": 98.55,
+    "branches": 98.56,
     "functions": 100,
     "statements": 99.61
   },
@@ -87,6 +91,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 155
+    "seconds": 146
   }
 }
