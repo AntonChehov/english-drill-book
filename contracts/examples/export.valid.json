@@ -17,5 +17,11 @@
     }
   ],
   "days": { "2026-11-10": ["listening"] },
-  "settings": { "theme": "system", "activeProgram": "example-program" }
+  "settings": {
+    "theme": "system",
+    "activeProgram": "example-program",
+    "pageZoom": { "example-pack": 1.5 },
+    "studySplit": 0.6,
+    "collapsedPanel": "exercises"
+  }
 }

@@ -29,6 +29,12 @@ export interface Settings {
   readonly theme: "system" | "light" | "dark";
   readonly activeProgram: string;
   readonly focusTopic: string;
+  /** The zoom of the pages panel, 0.5 to 3, by pack (DOC-002). */
+  readonly pageZoom: Readonly<Record<string, number>>;
+  /** The pages' share of the Study row from 1024 px, 0.3 to 0.75 (DOC-006). */
+  readonly studySplit: number;
+  /** The collapsed panel of Study; the setting is deleted when neither is (DOC-006). */
+  readonly collapsedPanel: "pages" | "exercises";
 }
 
 /**
@@ -80,6 +86,8 @@ export interface Store {
   deleteDraft(pack: string, exercise: string): Promise<void>;
   getSetting<K extends keyof Settings>(name: K): Promise<Settings[K] | undefined>;
   putSetting<K extends keyof Settings>(name: K, value: Settings[K]): Promise<void>;
+  /** Removes a setting, as a file exported afterwards does not name it. */
+  deleteSetting(name: keyof Settings): Promise<void>;
   /** The daily blocks ticked on `day` (`YYYY-MM-DD`, the device's day); none for a day not stored. */
   getDayTicks(day: string): Promise<string[]>;
   /** Replaces the blocks ticked on `day` (PROG-009). */
@@ -312,6 +320,12 @@ export async function openStore(options: StoreOptions = {}): Promise<Store> {
     putSetting: (name, value) =>
       write([STORES.settings], (tx) => {
         tx.store(STORES.settings).put({ name, value });
+        return () => undefined;
+      }),
+
+    deleteSetting: (name) =>
+      write([STORES.settings], (tx) => {
+        tx.store(STORES.settings).delete(name);
         return () => undefined;
       }),
 
