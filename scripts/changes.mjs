@@ -20,7 +20,7 @@ const listLimit = 3000;
 
 /**
  * Whether every path is one that no build or test reads: documentation, OpenSpec, the
- * agents' own files and the Markdown files at the root. `contracts/`, `demo/`, `.github/`
+ * agents' own files and `README.md`, `CLAUDE.md`, `CHANGELOG.md` and `LICENSE`. `contracts/`, `demo/`, `.github/`
  * and `package.json` count as code.
  */
 export function withoutCode(paths) {

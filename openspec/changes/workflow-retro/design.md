@@ -12,11 +12,11 @@ After the last round approves and validation passes, the last commit ticks every
 
 ### D2. Evidence and hash with an archive commit
 
-`archiveOf(root, head)` in `review-hash.mjs` recognises a one-parent commit that adds `openspec/changes/archive/<date>-<name>/`. `reviewHash` hashes such a change at the parent. The CLI, the comment and the check agree. Check 7 of `pr-evidence.mjs`: the head commit archives the named change, changes only its move, the living specs of its delta specs and `docs/roadmap.md`, keeps every blob but `tasks.md`, leaves no task unticked and no change in flight. The archive exemption is removed; the release pull request stays exempt.
+`archiveOf(root, head)` in `review-hash.mjs` recognises a one-parent commit that adds `openspec/changes/archive/<date>-<name>/`. `reviewHash` hashes such a change at the parent. The CLI, the comment and the check agree. Check 7 of `pr-evidence.mjs`: the head commit archives the named change, changes only its move, the living specs of its delta specs and `docs/roadmap.md`, keeps every blob but `tasks.md`, leaves no task unticked and the named change not in flight. The archive exemption is removed; the release pull request stays exempt.
 
 ### D3. Pull requests without code
 
-`scripts/changes.mjs`: `withoutCode(paths)` is true when every path is under `docs/`, `openspec/`, `.claude/` or is a root Markdown file or `LICENSE`. `needsBuild` is also false for the release branch with only its three files. A first job `changes` sets output `code`; `unit` and `build` run only when it is `true`. Rejected: `paths-ignore`, under which the required check would never report; a third-party filter action.
+`scripts/changes.mjs`: `withoutCode(paths)` is true when every path is under `docs/`, `openspec/`, `.claude/` or is `README.md`, `CLAUDE.md`, `CHANGELOG.md` or `LICENSE`. `needsBuild` is also false for the release branch with only its three files. A first job `changes` sets output `code`; `unit` and `build` run only when it is `true`. Rejected: `paths-ignore`, under which the required check would never report; a third-party filter action.
 
 ### D4. Skipped jobs cannot pass the check
 

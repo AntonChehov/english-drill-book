@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { buildNeeded, needsBuild, releaseFiles, withoutCode } from "./changes.mjs";
 
 describe("withoutCode", () => {
-  it("is true for documentation, OpenSpec, .claude and the Markdown files at the root", () => {
+  it("is true for documentation, OpenSpec, .claude and the named files at the root", () => {
     expect(withoutCode(["docs/process.md", "docs/process/validator-prompt.md"])).toBe(true);
     expect(withoutCode(["openspec/changes/x/tasks.md", "openspec/specs/a/spec.md"])).toBe(true);
     expect(withoutCode([".claude/agents/reviewer.md"])).toBe(true);
