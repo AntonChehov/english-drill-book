@@ -1,0 +1,66 @@
+# Review of workflow-retro
+
+## Round 1
+
+Reviewed: 297f48224ad9
+Verdict: changes requested
+
+### F1 C-18 says the release pull request still runs the other checks; the pipeline skips them
+Severity: critical
+
+Where: `docs/constitution.md`, C-18, the paragraph after item 5; against `scripts/changes.mjs` (`needsBuild`), `.github/workflows/checks.yml` and `docs/process.md` step 4.
+
+What: C-18 says of the release pull request that it "is exempt from items 1 – 5; the other checks of the pipeline still run on it and must pass". But `needsBuild` returns false for a `release-please--` branch that changes only the three release files, so `unit`, `build`, `e2e`, `lighthouse` and `screenshots` are skipped, and `docs/process.md` step 4 and design D3 say so. The constitution's own text now differs from the pipeline it measures.
+
+Why: a constitution statement that the pipeline does not honour is a constitution violation. Either C-18 says that the release pull request runs only `static` and `evidence` (as process step 4 does), or the release branch keeps the build.
+
+### F2 C-18 item 5 requires no change in flight; check 7 checks only the named change
+Severity: minor
+
+Where: `docs/constitution.md` C-18 item 5 ("no change is left in flight") and design D2 ("leaves no task unticked and no change in flight"); `archiveProblems` in `scripts/pr-evidence.mjs`.
+
+What: `inFlight` is `input.changes.includes(change)`, the named change only. A branch that also adds another directory under `openspec/changes/` passes check 7. Its files are still in the reviewed hash, so nothing unreviewed passes; the text and the check simply disagree. Either check that `input.changes` is empty at the head, with a test, or write "the change is not left in flight".
+
+### F3 Root Markdown files: the texts say all, the script lists four
+Severity: minor
+
+Where: `docs/constitution.md` C-18, `docs/process.md` step 4, design D3 ("a root Markdown file"); `rootFiles` in `scripts/changes.mjs`.
+
+What: the texts exempt "the Markdown files at the root"; the code accepts only `README.md`, `CLAUDE.md`, `CHANGELOG.md` and `LICENSE`. A new `CONTRIBUTING.md` would run the full pipeline and be judged by items 3 and 4. The error is on the safe side (never falsely green), but text and script should name the same set: list the files in the texts, or match `/^[^/]+\.md$/` in the script.
+
+### F4 Pointers to technical debt in docs/roadmap.md remain
+Severity: minor
+
+Where: `e2e/pages.spec.ts` line 100, `e2e/study-frame.spec.ts` line 10, `playwright.config.ts` line 44.
+
+What: the comments say WebKit speed is technical debt "(docs/roadmap.md)"; the item now lives in `docs/tech-debt.md` (D9, task 4.4 says the pointers were moved). Point them at `docs/tech-debt.md`.
+
+### F5 Task 5.4 is ticked for a .gitignore edit that does not exist
+Severity: minor
+
+Where: `openspec/changes/workflow-retro/tasks.md` task 5.4, "drop the handoff line of `.gitignore`".
+
+What: `.gitignore` is not in the diff, and neither `main` nor the branch ever had a handoff line in it (`git log -- .gitignore`). The ticked task records work that was not done. Reword the task to what was done, or drop that clause.
+
+### F6 docs/process.md does not say a small change sets skip_specs
+Severity: minor
+
+Where: `docs/process.md`, "Two sizes of change", first bullet; `CLAUDE.md`.
+
+What: design D7 says a small change is made with `--schema lite` and `skip_specs: true`, and the `lite` proposal instruction says the change sets it. The process text only names `openspec new change <name> --schema lite`. This change's own `pnpm spec` output shows that zero deltas pass only because `skip_specs` is set. An author who follows `docs/process.md` alone may get a red `pnpm spec`. Add "and `skip_specs: true` in `.openspec.yaml`" (or say that the command writes it, if it does).
+
+### Notes
+
+Fresh agent, round 1.
+
+What was checked: the whole diff against `origin/main` (12 commits). `pnpm test` passes (806 tests). `pnpm spec`, `pnpm trace`, typecheck and lint pass. Prettier passes on every tracked file; locally `pnpm format:check` fails only on the git-excluded `.private/`, which CI never sees.
+
+A skipped job cannot make `evidence` falsely green. If `changes` fails, `unit` and `build` are skipped, `checks` is not `success`, and the first step of `evidence` fails. A wrong `code=false` is caught because `checkEvidence` decides `withoutCode` again from its own `git diff --no-renames`, so checks 5 and 6 apply and fail without metrics or a comment. On `main`, `PR_NUMBER` is empty, so `code` is `true`. `e2e`, `lighthouse` and `screenshots` need `build` and have no `if: always()`, so they are skipped with it and do not fail on missing artifacts. A `release-please--` branch not opened by the bot skips the build but is not exempt, and it fails checks 5 and 6. That is safe.
+
+The archive commit can make no unreviewed change to reviewed content. The hash is taken at its single parent. Every archived file but `tasks.md` must equal its parent blob. Any path outside the move, the living specs of archived delta specs and `docs/roadmap.md` fails. A merge commit or a second archived directory is not an archive commit. Check 7 does not compare the living specs or the roadmap edit with what `openspec archive` would produce, so text written by hand there passes unreviewed. C-18 item 5 allows that and the owner reads it at merge. It is noted here, not raised.
+
+Check 2 holds. `parseProductIds` finds 108 distinct `**ID` definitions in `docs/product/`, the same as every ID-shaped token there. A listed ID must be defined there and named by `@req`, and delta specs are no longer read. `pnpm trace` still covers living specs and changes in flight.
+
+Word limits of D9 on this change: proposal 337 of 400, design 940 of 1 000, tasks 272 of 300. All are within.
+
+I could not try `openspec new change --schema lite` in a scratch copy (the command was not permitted). F6 rests on the texts and on this change's own `pnpm spec` output.
