@@ -10,6 +10,7 @@ import { documentTitle } from "../../domain/document-title";
 import { isFinished, theoryParagraphs } from "../../domain/study";
 import { useNarrow } from "../bar";
 import CheckMark from "../components/CheckMark.vue";
+import FailureBoundary from "../components/FailureBoundary";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
 import { doneOf, draftNotKept } from "./messages";
@@ -48,6 +49,7 @@ const finished = computed(() => progress.value !== undefined && isFinished(progr
 const heading = useTemplateRef<HTMLElement>("heading");
 const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
 const exercisesHeading = useTemplateRef<HTMLElement>("exercisesHeading");
+const exercisesColumn = useTemplateRef<HTMLElement>("exercisesColumn");
 const pagesTop = useTemplateRef<HTMLElement>("pagesTop");
 const pagesColumn = useTemplateRef<HTMLElement>("pagesColumn");
 
@@ -209,85 +211,94 @@ watch(
 
     <div class="body">
       <div ref="pagesColumn" class="pages-column">
-        <p class="jump">
-          <button type="button" class="jump-link" @click="jump(exercisesHeading)">
-            К упражнениям <span aria-hidden="true">↓</span>
-          </button>
-        </p>
-        <span ref="pagesTop" tabindex="-1" class="visually-hidden">Страницы книги</span>
-        <div v-if="topic?.step === 'drills'" class="source" role="group" aria-label="Страницы">
-          <button
-            type="button"
-            class="source-button"
-            :aria-pressed="!showCourse"
-            @click="showSource(false)"
-          >
-            Сборник упражнений
-          </button>
-          <button
-            type="button"
-            class="source-button"
-            :aria-pressed="showCourse"
-            @click="showSource(true)"
-          >
-            Курс: раздел {{ topic.course.unit.id }}
-          </button>
-        </div>
-        <PagesPanel v-show="!showCourse" ref="panel" :pack="pack" :pages="pages" />
-        <PagesPanel
-          v-if="topic && courseOpened"
-          v-show="showCourse"
-          :pack="topic.course.pack"
-          :pages="coursePages"
-        />
-      </div>
-
-      <section class="exercises-column" aria-labelledby="exercises-heading">
-        <details v-if="theory.length > 0" class="theory card" open>
-          <summary class="theory-summary">Объяснение</summary>
-          <div class="theory-body">
-            <p v-for="(paragraph, index) in theory" :key="index">
-              <template v-for="(run, at) in paragraph" :key="at"
-                ><em v-if="run.learned" lang="en">{{ run.text }}</em
-                ><template v-else>{{ run.text }}</template></template
-              >
-            </p>
-          </div>
-        </details>
-        <div class="intro card">
-          <div class="intro-head">
-            <h2 id="exercises-heading" ref="exercisesHeading" tabindex="-1">Упражнения</h2>
-            <button type="button" class="jump-link jump" @click="jump(pagesTop)">
-              <span aria-hidden="true">↑</span> К страницам
+        <FailureBoundary>
+          <p class="jump">
+            <button
+              type="button"
+              class="jump-link"
+              @click="jump(exercisesHeading ?? exercisesColumn)"
+            >
+              К упражнениям <span aria-hidden="true">↓</span>
+            </button>
+          </p>
+          <span ref="pagesTop" tabindex="-1" class="visually-hidden">Страницы книги</span>
+          <div v-if="topic?.step === 'drills'" class="source" role="group" aria-label="Страницы">
+            <button
+              type="button"
+              class="source-button"
+              :aria-pressed="!showCourse"
+              @click="showSource(false)"
+            >
+              Сборник упражнений
+            </button>
+            <button
+              type="button"
+              class="source-button"
+              :aria-pressed="showCourse"
+              @click="showSource(true)"
+            >
+              Курс: раздел {{ topic.course.unit.id }}
             </button>
           </div>
-          <p class="hint">
-            Регистр букв и знаки препинания не важны. Если в длинном слове ошибка в одной букве, вы
-            увидите «Почти»&nbsp;— проверьте написание. Ошибка в коротком слове (a/an, is/are) или в
-            окончании (-s, -es, -d, -ed)&nbsp;— это «Неверно». В меню
-            <span aria-hidden="true">⋯</span><span class="visually-hidden">«Действия»</span>
-            рядом с полем можно посмотреть ответ и изменить оценку.
-          </p>
-        </div>
-        <ExerciseBlock
-          v-for="entry in entries"
-          :key="entry.exercise.id"
-          :entry="entry"
-          :view="study.viewOf(entry)"
-          @answer="(item, text) => study.setAnswer(entry, item, text)"
-          @check="study.check(entry)"
-          @reveal="(item) => study.reveal(entry, item)"
-          @change="(item, how) => study.change(entry, item, how)"
-          @mark-done="study.markDone(entry)"
-          @show-page="showPage(entry)"
-          @leave="study.flush(entry)"
-        />
-        <div v-if="topic?.step === 'course'" class="next-step" role="status">
-          <div v-if="progress && progress.done === progress.total" class="card offer">
-            <p>Курс по этой теме пройден. Дальше — практика в сборнике упражнений.</p>
-            <RouterLink class="action" :to="topic.drillsLink">Перейти к практике</RouterLink>
+          <PagesPanel v-show="!showCourse" ref="panel" :pack="pack" :pages="pages" />
+          <PagesPanel
+            v-if="topic && courseOpened"
+            v-show="showCourse"
+            :pack="topic.course.pack"
+            :pages="coursePages"
+          />
+        </FailureBoundary>
+      </div>
+
+      <!-- Named by its own text, not by the heading: the heading is gone while the column failed. -->
+      <section ref="exercisesColumn" class="exercises-column" aria-label="Упражнения" tabindex="-1">
+        <FailureBoundary>
+          <details v-if="theory.length > 0" class="theory card" open>
+            <summary class="theory-summary">Объяснение</summary>
+            <div class="theory-body">
+              <p v-for="(paragraph, index) in theory" :key="index">
+                <template v-for="(run, at) in paragraph" :key="at"
+                  ><em v-if="run.learned" lang="en">{{ run.text }}</em
+                  ><template v-else>{{ run.text }}</template></template
+                >
+              </p>
+            </div>
+          </details>
+          <div class="intro card">
+            <div class="intro-head">
+              <h2 id="exercises-heading" ref="exercisesHeading" tabindex="-1">Упражнения</h2>
+              <button type="button" class="jump-link jump" @click="jump(pagesTop)">
+                <span aria-hidden="true">↑</span> К страницам
+              </button>
+            </div>
+            <p class="hint">
+              Регистр букв и знаки препинания не важны. Если в длинном слове ошибка в одной букве,
+              вы увидите «Почти»&nbsp;— проверьте написание. Ошибка в коротком слове (a/an, is/are)
+              или в окончании (-s, -es, -d, -ed)&nbsp;— это «Неверно». В меню
+              <span aria-hidden="true">⋯</span><span class="visually-hidden">«Действия»</span>
+              рядом с полем можно посмотреть ответ и изменить оценку.
+            </p>
           </div>
-        </div>
+          <ExerciseBlock
+            v-for="entry in entries"
+            :key="entry.exercise.id"
+            :entry="entry"
+            :view="study.viewOf(entry)"
+            @answer="(item, text) => study.setAnswer(entry, item, text)"
+            @check="study.check(entry)"
+            @reveal="(item) => study.reveal(entry, item)"
+            @change="(item, how) => study.change(entry, item, how)"
+            @mark-done="study.markDone(entry)"
+            @show-page="showPage(entry)"
+            @leave="study.flush(entry)"
+          />
+          <div v-if="topic?.step === 'course'" class="next-step" role="status">
+            <div v-if="progress && progress.done === progress.total" class="card offer">
+              <p>Курс по этой теме пройден. Дальше — практика в сборнике упражнений.</p>
+              <RouterLink class="action" :to="topic.drillsLink">Перейти к практике</RouterLink>
+            </div>
+          </div>
+        </FailureBoundary>
       </section>
     </div>
 

@@ -26,10 +26,14 @@ useStoredProgress();
     <DailyChecklist />
   </template>
   <DemoBooks @added="program?.focus()" />
+  <p v-if="books === undefined" class="own-books">
+    Свои книги можно будет добавить в библиотеке&nbsp;— она появится в следующей версии.
+  </p>
 </template>
 
 <style scoped>
-.lead {
+.lead,
+.own-books {
   color: var(--color-muted);
   margin: 0;
 }

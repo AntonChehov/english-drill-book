@@ -9,7 +9,6 @@ What is known and not scheduled: from the validations of changes, and from revie
 - Twice in about 50 tries, right after a new build was served, the worker of the PDF library did not load and adding the demo said there was no connection; not seen again in 40 tries. A failed load of the app's own script could be retried once, or named for what it is.
 - The start screen reads the derived state of every exercise of both books again on each write in another tab; to be coalesced before real books.
 - CI: `pnpm install` spends up to 70 s verifying the lockfile against supply-chain policies with the npm registry when it is slow, which pushed a run over C-19 (PR #22, run 44098893926); cache the verification or skip it when the lockfile is unchanged.
-- Offline after a fresh start, Today shows the "demo not added" state instead of the stored books and progress (validation of PR #22).
 - Checking a long exercise with Enter in its last field lets the verdicts push the focused field below the window (validation of PR #22).
 - In a clean browser, a link to a demo unit that does not exist promises the unit will open after adding the demo, then says not found (validation of PR #22).
 - At 360 px some touch targets are 34–38 px high (option pills, ⋯ ‹ › buttons, fields), below 44–48 px; tapping an option flashes the default tap highlight (validation of PR #22).
@@ -20,5 +19,4 @@ What is known and not scheduled: from the validations of changes, and from revie
 - The speed test of the checker (CHK-014) took 100.36 ms against its 100 ms budget on a loaded CI runner; the budget has no margin for such a runner.
 - The same unit open in two tabs: an unchecked draft from one tab can arrive about 0.5 s later and overwrite text just typed in the other; the newest edit should win.
 - A failed demo download shows a technical code such as "(ошибка 503)" to the learner.
-- Offline, a reload of the app shows the browser's own error page instead of the app; after a reload with the network off, «Открыть раздел» on Today does nothing, with no message; and when a unit's pages are not stored and there is no network, the page area says nothing about needing a connection.
 - Opening a unit by an exercise link scrolls the page so the top header is out of view.

@@ -49,3 +49,19 @@ for (const state of demoStates) {
     });
   }
 }
+
+// The theme chosen on «О приложении» over the system's, and the group of choices itself (PROD-005).
+for (const [system, chosen] of [
+  ["dark", "Светлая"],
+  ["light", "Тёмная"],
+] as const) {
+  test(`about with «${chosen}» chosen over a ${system} system has no serious accessibility violations`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: system });
+    await page.goto(addressOf("/about"));
+    await page.getByRole("radio", { name: chosen }).check();
+
+    expect(await seriousViolations(page)).toEqual([]);
+  });
+}

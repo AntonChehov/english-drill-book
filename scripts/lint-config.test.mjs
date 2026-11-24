@@ -65,10 +65,7 @@ describe("the lint override of src/domain/checking", () => {
 });
 
 describe("the lint override of src/storage/db", () => {
-  const shared = config.overrides.find(
-    (candidate) =>
-      JSON.stringify(candidate.files) === JSON.stringify(["src/storage/**", "src/ui/**"]),
-  ).rules;
+  const shared = config.overrides.find((candidate) => candidate.files.includes("src/ui/**")).rules;
   const database = rulesOf("src/storage/db/**");
 
   it("closes IndexedDB to src/storage and src/ui outside src/storage/db", () => {
@@ -84,5 +81,14 @@ describe("the lint override of src/storage/db", () => {
     expect(kept).toEqual(
       restrictions(shared, "no-restricted-globals").filter(({ name }) => name !== "indexedDB"),
     );
+  });
+});
+
+describe("the lint override on the network (C-03)", () => {
+  const network = config.overrides.find((candidate) => candidate.files.includes("src/ui/**"));
+
+  it("covers the service worker's directory and exempts only its worker and the file loader", () => {
+    expect(network.files).toEqual(expect.arrayContaining(["src/storage/**", "src/sw/**"]));
+    expect(network.excludeFiles).toEqual(["src/storage/static-files.ts", "src/sw/worker.ts"]);
   });
 });

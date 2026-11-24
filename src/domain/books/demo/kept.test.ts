@@ -32,16 +32,30 @@ describe("the kept demo", () => {
 
   it("@req DATA-001 @req PACK-001 a stored demo pack that fails validation is read again", () => {
     const broken = { ...(drillsPack as object), units: [] };
-    expect(keptDemo([course, broken])).toEqual({ kind: "stale" });
+    expect(keptDemo([course, broken])).toMatchObject({ kind: "stale" });
+  });
+
+  it("@req PROD-011 names the book whose stored pack fails validation and keeps the other", () => {
+    const broken = { ...(drillsPack as object), units: [] };
+    expect(keptDemo([course, broken])).toEqual({
+      kind: "stale",
+      readable: [course],
+      unreadable: [{ id: "demo-drills", title: drillsPack.title }],
+    });
+    expect(keptDemo([{ ...(coursePack as object), units: [] }, drills])).toEqual({
+      kind: "stale",
+      readable: [drills],
+      unreadable: [{ id: "demo-course", title: coursePack.title }],
+    });
   });
 
   it("@req DATA-001 a demo with one of its two packs missing is read again", () => {
-    expect(keptDemo([course])).toEqual({ kind: "stale" });
+    expect(keptDemo([course])).toEqual({ kind: "stale", readable: [course], unreadable: [] });
   });
 
   it("@req PACK-004 the demo packs stored at version 1.0.0, without the Russian texts, are read again", () => {
-    expect(keptDemo([earlier(coursePack), earlier(drillsPack)])).toEqual({ kind: "stale" });
-    expect(keptDemo([course, earlier(drillsPack)])).toEqual({ kind: "stale" });
+    expect(keptDemo([earlier(coursePack), earlier(drillsPack)])).toMatchObject({ kind: "stale" });
+    expect(keptDemo([course, earlier(drillsPack)])).toMatchObject({ kind: "stale" });
   });
 
   it("@req DATA-001 a demo pack read from another edition of the book or by another profile is read again", () => {
@@ -56,7 +70,7 @@ describe("the kept demo", () => {
     const unsourced = { ...drillsPack, source: { ...drillsPack.source, documents: undefined } };
 
     for (const pack of [edition, version, unsourced]) {
-      expect(keptDemo([course, JSON.parse(JSON.stringify(pack)) as unknown])).toEqual({
+      expect(keptDemo([course, JSON.parse(JSON.stringify(pack)) as unknown])).toMatchObject({
         kind: "stale",
       });
     }

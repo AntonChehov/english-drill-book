@@ -135,6 +135,11 @@ test.describe("PROD-007 Keyboard", () => {
     { tag: "@demo" },
     async ({ page }) => {
       await page.goto(addressOf("/"));
+      // The app draws its first screen once the stored theme is read: a Tab before that has
+      // nothing to land on.
+      await expect(
+        page.getByRole("heading", { level: 1, name: "English Drill Book" }),
+      ).toBeVisible();
       const unitLink = page
         .getByRole("link", { name: "Раздел 1. Глагол to be: am, is, are" })
         .first();
