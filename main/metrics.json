@@ -2,35 +2,35 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-xmy-ObFe.js"
+        "assets/index-611ss3jJ.js"
       ],
-      "bytes": 120994,
-      "gzip": 45352,
+      "bytes": 125609,
+      "gzip": 47149,
       "budget": 120000
     },
     "css": {
       "files": [
-        "assets/index-DrN0RNUn.css"
+        "assets/index-Dxy46jId.css"
       ],
-      "bytes": 8074,
-      "gzip": 2063,
+      "bytes": 9496,
+      "gzip": 2421,
       "budget": 20000
     },
     "later": [
       {
-        "file": "assets/StudyView-D-IVsno1.js",
-        "bytes": 38922,
-        "gzip": 14123
+        "file": "assets/StudyView-tSC5Ypsr.js",
+        "bytes": 39631,
+        "gzip": 14372
       },
       {
-        "file": "assets/TopicsView-Dc2vXgfA.js",
-        "bytes": 2618,
-        "gzip": 1455
+        "file": "assets/TopicsView-BkUQ0Fxo.js",
+        "bytes": 2620,
+        "gzip": 1454
       },
       {
-        "file": "assets/add-demo-CDExgCJ2.js",
+        "file": "assets/add-demo-koNAG7KF.js",
         "bytes": 5660,
-        "gzip": 2324
+        "gzip": 2325
       },
       {
         "file": "assets/kept-Bguq_1ME.js",
@@ -53,23 +53,23 @@
         "gzip": 9360
       },
       {
-        "file": "assets/static-files-37jlHytL.js",
+        "file": "assets/static-files-DGDG1xqJ.js",
         "bytes": 2478,
         "gzip": 1287
       }
     ]
   },
-  "sha": "8190e5820e6e57a5054c4e9395631218496e2ed5",
+  "sha": "9e59bca9f012aa620d0de9d3d2c08d0ba4c4f8f6",
   "tests": {
     "unit": {
-      "tests": 806,
-      "passed": 806,
+      "tests": 816,
+      "passed": 816,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 281,
-      "passed": 280,
+      "tests": 288,
+      "passed": 287,
       "failed": 0,
       "skipped": 1
     }
@@ -87,6 +87,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 91
+    "seconds": 155
   }
 }
