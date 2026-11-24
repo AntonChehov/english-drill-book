@@ -16,9 +16,9 @@
 ## 4. Languages and first launch
 
 - [x] 4.1 Add `e2e/languages.spec.ts` and fix any gap (design D5); named `@req PROD-004`
-- [ ] 4.2 Add the line about own books (design D6); verify with a StartView test named `@req PROD-002`
+- [x] 4.2 Add the line about own books (design D6); verify with a StartView test named `@req PROD-002`
 
 ## 5. Housekeeping
 
-- [ ] 5.1 Name the Pages artifact per attempt and mark slice 1.8 in progress in `docs/roadmap.md` (design D7)
+- [x] 5.1 Name the Pages artifact per attempt and mark slice 1.8 in progress in `docs/roadmap.md` (design D7)
 - [x] 5.2 Remove the two offline entries from `docs/tech-debt.md` once 1.1 passes
