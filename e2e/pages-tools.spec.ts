@@ -164,20 +164,22 @@ test.describe("DOC-003 A page before or after", () => {
       await page.setViewportSize({ width: 1280, height: 720 });
       await openUnit(page, "1");
       await expect(drawnPages(page).first()).toBeVisible();
-      expect(await numbersOf(page)).toEqual([3, 4]);
+      await expect.poll(() => numbersOf(page)).toEqual([3, 4]);
 
       await previousPage(page).click();
-      expect(await numbersOf(page)).toEqual([2, 3, 4]);
+      await expect.poll(() => numbersOf(page)).toEqual([2, 3, 4]);
       await expect.poll(() => topOf(page, 3)).toBeLessThan(720);
-      expect(await topOf(page, 3), "the page that was first is still in view").toBeGreaterThan(-5);
+      await expect
+        .poll(() => topOf(page, 3), { message: "the page that was first is still in view" })
+        .toBeGreaterThan(-5);
       await previousPage(page).press("Enter");
 
-      expect(await numbersOf(page)).toEqual([1, 2, 3, 4]);
+      await expect.poll(() => numbersOf(page)).toEqual([1, 2, 3, 4]);
       await expect(previousPage(page), "the book's first page").toHaveCount(0);
       await expect(pagesPanel(page).getByRole("heading", { name: "Страницы книги" })).toBeFocused();
 
       await nextPage(page).click();
-      expect(await numbersOf(page)).toEqual([1, 2, 3, 4, 5]);
+      await expect.poll(() => numbersOf(page)).toEqual([1, 2, 3, 4, 5]);
       // Pressed in the page up to the last page, which has no button: the pages far below are
       // not drawn, and each press does not wait for them.
       await page.evaluate(async () => {
@@ -202,7 +204,7 @@ test.describe("DOC-003 A page before or after", () => {
     await expect(drawnPages(page).first()).toBeVisible();
     await nextPage(page).click();
     await previousPage(page).click();
-    expect(await numbersOf(page)).toEqual([2, 3, 4, 5]);
+    await expect.poll(() => numbersOf(page)).toEqual([2, 3, 4, 5]);
 
     await page.getByRole("button", { name: "Следующий раздел" }).click();
 
@@ -223,7 +225,7 @@ test.describe("DOC-004 Only the shown pages", () => {
 
       for (let added = 0; added < 3; added++) await pressUnseen(nextPage(page));
 
-      expect(await numbersOf(page)).toEqual([3, 4, 5, 6, 7]);
+      await expect.poll(() => numbersOf(page)).toEqual([3, 4, 5, 6, 7]);
       const far = pagesPanel(page).getByRole("img", { name: "Страница 7", exact: true });
       await expect(far).not.toHaveAttribute("data-drawn", "true");
       expect(await far.evaluate((canvas) => (canvas as HTMLCanvasElement).width)).toBe(300);
