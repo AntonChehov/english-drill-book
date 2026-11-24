@@ -321,6 +321,8 @@ test.describe("DOC-006 The split", () => {
     "@req DOC-006 the arrow keys, Home and End move the separator by 5 % between 30 % and 75 %, and the split is kept over a reload",
     { tag: "@demo" },
     async ({ page }) => {
+      // Wide enough for the pages to take 75 % and the exercises to keep 22 rem.
+      await page.setViewportSize({ width: 1800, height: 800 });
       await openUnit(page, "1");
       await expect(separator(page)).toHaveAttribute("aria-valuenow", "60");
       await expect(separator(page)).toHaveAttribute("aria-valuemin", "30");
@@ -354,6 +356,38 @@ test.describe("DOC-006 The split", () => {
       await expect.poll(() => storedSetting(page, "studySplit")).toBe(0.35);
       await page.reload();
       await expect(separator(page)).toHaveAttribute("aria-valuenow", "35");
+    },
+  );
+
+  test(
+    "@req DOC-006 on a row too narrow for 75 % the separator says and keeps what the layout has, and the exercises keep 22 rem",
+    { tag: "@demo" },
+    async ({ page }) => {
+      await page.setViewportSize({ width: 1100, height: 800 });
+      await openUnit(page, "1");
+      const most = Number(await separator(page).getAttribute("aria-valuemax"));
+      expect(most, "less than 75").toBeLessThan(75);
+      expect(most, "more than 30").toBeGreaterThan(30);
+
+      await separator(page).focus();
+      await page.keyboard.press("End");
+
+      await expect(separator(page)).toHaveAttribute("aria-valuenow", String(most));
+      await expect.poll(() => storedSetting(page, "studySplit")).toBeLessThan((most + 1) / 100);
+      const row = (await separator(page).evaluate(
+        (element) => element.parentElement!.getBoundingClientRect().width,
+      ))!;
+      const pages = (await pagesPanel(page).boundingBox())!.width;
+      expect(Math.abs((pages / row) * 100 - most), "the layout is what is said").toBeLessThan(1.5);
+      expect((await exercisesPanel(page).boundingBox())!.width).toBeGreaterThanOrEqual(350);
+
+      // One press back is seen at once, not after a few that lower a value nobody sees.
+      await page.keyboard.press("ArrowLeft");
+      const back = Number(await separator(page).getAttribute("aria-valuenow"));
+      expect(back).toBeLessThan(most);
+      await expect
+        .poll(async () => (await pagesPanel(page).boundingBox())!.width)
+        .toBeLessThan(pages - 20);
     },
   );
 

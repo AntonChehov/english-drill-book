@@ -33,24 +33,36 @@ export function zoomLabel(zoom: number): string {
   return `${Math.round(zoom * 100)} %`;
 }
 
-/** `split` kept within the limits; one that is not a number is the default. */
-export function clampSplit(split: unknown): number {
+/**
+ * The most of a row of `rowWidth` px the pages can take: the exercises keep 22 rem and the
+ * separator is 0.75 rem wide, whatever `rem` is in px (design D5).
+ */
+export function maxSplit(rowWidth: number, rem: number): number {
+  if (!(rowWidth > 0)) return MAX_SPLIT;
+  return Math.max(MIN_SPLIT, Math.min(MAX_SPLIT, 1 - (22.75 * rem) / rowWidth));
+}
+
+/** `split` kept within the limits, `max` the highest; one that is not a number is the default. */
+export function clampSplit(split: unknown, max = MAX_SPLIT): number {
   return typeof split === "number" && Number.isFinite(split)
-    ? Math.min(MAX_SPLIT, Math.max(MIN_SPLIT, split))
+    ? Math.min(max, Math.max(MIN_SPLIT, split))
     : DEFAULT_SPLIT;
 }
 
-/** The split after `key` is pressed on the separator; `undefined` for a key it does not use. */
-export function splitAfterKey(split: number, key: string): number | undefined {
+/**
+ * The split after `key` is pressed on the separator, `max` being the most the row allows;
+ * `undefined` for a key it does not use.
+ */
+export function splitAfterKey(split: number, key: string, max = MAX_SPLIT): number | undefined {
   switch (key) {
     case "ArrowLeft":
-      return clampSplit(Math.round((split - SPLIT_STEP) * 100) / 100);
+      return clampSplit(Math.round((split - SPLIT_STEP) * 100) / 100, max);
     case "ArrowRight":
-      return clampSplit(Math.round((split + SPLIT_STEP) * 100) / 100);
+      return clampSplit(Math.round((split + SPLIT_STEP) * 100) / 100, max);
     case "Home":
       return MIN_SPLIT;
     case "End":
-      return MAX_SPLIT;
+      return max;
     default:
       return undefined;
   }

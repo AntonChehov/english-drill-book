@@ -2,15 +2,36 @@
 // The border between the pages and the exercises from 1024 px (DOC-006; design D5 of
 // `pages-panel-tools`): dragged with the pointer, moved with the arrow keys, Home and End. It
 // stands in the row it divides and says where it is as the pages' share of that row.
-import { useTemplateRef } from "vue";
-import { MAX_SPLIT, MIN_SPLIT, splitAfterKey } from "./layout";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import { clampSplit, MIN_SPLIT, maxSplit, splitAfterKey } from "./layout";
 
 const props = defineProps<{ split: number }>();
 const emit = defineEmits<{ move: [split: number] }>();
 const bar = useTemplateRef<HTMLElement>("bar");
 
+// The pages cannot take what the exercises' 22 rem leave, so the border says, and moves within,
+// what the row of the moment allows, not what was stored on a wider screen.
+const rowWidth = ref(0);
+const rem = ref(16);
+const watcher = new ResizeObserver(() => measure());
+
+function measure() {
+  rowWidth.value = bar.value?.parentElement?.getBoundingClientRect().width ?? 0;
+  rem.value = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+}
+
+onMounted(() => {
+  measure();
+  watcher.observe(bar.value!.parentElement!);
+});
+onBeforeUnmount(() => watcher.disconnect());
+
+const most = computed(() => maxSplit(rowWidth.value, rem.value));
+const shown = computed(() => clampSplit(props.split, most.value));
+const highest = computed(() => Math.floor(most.value * 100));
+
 function press(event: KeyboardEvent) {
-  const next = splitAfterKey(props.split, event.key);
+  const next = splitAfterKey(shown.value, event.key, most.value);
   if (next === undefined) return;
   event.preventDefault();
   emit("move", next);
@@ -21,7 +42,10 @@ function drag(event: PointerEvent) {
   if (!border?.hasPointerCapture(event.pointerId)) return;
   const row = border.parentElement!.getBoundingClientRect();
   // The pointer holds the middle of the border, whose left edge is where the pages end.
-  emit("move", (event.clientX - row.left - border.offsetWidth / 2) / row.width);
+  emit(
+    "move",
+    clampSplit((event.clientX - row.left - border.offsetWidth / 2) / row.width, most.value),
+  );
 }
 </script>
 
@@ -33,8 +57,8 @@ function drag(event: PointerEvent) {
     aria-orientation="vertical"
     aria-label="Граница между страницами и упражнениями"
     :aria-valuemin="Math.round(MIN_SPLIT * 100)"
-    :aria-valuemax="Math.round(MAX_SPLIT * 100)"
-    :aria-valuenow="Math.round(split * 100)"
+    :aria-valuemax="highest"
+    :aria-valuenow="Math.min(Math.round(shown * 100), highest)"
     tabindex="0"
     @keydown="press"
     @pointerdown="bar?.setPointerCapture($event.pointerId)"
