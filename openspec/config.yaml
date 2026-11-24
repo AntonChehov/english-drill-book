@@ -1,30 +1,24 @@
 schema: spec-driven
 
 context: |
-  English Drill Book is a static, offline-first PWA (Vue 3, TypeScript, Vite) for Russian speakers
-  learning English from grammar workbooks they own. Interface text is Russian; repository
-  text, specs and code are English.
-
-  Before drafting any artifact read docs/process.md, docs/constitution.md and the files in
-  docs/product/ that the change touches. Requirements are taken from docs/product/ and keep
-  their IDs. Decisions already made are in docs/decisions/.
-
-  The repository must never contain text from a published textbook (constitution C-01).
+  English Drill Book: an offline-first PWA (Vue 3, TypeScript, Vite) for Russian speakers learning English from grammar workbooks they own.
+  Interface text is Russian; repository text, specs and code are English; requirements and their IDs are in docs/product/.
+  The repository never contains text from a published textbook (constitution C-01).
 
 rules:
   proposal:
-    - List the requirement IDs from docs/product/ that the change delivers, and state what is deliberately left for later changes.
+    - Read docs/process.md and the files of docs/product/ that the change touches. List the requirement IDs it delivers, and state what is left for later. At most 400 words (300 for the schema lite).
     - One change is one pull request; if it cannot be reviewed in one sitting, split it.
   specs:
     - 'Start every requirement title with its ID, for example "### Requirement: CHK-005 Correct answer".'
-    - Use the wording of docs/product/ for the requirement; put examples and edge cases into scenarios.
+    - Use the wording of docs/product/ for the requirement; scenarios only for edge cases that docs/product/ does not state.
   design:
-    - Omit design.md when the change is only texts (strings, demo content, translations) or only documentation; any change touching code, schema or tests has one.
-    - State which constitution constraints the change touches and how each will be measured.
+    - Omit design.md when the change is only texts (strings, demo content, translations) or only documentation, and for the schema lite; any other change has one.
+    - Read docs/constitution.md. Decisions and rejected alternatives only, which constitution constraints the change touches and how each is measured; at most 1 000 words.
     - Record every new runtime dependency with what it replaces and its size (C-12).
   tasks:
-    - Every task group lands its own tests; tests name the requirement IDs they verify (@req ID).
-    - End with a group "Review and evidence" containing the review rounds of C-18 item 2, made by a reviewing agent in review.md until a round approves the latest content, where each finding carries a severity (critical or minor) and from round 3 on an open minor finding is declined as technical debt recorded in docs/roadmap.md and critical findings are fixed in any round, and the other checks of C-18. The group ends with the archive commit of docs/process.md step 6 as its last task, and has no task for the merge, which is the owner's act recorded by GitHub.
+    - At most 300 words. Every task group lands its own tests; tests name the requirement IDs they verify (@req ID).
+    - Review, evidence and the archive commit are steps of docs/process.md, not tasks; the merge is the owner's act.
 
 operations:
   apply:
