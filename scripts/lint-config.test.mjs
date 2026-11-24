@@ -86,3 +86,11 @@ describe("the lint override of src/storage/db", () => {
     );
   });
 });
+
+describe("the lint rule on browser dialogs", () => {
+  it("@req PROD-009 makes alert, confirm and prompt an error everywhere", () => {
+    expect([config.rules["no-alert"]].flat()[0]).toBe("error");
+    for (const override of config.overrides)
+      expect([override.rules?.["no-alert"] ?? "error"].flat()[0]).toBe("error");
+  });
+});

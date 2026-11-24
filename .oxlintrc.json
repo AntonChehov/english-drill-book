@@ -21,6 +21,7 @@
       }
     ],
     "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-alert": "error",
     "import/no-unassigned-import": ["error", { "allow": ["**/*.css", "vue-router"] }]
   },
   "overrides": [
