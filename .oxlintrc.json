@@ -181,26 +181,26 @@
       }
     },
     {
-      "files": ["src/storage/**", "src/ui/**"],
-      "excludeFiles": ["src/storage/static-files.ts"],
+      "files": ["src/storage/**", "src/ui/**", "src/sw/**"],
+      "excludeFiles": ["src/storage/static-files.ts", "src/sw/worker.ts"],
       "rules": {
         "no-restricted-globals": [
           "error",
           {
             "name": "fetch",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "name": "XMLHttpRequest",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "name": "WebSocket",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "name": "EventSource",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "name": "indexedDB",
@@ -213,17 +213,17 @@
           {
             "object": "window",
             "property": "fetch",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "object": "globalThis",
             "property": "fetch",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "object": "self",
             "property": "fetch",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           }
         ]
       }
@@ -235,19 +235,19 @@
           "error",
           {
             "name": "fetch",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "name": "XMLHttpRequest",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "name": "WebSocket",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           },
           {
             "name": "EventSource",
-            "message": "Only src/storage/static-files.ts may use the network (C-03)."
+            "message": "Only src/storage/static-files.ts and src/sw/worker.ts may use the network (C-03)."
           }
         ]
       }
