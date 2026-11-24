@@ -6,6 +6,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
 import { nextBar, unitListOpen, type BarState } from "./bar";
+import FailureBoundary from "./components/FailureBoundary";
 import NewerVersion from "./components/NewerVersion.vue";
 import { appName } from "./router";
 import { newerVersion } from "./storage";
@@ -53,7 +54,7 @@ onUnmounted(() => window.removeEventListener("scroll", follow));
     </header>
     <main class="app-main" :class="{ wide }">
       <RouterView v-slot="{ Component, route: shown }">
-        <component :is="Component" :key="shown.path" />
+        <FailureBoundary :key="shown.path"><component :is="Component" /></FailureBoundary>
       </RouterView>
     </main>
   </template>
