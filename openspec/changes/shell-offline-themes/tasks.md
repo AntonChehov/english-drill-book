@@ -5,7 +5,7 @@
 ## 2. Theme
 
 - [x] 2.1 Split the dark colours by `data-theme` and add `applyTheme`, applied before mount (design D2); verify with unit tests named `@req PROD-005`
-- [ ] 2.2 Add «Оформление» to «О приложении» (design D2); verify with end-to-end tests named `@req PROD-005`: «Тёмная» kept over a reload, «Светлая» over emulated dark, a write failure said beside the group; axe in both themes
+- [x] 2.2 Add «Оформление» to «О приложении» (design D2); verify with end-to-end tests named `@req PROD-005`: «Тёмная» kept over a reload, «Светлая» over emulated dark, a write failure said beside the group; axe in both themes
 
 ## 3. Failures and dialogs
 
