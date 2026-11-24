@@ -2,7 +2,7 @@
 
 ## 1. Housekeeping
 
-- [ ] 1.1 Add the speed-budget flakes of CHK-014 and PACK-003 on CI runners to `docs/tech-debt.md` and correct the header of `scripts/changes.mjs` (the file check runs inside `unit` and `build`); verify `pnpm check`
+- [x] 1.1 Add the speed-budget flakes of CHK-014 and PACK-003 on CI runners to `docs/tech-debt.md` and correct the header of `scripts/changes.mjs` (the file check runs inside `unit` and `build`); verify `pnpm check`
 
 ## 2. The bar
 
