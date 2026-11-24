@@ -29,6 +29,6 @@
 
 - [x] 5.1 Steps of `docs/process.md` and the validator prompt for reruns
 - [x] 5.2 C-14 and C-18 for the archive commit and pull requests without code
-- [ ] 5.3 `docs/process.md`: sizes of change, `lite`, word limits as minor findings, moratorium; C-14 and C-18 item 1 for small changes
+- [x] 5.3 `docs/process.md`: sizes of change, `lite`, word limits as minor findings, moratorium; C-14 and C-18 item 1 for small changes
 - [ ] 5.4 `CLAUDE.md`: only rules every role needs, no reference to `.claude/`; drop the handoff line of `.gitignore`
-- [ ] 5.5 `docs/roadmap.md`: this change under Done
+- [x] 5.5 `docs/roadmap.md`: this change under Done
