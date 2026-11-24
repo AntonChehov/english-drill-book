@@ -64,3 +64,25 @@ Check 2 holds. `parseProductIds` finds 108 distinct `**ID` definitions in `docs/
 Word limits of D9 on this change: proposal 337 of 400, design 940 of 1 000, tasks 272 of 300. All are within.
 
 I could not try `openspec new change --schema lite` in a scratch copy (the command was not permitted). F6 rests on the texts and on this change's own `pnpm spec` output.
+
+## Round 2
+
+Reviewed: eb80f7ca9448
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+- F3: fixed
+- F4: fixed
+- F5: declined — the handoff line was an uncommitted local edit of `.gitignore`, reverted before the branch existed; the ticked task names local work, not a diff, and no reviewed file is affected.
+- F6: fixed
+
+### Notes
+
+Same reviewing agent as round 1, resumed.
+
+I read the fix commit 76559c3 against 9fc52be. C-18 now says the release pull request runs only the static checks and the evidence check, as `needsBuild`, `docs/process.md` step 4 and D3 do. C-18 item 5 and D2 now speak of the named change not being left in flight, which is what check 7 tests. C-18, process step 4, D3 and the comment in `scripts/changes.mjs` now name the same four root files as `rootFiles`. No text outside the archive still says "the Markdown files at the root". The three test and config comments point to `docs/tech-debt.md`. The small-change bullet of `docs/process.md` says that `--schema lite` sets `skip_specs: true`.
+
+I did not run `openspec new change --schema lite` myself; a scratch run was not permitted in round 1. The process text now agrees with the `lite` proposal instruction and with design D7.
+
+Checks run: `vitest run scripts` passes (310 tests), lint passes, and Prettier passes on the changed files. The design has 941 of 1 000 words. Nothing else changed since round 1.
