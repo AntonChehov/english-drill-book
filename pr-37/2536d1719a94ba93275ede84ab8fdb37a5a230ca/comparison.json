@@ -1,0 +1,322 @@
+[
+  {
+    "file": "about-dark-1280.png",
+    "status": "changed",
+    "share": 0.0809814453125
+  },
+  {
+    "file": "about-dark-390.png",
+    "status": "changed",
+    "share": 0.1851698717948718
+  },
+  {
+    "file": "about-light-1280.png",
+    "status": "changed",
+    "share": 0.0842705078125
+  },
+  {
+    "file": "about-light-390.png",
+    "status": "changed",
+    "share": 0.19173397435897435
+  },
+  {
+    "file": "newer-version-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-dark-1280.png",
+    "status": "changed",
+    "share": 0.0033232421875
+  },
+  {
+    "file": "start-dark-390.png",
+    "status": "changed",
+    "share": 0.010891025641025641
+  },
+  {
+    "file": "start-demo-added-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-failed-dark-1280.png",
+    "status": "changed",
+    "share": 0.0033349609375
+  },
+  {
+    "file": "start-demo-failed-dark-390.png",
+    "status": "changed",
+    "share": 0.01092948717948718
+  },
+  {
+    "file": "start-demo-failed-light-1280.png",
+    "status": "changed",
+    "share": 0.0033564453125
+  },
+  {
+    "file": "start-demo-failed-light-390.png",
+    "status": "changed",
+    "share": 0.01098397435897436
+  },
+  {
+    "file": "start-demo-kept-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-not-kept-dark-1280.png",
+    "status": "changed",
+    "share": 0.0033232421875
+  },
+  {
+    "file": "start-demo-not-kept-dark-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-demo-not-kept-light-1280.png",
+    "status": "changed",
+    "share": 0.0033564453125
+  },
+  {
+    "file": "start-demo-not-kept-light-390.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "start-light-1280.png",
+    "status": "changed",
+    "share": 0.0033564453125
+  },
+  {
+    "file": "start-light-390.png",
+    "status": "changed",
+    "share": 0.01098397435897436
+  },
+  {
+    "file": "study-checked-dark-1280.png",
+    "status": "unchanged",
+    "share": 0.0000041420269168026104
+  },
+  {
+    "file": "study-checked-dark-390.png",
+    "status": "changed",
+    "share": 0.011013747818439484
+  },
+  {
+    "file": "study-checked-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-checked-light-390.png",
+    "status": "changed",
+    "share": 0.011023772744049979
+  },
+  {
+    "file": "study-course-done-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-not-kept-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-not-kept-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-not-kept-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-not-kept-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  }
+]
