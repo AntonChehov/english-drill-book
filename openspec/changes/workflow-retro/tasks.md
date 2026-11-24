@@ -9,7 +9,7 @@
 ## 2. Pull requests without code (D3, D4)
 
 - [x] 2.1 `scripts/changes.mjs` with tests
-- [x] 2.2 Job `changes` and output `code` in the workflows
+- [x] 2.2 Step `files` in `unit` and `build`, output `code` of `build` and of the workflow
 - [x] 2.3 Checks 5 and 6 not applicable without code, with tests
 
 ## 3. `review.md` (D6)

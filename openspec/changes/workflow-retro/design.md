@@ -16,7 +16,7 @@ After the last round approves and validation passes, the last commit ticks every
 
 ### D3. Pull requests without code
 
-`scripts/changes.mjs`: `withoutCode(paths)` is true when every path is under `docs/`, `openspec/`, `.claude/` or is `README.md`, `CLAUDE.md`, `CHANGELOG.md` or `LICENSE`. `needsBuild` is also false for the release branch with only its three files. A first job `changes` sets output `code`; `unit` and `build` run only when it is `true`. Rejected: `paths-ignore`, under which the required check would never report; a third-party filter action.
+`scripts/changes.mjs`: `withoutCode(paths)` is true when every path is under `docs/`, `openspec/`, `.claude/` or is `README.md`, `CLAUDE.md`, `CHANGELOG.md` or `LICENSE`. `needsBuild` is also false for the release branch with only its three files. The first step of `unit` and of `build` runs it and sets `code`; their other steps run only when it is `true`, and `build` passes `code` on to `e2e`, `lighthouse` and `screenshots`, which run only then. Rejected: `paths-ignore`, under which the required check would never report; a third-party filter action; a first job `changes`: `unit` and `build` waited for it, and the run took 199 s, over C-19.
 
 ### D4. Skipped jobs cannot pass the check
 
@@ -51,6 +51,6 @@ Requirement wording lives in `docs/product/`. A small change has no delta spec; 
 ## Risks / Trade-offs
 
 - If GitHub counted skipped jobs in a reusable workflow as a failure, pull requests without code would go red, never falsely green. The open release pull request shows it after the merge.
-- The `changes` job delays `unit` and `build` by about 10–15 s.
+- `unit` and `build` still start and check out for a pull request without code, then do nothing; nothing waits for them. If the step fails, `checks` fails.
 - A late fix after the archive commit costs a revert and a new archive commit.
 - The size of a change is a judgement; a wrong `lite` is a minor finding, and a change found larger moves to `spec-driven` before the review.

@@ -15,7 +15,7 @@ concurrency:
 
 permissions:
   contents: read
-  # The `changes` job of checks.yml lists the files of the pull request.
+  # The step `files` of the jobs `unit` and `build` of checks.yml lists the files of the pull request.
   pull-requests: read
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       EVIDENCE_PATH: pr-${{ github.event.pull_request.number }}/${{ github.event.pull_request.head.sha }}
-    # The build, the tests and the screenshots exist only when `changes` found code (D3); the
+    # The build, the tests and the screenshots exist only when `files` found code (D3); the
     # evidence check decides again from the pull request's own files (D4).
     steps:
       - name: Require every check to pass
