@@ -43,3 +43,29 @@ The implementer's stated deviations from the design, judged:
 - Playwright `serviceWorkers: "block"` except the offline spec: accepted; the reason (route interception) is real and PROD-003 keeps its own spec with the worker on.
 
 Also observed, not findings: online, a stored pack that fails validation is read again from the PDF (DATA-001), so the «Книгу не удалось прочитать» card shows only when that read fails; the e2e test aborts the PDF to reach it, which is a fair reading of the scenario. The own-books line also shows during the brief `loading` phase. The automated review pass over the diff returned nothing usable (it read the wrong files); this round rests on a manual read of the whole diff. CI on 4c7a832 was green where finished when read.
+
+## Round 2
+
+Reviewed: 142d16cf4b70
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+- F3: fixed
+- F4: fixed
+
+### Notes
+
+This round is written by a fresh reviewing agent; the round-1 reviewer could not be resumed. It rests on the round-1 record, the whole diff against `main` and a close read of the four commits since round 1 (0792400, a7af9cf, 4c7a832, 7f3c556).
+
+On F1: `src/sw/**` is now in the override with the `self` and `globalThis` forms, `excludeFiles` names only `src/storage/static-files.ts` and `src/sw/worker.ts`, the messages name both, and `scripts/lint-config.test.mjs` pins the list. Lint on `src/sw` and the touched tests pass locally.
+
+On F2: the comment of FailureBoundary now says plainly that slot bindings are raised in the parent and caught above it.
+
+On F3: the section is named by `aria-label` «Упражнения», takes `tabindex="-1"`, and «К упражнениям» falls back to it when the heading is gone; the e2e test checks both the name and the focus on a narrow screen. The global `:focus-visible` rule marks it when reached by keyboard.
+
+On F4: the comment names the exact call in `ExerciseBlock.vue` and the condition under which the test would break.
+
+The WebKit failure of study-layout on 4c7a832: waiting for the h1 is the right fix, not a hidden product defect. `src/ui/main.ts` awaits the theme before mounting, but `storedTheme` races the read against a 300 ms limit, so the app always mounts promptly; before that the page is empty and there is nothing a learner could aim a key at. A Tab pressed then moves the browser's focus as on any page still loading, and the next Tab after the screen appears reaches the app. No learner input is lost, since none can be entered before the first screen.
+
+CI on the head was still running when read (build green); the approval assumes the gates finish green.
