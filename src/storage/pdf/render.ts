@@ -2,6 +2,7 @@
 // loaded on demand, as for reading text, and its worker is started by the app (`text.ts`), so a
 // worker that did not arrive fails only this attempt and a later one can succeed.
 
+import type { PDFPageProxy } from "pdfjs-dist";
 import { loadPdfLibrary, startWorker } from "./text";
 
 /** The size of a page at 100 %, in CSS pixels. */
@@ -18,7 +19,8 @@ export interface PdfPages {
   size(number: number): Promise<PageSize>;
   /**
    * Draws page `number` on `canvas`, `width` CSS pixels wide at the device's `ratio` of pixels.
-   * Settles when the page is drawn; rejects when `signal` aborts first.
+   * With `text`, the page's text is laid in it, transparent over the canvas, for selecting and
+   * copying (DOC-009). Settles when the page is drawn; rejects when `signal` aborts first.
    */
   draw(
     number: number,
@@ -26,9 +28,41 @@ export interface PdfPages {
     width: number,
     ratio: number,
     signal?: AbortSignal,
+    text?: HTMLElement,
   ): Promise<void>;
   /** Closes the document and stops its worker. */
   destroy(): void;
+}
+
+/**
+ * Lays the text of `page` in `container` at `scale` CSS pixels per unit of the page, the layer of
+ * pdf.js; what was laid before is replaced. The layer's rules are in `PagesPanel.vue`.
+ */
+async function layText(
+  pdfjs: typeof import("pdfjs-dist"),
+  page: PDFPageProxy,
+  container: HTMLElement,
+  scale: number,
+  signal?: AbortSignal,
+): Promise<void> {
+  const textContentSource = await page.getTextContent();
+  signal?.throwIfAborted();
+  container.replaceChildren();
+  container.style.setProperty("--total-scale-factor", String(scale));
+  container.style.setProperty("--scale-round-x", "1px");
+  container.style.setProperty("--scale-round-y", "1px");
+  const layer = new pdfjs.TextLayer({
+    textContentSource,
+    container,
+    viewport: page.getViewport({ scale }),
+  });
+  const cancel = () => layer.cancel();
+  signal?.addEventListener("abort", cancel, { once: true });
+  try {
+    await layer.render();
+  } finally {
+    signal?.removeEventListener("abort", cancel);
+  }
 }
 
 /**
@@ -70,11 +104,12 @@ export async function openPdf(data: Uint8Array): Promise<PdfPages> {
       return { width, height };
     },
 
-    async draw(number, canvas, width, ratio, signal) {
+    async draw(number, canvas, width, ratio, signal, text) {
       signal?.throwIfAborted();
       const page = await document.getPage(number);
       signal?.throwIfAborted();
-      const scale = (width * ratio) / page.getViewport({ scale: 1 }).width;
+      const pageWidth = page.getViewport({ scale: 1 }).width;
+      const scale = (width * ratio) / pageWidth;
       const viewport = page.getViewport({ scale });
       // Drawn off screen first, so the canvas never shows a half-drawn or blank page.
       const drawing = canvas.ownerDocument.createElement("canvas");
@@ -91,6 +126,7 @@ export async function openPdf(data: Uint8Array): Promise<PdfPages> {
       canvas.width = drawing.width;
       canvas.height = drawing.height;
       canvas.getContext("2d")?.drawImage(drawing, 0, 0);
+      if (text) await layText(pdfjs, page, text, width / pageWidth, signal);
     },
 
     destroy: stop,

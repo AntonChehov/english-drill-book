@@ -387,6 +387,21 @@ describe("packs, drafts and settings", () => {
     expect(await store.getSetting("focusTopic")).toBe("2");
   });
 
+  it("@req DOC-006 the layout settings are kept, and a deleted one reads as absent", async () => {
+    const { store } = await setUp();
+
+    await store.putSetting("pageZoom", { "demo-course": 1.5 });
+    await store.putSetting("studySplit", 0.45);
+    await store.putSetting("collapsedPanel", "pages");
+    expect(await store.getSetting("pageZoom")).toEqual({ "demo-course": 1.5 });
+    expect(await store.getSetting("studySplit")).toBe(0.45);
+    expect(await store.getSetting("collapsedPanel")).toBe("pages");
+
+    await store.deleteSetting("collapsedPanel");
+    expect(await store.getSetting("collapsedPanel")).toBeUndefined();
+    expect(await store.getSetting("studySplit")).toBe(0.45);
+  });
+
   it("@req PROG-009 the ticks of a day are kept by day, none for a day not stored", async () => {
     const { store } = await setUp();
 

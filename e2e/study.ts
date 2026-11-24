@@ -1,5 +1,5 @@
 import type { Browser, Locator, Page } from "@playwright/test";
-import { addDemo, databaseName, demoPdf, failedLoad } from "./demo";
+import { addDemo, databaseName, databaseOf, demoPdf, failedLoad } from "./demo";
 import { expect, guardContext, test as base } from "./fixtures";
 import { addressOf } from "./views";
 
@@ -96,8 +96,9 @@ export const answers13 = {
   "5": "Kofi and Nell are not friends",
 } as const;
 
-/** The live region of Study. */
-export const announced = (page: Page) => page.getByRole("status").filter({ hasNotText: /^$/ });
+/** The live region of Study that tells the outcome of a check; the zoom level is another one. */
+export const announced = (page: Page) =>
+  page.getByRole("status").filter({ hasText: /^Упражнение \d/ });
 
 /**
  * Makes the browser refuse the next `times` attempts written to the log, as a disk that fails
@@ -167,6 +168,30 @@ export async function finishUnit1(page: Page, all = true) {
 /** The pages panel of Study. */
 export const pagesPanel = (page: Page) => page.getByRole("region", { name: "Страницы книги" });
 
+// Not through the panel: `evaluateAll` on a role inside a role crashes the page in Firefox.
+export const pagesOf = (page: Page) => page.getByRole("img", { name: /^Страница \d+$/ });
+export const drawnPages = (page: Page) => pagesPanel(page).locator("canvas[data-drawn]");
+
+/** The numbers of the pages the panel shows, in the order it shows them. */
+export const numbersOf = async (page: Page) =>
+  (
+    await pagesOf(page).evaluateAll((all) => all.map((each) => each.getAttribute("aria-label")))
+  ).map((label) => Number(label?.replace("Страница ", "")));
+
+/** Where the top of page `number` is, in CSS pixels from the top of the window. */
+export const topOf = (page: Page, number: number) =>
+  pagesPanel(page)
+    .locator(`[data-page="${number}"]`)
+    .evaluate((element) => element.getBoundingClientRect().top);
+
+/** The setting `name` as the app's database holds it; `undefined` when it is not stored. */
+export async function storedSetting(page: Page, name: string): Promise<unknown> {
+  const { stores } = await databaseOf(page);
+  return (stores["settings"] as { name: string; value: unknown }[] | undefined)?.find(
+    (setting) => setting.name === name,
+  )?.value;
+}
+
 /**
  * The states of Study for the accessibility check and the screenshots (design of `study-screen`,
  * C-07): each starts from the demo added and ends in Study, or on Topics.
@@ -227,6 +252,34 @@ export const studyStates = [
       await page.route(demoPdf, (route) => route.abort("internetdisconnected"));
       await openUnit(page, "1");
       await expect(pagesPanel(page).getByRole("alert")).toBeVisible();
+    },
+  },
+  {
+    // The pages at 150 % with one page before the unit's first and the split moved (DOC-002,
+    // DOC-003, DOC-006).
+    name: "study-pages-zoomed",
+    reach: async (page: Page) => {
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await openUnit(page, "1");
+      await expect(drawnPages(page).first()).toBeVisible();
+      const panel = pagesPanel(page);
+      await panel.getByRole("button", { name: "Предыдущая страница" }).click();
+      await panel.getByRole("button", { name: "Увеличить" }).click();
+      await panel.getByRole("button", { name: "Увеличить" }).click();
+      await page.getByRole("separator").focus();
+      await page.keyboard.press("ArrowLeft");
+      await expect(panel.getByRole("status")).toHaveText("150 %");
+      await expect(drawnPages(page).first()).toBeVisible();
+    },
+  },
+  {
+    // The pages panel hidden: a strip with «Показать страницы» (DOC-006).
+    name: "study-pages-collapsed",
+    reach: async (page: Page) => {
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await openUnit(page, "1");
+      await pagesPanel(page).getByRole("button", { name: "Скрыть страницы" }).click();
+      await expect(page.getByRole("button", { name: "Показать страницы" })).toBeFocused();
     },
   },
   {

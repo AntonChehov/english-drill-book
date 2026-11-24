@@ -27,7 +27,23 @@
       "properties": {
         "theme": { "enum": ["system", "light", "dark"] },
         "activeProgram": { "$ref": "#/$defs/slug" },
-        "focusTopic": { "$ref": "#/$defs/localId" }
+        "focusTopic": { "$ref": "#/$defs/localId" },
+        "pageZoom": {
+          "type": "object",
+          "description": "Zoom of the pages panel by pack id, as a multiple of the panel's width.",
+          "propertyNames": { "$ref": "#/$defs/slug" },
+          "additionalProperties": { "type": "number", "minimum": 0.5, "maximum": 3 }
+        },
+        "studySplit": {
+          "type": "number",
+          "minimum": 0.3,
+          "maximum": 0.75,
+          "description": "The pages' share of the Study row from 1024 px."
+        },
+        "collapsedPanel": {
+          "enum": ["pages", "exercises"],
+          "description": "The collapsed panel of Study; absent when neither is."
+        }
       }
     }
   },

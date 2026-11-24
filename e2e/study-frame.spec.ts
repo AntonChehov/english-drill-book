@@ -3,25 +3,44 @@ import { exerciseOf, expect, finishUnit1, openUnit, test, unitAddress, unitHeadi
 import { addressOf } from "./views";
 
 test.describe("PROD-001 and PROD-008 hold for Study", () => {
+  // The links of Study's unit 1 with the list of units open, one test each so that the browsers'
+  // shards share them; the guard below fails when Study shows a link that is not listed.
+  const links = [
+    { name: /^English Drill Book$/, href: "#/" },
+    { name: /^Сегодня$/, href: "#/" },
+    { name: /^Темы$/, href: "#/topics" },
+    { name: /^О приложении$/, href: "#/about" },
+    { name: /^Раздел 1\. /, href: "#/study/demo-course/1" },
+    { name: /^Раздел 2\. /, href: "#/study/demo-course/2" },
+    { name: /^Раздел 3\. /, href: "#/study/demo-course/3" },
+    { name: /^Раздел 4\. /, href: "#/study/demo-course/4" },
+    { name: /^2\. Сборник упражнений/, href: "#/study/demo-drills/1?ex=1.1" },
+  ];
+
   test(
-    "@req PROD-001 every link on Study opens its destination in the same window",
+    "@req PROD-001 the links listed here are all the links Study shows",
     { tag: "@demo" },
-    async ({ page, context, browserName }) => {
-      // WebKit, not a target, opens a unit slowly: its speed is technical debt (docs/tech-debt.md).
-      test.slow(browserName === "webkit");
+    async ({ page }) => {
       await openUnit(page, "1");
       await page.getByRole("button", { name: "Все разделы" }).click();
-      const links = page.getByRole("link");
-      const count = await links.count();
-      expect(count, "the top bar and the list of units").toBeGreaterThanOrEqual(7);
-      await page.keyboard.press("Escape");
 
-      for (let index = 0; index < count; index++) {
+      const shown = await page
+        .locator("a")
+        .evaluateAll((all) => all.map((a) => a.getAttribute("href")));
+
+      expect(shown, "a new link needs a test of its own").toEqual(links.map((link) => link.href));
+    },
+  );
+
+  for (const { name, href } of links) {
+    test(
+      `@req PROD-001 the link to ${href} (${name.source}) opens its destination in the same window`,
+      { tag: "@demo" },
+      async ({ page, context }) => {
         await openUnit(page, "1");
         await page.getByRole("button", { name: "Все разделы" }).click();
-        const link = links.nth(index);
+        const link = page.locator(`a[href="${href}"]`).and(page.getByRole("link", { name }));
         await expect(link).not.toHaveAttribute("target", /.+/);
-        const href = await link.getAttribute("href");
         const popups: unknown[] = [];
         context.on("page", (opened) => popups.push(opened));
         await link.click();
@@ -30,9 +49,9 @@ test.describe("PROD-001 and PROD-008 hold for Study", () => {
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         expect(popups, "no other window or tab was opened").toHaveLength(0);
         expect(context.pages()).toHaveLength(1);
-      }
-    },
-  );
+      },
+    );
+  }
 
   test(
     "@req PROD-008 reloading Study keeps the unit, and an address with an exercise opens the unit at it",

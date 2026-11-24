@@ -77,3 +77,32 @@ describe("contract examples", () => {
     expect(schemas["pack"]!(examples["pack.documents.valid.json"])).toBe(true);
   });
 });
+
+/** Whether the example export, with `settings` in place of its own, validates. */
+const accepted = (settings: unknown) =>
+  schemas["export"]!({ ...(examples["export.valid.json"] as object), settings });
+
+describe("the settings of an export", () => {
+  it("@req DOC-002 accepts the zoom per book, the split and the collapsed panel", () => {
+    expect(
+      accepted({
+        pageZoom: { "demo-course": 0.5, "demo-drills": 3 },
+        studySplit: 0.3,
+        collapsedPanel: "pages",
+      }),
+    ).toBe(true);
+    expect(accepted({ theme: "dark" }), "a file exported before").toBe(true);
+  });
+
+  it("@req DOC-002 refuses a zoom outside 50 % to 300 % and a book that is not a slug", () => {
+    expect(accepted({ pageZoom: { "demo-course": 4 } })).toBe(false);
+    expect(accepted({ pageZoom: { "demo-course": 0.25 } })).toBe(false);
+    expect(accepted({ pageZoom: { "Demo Course": 1 } })).toBe(false);
+  });
+
+  it("@req DOC-006 refuses a split outside 30 % to 75 % and a panel that does not exist", () => {
+    expect(accepted({ studySplit: 0.8 })).toBe(false);
+    expect(accepted({ studySplit: 0.2 })).toBe(false);
+    expect(accepted({ collapsedPanel: "both" })).toBe(false);
+  });
+});
