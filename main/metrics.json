@@ -59,11 +59,11 @@
       }
     ]
   },
-  "sha": "028756716b0d5f2a31ae78ae7468ae3c6d401b6e",
+  "sha": "8190e5820e6e57a5054c4e9395631218496e2ed5",
   "tests": {
     "unit": {
-      "tests": 838,
-      "passed": 838,
+      "tests": 806,
+      "passed": 806,
       "failed": 0,
       "skipped": 0
     },
@@ -87,6 +87,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 169
+    "seconds": 91
   }
 }
