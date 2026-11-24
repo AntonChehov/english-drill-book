@@ -3,7 +3,7 @@
 // pull request unless, for its head commit:
 //   1. the description has the sections Problem, Solution, Requirements and Self-review and a
 //      line `Change: <name>` naming a directory under openspec/changes/;
-//   2. every ID under Requirements is in that change's delta specs and named by a test;
+//   2. every ID under Requirements is defined in docs/product/ and named by a test;
 //   3. openspec/changes/<name>/review.md (or the archived one) is a record in rounds whose
 //      last round is approved, with every finding fixed or declined with a reason and a
 //      severity (review-rounds design D2, D3; workflow-retro D6);
@@ -33,7 +33,7 @@ import { commentSha, rows } from "./evidence-comment.mjs";
 import { createGithub } from "./github.mjs";
 import { archiveOf, reviewHash } from "./review-hash.mjs";
 import { changeNamedIn, messages, parseRecord, reviewLine } from "./review-record.mjs";
-import { checkTraceability, parseRequirements } from "./traceability.mjs";
+import { checkTraceability } from "./traceability.mjs";
 
 const requirementId = /\b[A-Z][A-Z0-9]*-\d{3}\b/g;
 export const requiredSections = ["Problem", "Solution", "Requirements", "Self-review"];
@@ -158,6 +158,13 @@ export function reviewOf(input, change) {
   };
 }
 
+const productId = /\*\*([A-Z][A-Z0-9]*-\d{3})\b/g;
+
+/** The requirement IDs a file of docs/product/ defines, written `**CHK-005` (D8). */
+export function parseProductIds(markdown) {
+  return [...markdown.matchAll(productId)].map((match) => match[1]);
+}
+
 /**
  * Runs the seven checks. Every input is plain data, gathered by `gather` in CI:
  * @param {object} input
@@ -168,8 +175,7 @@ export function reviewOf(input, change) {
  * @param {Parameters<typeof archiveProblems>[0]["archive"]} [input.archive]  what the head
  *   commit archives, when it is an archive commit
  * @param {(path: string) => string | undefined} [input.readFile]  a file of the head commit
- * @param {(change: string) => string[]} input.deltaSpecIds  requirement IDs of a change's delta specs,
- *   in flight or archived by the head commit
+ * @param {Set<string>} input.productIds  requirement IDs defined in docs/product/
  * @param {Set<string>} input.testedIds  IDs named by `@req` in the app's tests
  * @param {(change: string) => string | undefined} input.readReview  review.md of a change
  * @param {(change: string) => string} input.contentHash  the review hash of the head commit
@@ -199,9 +205,8 @@ export function checkEvidence(input) {
   if (description.requirementIds.length === 0 && !description.noRequirements) {
     fail(2, "the Requirements section lists no requirement ID and does not say `none`");
   }
-  const deltaIds = new Set(known ? input.deltaSpecIds(change) : []);
   for (const id of description.requirementIds) {
-    if (known && !deltaIds.has(id)) fail(2, `${id} is not in the delta specs of ${change}`);
+    if (!input.productIds.has(id)) fail(2, `${id} is not defined in docs/product/`);
     if (!input.testedIds.has(id)) fail(2, `${id} is named by no test (@req ${id})`);
   }
 
@@ -329,15 +334,6 @@ function git(...args) {
   return execFileSync("git", args, { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }).trim();
 }
 
-function specFilesOf(root, directoryPath) {
-  const directory = join(root, directoryPath, "specs");
-  if (!existsSync(directory)) return [];
-  return readdirSync(directory, { recursive: true })
-    .map(String)
-    .filter((path) => path.endsWith("spec.md"))
-    .map((path) => join(directory, path));
-}
-
 /** Collects the inputs of `checkEvidence` from the checkout, the API and the run's files. */
 export async function gather({
   root,
@@ -393,10 +389,13 @@ export async function gather({
           .filter((entry) => entry.isDirectory() && entry.name !== "archive")
           .map((entry) => entry.name)
       : [],
-    deltaSpecIds: (change) =>
-      specFilesOf(root, directoryOf(change)).flatMap(
-        (path) => parseRequirements(readFileSync(path, "utf8")).ids,
-      ),
+    productIds: new Set(
+      readdirSync(join(root, "docs", "product"))
+        .filter((name) => name.endsWith(".md"))
+        .flatMap((name) =>
+          parseProductIds(readFileSync(join(root, "docs", "product", name), "utf8")),
+        ),
+    ),
     testedIds: new Set(checkTraceability(root).tested),
     readReview: (change) => readFile(`${directoryOf(change)}/review.md`),
     // The same module and merge base (origin/main) as `pnpm review:hash` on a clone; at the

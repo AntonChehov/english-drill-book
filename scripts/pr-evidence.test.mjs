@@ -8,6 +8,7 @@ import {
   exemption,
   isReleasePullRequest,
   parseDescription,
+  parseProductIds,
   report,
   reviewOf,
 } from "./pr-evidence.mjs";
@@ -126,7 +127,7 @@ function input(overrides = {}) {
     changes: ["other-change"],
     archive: archiveCommit(),
     readFile: archivedFiles,
-    deltaSpecIds: (name) => (name === change ? ["PROD-001", "PROD-008"] : ["CHK-001"]),
+    productIds: new Set(["PROD-001", "PROD-008", "CHK-001"]),
     testedIds: new Set(["PROD-001", "PROD-008", "CHK-001"]),
     readReview: (name) => (name === change ? review() : undefined),
     contentHash: (name) => (name === change ? current : "000000000000"),
@@ -152,13 +153,10 @@ describe("a complete pull request", () => {
     expect(problemsOf(withReview({ first, last: "" }))).toEqual([]);
   });
 
-  it("reads the delta specs and the record of the change from the archive", () => {
+  it("reads the record of the change from the archive", () => {
     const seen = [];
-    problemsOf({
-      deltaSpecIds: (name) => (seen.push(name), ["PROD-001", "PROD-008"]),
-      readReview: (name) => (seen.push(name), review()),
-    });
-    expect(seen).toEqual([change, change]);
+    problemsOf({ readReview: (name) => (seen.push(name), review()) });
+    expect(seen).toEqual([change]);
   });
 
   it("passes without requirements when the description says none", () => {
@@ -209,12 +207,22 @@ describe("1. description", () => {
 });
 
 describe("2. requirements", () => {
-  it("fails on an ID that is not in the change's delta specs", () => {
+  it("passes on an ID defined in docs/product/ that no delta spec of the change has", () => {
     const text = description({ requirements: "## Requirements\n\n- PROD-001\n- CHK-001\n" });
-    expect(problemsOf({ description: text })).toContainEqual({
-      check: 2,
-      problem: `CHK-001 is not in the delta specs of ${change}`,
-    });
+    expect(problemsOf({ description: text })).toEqual([]);
+  });
+
+  it("fails on an ID that docs/product/ does not define", () => {
+    const text = description({ requirements: "## Requirements\n\n- PROD-001\n- NEW-001\n" });
+    expect(problemsOf({ description: text, testedIds: new Set(["PROD-001", "NEW-001"]) })).toEqual([
+      { check: 2, problem: "NEW-001 is not defined in docs/product/" },
+    ]);
+  });
+
+  it("reads the IDs a product file defines, in bold", () => {
+    const text =
+      "- **DATA-001 [M1]** Stored.\n- **CHK-005** Correct. See PROD-002 and (DATA-009).\n";
+    expect(parseProductIds(text)).toEqual(["DATA-001", "CHK-005"]);
   });
 
   it("fails on an ID that no test names", () => {

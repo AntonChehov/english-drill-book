@@ -21,7 +21,7 @@
 ## 4. Lighter specifications (D7, D8, D9)
 
 - [x] 4.1 `openspec/schemas/lite/` with templates; `pnpm exec openspec schema validate lite` passes
-- [ ] 4.2 Check 2 reads IDs from `docs/product/`, not delta specs; tests for an ID defined there, missing there and named by no test
+- [x] 4.2 Check 2 reads IDs from `docs/product/`, not delta specs; tests for an ID defined there, missing there and named by no test
 - [ ] 4.3 `openspec/config.yaml`: `context` of three lines, word limits, no "Review and evidence" rule; `pnpm spec` green
 - [ ] 4.4 `docs/tech-debt.md` from "Later, unscheduled"; pointers in C-18, `docs/process.md`, `CLAUDE.md`
 
