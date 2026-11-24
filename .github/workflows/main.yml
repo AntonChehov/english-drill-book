@@ -106,7 +106,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           for _ in $(seq 20); do
-            found=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts?name=github-pages-${{ github.run_attempt }}" --jq .total_count)
+            # A call that fails counts as "not listed yet": the step runs with `bash -e`.
+            found=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts?name=github-pages-${{ github.run_attempt }}" --jq .total_count || echo 0)
             [ "$found" -ge 1 ] && exit 0
             sleep 3
           done
