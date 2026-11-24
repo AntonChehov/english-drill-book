@@ -13,6 +13,8 @@ import {
 } from "./study";
 
 test.describe("PROD-003 Offline after the first load", () => {
+  test.use({ serviceWorkers: "allow" });
+
   test("@req PROD-003 a reload (C-04) with no network opens Today with the stored books and progress, and a unit works", async ({
     page,
     context,

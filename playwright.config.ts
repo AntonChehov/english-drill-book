@@ -23,6 +23,9 @@ export default defineConfig({
   use: {
     baseURL: `http://127.0.0.1:${port}${basePath}`,
     trace: "retain-on-failure",
+    // The worker serves the app's own files itself (PROD-003), so a test that holds one back with
+    // `page.route` would never see the request. Only the offline spec lets the worker run.
+    serviceWorkers: "block",
   },
   projects: [
     // Everything runs on Chromium; Firefox and WebKit run the demo flow (constitution C-13).
