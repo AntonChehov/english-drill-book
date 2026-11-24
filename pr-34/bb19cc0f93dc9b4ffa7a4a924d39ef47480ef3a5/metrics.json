@@ -1,0 +1,92 @@
+{
+  "size": {
+    "js": {
+      "files": [
+        "assets/index-xmy-ObFe.js"
+      ],
+      "bytes": 120994,
+      "gzip": 45352,
+      "budget": 120000
+    },
+    "css": {
+      "files": [
+        "assets/index-DrN0RNUn.css"
+      ],
+      "bytes": 8074,
+      "gzip": 2063,
+      "budget": 20000
+    },
+    "later": [
+      {
+        "file": "assets/StudyView-D-IVsno1.js",
+        "bytes": 38922,
+        "gzip": 14123
+      },
+      {
+        "file": "assets/TopicsView-Dc2vXgfA.js",
+        "bytes": 2618,
+        "gzip": 1455
+      },
+      {
+        "file": "assets/add-demo-CDExgCJ2.js",
+        "bytes": 5660,
+        "gzip": 2324
+      },
+      {
+        "file": "assets/kept-Bguq_1ME.js",
+        "bytes": 491,
+        "gzip": 344
+      },
+      {
+        "file": "assets/pdf-YwugTw7Y.js",
+        "bytes": 444231,
+        "gzip": 132001
+      },
+      {
+        "file": "assets/pdf.worker.min-CIqJB0yW.mjs",
+        "bytes": 1271915,
+        "gzip": 379243
+      },
+      {
+        "file": "assets/profiles-C9J7MDFb.js",
+        "bytes": 26005,
+        "gzip": 9360
+      },
+      {
+        "file": "assets/static-files-37jlHytL.js",
+        "bytes": 2478,
+        "gzip": 1287
+      }
+    ]
+  },
+  "sha": "bb19cc0f93dc9b4ffa7a4a924d39ef47480ef3a5",
+  "tests": {
+    "unit": {
+      "tests": 806,
+      "passed": 806,
+      "failed": 0,
+      "skipped": 0
+    },
+    "e2e": {
+      "tests": 281,
+      "passed": 280,
+      "failed": 0,
+      "skipped": 1
+    }
+  },
+  "coverage": {
+    "lines": 99.65,
+    "branches": 98.55,
+    "functions": 100,
+    "statements": 99.61
+  },
+  "lighthouse": {
+    "performance": 100,
+    "accessibility": 100,
+    "best-practices": 100,
+    "seo": 91
+  },
+  "pipeline": {
+    "seconds": 170
+  }
+}
