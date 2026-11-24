@@ -2,7 +2,7 @@
 
 ## Why
 
-Slice 1.7 is the last of milestone 1. Study shows a unit's pages beside its exercises, but the learner cannot do anything with them:
+Slice 1.7 is the last of milestone 1. Study shows a unit's pages, but the learner cannot:
 - enlarge a page;
 - see the neighbouring page, where a rule or an exercise's start often sits;
 - copy a word from the page;
@@ -18,6 +18,7 @@ Size: large. The change has six requirements and adds three settings to the stor
 - **The split** (DOC-006). From 1024 px a separator between the panels can be dragged with the pointer and moved with the arrow keys. «Скрыть страницы» and «Скрыть упражнения» collapse a panel to a strip with a button that restores it. The split and the collapsed panel are kept.
 - **Only the shown pages, quickly** (DOC-004). Pages are already drawn only near the viewport. An end-to-end test now measures that the first page is visible within 2 s of opening a unit.
 - **The library** (DOC-005). pdf.js already draws the pages, from the app's origin, and is loaded on demand. A test now checks that the start screen loads without it.
+- **Deploy.** It waits for the Pages artifact to be listed.
 - **Settings.** `pageZoom` (per book), `studySplit` and `collapsedPanel` are added to the store's `Settings` and to the export schema.
 
 Requirements delivered: DOC-002, DOC-003, DOC-004, DOC-005, DOC-006 and DOC-009, added to `pages`.

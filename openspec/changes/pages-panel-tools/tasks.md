@@ -19,3 +19,4 @@
 ## 5. Documentation
 
 - [ ] 5.1 Describe the toolbar, the neighbouring pages and the separator in the Study section of `docs/product/08-interface-reference.md`
+- [ ] 5.2 Make the deploy of `main` wait until the Pages artifact is listed (`.github/workflows/main.yml`)
