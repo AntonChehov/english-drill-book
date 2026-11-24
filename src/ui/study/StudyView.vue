@@ -49,6 +49,7 @@ const finished = computed(() => progress.value !== undefined && isFinished(progr
 const heading = useTemplateRef<HTMLElement>("heading");
 const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
 const exercisesHeading = useTemplateRef<HTMLElement>("exercisesHeading");
+const exercisesColumn = useTemplateRef<HTMLElement>("exercisesColumn");
 const pagesTop = useTemplateRef<HTMLElement>("pagesTop");
 const pagesColumn = useTemplateRef<HTMLElement>("pagesColumn");
 
@@ -212,7 +213,11 @@ watch(
       <div ref="pagesColumn" class="pages-column">
         <FailureBoundary>
           <p class="jump">
-            <button type="button" class="jump-link" @click="jump(exercisesHeading)">
+            <button
+              type="button"
+              class="jump-link"
+              @click="jump(exercisesHeading ?? exercisesColumn)"
+            >
               К упражнениям <span aria-hidden="true">↓</span>
             </button>
           </p>
@@ -245,7 +250,8 @@ watch(
         </FailureBoundary>
       </div>
 
-      <section class="exercises-column" aria-labelledby="exercises-heading">
+      <!-- Named by its own text, not by the heading: the heading is gone while the column failed. -->
+      <section ref="exercisesColumn" class="exercises-column" aria-label="Упражнения" tabindex="-1">
         <FailureBoundary>
           <details v-if="theory.length > 0" class="theory card" open>
             <summary class="theory-summary">Объяснение</summary>

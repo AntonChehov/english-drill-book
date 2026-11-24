@@ -11,7 +11,9 @@ test.describe("PROD-011 A failure stays in its part", () => {
     allowConsoleError,
   }) => {
     allowConsoleError(/the exercises cannot be drawn/);
-    // Drawing an exercise names its block by its number, which the test makes fail.
+    // Drawing an exercise names its block by its number: `base` in src/ui/study/ExerciseBlock.vue
+    // calls `id.replaceAll(".", "-")`, and the test makes that call throw while the flag is on.
+    // Nothing else may call `replaceAll(".", …)` while it is drawn, or this test breaks with it.
     await page.addInitScript(() => {
       const replaceAll = String.prototype.replaceAll;
       // oxlint-disable-next-line no-extend-native -- the test breaks drawing on purpose
@@ -36,6 +38,14 @@ test.describe("PROD-011 A failure stays in its part", () => {
     const exercises = page.getByRole("heading", { level: 2, name: "Упражнения" });
     await expect(failure).toBeVisible();
     await expect(exercises).toHaveCount(0);
+    // The column keeps its name, and the jump to it from the pages still lands on it.
+    const column = page.getByRole("region", { name: "Упражнения" });
+    await expect(column).toBeVisible();
+    const wide = page.viewportSize();
+    await page.setViewportSize({ width: 360, height: 800 }); // the jump links show on a narrow screen
+    await page.getByRole("button", { name: "К упражнениям" }).click();
+    await expect(column).toBeFocused();
+    if (wide) await page.setViewportSize(wide);
     await expect(pagesPanel(page).locator("canvas[data-drawn]").first()).toBeVisible();
 
     // The top bar goes on working, and the screen comes back to the same failure.

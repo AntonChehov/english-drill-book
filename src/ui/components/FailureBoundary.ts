@@ -1,7 +1,8 @@
 // A failure stays in its part (PROD-011; design D3 of `shell-offline-themes`): when what is drawn
 // inside throws, the part says so with a way to try again, and the rest of the page, the top bar
-// included, goes on. Trying again draws the part anew. An error in the template of the part's own
-// parent is that parent's to catch; this catches those of the components inside. It is a render
+// included, goes on. Trying again draws the part anew. It catches errors of the components drawn
+// inside it. An error in an expression of the slot itself (a binding in the parent's template) is
+// raised in the parent, so the boundary above the parent catches it, not this one. It is a render
 // function, not a single-file component, so that a test can draw it without a browser.
 import { defineComponent, Fragment, h, onErrorCaptured, ref } from "vue";
 
