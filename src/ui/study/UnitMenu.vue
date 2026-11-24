@@ -1,7 +1,11 @@
 <script setup lang="ts">
-// The list of the book's units in the header of Study, each with its done count (design D3).
-import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from "vue";
+// The list of the book's units in the header of Study (in the bar below 1024 px), each with its
+// done count, and a check mark when it is finished (design D3; PROD-012).
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from "vue";
 import { RouterLink } from "vue-router";
+import { isFinished } from "../../domain/study";
+import { unitListOpen } from "../bar";
+import CheckMark from "../components/CheckMark.vue";
 import { doneOf } from "./messages";
 import type { UnitLink } from "./unit";
 
@@ -25,8 +29,14 @@ function onPointerDown(event: PointerEvent) {
   }
 }
 
+// The bar stays in view while the list is open.
+watch(open, (now) => (unitListOpen.value = now));
+
 onMounted(() => document.addEventListener("pointerdown", onPointerDown));
-onUnmounted(() => document.removeEventListener("pointerdown", onPointerDown));
+onUnmounted(() => {
+  document.removeEventListener("pointerdown", onPointerDown);
+  unitListOpen.value = false;
+});
 
 function onFocusOut(event: FocusEvent) {
   const to = event.relatedTarget;
@@ -56,7 +66,8 @@ function onFocusOut(event: FocusEvent) {
           @click="open = false"
         >
           <span class="title">Раздел {{ unit.id }}.&nbsp;{{ unit.title }}</span>
-          <span class="count" :class="{ full: unit.progress.done === unit.progress.total }">
+          <span class="count" :class="{ full: isFinished(unit.progress) }">
+            <CheckMark :done="isFinished(unit.progress)" />
             {{ doneOf(unit.progress.done, unit.progress.total) }}
           </span>
         </RouterLink>
@@ -106,8 +117,11 @@ function onFocusOut(event: FocusEvent) {
 }
 
 .count {
+  align-items: center;
   color: var(--color-muted);
+  display: inline-flex;
   flex: none;
+  gap: 0.25rem;
   font-size: 0.875rem;
   font-weight: 400;
 }

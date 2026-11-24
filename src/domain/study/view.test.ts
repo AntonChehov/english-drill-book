@@ -3,7 +3,7 @@ import { deriveExercise, emptyExerciseState, type Attempt } from "../progress";
 import { checkAttempt, markDoneAttempt, overrideAttempt, revealAttempt } from "./attempts";
 import { prepareKeys } from "./grade";
 import { contextOf, exerciseOf, itemsOf } from "./study.fixture";
-import { continueAt, progressOf } from "./progress";
+import { continueAt, isFinished, progressOf } from "./progress";
 import { initialAnswers, judgedAnswers, viewOfExercise, type ItemsView } from "./view";
 
 const exercise = itemsOf("1.3");
@@ -192,5 +192,11 @@ describe("progress of units", () => {
       ]),
     ).toBe(1);
     expect(continueAt([{ done: 3, total: 3 }])).toBe(-1);
+  });
+
+  it("@req PROD-012 a unit or a book is finished when it has exercises and all are done", () => {
+    expect(isFinished({ done: 3, total: 3 })).toBe(true);
+    expect(isFinished({ done: 2, total: 3 })).toBe(false);
+    expect(isFinished({ done: 0, total: 0 })).toBe(false);
   });
 });

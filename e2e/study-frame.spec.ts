@@ -141,7 +141,7 @@ test.describe("PROG-014 The units of the added books", () => {
       await unit(1).getByRole("link").click();
       await finishUnit1(page);
       await page.getByRole("link", { name: "Сегодня" }).click();
-      await expect(unit(1)).toContainText("✓ сделано 3 из 3");
+      await expect(unit(1)).toContainText("выполнено сделано 3 из 3");
       await expect(unit(1)).not.toContainText("продолжить");
       await expect(unit(2)).toContainText("продолжить");
       await expect(course.getByText("продолжить")).toHaveCount(1);

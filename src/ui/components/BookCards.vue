@@ -4,10 +4,11 @@
 // marked as the one to continue. The start screen reads the counts (design D4 of `demo-program`).
 import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
-import { continueAt, progressOf } from "../../domain/study/progress";
+import { continueAt, isFinished, progressOf } from "../../domain/study/progress";
 import { doneExercises, doneKey } from "../demo/progress";
 import type { DemoBookSummary } from "../demo/state";
 import { prefetchStudy } from "../router";
+import CheckMark from "./CheckMark.vue";
 
 const props = defineProps<{ books: readonly DemoBookSummary[] }>();
 
@@ -22,7 +23,15 @@ const cards = computed(() =>
     }));
     const done = units.reduce((sum, unit) => sum + unit.progress.done, 0);
     const total = units.reduce((sum, unit) => sum + unit.progress.total, 0);
-    return { ...book, units, done, total, next: continueAt(units.map((unit) => unit.progress)) };
+    const finished = isFinished({ done, total });
+    return {
+      ...book,
+      units,
+      done,
+      total,
+      finished,
+      next: continueAt(units.map((unit) => unit.progress)),
+    };
   }),
 );
 
@@ -36,8 +45,10 @@ onMounted(prefetchStudy);
 
 <template>
   <ul class="books">
-    <li v-for="book in cards" :key="book.id" class="book card">
-      <h3 lang="en">{{ book.title }}</h3>
+    <li v-for="book in cards" :key="book.id" class="book card" :class="{ finished: book.finished }">
+      <h3>
+        <span lang="en">{{ book.title }}</span> <CheckMark :done="book.finished" still />
+      </h3>
       <p class="total">
         {{ book.done }} из {{ book.total }} {{ exercisesAfter(book.total) }} сделано
       </p>
@@ -55,9 +66,9 @@ onMounted(prefetchStudy);
             Раздел {{ unit.id }}.&nbsp;{{ unit.title }}
           </RouterLink>
           <span v-if="index === book.next" class="continue">продолжить</span>
-          <span class="count" :class="{ full: unit.progress.done === unit.progress.total }">
-            <span v-if="unit.progress.done === unit.progress.total" aria-hidden="true">✓ </span
-            >сделано {{ unit.progress.done }} из {{ unit.progress.total }}
+          <span class="count" :class="{ full: isFinished(unit.progress) }">
+            <CheckMark :done="isFinished(unit.progress)" still />
+            сделано {{ unit.progress.done }} из {{ unit.progress.total }}
           </span>
         </li>
       </ol>
@@ -78,9 +89,17 @@ onMounted(prefetchStudy);
   padding: 1rem 1rem 0.5rem;
 }
 
+.book.finished {
+  border-color: var(--color-ok);
+}
+
 h3 {
   font-size: 1.125rem;
   margin: 0;
+}
+
+.book.finished h3 {
+  color: var(--color-ok);
 }
 
 .total {
@@ -138,8 +157,11 @@ h3 {
 }
 
 .count {
+  align-items: center;
   color: var(--color-muted);
+  display: inline-flex;
   font-size: 0.875rem;
+  gap: 0.25rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
