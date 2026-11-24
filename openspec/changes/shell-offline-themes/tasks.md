@@ -1,6 +1,6 @@
 ## 1. Offline
 
-- [ ] 1.1 Add the service worker and its build plugin, registered from `main.ts`, and make offline Today read the store only (design D1); verify with `e2e/offline.spec.ts` named `@req PROD-003` (design, Tests) and `pnpm check`
+- [x] 1.1 Add the service worker and its build plugin, registered from `main.ts`, and make offline Today read the store only (design D1); verify with `e2e/offline.spec.ts` named `@req PROD-003` (design, Tests) and `pnpm check`
 
 ## 2. Theme
 
@@ -21,4 +21,4 @@
 ## 5. Housekeeping
 
 - [ ] 5.1 Name the Pages artifact per attempt and mark slice 1.8 in progress in `docs/roadmap.md` (design D7)
-- [ ] 5.2 Remove the two offline entries from `docs/tech-debt.md` once 1.1 passes
+- [x] 5.2 Remove the two offline entries from `docs/tech-debt.md` once 1.1 passes

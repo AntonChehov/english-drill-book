@@ -9,3 +9,10 @@ import "./styles/base.css";
 getStore().catch(() => undefined);
 
 createApp(App).use(createAppRouter()).mount("#app");
+
+// The service worker keeps the app for offline use (design D1 of `shell-offline-themes`, PROD-003).
+// It is registered after the first screen, in the built app only; a browser that cannot or will
+// not run it leaves the app as it was.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined);
+}

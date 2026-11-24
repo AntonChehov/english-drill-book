@@ -10,5 +10,6 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["vite/client"]
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "e2e/views.ts"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "e2e/views.ts"],
+  "exclude": ["src/sw"]
 }
