@@ -36,3 +36,20 @@ Why: the flow stays possible by keyboard, so this is not critical, but a hidden 
 - Checked and found right: Study is keyed by the path in `App.vue`, and `done` is filled in the same tick as `pack` and `unit` in `unit.ts`, so opening an already finished unit shows the mark drawn, not drawing; reduced motion removes both the slide and the drawing; Tab into a hidden bar shows it; the list of units holds it in view and resets the hold on unmount.
 - In the bar the unit's label «Раздел N» stays in the text colour and only the mark is green; the list of units and the cards colour the count. Consistent enough with "marked in green with a check mark".
 - The CI check `evidence` fails on this head, waiting for this review.
+
+## Round 2
+
+Reviewed: 2d97a254912d
+Verdict: approved
+
+- F1: declined — the owner confirmed the size small on 2026-11-24 (one requirement, no schema or storage change; the excess is tests and CSS).
+- F2: fixed
+- F3: fixed
+
+### Notes
+
+- Fresh agent for round 2; the round-1 agent was not resumed.
+- F2: `src/ui/components/BookCards.test.ts` renders one book with all units done and one partly done, and checks the `finished` class and «выполнено» in the heading of the first only, and nothing marked when nothing is done. It clears the shared `doneExercises` after each test, so it does not depend on order.
+- F3: `scroll-padding-top: 6rem` on the root below 1024 px in `src/ui/styles/base.css`, larger than the two-row bar of Study. The new end-to-end test in `e2e/phone-bar.spec.ts` scrolls a field of Study to the top edge from below with the bar away, waits for the bar to return, then checks the field sits below its bottom edge; `scrollIntoView` honours `scroll-padding-top` as focus scrolling does.
+- 7c8ca4a only widens a line of `docs/tech-debt.md` (the offline reload, H-05, pre-existing on main) by the owner's decision; no code.
+- The CI check `evidence` waits for this round.
