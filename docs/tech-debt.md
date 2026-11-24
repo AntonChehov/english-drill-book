@@ -20,5 +20,5 @@ What is known and not scheduled: from the validations of changes, and from revie
 - The speed test of the checker (CHK-014) took 100.36 ms against its 100 ms budget on a loaded CI runner; the budget has no margin for such a runner.
 - The same unit open in two tabs: an unchecked draft from one tab can arrive about 0.5 s later and overwrite text just typed in the other; the newest edit should win.
 - A failed demo download shows a technical code such as "(ошибка 503)" to the learner.
-- After a reload with the network off, «Открыть раздел» on Today does nothing, with no message.
+- Offline, a reload of the app shows the browser's own error page instead of the app; after a reload with the network off, «Открыть раздел» on Today does nothing, with no message; and when a unit's pages are not stored and there is no network, the page area says nothing about needing a connection.
 - Opening a unit by an exercise link scrolls the page so the top header is out of view.
