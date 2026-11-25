@@ -14,7 +14,7 @@ English Drill Book is built specification-first with [OpenSpec](https://github.c
 | `openspec/changes/<name>/` | one change in flight: `proposal.md`, `design.md`, `tasks.md`, delta specs, `review.md` (a small change has only `proposal.md`, `tasks.md` and `review.md`) |
 | `openspec/schemas/lite/` | the schema of a small change: a proposal and tasks |
 | `openspec/changes/archive/` | merged changes |
-| `docs/process/` | reports on the process itself, such as [optimization-round-1.md](process/optimization-round-1.md) |
+| `docs/process/` | the validator's prompt and reports on the process, such as [optimization-round-1.md](process/optimization-round-1.md) |
 | holdout scenarios | a separate private repository (see below) |
 
 ## Two sizes of change

@@ -32,7 +32,7 @@ Smaller context means each call carries less, and the session no longer grows to
 
 ### Review still finds real defects
 
-Lighter artifacts did not make review shallower. Of 9 findings on the three product changes, 5 were defects. One was critical: the service worker outside [C-03](../constitution.md). The review is where such a defect is caught, before the owner reads the pull request.
+Lighter artifacts did not make review shallower. Of 9 findings on the three product changes, 5 were defects. One was critical: the service worker's code was outside the lint rule that enforces [C-03](../constitution.md). The review is where such a defect is caught, before the owner reads the pull request.
 
 ### Cheap mechanical work
 
