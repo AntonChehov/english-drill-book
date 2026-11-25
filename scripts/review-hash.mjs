@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-// The hash of the diff a review reads (review-rounds design D1): the `git patch-id --stable` of
-// the diff between the merge base with main and the head commit. The patch ID follows the
-// lines the change adds and removes (with their paths and modes), not their line numbers or
-// the commits that carry them, so a rebase onto a main that does not touch the change's lines
-// keeps it and an edit of one of them changes it. `review.md` and `tasks.md` of the change's
-// own directory are left out: the record cannot hold its own hash, and ticking a task is not
-// a change to review. When the head commit is the archive commit of the change
-// (workflow-retro D2), the change is hashed at that commit's parent, where it is still in
-// flight, so the hash is the one the reviewer recorded. The reviewer runs this module as
-// `pnpm review:hash`;
+// The hash of the diff a review reads (review-rounds design D1): one SHA-256 over the text of
+// `git diff` between the merge base with main and the head commit (three lines of context,
+// renames as delete and add, binary files in full), with what depends on where the change sits
+// taken out: the numbers of the hunk headers `@@ -a,b +c,d @@` and the `index` lines with the
+// blob IDs. Whitespace counts, and so do the lines around a change, so a rebase onto a main
+// that leaves the change's lines and their neighbours alone keeps the hash, and any other
+// edit changes it. `review.md` and `tasks.md` of the change's own directory are left out: the
+// record cannot hold its own hash, and ticking a task is not a change to review. When the head
+// commit is the archive commit of the change (workflow-retro D2), the change is hashed at that
+// commit's parent, where it is still in flight, so the hash is the one the reviewer recorded.
+// The reviewer runs this module as `pnpm review:hash`;
 // scripts/pr-evidence.mjs imports it in CI, where the checkout has just fetched main.
 // Usage: node scripts/review-hash.mjs [<change>] [--head <commit>] [--base <ref>] [--files]
 //          [--offline]
@@ -18,6 +19,7 @@
 //   --offline  does not fetch main first, and warns that the hash may differ from CI's
 // Without --offline or --base, main is fetched from origin first, as CI's checkout does; when
 // that fails, nothing is printed.
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { isMain, parseNameStatus } from "./common.mjs";
@@ -31,16 +33,11 @@ export function excludedFiles(change) {
 }
 
 function git(root, ...args) {
-  return gitWithInput(root, undefined, ...args);
-}
-
-function gitWithInput(root, input, ...args) {
   return execFileSync("git", args, {
     cwd: root,
-    input,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
-    stdio: [input === undefined ? "ignore" : "pipe", "pipe", "pipe"],
+    stdio: ["ignore", "pipe", "pipe"],
   });
 }
 
@@ -107,7 +104,7 @@ export function archiveOf(root, head = "HEAD") {
 
 /**
  * The hash of the diff a review of `change` reads at `head`; at the parent of `head` when
- * `head` archives the change. A diff of nothing hashes as `none`.
+ * `head` archives the change. An empty diff hashes as `none`.
  * @returns {{ hash: string, short: string, files: string[] }}
  */
 export function reviewHash(root, { change, head = "HEAD", base = defaultBase(root) }) {
@@ -126,14 +123,18 @@ export function reviewHash(root, { change, head = "HEAD", base = defaultBase(roo
     "diff",
     "--no-renames",
     "--binary",
-    "--unified=0",
     mergeBase,
     at,
     "--",
     ".",
     ...excluded.map((path) => `:(exclude)${path}`),
   );
-  const [hash = "none"] = gitWithInput(root, diff, "patch-id", "--stable").split(" ");
+  const text = diff
+    .split("\n")
+    .filter((line) => !/^index [0-9a-f]+\.\.[0-9a-f]+( \d+)?$/.test(line))
+    .map((line) => line.replace(/^@@ -\S+ \+\S+ @@/, "@@ @@"))
+    .join("\n");
+  const hash = diff === "" ? "none" : createHash("sha256").update(text).digest("hex");
   const files = changedPaths(root, { head: at, base }).filter((path) => !excluded.includes(path));
   return { hash, short: hash.slice(0, shownLength), files };
 }
