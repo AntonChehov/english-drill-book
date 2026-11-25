@@ -1,0 +1,362 @@
+[
+  {
+    "file": "about-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "about-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "about-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "about-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "newer-version-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "not-found-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-added-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-failed-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-failed-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-failed-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-failed-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-kept-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-not-kept-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-not-kept-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-not-kept-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-demo-not-kept-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "start-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-checked-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-checked-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-checked-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-checked-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-course-done-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-drills-course-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-not-kept-dark-1280.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-not-kept-dark-390.png",
+    "status": "changed",
+    "share": 0.18337909547452733
+  },
+  {
+    "file": "study-not-kept-light-1280.png",
+    "status": "changed",
+    "share": 1
+  },
+  {
+    "file": "study-not-kept-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-collapsed-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-collapsed-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-collapsed-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-collapsed-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-offline-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-zoomed-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-zoomed-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-zoomed-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-pages-zoomed-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "study-untouched-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-dark-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-dark-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-dark-390.png",
+    "status": "changed",
+    "share": 0.00021794871794871795
+  },
+  {
+    "file": "topics-demo-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-demo-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-light-1280.png",
+    "status": "unchanged",
+    "share": 0
+  },
+  {
+    "file": "topics-light-390.png",
+    "status": "unchanged",
+    "share": 0
+  }
+]
