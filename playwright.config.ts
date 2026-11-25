@@ -44,8 +44,11 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
       // WebKit, not a target of the app, draws pages and opens units slowly in the pipeline: its
-      // speed is technical debt (docs/tech-debt.md), so its waits are longer than the default 5 s.
+      // speed is technical debt (docs/tech-debt.md), so its waits and its test timeout are longer than the defaults (5 s, 30 s) and CI retries it once.
       expect: { timeout: 15_000 },
+      timeout: 60_000,
+      // A pass on the retry is reported as flaky, not as a pass.
+      retries: ci ? 1 : 0,
       grep: /@demo/,
       testIgnore: /screenshots\.spec\.ts/,
     },

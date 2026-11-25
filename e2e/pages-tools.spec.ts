@@ -193,9 +193,18 @@ test.describe("DOC-003 A page before or after", () => {
         }
       });
       await expect(nextPage(page), "the book's last page").toHaveCount(0);
-      const numbers = await numbersOf(page);
-      expect(numbers.at(-1), "the book's last page").toBeGreaterThan(11);
-      expect(numbers).toEqual(Array.from({ length: numbers.length }, (_, at) => at + 1));
+      await expect
+        .poll(async () => (await numbersOf(page)).at(-1), { message: "the book's last page" })
+        .toBeGreaterThan(11);
+      await expect
+        .poll(
+          async () => {
+            const numbers = await numbersOf(page);
+            return numbers.every((number, at) => number === at + 1);
+          },
+          { message: "the pages are consecutive from the first" },
+        )
+        .toBe(true);
     },
   );
 
