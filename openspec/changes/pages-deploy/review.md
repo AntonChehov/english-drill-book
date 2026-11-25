@@ -41,7 +41,7 @@ Verdict: approved
 ### Notes
 
 - Fresh agent for this round; round 1 was written by another agent.
-- F1: `deploy` now has `actions: read`, `pages: write`, `id-token: write` only.
-- F2: the comment above `outputs` now reads as suggested.
+- Fix of F1: `deploy` now has `actions: read`, `pages: write`, `id-token: write` only.
+- Fix of F2: the comment above `outputs` now reads as suggested.
 - Whole diff read again: split into `pages-build` and `deploy`, artifact name as job output, REST wait removed, retry with `continue-on-error` on the first try and none on the second, environment url `second || first` (a skipped step gives an empty output, so the first's url is used). No new findings.
 - Still to confirm in practice: that `deploy-pages` on a rerun of `deploy` alone finds the artifact of the earlier attempt of `pages-build`.
