@@ -29,8 +29,9 @@ jobs:
     name: evidence
     needs: checks
     # Runs even when a check failed, so that the required check reports a failure
-    # instead of being skipped, which branch protection would count as passing.
-    if: ${{ !cancelled() }}
+    # instead of being skipped, which branch protection would count as passing. A draft is
+    # skipped on purpose: it is marked ready after the approving review round (C-18).
+    if: ${{ !cancelled() && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

@@ -2,7 +2,7 @@
 
 What is known and not scheduled: from the validations of changes, and from review rounds 3 and later, where an open minor finding is closed as `declined — technical debt, recorded in docs/tech-debt.md` after it is added here, one line per item (`docs/process.md` step 5). The first items were recorded at the owner's request on 2026-11-14, from the validation of `study-screen`.
 
-- The speed of Study on WebKit. In the pipeline's WebKit (two pixels per CSS pixel) the first page of a unit is drawn in 1.5–2 s, against about 0.1 s on Chromium and Firefox, and the end-to-end check of that time is skipped there. WebKit is not a target of the app for now; C-13, which requires the end-to-end tests on WebKit, may need the same answer.
+- The speed of Study on WebKit. In the pipeline's WebKit (two pixels per CSS pixel) the first page of a unit is drawn in 1.5–2 s, against about 0.1 s on Chromium and Firefox, and the end-to-end check of that time is skipped there. The same slow draw made end-to-end tests time out there (PROG-014 hit its 30 s); CI gives WebKit a 60 s timeout and one retry (change `ci-stability`). WebKit is not a target of the app for now; C-13, which requires the end-to-end tests on WebKit, may need the same answer.
 - A verdict counted by hand looks nearly the same as one the app gave: only the words «засчитано вручную» differ, not the colour or the sign.
 - Small touch targets on a phone: the "⋯" menu of a row is 36 × 36 px and an option chip about 34 px high, under the usual 44–48 px.
 - Tab stops on every row's "⋯" between the answer fields, so going through an exercise by keyboard takes twice the presses.
@@ -16,7 +16,7 @@ What is known and not scheduled: from the validations of changes, and from revie
 - Two swapped letters in a long word are judged wrong, not «Почти» (validation of PR #26).
 - Remove `auditConfig.ignoreGhsas` (GHSA-fc5q-39xc-vjpf) from `pnpm-workspace.yaml` once picomatch >= 4.0.8 is published (change `audit-ignore-picomatch`): the high advisory is dev-only, through vite, vue-tsc and openspec.
 - The demo read time of PACK-003 has a small margin to its 2 s limit; the check fails locally when two browsers run in parallel, and failed on CI end-to-end Firefox (shard 1 of 2, run 45456664912 on main).
-- The speed test of the checker (CHK-014) took 100.36 ms against its 100 ms budget on a loaded CI runner; the budget has no margin for such a runner.
+- The speed test of the checker (CHK-014) took 100.36 ms against its 100 ms budget on a loaded CI runner; the budget has no margin for such a runner; the same on a loaded local machine.
 - The same unit open in two tabs: an unchecked draft from one tab can arrive about 0.5 s later and overwrite text just typed in the other; the newest edit should win.
 - A failed demo download shows a technical code such as "(ошибка 503)" to the learner.
 - Opening a unit by an exercise link scrolls the page so the top header is out of view.
