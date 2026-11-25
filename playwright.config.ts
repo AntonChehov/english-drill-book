@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = 4173;
+const port = Number(process.env["PREVIEW_PORT"] ?? 4173);
 const basePath = process.env["BASE_PATH"] ?? "/";
 const ci = Boolean(process.env["CI"]);
 
