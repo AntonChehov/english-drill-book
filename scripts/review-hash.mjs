@@ -33,8 +33,13 @@ export function excludedFiles(change) {
 }
 
 function git(root, ...args) {
+  return gitIn(root, process.env, ...args);
+}
+
+function gitIn(root, env, ...args) {
   return execFileSync("git", args, {
     cwd: root,
+    env,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
     stdio: ["ignore", "pipe", "pipe"],
@@ -118,9 +123,17 @@ export function reviewHash(root, { change, head = "HEAD", base = defaultBase(roo
     );
   const excluded = excludedFiles(change);
   const mergeBase = git(root, "merge-base", base, at).trim();
-  const diff = git(
+  // The same text on every machine: no user or system configuration (`diff.context`,
+  // `diff.noprefix`, an external diff, colours), and the options the text depends on given.
+  const diff = gitIn(
     root,
+    { ...process.env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: "/dev/null" },
     "diff",
+    "-U3",
+    "--src-prefix=a/",
+    "--dst-prefix=b/",
+    "--no-ext-diff",
+    "--no-color",
     "--no-renames",
     "--binary",
     mergeBase,

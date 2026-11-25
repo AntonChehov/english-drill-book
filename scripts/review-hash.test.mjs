@@ -229,6 +229,18 @@ describe("the review hash", () => {
     expect(seen.size).toBe(4);
   });
 
+  it("does not depend on the diff settings of the repository", () => {
+    const repo = repository();
+    repo.write("scripts/m.mjs", linesOf());
+    repo.commit("feat: m");
+    repo.write("scripts/m.mjs", linesOf({ 6: "six, changed" }));
+    repo.commit("feat: change m");
+    const before = repo.hash();
+    repo.git("config", "diff.context", "1");
+    repo.git("config", "diff.noprefix", "true");
+    expect(repo.hash()).toBe(before);
+  });
+
   it("is `none` for a diff of nothing", () => {
     const repo = repository();
     repo.git("switch", "--quiet", "main");

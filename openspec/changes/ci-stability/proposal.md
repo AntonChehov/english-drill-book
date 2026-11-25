@@ -11,7 +11,7 @@ Size: small (pipeline and tests, no behaviour of the app).
 - **WebKit in CI**: test timeout 60 s and `retries: 1`; a pass on retry shows as flaky. Other browsers unchanged.
 - **Races**: PROG-014 waits for the unit's result before «Сегодня»; DOC-003 uses `expect.poll`; PROD-006 checks the focus outline after Tab with a retrying assertion; PACK-003's 2 000 ms budget is not asserted on WebKit, as DOC-004 and DOC-001.
 - **Review hash** from the change's diff: SHA-256 of the change's `git diff` without the numbers of its hunk headers, `review.md` and `tasks.md` left out as now. A rebase onto a `main` that does not touch the change's lines or their neighbours keeps the hash; any edit of them, whitespace included, changes it. C-18 and `docs/process.md` step 5 say "diff" for "content".
-- **Draft until approved**: the mechanic opens the pull request as a draft; `evidence` skips drafts; after the approving round the mechanic marks it ready and the trigger `ready_for_review` (already in `pull-request.yml`) runs it. C-18 (owner-approved wording), `docs/process.md` step 4 and the mechanic's instructions follow.
+- **Draft until approved**: the mechanic opens the pull request as a draft; `evidence` skips drafts; after the approving round and the archive commit are pushed the mechanic marks it ready and the trigger `ready_for_review` (already in `pull-request.yml`) runs it. C-18 (owner-approved wording), `docs/process.md` step 4 and the mechanic's instructions follow.
 - **`docs/tech-debt.md`**: WebKit's slow PDF draw as root cause; CHK-014 timing under local load.
 
 ## Requirements
