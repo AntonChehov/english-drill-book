@@ -126,6 +126,7 @@ export function reviewHash(root, { change, head = "HEAD", base = defaultBase(roo
     "diff",
     "--no-renames",
     "--binary",
+    "--unified=0",
     mergeBase,
     at,
     "--",

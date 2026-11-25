@@ -179,6 +179,37 @@ describe("the review hash", () => {
     expect(repo.hash()).not.toBe(before);
   });
 
+  it("does not change when main edits other lines of a file the change edits, even a line two below its own (git conflicts on a line right next to it)", () => {
+    const repo = repository();
+    const lines = (edits = {}) =>
+      ["one", "two", "three", "four", "five", "six"]
+        .map((line, at) => edits[at + 1] ?? line)
+        .join("\n")
+        .concat("\n");
+    repo.git("switch", "--quiet", "main");
+    repo.write("scripts/m.mjs", lines());
+    repo.commit("feat: m");
+    repo.git("switch", "--quiet", "feature");
+    repo.git("merge", "--quiet", "--no-edit", "--no-verify", "main");
+    repo.write("scripts/m.mjs", lines({ 3: "three, changed" }));
+    repo.commit("feat: change m");
+    const before = repo.hash();
+    const reviewed = repo.git("rev-parse", "HEAD");
+    for (const [name, edits] of [
+      ["far", { 6: "six, edited on main" }],
+      ["near", { 5: "five, edited on main" }],
+    ]) {
+      repo.git("switch", "--quiet", "main");
+      repo.write("scripts/m.mjs", lines(edits));
+      repo.commit(`fix: m, ${name}`);
+      repo.git("switch", "--quiet", "-c", `rebased-${name}`, reviewed);
+      repo.git("rebase", "--quiet", "main");
+      expect(repo.hash(), name).toBe(before);
+      repo.git("switch", "--quiet", "main");
+      repo.git("reset", "--quiet", "--hard", "HEAD~1");
+    }
+  });
+
   it("changes when the branch is brought up to date with a main that changed the same file", () => {
     const repo = repository();
     const before = repo.hash();
