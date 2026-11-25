@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/AntonChehov/english-drill-book/compare/v0.1.0...v0.2.0) (2026-11-24)
+
+
+### Features
+
+* **bar:** compact bar below 1024 px and the mark of a finished unit ([#36](https://github.com/AntonChehov/english-drill-book/issues/36)) ([9e59bca](https://github.com/AntonChehov/english-drill-book/commit/9e59bca9f012aa620d0de9d3d2c08d0ba4c4f8f6))
+* **pages:** zoom, neighbouring pages, selectable text and the split ([#38](https://github.com/AntonChehov/english-drill-book/issues/38)) ([d98dbbc](https://github.com/AntonChehov/english-drill-book/commit/d98dbbc44e4c0f2cf01c1cefa4aabe0517b54209))
+* **russian-demo:** Russian explanations and tasks in the demo ([20d05c1](https://github.com/AntonChehov/english-drill-book/commit/20d05c1800a44882f181e22d213a1d9c984db69a))
+* **shell:** offline after the first load, themes, failures in their part ([#37](https://github.com/AntonChehov/english-drill-book/issues/37)) ([f4dbcc2](https://github.com/AntonChehov/english-drill-book/commit/f4dbcc2f63a1f8aa6baad043926ec656608f29a4))
+* **study:** study a topic in two steps ([#32](https://github.com/AntonChehov/english-drill-book/issues/32)) ([29135d1](https://github.com/AntonChehov/english-drill-book/commit/29135d1e2e1f86a653ad853aaa07884ff84322b3))
+* **today:** demo program on Today ([#26](https://github.com/AntonChehov/english-drill-book/issues/26)) ([8257282](https://github.com/AntonChehov/english-drill-book/commit/82572820e6179d4c1663d3e64c361224f2bbbdbc))
+* **today:** topics with the focus, the daily checklist, «Выполнить упражнение» ([#30](https://github.com/AntonChehov/english-drill-book/issues/30)) ([1bb83c2](https://github.com/AntonChehov/english-drill-book/commit/1bb83c2d0cf69594ee4f40882d8a5aae97c7bf60))
+
 ## 0.1.0 (2026-11-16)
 
 
