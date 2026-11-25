@@ -69,3 +69,4 @@ Technical debt is in [`docs/tech-debt.md`](tech-debt.md).
 - 2026-11-24 — slice 1.8 (`phone-bar`, pull request #36): a compact bar on a narrow screen, hidden on a scroll down and back on a scroll up, and the green check mark of a finished unit or book; PROD-012. Archived.
 - 2026-11-25 — slice 1.7 (`pages-panel-tools`, pull request #38): zoom kept per book, the previous and next page, selectable text, a movable split and collapsible panels; DOC-002 – DOC-006, DOC-009. Milestone 1 complete. Archived.
 - 2026-11-25 — `pages-deploy` (pull request #39): the Pages deploy builds and deploys in two jobs and retries once, after 4 of 5 failed deploys on `main`. Archived.
+- 2026-11-25 — `optimization-report` (pull request #40): a public report of the results of the first optimization round, `docs/process/optimization-round-1.md`. Archived.
