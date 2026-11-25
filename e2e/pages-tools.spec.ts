@@ -453,9 +453,10 @@ test.describe("DOC-006 The split", () => {
       await expect
         .poll(async () => {
           const panel = (await pagesPanel(page).boundingBox())!.width;
+          // The canvas has device pixels, the panel CSS pixels (two to one in WebKit here).
           const canvas = await drawnPages(page)
             .first()
-            .evaluate((element) => (element as HTMLCanvasElement).width);
+            .evaluate((element) => (element as HTMLCanvasElement).width / window.devicePixelRatio);
           return Math.abs(canvas - panel);
         })
         .toBeLessThan(4);

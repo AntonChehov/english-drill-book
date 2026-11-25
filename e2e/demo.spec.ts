@@ -24,7 +24,7 @@ test.describe("PACK-003 The demo book", () => {
   test(
     "@req PACK-003 one action lists the course and the drill book with their units and exercises, asking for no file",
     { tag: "@demo" },
-    async ({ page, browserName }) => {
+    async ({ page }) => {
       const fileChoosers: unknown[] = [];
       page.on("filechooser", (chooser) => fileChoosers.push(chooser));
 
@@ -50,11 +50,24 @@ test.describe("PACK-003 The demo book", () => {
       }
       expect(fileChoosers, "no file was asked for").toEqual([]);
       await expect(page.locator("input[type=file]")).toHaveCount(0);
-      // WebKit's time is not held (docs/tech-debt.md), as in DOC-001 and DOC-004.
-      if (browserName !== "webkit")
-        expect(elapsed, `both books are read within ${readingBudget} ms`).toBeLessThan(
-          readingBudget,
-        );
+    },
+  );
+
+  test(
+    "@req PACK-003 both books are read within 2 seconds of the press, in the median of three additions",
+    { tag: "@demo" },
+    async ({ openCleanPage, browserName }) => {
+      // WebKit is not a target of the app; its speed is technical debt (docs/tech-debt.md).
+      test.skip(browserName === "webkit", "the time is not held on WebKit");
+      // A fresh browser each time, so that no addition helps the next; the median of three keeps
+      // one slow start of the runner from deciding the test, as in DOC-004.
+      const times: number[] = [];
+      for (let addition = 0; addition < 3; addition++) {
+        times.push(await addDemo(await openCleanPage("about:blank")));
+      }
+      const median = times.toSorted((x, y) => x - y)[1]!;
+      console.log(`Both demo books read, median of three: ${median} ms (${times.join(", ")})`);
+      expect(median, `both books are read within ${readingBudget} ms`).toBeLessThan(readingBudget);
     },
   );
 
