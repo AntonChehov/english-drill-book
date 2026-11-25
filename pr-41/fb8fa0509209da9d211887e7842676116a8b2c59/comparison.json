@@ -221,23 +221,23 @@
   },
   {
     "file": "study-not-kept-dark-1280.png",
-    "status": "changed",
-    "share": 1
+    "status": "unchanged",
+    "share": 0
   },
   {
     "file": "study-not-kept-dark-390.png",
     "status": "changed",
-    "share": 1
+    "share": 0.0271632688869604
   },
   {
     "file": "study-not-kept-light-1280.png",
     "status": "changed",
-    "share": 1
+    "share": 0.07342831627482772
   },
   {
     "file": "study-not-kept-light-390.png",
     "status": "changed",
-    "share": 0.18323113912165143
+    "share": 1
   },
   {
     "file": "study-pages-collapsed-dark-1280.png",
