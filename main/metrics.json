@@ -63,7 +63,7 @@
       }
     ]
   },
-  "sha": "d98dbbc44e4c0f2cf01c1cefa4aabe0517b54209",
+  "sha": "95b235882a2a616c7604a6986f9634c32f717441",
   "tests": {
     "unit": {
       "tests": 851,
@@ -91,6 +91,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 151
+    "seconds": 172
   }
 }
