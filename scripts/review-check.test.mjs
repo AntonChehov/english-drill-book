@@ -44,7 +44,12 @@ function repository() {
   git("commit", "--quiet", "--no-verify", "-m", "feat: change a");
   const hash = () => reviewHash(root, { change, base: "main" }).short;
   const check = () => checkReview(root, change, { base: "main" });
-  return { write, hash, check };
+  const archive = () => {
+    mkdirSync(join(root, "openspec/changes/archive"), { recursive: true });
+    git("mv", `openspec/changes/${change}`, `openspec/changes/archive/2026-01-01-${change}`);
+    git("commit", "--quiet", "--no-verify", "-m", "chore: archive some-change");
+  };
+  return { write, git, hash, check, archive };
 }
 
 const approved = (hash) => `# Review\n\n## Round 1\n\nReviewed: ${hash}\nVerdict: approved\n`;
@@ -66,6 +71,15 @@ describe("review:check", () => {
     const { write, check } = repository();
     write(record, approved("000000000000"));
     expect(check()).toEqual([expect.stringMatching(/^Check 4: The review is out of date/)]);
+  });
+
+  it("reads the record from the archived directory at the archive commit", () => {
+    const { write, git, hash, check, archive } = repository();
+    write(record, approved(hash()));
+    git("add", "--all");
+    git("commit", "--quiet", "--no-verify", "-m", "docs: review");
+    archive();
+    expect(check()).toEqual([]);
   });
 
   it("names a missing record", () => {

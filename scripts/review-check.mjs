@@ -8,12 +8,19 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { isMain } from "./common.mjs";
-import { defaultBase, fetchMain, reviewHash } from "./review-hash.mjs";
+import { archiveOf, defaultBase, fetchMain, reviewHash } from "./review-hash.mjs";
 import { parseRecord, recordPath, reviewProblems } from "./review-record.mjs";
 
 /** The problems of checks 3 and 4 for the change at `root`, as messages. */
 export function checkReview(root, change, { base = defaultBase(root) } = {}) {
-  const path = join(root, recordPath(change));
+  // At the archive commit the record is in the archived directory, as CI reads it.
+  const archive = archiveOf(root);
+  const path = join(
+    root,
+    archive?.change === change
+      ? `openspec/changes/archive/${archive.directory}/review.md`
+      : recordPath(change),
+  );
   const text = existsSync(path) ? readFileSync(path, "utf8") : undefined;
   const record = text === undefined ? undefined : parseRecord(text);
   const { short } = reviewHash(root, { change, base });
