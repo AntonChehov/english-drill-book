@@ -70,3 +70,4 @@ Technical debt is in [`docs/tech-debt.md`](tech-debt.md).
 - 2026-11-25 — slice 1.7 (`pages-panel-tools`, pull request #38): zoom kept per book, the previous and next page, selectable text, a movable split and collapsible panels; DOC-002 – DOC-006, DOC-009. Milestone 1 complete. Archived.
 - 2026-11-25 — `pages-deploy` (pull request #39): the Pages deploy builds and deploys in two jobs and retries once, after 4 of 5 failed deploys on `main`. Archived.
 - 2026-11-25 — `optimization-report` (pull request #40): a public report of the results of the first optimization round, `docs/process/optimization-round-1.md`. Archived.
+- 2026-11-25 — `workflow-retro-2` (pull request #41): the pipeline budget of C-19 is 4 minutes; `pnpm review:check` checks a review record before a push; validation covers the scenarios a change touches, the full set before a release; the archive commit follows green CI; only the mechanic watches CI; word limits are a ceiling. Archived.
