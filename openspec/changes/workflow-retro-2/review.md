@@ -20,3 +20,15 @@ Where: `scripts/review-check.mjs`, `checkReview`. What: the record is read from 
 ### Notes
 
 C-19 is 240 s everywhere: constitution, `duration.mjs` (constant and comment), `duration.test.mjs`; no other mention of 3 minutes or 180 s outside the archive. `reviewProblems` keeps the behaviour of checks 3 and 4 in `pr-evidence.mjs` (same messages, same order; `reviewOf` already carries `change`); its tests stay green. The texts of V1, V4, V6 and V7 match the proposal. Task 4.1 is local and unticked by design. Tests of `review-check`, `pr-evidence` and `duration` run green locally (132).
+
+## Round 2
+
+Reviewed: 4c2a9827b3ae
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+
+### Notes
+
+Fix of F1: `fetchMain` takes the closing advice as a parameter; `review:hash` passes the `--offline` hint again. Fix of F2: `checkReview` reads the record from the archived directory when `archiveOf` names the change, with a new test at an archive commit. The rest of the diff is unchanged since round 1. The error of `fetchMain` now says the hash "is not printed" for `review:check` too, which prints no hash: harmless wording. Tests of `review-check` and `pr-evidence` are green locally (131).
