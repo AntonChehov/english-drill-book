@@ -2,7 +2,7 @@
 
 ## Now
 
-**M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Slice 1.2 is done: the answer checker is in `src/domain/checking`, not yet called by any screen. Slice 1.3 is done: two demo books are served with the app, read into packs in the browser and listed on the start screen. Slice 1.4 is done: packs, the attempt log and its derived state are kept in the browser, and the demo stays added. Slice 1.5 is done: a unit of either demo book opens in Study, its pages beside its exercises, which are answered, checked and kept. The change `near-grammar` narrowed «Почти» to a slip inside a longer word. Version 0.1.0 is released (2026-11-16): the demo with Study on both demo books. Slice 1.6 is done: three changes, `demo-program` (the demo program on Today), `topics-and-checklist` (Topics with the focus, the daily checklist, a hover highlight on Today items, «Выполнить упражнение» for all users) and `two-step-study` (PLAY-017, PLAY-018, PROG-007: the two-step Study, pages switching to the course, a topic opened at its first unfinished step). Slice 1.8 is done: `phone-bar` (PROD-012), a compact bar on a narrow screen that hides on a scroll down, and a green check mark on a finished unit or book; `shell-offline-themes` (PROD-002 – PROD-005, PROD-009, PROD-011): the app opens offline after its first load, a theme chosen on «О приложении», a failure shown in its own part, no browser dialogs. Slice 1.7 is done: `pages-panel-tools` (DOC-002 – DOC-006, DOC-009): zoom kept per book, the neighbouring pages, selectable text, and a movable split with either panel collapsible. Milestone 1 is complete.
+**M1 — Public demo.** Slice 1.1 is done: the app shell, every gate of the constitution and the pipeline are on `main`, and the demo is deployed at https://antonchehov.github.io/english-drill-book/. The change `pipeline-follow-ups` closes what its first run showed (the archive pull request, the first version `0.1.0`, the evidence check refusing on a real pull request). Slice 1.2 is done: the answer checker is in `src/domain/checking`, not yet called by any screen. Slice 1.3 is done: two demo books are served with the app, read into packs in the browser and listed on the start screen. Slice 1.4 is done: packs, the attempt log and its derived state are kept in the browser, and the demo stays added. Slice 1.5 is done: a unit of either demo book opens in Study, its pages beside its exercises, which are answered, checked and kept. The change `near-grammar` narrowed «Почти» to a slip inside a longer word. Version 0.1.0 is released (2026-11-16): the demo with Study on both demo books. Slice 1.6 is done: three changes, `demo-program` (the demo program on Today), `topics-and-checklist` (Topics with the focus, the daily checklist, a hover highlight on Today items, «Выполнить упражнение» for all users) and `two-step-study` (PLAY-017, PLAY-018, PROG-007: the two-step Study, pages switching to the course, a topic opened at its first unfinished step). Slice 1.8 is done: `phone-bar` (PROD-012), a compact bar on a narrow screen that hides on a scroll down, and a green check mark on a finished unit or book; `shell-offline-themes` (PROD-002 – PROD-005, PROD-009, PROD-011): the app opens offline after its first load, a theme chosen on «О приложении», a failure shown in its own part, no browser dialogs. Slice 1.7 is done: `pages-panel-tools` (DOC-002 – DOC-006, DOC-009): zoom kept per book, the neighbouring pages, selectable text, and a movable split with either panel collapsible. Milestone 1 is complete. Milestone 2 is the first product version 1.0: the base, the own book, text exercises, export and import (change `m2-scope`).
 
 ## Milestones
 
@@ -25,10 +25,22 @@ A visitor opens the link, tries the demo book, sees its pages beside its exercis
 
 The order was changed on 2026-11-13 at the owner's request: what a visitor can use comes first, and the interface follows the owner's private predecessor (`docs/product/08-interface-reference.md`).
 
-### M2 — Program: two books joined
+### M2 — First product version 1.0
 
-The demo program ties the demo course to the demo drill book. Today, Topics, levels, the two-step lesson, Mistakes, data export and import, text and open exercises, PWA install.
-PROG-001 – PROG-010, PROG-013, PROG-015, PLAY-012 – PLAY-014, PLAY-017, PLAY-018, CHK-010, CHK-011, DATA-006 – DATA-011, DATA-013, DATA-014, PROD-010.
+Finish the base, then study by one's own books. The old M2 (programs, levels, Today, Topics, the two-step lesson: PROG-001 – PROG-010, PROG-015, PROG-018, PLAY-017, PLAY-018, PLAY-021) was delivered in M1 by slice 1.6.
+
+| Slice | Contents |
+| --- | --- |
+| 0 Base | README current (status, demo link, a screenshot, the roles); `docs/how-it-works.md`, one page; code comments cite no design documents and requirement IDs appear only in tests; smaller units (`useUnit`, `StudyView.vue`, `PagesPanel.vue`) and no `document.activeElement` in the state layer; coverage thresholds of at least 70 % on `src/ui` and `src/storage`, component tests for `StudyView` and `ExerciseBlock`; headroom in timing tests (CHK-014) |
+| 1 Own book | a pack per `contracts/pack.schema.json` and its own PDF, checked by `sha256`, added in the app with its program, the library state in a Pinia store; the demo and own books side by side; PACK-005 – PACK-007, PROD-002, PROG-013 |
+| 2 Text exercises | PLAY-012, CHK-010, CHK-011 |
+| 3 Export, import, storage | DATA-007 – DATA-009, DATA-013, DATA-011, DATA-014 |
+
+No converter from a book to a pack in this repository (the owner's tool, outside git) and no migration of progress from other apps.
+
+Demo and own books: a clean browser offers «Попробовать демо» and «Добавить свою книгу» equally. Once an own book is added, the demo is never offered. A demo added earlier stays beside own books with «Убрать демо», which erases the demo and its progress.
+
+After 1.0, not scheduled: DATA-006 Mistakes, DATA-010 erase all data, PLAY-014 clear answers, PROD-010 PWA install. Audio, recognition and the catalogue stay in M3.
 
 ### M3 — The learner's own books
 
@@ -45,7 +57,7 @@ Accounts and sync of the attempt log between devices. To be specified, with its 
 
 ### Later, unscheduled
 
-Placement test (find the learner's level and the topics to skip). Own exercise bank (original drills per topic, built in). See `docs/product/05-program-and-levels.md`, section Later.
+After version 1.0: Mistakes (DATA-006), erase all data (DATA-010), clear answers (PLAY-014), PWA install (PROD-010). Placement test (find the learner's level and the topics to skip). Own exercise bank (original drills per topic, built in). See `docs/product/05-program-and-levels.md`, section Later.
 
 Technical debt is in [`docs/tech-debt.md`](tech-debt.md).
 

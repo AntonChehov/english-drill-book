@@ -58,7 +58,7 @@ On a narrow screen the pages and the panel are stacked, and both are reachable; 
 
 ## Ошибки (Mistakes)
 
-A list of the items whose latest outcome is wrong or almost, grouped by unit, each with what was typed and a link to its exercise. Milestone 2.
+A list of the items whose latest outcome is wrong or almost, grouped by unit, each with what was typed and a link to its exercise. After version 1.0.
 
 ## Tone
 
