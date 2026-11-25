@@ -32,3 +32,12 @@ Verdict: approved
 ### Notes
 
 Fix of F1: `fetchMain` takes the closing advice as a parameter; `review:hash` passes the `--offline` hint again. Fix of F2: `checkReview` reads the record from the archived directory when `archiveOf` names the change, with a new test at an archive commit. The rest of the diff is unchanged since round 1. The error of `fetchMain` now says the hash "is not printed" for `review:check` too, which prints no hash: harmless wording. Tests of `review-check` and `pr-evidence` are green locally (131).
+
+## Round 3
+
+Reviewed: c129d7e8edd2
+Verdict: approved
+
+### Notes
+
+No finding was open. The branch was rebased onto main (#39, #40) and the archive commit reverted. The hash changed because main changed files of this diff, but the diff's own lines are the same as in round 2. The proposal and tasks did not change, and `review.md` only gained round 2.
