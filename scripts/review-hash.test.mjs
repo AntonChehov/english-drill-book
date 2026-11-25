@@ -68,6 +68,13 @@ function repository() {
   return { root, git, write, commit, hash };
 }
 
+/** Six lines of a file, with the given lines (by number) replaced. */
+const linesOf = (edits = {}) =>
+  ["one", "two", "three", "four", "five", "six"]
+    .map((line, at) => edits[at + 1] ?? line)
+    .join("\n")
+    .concat("\n");
+
 describe("the review hash", () => {
   it("is the patch ID of the changed files only, and shows 12 characters of it", () => {
     const repo = repository();
@@ -181,17 +188,12 @@ describe("the review hash", () => {
 
   it("does not change when main edits other lines of a file the change edits, even a line two below its own (git conflicts on a line right next to it)", () => {
     const repo = repository();
-    const lines = (edits = {}) =>
-      ["one", "two", "three", "four", "five", "six"]
-        .map((line, at) => edits[at + 1] ?? line)
-        .join("\n")
-        .concat("\n");
     repo.git("switch", "--quiet", "main");
-    repo.write("scripts/m.mjs", lines());
+    repo.write("scripts/m.mjs", linesOf());
     repo.commit("feat: m");
     repo.git("switch", "--quiet", "feature");
     repo.git("merge", "--quiet", "--no-edit", "--no-verify", "main");
-    repo.write("scripts/m.mjs", lines({ 3: "three, changed" }));
+    repo.write("scripts/m.mjs", linesOf({ 3: "three, changed" }));
     repo.commit("feat: change m");
     const before = repo.hash();
     const reviewed = repo.git("rev-parse", "HEAD");
@@ -200,11 +202,11 @@ describe("the review hash", () => {
       ["near", { 5: "five, edited on main" }],
     ]) {
       repo.git("switch", "--quiet", "main");
-      repo.write("scripts/m.mjs", lines(edits));
+      repo.write("scripts/m.mjs", linesOf(edits));
       repo.commit(`fix: m, ${name}`);
       repo.git("switch", "--quiet", "-c", `rebased-${name}`, reviewed);
       repo.git("rebase", "--quiet", "main");
-      expect(repo.hash(), name).toBe(before);
+      expect(`${name}: ${repo.hash()}`).toBe(`${name}: ${before}`);
       repo.git("switch", "--quiet", "main");
       repo.git("reset", "--quiet", "--hard", "HEAD~1");
     }
