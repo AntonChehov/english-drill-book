@@ -154,6 +154,18 @@ export function changeOfPaths(paths) {
   return names.size === 1 ? [...names][0] : undefined;
 }
 
+/** Fetches main from origin as CI's checkout does; throws when that fails. */
+export function fetchMain(root) {
+  try {
+    git(root, "fetch", "--quiet", "origin", "+refs/heads/main:refs/remotes/origin/main");
+  } catch (error) {
+    throw new Error(
+      `Could not fetch main from origin, so the hash may not be the one CI computes and is not used: ${String(error.stderr ?? error.message).trim()}\nRun this again online.`,
+      { cause: error },
+    );
+  }
+}
+
 function main() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
@@ -174,16 +186,7 @@ function main() {
     console.warn(
       "Not fetched: main is taken as this clone last saw it, so the hash may differ from the one CI computes. Run this again online before recording it.",
     );
-  else {
-    try {
-      git(root, "fetch", "--quiet", "origin", "+refs/heads/main:refs/remotes/origin/main");
-    } catch (error) {
-      throw new Error(
-        `Could not fetch main from origin, so the hash may not be the one CI computes and is not printed: ${String(error.stderr ?? error.message).trim()}\nRun this again online, or with --offline to print it with that warning.`,
-        { cause: error },
-      );
-    }
-  }
+  else fetchMain(root);
   const base = values.base ?? defaultBase(root);
   const change =
     positionals[0] ??

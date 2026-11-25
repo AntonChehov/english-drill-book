@@ -32,7 +32,13 @@ import {
 import { commentSha, rows } from "./evidence-comment.mjs";
 import { createGithub } from "./github.mjs";
 import { archiveOf, reviewHash } from "./review-hash.mjs";
-import { changeNamedIn, messages, parseRecord, reviewLine } from "./review-record.mjs";
+import {
+  changeNamedIn,
+  messages,
+  parseRecord,
+  reviewLine,
+  reviewProblems,
+} from "./review-record.mjs";
 import { checkTraceability } from "./traceability.mjs";
 
 const requirementId = /\b[A-Z][A-Z0-9]*-\d{3}\b/g;
@@ -213,19 +219,11 @@ export function checkEvidence(input) {
   // 3. Review record, and 4. reviewed content. Neither shows "passed" unless something was
   // read and compared.
   const review = known ? reviewOf(input, change) : undefined;
-  const last = review?.record?.last;
   if (!review) {
     fail(3, messages.noChangeRecord());
     fail(4, messages.noChangeContent());
   } else {
-    if (review.record === undefined) fail(3, messages.noRecord(change));
-    for (const problem of review.record?.problems ?? []) fail(3, problem);
-    const { current } = review;
-    if (!last) fail(4, messages.noRoundToCompare({ current, change }));
-    else if (!last.reviewed)
-      fail(4, messages.lastRoundNoHash({ round: last.number, current, change }));
-    else if (last.reviewed !== current)
-      fail(4, messages.stale({ round: last.number, reviewed: last.reviewed, current, change }));
+    for (const { check, problem } of reviewProblems(review)) fail(check, problem);
   }
 
   // 5. Screenshots, and 6. Numbers: not for a pull request that changes no file a build or

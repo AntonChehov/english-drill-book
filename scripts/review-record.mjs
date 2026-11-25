@@ -263,6 +263,26 @@ export function parseRecord(markdown) {
 }
 
 /**
+ * The problems of checks 3 and 4 for a review record and the hash of the current content,
+ * shared by the evidence check and `pnpm review:check`.
+ * @param {{ change: string, record: ReturnType<typeof parseRecord> | undefined, current: string }} review
+ * @returns {{ check: 3 | 4, problem: string }[]}
+ */
+export function reviewProblems({ change, record, current }) {
+  const problems = [];
+  const fail = (check, problem) => problems.push({ check, problem });
+  if (record === undefined) fail(3, messages.noRecord(change));
+  for (const problem of record?.problems ?? []) fail(3, problem);
+  const last = record?.last;
+  if (!last) fail(4, messages.noRoundToCompare({ current, change }));
+  else if (!last.reviewed)
+    fail(4, messages.lastRoundNoHash({ round: last.number, current, change }));
+  else if (last.reviewed !== current)
+    fail(4, messages.stale({ round: last.number, reviewed: last.reviewed, current, change }));
+  return problems;
+}
+
+/**
  * One line on the state of the review for the job summary and the evidence comment: the
  * last round, its verdict and hash, and the hash of the commit's content.
  */
