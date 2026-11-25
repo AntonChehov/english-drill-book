@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const port = Number(process.env["PREVIEW_PORT"] ?? 4173);
+if (!Number.isInteger(port) || port < 1 || port > 65535)
+  throw new Error(`PREVIEW_PORT is not a port number: ${process.env["PREVIEW_PORT"]}`);
 const basePath = process.env["BASE_PATH"] ?? "/";
 const ci = Boolean(process.env["CI"]);
 
