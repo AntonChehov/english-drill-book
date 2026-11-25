@@ -20,4 +20,4 @@
 
 ## 4. Agent files (local, not committed)
 
-- [x] 4.1 `.claude/`: reviewer runs `pnpm review:check <name>` before finishing a round; mechanic before every push and the archive commit, and makes it only after green CI; validator and coordinating skill: scope of 3.1, CI watch of 3.4; texts short — done locally, not committed
+- [ ] 4.1 `.claude/`: reviewer runs `pnpm review:check <name>` before finishing a round; mechanic before every push and the archive commit, and makes it only after green CI; validator and coordinating skill: scope of 3.1, CI watch of 3.4; texts short
