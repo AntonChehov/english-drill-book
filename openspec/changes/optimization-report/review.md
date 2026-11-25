@@ -20,3 +20,15 @@ Where: `docs/process.md`, table "Where things live", row `docs/process/`. What: 
 ### Notes
 
 Fresh agent for round 1. All relative links resolve (archived `workflow-retro`, `phone-bar`, `shell-offline-themes`, `pages-panel-tools`, `docs/process.md`, `docs/tech-debt.md`, `docs/constitution.md`). PR numbers #36, #37, #38 match the merge commits on `main`. The "What was changed" list matches items 1 to 8 of the archived `workflow-retro` proposal. The count of 9 findings, one critical, matches the three archived `review.md` files. No textbook text, no money, no subscription limits, no personal details. Measured numbers not checked, as agreed.
+
+## Round 2
+
+Reviewed: 3687064ca097
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+
+### Notes
+
+Same reviewer as round 1, resumed. Reread the whole diff against `main`. Fix commit 1b2fb13 changes only the two lines named in F1 and F2; links and the rest of the page are unchanged.
