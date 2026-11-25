@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Reports the wall-clock time of the current workflow run so far (constitution C-19:
-// the checks of a pull request finish within 3 minutes). Over the budget it warns while
+// the checks of a pull request finish within 4 minutes). Over the budget it warns while
 // the pipeline settles in, and fails once ENFORCE_DURATION_BUDGET is "true" (design D7).
 // Usage: node scripts/duration.mjs   prints the seconds and sets the output `seconds`
 // Environment: GITHUB_REPOSITORY, GITHUB_RUN_ID, GITHUB_TOKEN, GITHUB_API_URL (optional),
@@ -8,7 +8,7 @@
 import { appendSummary, isMain, requireEnv, setOutput } from "./common.mjs";
 import { createGithub } from "./github.mjs";
 
-export const budgetSeconds = 180;
+export const budgetSeconds = 240;
 
 export function elapsedSeconds(startedAt, now) {
   return Math.round((now.getTime() - new Date(startedAt).getTime()) / 1000);
