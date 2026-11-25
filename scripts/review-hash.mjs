@@ -1,23 +1,24 @@
 #!/usr/bin/env node
-// The hash of the content a review reads (review-rounds design D1): one SHA-256 over the
-// files the pull request changes, that is the files that differ between the merge base with
-// main and the head commit, each as its path, its mode and its git blob ID at the head (or
-// `deleted`), sorted by path. `review.md` and `tasks.md` of the change's own directory are
-// left out: the record cannot hold its own hash, and ticking a task is not a change to
-// review. When the head commit is the archive commit of the change (workflow-retro D2), the
-// change is hashed at that commit's parent, where it is still in flight, so the hash is the
-// one the reviewer recorded. The reviewer runs this module as `pnpm review:hash`;
+// The hash of the diff a review reads (review-rounds design D1): the `git patch-id --stable` of
+// the diff between the merge base with main and the head commit. The patch ID follows the
+// lines the change adds and removes (with their paths and modes), not their line numbers or
+// the commits that carry them, so a rebase onto a main that does not touch the change's lines
+// keeps it and an edit of one of them changes it. `review.md` and `tasks.md` of the change's
+// own directory are left out: the record cannot hold its own hash, and ticking a task is not
+// a change to review. When the head commit is the archive commit of the change
+// (workflow-retro D2), the change is hashed at that commit's parent, where it is still in
+// flight, so the hash is the one the reviewer recorded. The reviewer runs this module as
+// `pnpm review:hash`;
 // scripts/pr-evidence.mjs imports it in CI, where the checkout has just fetched main.
 // Usage: node scripts/review-hash.mjs [<change>] [--head <commit>] [--base <ref>] [--files]
 //          [--offline]
 //   <change>   the change under openspec/changes/; when omitted, the one in-flight change
 //              whose directory the pull request touches
-//   --files    also lists, on stderr, each hashed file with its mode and blob ID
+//   --files    also lists, on stderr, the files the diff changes
 //   --offline  does not fetch main first, and warns that the hash may differ from CI's
 // Without --offline or --base, main is fetched from origin first, as CI's checkout does; when
 // that fails, nothing is printed.
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import { parseArgs } from "node:util";
 import { isMain, parseNameStatus } from "./common.mjs";
 
@@ -30,11 +31,16 @@ export function excludedFiles(change) {
 }
 
 function git(root, ...args) {
+  return gitWithInput(root, undefined, ...args);
+}
+
+function gitWithInput(root, input, ...args) {
   return execFileSync("git", args, {
     cwd: root,
+    input,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
-    stdio: ["ignore", "pipe", "pipe"],
+    stdio: [input === undefined ? "ignore" : "pipe", "pipe", "pipe"],
   });
 }
 
@@ -62,30 +68,6 @@ export function changedPaths(root, { head = "HEAD", base = defaultBase(root) } =
   return git(root, "diff", "--name-only", "--no-renames", "-z", mergeBase, head)
     .split("\0")
     .filter(Boolean);
-}
-
-/**
- * Modes and blob IDs of the given paths at `head`; a path absent there is `deleted`, with
- * no mode.
- */
-function blobsAt(root, head, paths) {
-  const objects = new Map();
-  const listing = git(root, "ls-tree", "-r", "-z", "--full-tree", head);
-  for (const entry of listing.split("\0").filter(Boolean)) {
-    // `<mode> <type> <object>\t<path>`
-    const tab = entry.indexOf("\t");
-    const [mode, , blob] = entry.slice(0, tab).split(" ");
-    objects.set(entry.slice(tab + 1), { mode, blob });
-  }
-  return paths.map((path) => ({ path, ...(objects.get(path) ?? { mode: "", blob: "deleted" }) }));
-}
-
-/** The hash of a list of `{ path, mode, blob }`, in full: 64 hexadecimal characters. */
-export function hashEntries(entries) {
-  const hash = createHash("sha256");
-  for (const { path, mode, blob } of entries.toSorted((a, b) => (a.path < b.path ? -1 : 1)))
-    hash.update(`${path}\0${mode}\0${blob}\0`);
-  return hash.digest("hex");
 }
 
 /** The changes in flight at `head`: the directories under openspec/changes/ but the archive. */
@@ -124,9 +106,9 @@ export function archiveOf(root, head = "HEAD") {
 }
 
 /**
- * The hash of the content a review of `change` reads at `head`; at the parent of `head`
- * when `head` archives the change.
- * @returns {{ hash: string, short: string, files: { path: string, blob: string }[] }}
+ * The hash of the diff a review of `change` reads at `head`; at the parent of `head` when
+ * `head` archives the change. A diff of nothing hashes as `none`.
+ * @returns {{ hash: string, short: string, files: string[] }}
  */
 export function reviewHash(root, { change, head = "HEAD", base = defaultBase(root) }) {
   // A name that is not a change would hash its own review.md and tasks.md and never match.
@@ -138,9 +120,20 @@ export function reviewHash(root, { change, head = "HEAD", base = defaultBase(roo
       `There is no change \`${change}\` in openspec/changes/ at ${head}. The changes there: ${changes.join(", ") || "none"}.`,
     );
   const excluded = excludedFiles(change);
-  const paths = changedPaths(root, { head: at, base }).filter((path) => !excluded.includes(path));
-  const files = blobsAt(root, at, paths);
-  const hash = hashEntries(files);
+  const mergeBase = git(root, "merge-base", base, at).trim();
+  const diff = git(
+    root,
+    "diff",
+    "--no-renames",
+    "--binary",
+    mergeBase,
+    at,
+    "--",
+    ".",
+    ...excluded.map((path) => `:(exclude)${path}`),
+  );
+  const [hash = "none"] = gitWithInput(root, diff, "patch-id", "--stable").split(" ");
+  const files = changedPaths(root, { head: at, base }).filter((path) => !excluded.includes(path));
   return { hash, short: hash.slice(0, shownLength), files };
 }
 
@@ -209,9 +202,7 @@ function main() {
     console.warn(
       `Not committed, so not in the hash: ${uncommitted.join(", ")}. Commit them and run this again.`,
     );
-  if (values.files)
-    for (const { path, mode, blob } of result.files)
-      console.warn(`${mode.padEnd(6)} ${blob.padEnd(40)}  ${path}`);
+  if (values.files) for (const path of result.files) console.warn(path);
   process.stdout.write(`${result.short}\n`);
 }
 
