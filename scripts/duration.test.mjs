@@ -6,10 +6,10 @@ describe("duration", () => {
     expect(elapsedSeconds("2026-11-11T10:00:00Z", new Date("2026-11-11T10:02:30.4Z"))).toBe(150);
   });
 
-  it("is within the budget up to three minutes", () => {
-    expect(verdict(180)).toMatchObject({ over: false });
-    expect(verdict(180).markdown).toContain("3 min 0 s");
-    expect(verdict(181)).toMatchObject({ over: true });
-    expect(verdict(181).markdown).toContain("over the budget of 3 minutes");
+  it("is within the budget up to four minutes", () => {
+    expect(verdict(240)).toMatchObject({ over: false });
+    expect(verdict(240).markdown).toContain("4 min 0 s");
+    expect(verdict(241)).toMatchObject({ over: true });
+    expect(verdict(241).markdown).toContain("over the budget of 4 minutes");
   });
 });
