@@ -29,3 +29,19 @@ Why: it carries the one non-obvious reason of the design (the output is fixed at
 - `needs: [checks, pages-build]`: `checks` is already implied by `pages-build`; harmless and as tasks 1.1 asks.
 - The artifact name expression appears twice in `pages-build` (output and upload `name`); acceptable for a one-line value.
 - The REST wait is gone completely; no dead code left. `concurrency` unchanged, as the proposal says.
+
+## Round 2
+
+Reviewed: 4e9266015a1b
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+
+### Notes
+
+- Fresh agent for this round; round 1 was written by another agent.
+- F1: `deploy` now has `actions: read`, `pages: write`, `id-token: write` only.
+- F2: the comment above `outputs` now reads as suggested.
+- Whole diff read again: split into `pages-build` and `deploy`, artifact name as job output, REST wait removed, retry with `continue-on-error` on the first try and none on the second, environment url `second || first` (a skipped step gives an empty output, so the first's url is used). No new findings.
+- Still to confirm in practice: that `deploy-pages` on a rerun of `deploy` alone finds the artifact of the earlier attempt of `pages-build`.
