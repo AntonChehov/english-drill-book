@@ -191,9 +191,20 @@ export function resetApp(): void {
   document.body.innerHTML = "";
 }
 
-/** Waits until the screen has stopped loading. */
+/**
+ * Waits until the screen has stopped loading: a heading is drawn and the "opening" status is gone.
+ * It fails after the timeout if no heading ever appears, so a screen that never drew is not passed.
+ */
 async function settle(): Promise<void> {
-  await vi.waitFor(() => expect(document.querySelector(".loading")).toBeNull(), { interval: 5 });
+  await vi.waitFor(
+    () => {
+      expect(document.querySelector("h1")).not.toBeNull();
+      expect(
+        [...document.querySelectorAll("[role='status']")].map((status) => textOf(status)),
+      ).not.toContain("Открываем раздел…");
+    },
+    { interval: 5 },
+  );
   await flushPromises();
 }
 
@@ -223,9 +234,55 @@ export function buttonNamed(name: string | RegExp, root: ParentNode = document):
 
 /** The exercise `id` of the unit, as the learner sees it: a block named by its number. */
 export function exerciseOf(id: string): HTMLElement {
-  const found = document.querySelector<HTMLElement>(`article[id="ex-${id.replaceAll(".", "-")}"]`);
-  if (found === null) throw new Error(`No exercise ${id}`);
+  const found = [...document.querySelectorAll<HTMLElement>("article")].find((article) => {
+    const heading = document.getElementById(article.getAttribute("aria-labelledby") ?? "");
+    return heading !== null && textOf(heading) === `Упражнение ${id}`;
+  });
+  if (found === undefined) throw new Error(`No exercise ${id}`);
   return found;
+}
+
+/** What the header of an exercise says of it: its number, its state and its score. */
+export const statusOf = (exercise: HTMLElement) => textOf(exercise.querySelector("header")!);
+
+/** What the header of the unit says of its progress, such as "сделано 1 из 3". */
+export function unitProgress(): string {
+  const found = [...document.querySelectorAll("p")].find((each) =>
+    textOf(each).includes("упражнений этого раздела"),
+  );
+  if (found === undefined) throw new Error("No progress of the unit");
+  return textOf(found);
+}
+
+/** The list of units that the button "Все разделы" opens, or null while it is closed. */
+export function unitList(): HTMLElement | null {
+  return document.getElementById(buttonNamed("Все разделы ▾").getAttribute("aria-controls") ?? "");
+}
+
+/** The place in the frame where the unit puts its navigation on a narrow screen. */
+export function barForUnit(): HTMLElement {
+  const bar = document.createElement("div");
+  bar.id = "bar-unit";
+  document.body.append(bar);
+  return bar;
+}
+
+/** The alert of the pages panel, if it shows one: the one that is not in the exercises. */
+export function pagesAlert(): HTMLElement | null {
+  const exercises = document.querySelector("section[aria-label='Упражнения']");
+  return (
+    [...document.querySelectorAll<HTMLElement>("[role='alert']")].find(
+      (alert) => !(exercises?.contains(alert) ?? false),
+    ) ?? null
+  );
+}
+
+/** Whether `element` is hidden by the screen, itself or through a part that holds it. */
+export function isHidden(element: HTMLElement): boolean {
+  for (let each: HTMLElement | null = element; each !== null; each = each.parentElement) {
+    if (each.style.display === "none") return true;
+  }
+  return false;
 }
 
 /** The text field of item `item` of `exercise`, found by the label that names it. */

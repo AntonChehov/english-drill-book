@@ -2,7 +2,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StorageError } from "../../storage/db/errors";
 import { DemoError } from "../demo/add-demo";
-import { localDay } from "../demo/day";
 import { getStore } from "../storage";
 import {
   buttonNamed,
@@ -252,6 +251,18 @@ describe("the program of Today", () => {
 });
 
 describe("the checklist of the day", () => {
+  // The day is fixed: a run across midnight must not look for the tick under another day.
+  const today = "2026-03-10";
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 2, 10, 12, 0, 0));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("@req PROG-009 keeps a tick for the day and shows it again when the page is opened", async () => {
     await seededStore();
     await openToday();
@@ -262,7 +273,7 @@ describe("the checklist of the day", () => {
     box.checked = true;
     box.dispatchEvent(new Event("change", { bubbles: true }));
     await vi.waitFor(async () =>
-      expect((await (await getStore()).getDayTicks(localDay(new Date()))).length).toBe(1),
+      expect((await (await getStore()).getDayTicks(today)).length).toBe(1),
     );
     resetApp();
     await openToday();
@@ -272,7 +283,7 @@ describe("the checklist of the day", () => {
 
   it("@req PROG-009 takes a tick off again", async () => {
     const store = await seededStore();
-    await store.putDayTicks(localDay(new Date()), ["listen"]);
+    await store.putDayTicks(today, ["listen"]);
     await openToday();
     await vi.waitFor(() => expect(heading("Другие дела дня")).toBeDefined());
     const box = blockNamed("Послушать английскую речь 10 минут");
@@ -281,9 +292,7 @@ describe("the checklist of the day", () => {
     box.checked = false;
     box.dispatchEvent(new Event("change", { bubbles: true }));
 
-    await vi.waitFor(async () =>
-      expect(await store.getDayTicks(localDay(new Date()))).toHaveLength(0),
-    );
+    await vi.waitFor(async () => expect(await store.getDayTicks(today)).toHaveLength(0));
     expect(box.checked).toBe(false);
   });
 

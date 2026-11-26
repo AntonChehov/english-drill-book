@@ -13,6 +13,7 @@ import {
   stubObservers,
   stubScreen,
   textOf,
+  pagesAlert,
 } from "../testing/study.fixture";
 
 // The book is never opened in this file: a book once opened is kept by the app for the visit, so
@@ -35,8 +36,6 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
-
-const pagesAlert = () => document.querySelector(".pages-column [role='alert']");
 
 describe("the pages when the book cannot be shown", () => {
   it("@req DOC-008 without a connection the panel says the demo needs one, offers to repeat, and the exercises work", async () => {

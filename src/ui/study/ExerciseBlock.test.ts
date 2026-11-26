@@ -17,6 +17,8 @@ import {
   stubScreen,
   textOf,
   type,
+  statusOf,
+  unitProgress,
 } from "../testing/study.fixture";
 
 vi.mock("../../storage/pdf/render", () => ({
@@ -60,8 +62,6 @@ async function answerAll(exercise: HTMLElement) {
     await type(fieldOf(exercise, String(index + 1)), answer);
   }
 }
-
-const statusOf = (exercise: HTMLElement) => textOf(exercise.querySelector(".state")!);
 
 describe("an exercise with a field for each item", () => {
   it("@req PLAY-002 shows each item's prompt with a text field, or its options when it has choices", async () => {
@@ -166,7 +166,7 @@ describe("an exercise with a field for each item", () => {
 
     await vi.waitFor(() => expect(statusOf(exercise)).toContain("Сделано"));
     expect(statusOf(exercise)).toContain("верно 6 из 6");
-    expect(textOf(document.querySelector(".progress")!)).toContain("сделано 1 из 3");
+    expect(unitProgress()).toContain("сделано 1 из 3");
     expect(buttonsNamed("Выполнить упражнение", exercise)).toHaveLength(0);
   });
 
@@ -283,7 +283,7 @@ describe("marking an exercise done", () => {
     await vi.waitFor(() => expect(statusOf(exercise)).toContain("Сделано"));
     expect(buttonsNamed("Выполнить упражнение", exercise)).toHaveLength(0);
     expect(document.activeElement).toBe(buttonNamed("Упражнение 1.2", exercise));
-    expect(textOf(document.querySelector(".progress")!)).toContain("сделано 1 из 3");
+    expect(unitProgress()).toContain("сделано 1 из 3");
   });
 
   it("@req PLAY-010 an exercise stays done when it is answered wrongly later", async () => {

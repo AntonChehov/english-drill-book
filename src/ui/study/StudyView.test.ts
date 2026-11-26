@@ -14,6 +14,11 @@ import {
   stubObservers,
   stubScreen,
   textOf,
+  unitProgress,
+  unitList,
+  barForUnit,
+  isHidden,
+  pagesAlert,
 } from "../testing/study.fixture";
 
 // What the book's file gives: twelve pages of one size, which draw nothing.
@@ -57,7 +62,9 @@ describe("opening a unit", () => {
     await mountStudy(drills);
 
     expect(textOf(document.querySelector("h1")!)).toBe("Раздел 1. Глагол to be: am, is, are");
-    expect(textOf(document.querySelector(".book")!)).toBe("Everyday Grammar: Demo Drills");
+    expect([...document.querySelectorAll("[lang='en']")].map(textOf)).toContain(
+      "Everyday Grammar: Demo Drills",
+    );
     expect([...document.querySelectorAll("article h3")].map((heading) => textOf(heading))).toEqual([
       "Упражнение 1.1",
       "Упражнение 1.2",
@@ -70,7 +77,7 @@ describe("opening a unit", () => {
     await markDoneElsewhere("demo-drills", "1.2");
     await mountStudy(drills);
 
-    expect(textOf(document.querySelector(".progress")!)).toContain("сделано 1 из 3");
+    expect(unitProgress()).toContain("сделано 1 из 3");
     expect(textOf(exerciseOf("1.2"))).toContain("Сделано");
     expect(textOf(exerciseOf("1.1"))).toContain("Не начато");
   });
@@ -82,8 +89,9 @@ describe("opening a unit", () => {
   });
 
   it("@req PROD-008 an address with an exercise scrolls to it", async () => {
-    const scroll = vi.fn<() => void>();
-    HTMLElement.prototype.scrollIntoView = scroll;
+    const scroll = vi
+      .spyOn(HTMLElement.prototype, "scrollIntoView")
+      .mockImplementation(() => undefined);
 
     await mountStudy(`${drills}?ex=1.2`);
 
@@ -141,14 +149,14 @@ describe("moving between units", () => {
 
     await click(toggle);
 
-    const items = [...document.querySelectorAll("#unit-menu-list li")].map((item) => textOf(item));
+    const items = [...unitList()!.querySelectorAll("li")].map((item) => textOf(item));
     expect(items).toHaveLength(4);
     expect(items[0]).toContain("Раздел 1. Глагол to be: am, is, are");
     expect(items[0]).toContain("сделано 1 из 3");
     expect(items[1]).toContain("сделано 0 из 3");
-    const current = document.querySelector("#unit-menu-list [aria-current='page']");
+    const current = unitList()!.querySelector("[aria-current='page']");
     expect(textOf(current!)).toContain("Раздел 1.");
-    (document.querySelectorAll("#unit-menu-list a")[2] as HTMLElement).click();
+    (unitList()!.querySelectorAll("a")[2] as HTMLElement).click();
     await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe("/study/demo-drills/3"));
   });
 
@@ -157,20 +165,18 @@ describe("moving between units", () => {
     const toggle = buttonNamed("Все разделы ▾");
     await click(toggle);
 
-    document
-      .querySelector("#unit-menu-list a")!
+    unitList()!
+      .querySelector("a")!
       .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await flushPromises();
 
-    expect(document.querySelector("#unit-menu-list")).toBeNull();
+    expect(unitList()).toBeNull();
     expect(document.activeElement).toBe(toggle);
   });
 
   it("@req PROD-012 on a narrow screen the navigation of the unit is in the bar of the frame", async () => {
     stubScreen(true);
-    const bar = document.createElement("div");
-    bar.id = "bar-unit";
-    document.body.append(bar);
+    const bar = barForUnit();
 
     await mountStudy(drills);
 
@@ -330,9 +336,7 @@ describe("the panels", () => {
     await click(buttonNamed("Скрыть страницы"));
     const strip = buttonNamed("Показать страницы");
     expect(document.activeElement).toBe(strip);
-    expect(document.querySelector(".pages-column")!.getAttribute("style")).toContain(
-      "display: none",
-    );
+    expect(isHidden(buttonNamed("Скрыть страницы"))).toBe(true);
     await vi.waitFor(async () =>
       expect(await (await getStore()).getSetting("collapsedPanel")).toBe("pages"),
     );
@@ -352,9 +356,7 @@ describe("the panels", () => {
     await click(buttonNamed("Скрыть упражнения"));
     const strip = buttonNamed("Показать упражнения");
     expect(document.activeElement).toBe(strip);
-    expect(
-      document.querySelector("section[aria-label='Упражнения']")!.getAttribute("style"),
-    ).toContain("display: none");
+    expect(isHidden(document.querySelector("section[aria-label='Упражнения']")!)).toBe(true);
 
     await click(strip);
 
@@ -408,10 +410,8 @@ describe("a part that fails", () => {
     book.broken = true;
     await mountStudy(drills);
 
-    await vi.waitFor(() =>
-      expect(document.querySelector(".pages-column [role='alert']")).not.toBeNull(),
-    );
-    const alert = document.querySelector(".pages-column [role='alert']")!;
+    await vi.waitFor(() => expect(pagesAlert()).not.toBeNull());
+    const alert = pagesAlert()!;
     expect(textOf(alert)).toContain("Не удалось показать эту часть");
     expect(exerciseOf("1.1")).toBeDefined();
     expect(textOf(document.querySelector("h1")!)).toContain("Раздел 1");
@@ -419,7 +419,7 @@ describe("a part that fails", () => {
     await click(buttonNamed("Попробовать снова"));
 
     await vi.waitFor(() => expect(pagesShown()).toEqual(["2"]));
-    expect(document.querySelector(".pages-column [role='alert']")).toBeNull();
+    expect(pagesAlert()).toBeNull();
   });
 
   it("@req PROD-011 a read that fails says so with a button to read again", async () => {

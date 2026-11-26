@@ -15,6 +15,7 @@ import {
   stubScreen,
   textOf,
   type,
+  statusOf,
 } from "../testing/study.fixture";
 
 vi.mock("../../storage/pdf/render", () => ({
@@ -42,8 +43,6 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
-
-const statusOf = (exercise: HTMLElement) => textOf(exercise.querySelector(".state")!);
 
 describe("drafts", () => {
   it("@req PLAY-005 answers typed are saved once typing pauses and are back when the unit is reopened", async () => {
