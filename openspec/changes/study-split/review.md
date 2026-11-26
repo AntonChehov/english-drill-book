@@ -36,3 +36,21 @@ Moves checked against `origin/main` and found the same:
 Not raised as a finding: `usePageDrawing` returns `measure` and `observe` so that `extend` in `PagesPanel` can call them. One `addPages(pdf, numbers)` in the composable would keep the order of the two calls private. Fixing this is up to the author.
 
 Commits are each under 310 changed lines.
+
+## Round 2
+
+Reviewed: 36b30ec069a6
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+
+### Notes
+
+Same reviewing agent as round 1, resumed.
+
+Fix of F1 (2a0f93d): D1, D2, D3 and D4 now match the code. That covers `useDrafts(pack, entries)`, `fieldBeingEdited(ids)` with the reason for passing ids, the flush listeners in `StudyView`, and `SourcePages` taking `zoomOf` and emitting `zoom` so that the preferences are read once.
+
+Fix of F2 (20ea1a1): `blockIdOf` is exported from `focus.ts` and used by `ExerciseBlock` (`base`) and `StudyView.scrollToExercise`. `git grep` now finds the `ex-` id built only in `focus.ts`. The field suffixes still follow from `base` in `ExerciseBlock`, so they cannot drift apart from it.
+
+Since round 1, only `design.md`, `review.md`, `ExerciseBlock.vue`, `StudyView.vue` and `focus.ts` have changed. No test was edited. `pnpm check` exits 0 and `pnpm test` passes (79 files, 996 tests). No new findings.
