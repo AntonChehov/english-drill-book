@@ -4,7 +4,7 @@
 // sample on request. Every exercise not done offers «Выполнить упражнение», which marks it done.
 import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { TEXT, type ExerciseView, type RowView } from "../../domain/study";
-import { focusIfLost } from "./focus";
+import { blockIdOf, focusIfLost } from "./focus";
 import ItemRow from "./ItemRow.vue";
 import { statusLabel } from "./messages";
 import type { ExerciseEntry } from "./unit";
@@ -22,7 +22,7 @@ const emit = defineEmits<{
 }>();
 
 const exercise = computed(() => props.entry.exercise);
-const base = computed(() => `ex-${exercise.value.id.replaceAll(".", "-")}`);
+const base = computed(() => blockIdOf(exercise.value.id));
 const prompt = computed(() =>
   exercise.value.type === "items" ? undefined : exercise.value.prompt,
 );

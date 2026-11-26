@@ -11,7 +11,7 @@ import { useNarrow } from "../bar";
 import FailureBoundary from "../components/FailureBoundary";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
-import { fieldBeingEdited } from "./focus";
+import { blockIdOf, fieldBeingEdited } from "./focus";
 import { pagesOf } from "./pages";
 import { useStudyPreferences, type Panel } from "./preferences";
 import SourcePages from "./SourcePages.vue";
@@ -120,10 +120,7 @@ function jump(target: HTMLElement | null) {
 /** Scrolls to the exercise the address names (`?ex=1.2`); whether it did. */
 function scrollToExercise(): boolean {
   const exercise = route.query["ex"];
-  const target =
-    typeof exercise === "string"
-      ? document.getElementById(`ex-${exercise.replaceAll(".", "-")}`)
-      : null;
+  const target = typeof exercise === "string" ? document.getElementById(blockIdOf(exercise)) : null;
   target?.scrollIntoView({ block: "start" });
   return target !== null;
 }

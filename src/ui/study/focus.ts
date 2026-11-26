@@ -3,8 +3,8 @@
 import { TEXT } from "../../domain/study";
 import type { EditedField } from "./reread";
 
-/** The element id of the block of exercise `id`, as `ExerciseBlock` sets it. */
-const blockIdOf = (id: string) => `ex-${id.replaceAll(".", "-")}`;
+/** The element id of the block of exercise `id`: the block sets it, the screen finds it by it. */
+export const blockIdOf = (id: string) => `ex-${id.replaceAll(".", "-")}`;
 
 /**
  * The field that has the focus, if it is a field of one of `exercises`: its exercise and its item.
