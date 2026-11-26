@@ -32,3 +32,21 @@ Checked, no finding:
 - Speed test: `vitest.config.ts` splits the run into a `unit` project, which excludes `speed.test.ts`, and a `speed` project with `groupOrder: 1`, so it runs after every other file. `vitest list` confirms that `pnpm test:coverage` (with its own `--exclude`) lists no speed file and that `pnpm test:speed` lists only it; CI still runs `pnpm test:speed`. The limit stays `LIMIT_MS = 5`; the warm-up of 2000 checks in `beforeAll` happens before any measured run and does not touch the measurement. `pnpm check` and `pnpm test` pass locally (63 files, 860 tests); I did not repeat the five-runs-under-load task.
 - Roles: `README.md` and `docs/how-it-works.md`, text and diagram, agree: the owner owns specification, architecture, the core of each slice, process and acceptance; agents do the rest of the code, the review and the validation.
 - Size: 376 lines added and 334 removed, nearly all one comment line for another; the insertions are at the 400 of a small change, the total is above it. Acceptable for a comment-only sweep approved as small, but the owner may want to know.
+
+## Round 2
+
+Reviewed: f2fb3b848ce4
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+
+### Notes
+
+Same reviewing agent as round 1, resumed. Round 2 covers the whole diff against `main` again, plus the fix commit.
+
+- Fix of F1: both fixtures under `src/storage/db/fixtures/` are byte for byte as on `main`; the diff no longer touches them.
+- Fix of F2: the touched comment blocks are rewrapped to 100 columns, counted in characters. I spot-checked derive, idb, demo check, store and Study, and the wording did not change in the rewrap. One source line is still over: the README template string in `scripts/evidence-branch.mjs`, at 105 characters because of its escaped backticks. The text it writes is under 100 and is a Markdown soft break, so it renders the same. No finding.
+- The fix commit changes only comments, that README string and the fixture revert. The speed test split, the 5 ms limit, the `test:coverage` exclusion and the roles texts are as in round 1.
+- `pnpm check` and `pnpm test` pass (63 files, 860 tests).
+- Size: after the rewrap the diff outside `openspec/` is 480 lines added and 485 removed, more than twice the about 400 of a small change. All of it is comment text, one README string and the test-runner split, with no behaviour, requirement or schema change. I agree that it can stay small in substance, but by the line count it is over, and the owner should approve that knowingly at merge.
