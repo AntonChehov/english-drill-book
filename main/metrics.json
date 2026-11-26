@@ -63,7 +63,7 @@
       }
     ]
   },
-  "sha": "17f62bced3af425229e58f1cf829613398c703a8",
+  "sha": "3d7ec9c8921624e6e067d9559e345db5bdb90efe",
   "tests": {
     "unit": {
       "tests": 856,
@@ -85,12 +85,12 @@
     "statements": 99.61
   },
   "lighthouse": {
-    "performance": 99,
+    "performance": 100,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 91
   },
   "pipeline": {
-    "seconds": 169
+    "seconds": 160
   }
 }
