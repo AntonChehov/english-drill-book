@@ -1,0 +1,96 @@
+{
+  "size": {
+    "js": {
+      "files": [
+        "assets/index-BVQvjNX9.js",
+        "assets/preload-helper-7y9sWmk5.js",
+        "assets/program-CHajSZWO.js",
+        "assets/router-CTUL9Byk.js"
+      ],
+      "bytes": 129507,
+      "gzip": 50309,
+      "budget": 120000
+    },
+    "css": {
+      "files": [
+        "assets/index-CWlZKIeg.css",
+        "assets/router-CXaOT7KF.css"
+      ],
+      "bytes": 11035,
+      "gzip": 2913,
+      "budget": 20000
+    },
+    "later": [
+      {
+        "file": "assets/StudyView-DqLK_5w2.js",
+        "bytes": 48079,
+        "gzip": 17210
+      },
+      {
+        "file": "assets/TopicsView-FqFmjWZb.js",
+        "bytes": 2623,
+        "gzip": 1456
+      },
+      {
+        "file": "assets/add-demo-D0q_73LW.js",
+        "bytes": 5660,
+        "gzip": 2324
+      },
+      {
+        "file": "assets/kept-Cwlg10sK.js",
+        "bytes": 604,
+        "gzip": 397
+      },
+      {
+        "file": "assets/pdf-YwugTw7Y.js",
+        "bytes": 444231,
+        "gzip": 132001
+      },
+      {
+        "file": "assets/pdf.worker.min-CIqJB0yW.mjs",
+        "bytes": 1271915,
+        "gzip": 379243
+      },
+      {
+        "file": "assets/profiles-C9J7MDFb.js",
+        "bytes": 26005,
+        "gzip": 9360
+      },
+      {
+        "file": "assets/static-files-CPpGVwzf.js",
+        "bytes": 2487,
+        "gzip": 1292
+      }
+    ]
+  },
+  "sha": "6732dfec1f02623692a5ab7e3551c891884fdb73",
+  "tests": {
+    "unit": {
+      "tests": 860,
+      "passed": 860,
+      "failed": 0,
+      "skipped": 0
+    },
+    "e2e": {
+      "tests": 382,
+      "passed": 379,
+      "failed": 0,
+      "skipped": 3
+    }
+  },
+  "coverage": {
+    "lines": 99.65,
+    "branches": 98.56,
+    "functions": 100,
+    "statements": 99.61
+  },
+  "lighthouse": {
+    "performance": 100,
+    "accessibility": 100,
+    "best-practices": 100,
+    "seo": 91
+  },
+  "pipeline": {
+    "seconds": 162
+  }
+}
