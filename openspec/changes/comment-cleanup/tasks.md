@@ -11,7 +11,7 @@
 
 ## 3. Speed test
 
-- [ ] 3.1 `src/domain/checking/speed.test.ts` runs alone after a warm-up, limit 5 ms unchanged; verify `pnpm test` passes 5 times in a row with another `pnpm test` running beside it
+- [x] 3.1 `src/domain/checking/speed.test.ts` runs alone after a warm-up, limit 5 ms unchanged; verify `pnpm test` passes 5 times in a row with another `pnpm test` running beside it
 
 ## 4. Gates
 
