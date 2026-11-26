@@ -34,12 +34,28 @@ export default mergeConfig(
       ],
       coverage: {
         provider: "v8",
-        include: ["src/domain/**/*.ts"],
-        // Fixtures are code that only tests run.
-        exclude: ["src/domain/**/*.test.ts", "src/domain/**/*.fixture.ts"],
+        include: ["src/domain/**/*.ts", "src/ui/**/*.{ts,vue}", "src/storage/**/*.ts"],
+        exclude: [
+          // Tests and their helpers are code that only tests run.
+          "src/**/*.test.ts",
+          "src/**/*.fixture.ts",
+          // The page's entry point starts the app in a browser (a top-level await on the store,
+          // the service worker); the end-to-end specs run it.
+          "src/ui/main.ts",
+          // Types only, nothing to run.
+          "src/ui/env.d.ts",
+          // Draws a PDF page on a canvas with pdf.js in a real browser, which a DOM made for tests
+          // does not have; the end-to-end specs of the pages panel run it.
+          "src/storage/pdf/render.ts",
+        ],
         reporter: ["text", "json-summary", "html"],
         reportsDirectory: "reports/coverage",
-        thresholds: { lines: 95, branches: 95 },
+        // The domain is pure logic and is held to more than the code that draws and stores.
+        thresholds: {
+          "src/domain/**": { lines: 95, branches: 95 },
+          "src/ui/**": { lines: 70, branches: 70 },
+          "src/storage/**": { lines: 70, branches: 70 },
+        },
       },
     },
   }),
