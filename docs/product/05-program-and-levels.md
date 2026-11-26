@@ -19,23 +19,23 @@ The link between books — which exercises of a drill book belong to which topic
 
 ## Requirements
 
-- **PROG-001 [M2]** A topic is **passed** when every exercise of its lead unit is done and at least `min(supplementMin, number of its supplements in books the learner has added)` of those supplements are done.
-- **PROG-002 [M2]** The share of a level is passed topics of that level divided by all topics of that level. A level with no topics has share 1.
-- **PROG-003 [M2]** The **current level** is the highest level L such that the share of L and of every level below it is at least `levelThreshold`. If no level qualifies, the current level is "below" the lowest level of the scale.
-- **PROG-004 [M2]** The current level carries a "+" when the share of the next level is at least `plusThreshold`.
-- **PROG-005 [M2]** **Today's topic** is the focus topic if one is set and not passed; otherwise the first topic in order that is not passed. When every topic is passed, Today says the program is complete.
-- **PROG-006 [M2]** Today shows: the goal, the current level on the scale with the share of each level, today's topic with its lead unit and supplements and their states, and the daily checklist.
-- **PROG-007 [M2]** Opening today's topic leads to Study in the same window, at the topic's first unfinished step (`PLAY-017`), and Study offers a way back to Today.
-- **PROG-008 [M2]** Topics lists every topic in order, grouped by level, with its state (not started, in progress, passed) and done counts. The learner can set any topic not passed as the focus; a passed topic is shown as passed and cannot be chosen. Decided by the owner on 2026-11-23.
-- **PROG-009 [M2]** The daily checklist is per calendar day in the device's time zone. Ticks are stored for the day and start empty the next day.
-- **PROG-018 [M2]** On a device with a pointer, Today highlights the item under the pointer by its background: each step of today's topic and each rung of the level ladder. It shows no tooltip for them. Asked for by the owner for slice 1.6.
-- **PROG-010 [M2]** Built-in programs are validated in CI against the schema and these rules: topic IDs are unique; every `level` is on `scale`; `goal.from` and `goal.to` are on `scale` in that order; every unit and exercise a topic refers to exists in the expected structure of its book's profile.
+- **PROG-001 [M1]** A topic is **passed** when every exercise of its lead unit is done and at least `min(supplementMin, number of its supplements in books the learner has added)` of those supplements are done.
+- **PROG-002 [M1]** The share of a level is passed topics of that level divided by all topics of that level. A level with no topics has share 1.
+- **PROG-003 [M1]** The **current level** is the highest level L such that the share of L and of every level below it is at least `levelThreshold`. If no level qualifies, the current level is "below" the lowest level of the scale.
+- **PROG-004 [M1]** The current level carries a "+" when the share of the next level is at least `plusThreshold`.
+- **PROG-005 [M1]** **Today's topic** is the focus topic if one is set and not passed; otherwise the first topic in order that is not passed. When every topic is passed, Today says the program is complete.
+- **PROG-006 [M1]** Today shows: the goal, the current level on the scale with the share of each level, today's topic with its lead unit and supplements and their states, and the daily checklist.
+- **PROG-007 [M1]** Opening today's topic leads to Study in the same window, at the topic's first unfinished step (`PLAY-017`), and Study offers a way back to Today.
+- **PROG-008 [M1]** Topics lists every topic in order, grouped by level, with its state (not started, in progress, passed) and done counts. The learner can set any topic not passed as the focus; a passed topic is shown as passed and cannot be chosen. Decided by the owner on 2026-11-23.
+- **PROG-009 [M1]** The daily checklist is per calendar day in the device's time zone. Ticks are stored for the day and start empty the next day.
+- **PROG-018 [M1]** On a device with a pointer, Today highlights the item under the pointer by its background: each step of today's topic and each rung of the level ladder. It shows no tooltip for them. Asked for by the owner for slice 1.6.
+- **PROG-010 [M1]** Built-in programs are validated in CI against the schema and these rules: topic IDs are unique; every `level` is on `scale`; `goal.from` and `goal.to` are on `scale` in that order; every unit and exercise a topic refers to exists in the expected structure of its book's profile.
 - **PROG-011 [M3]** Choosing a program shows the books it uses, which are lead and which supplementary, and which the learner has already added, with the action to add each.
 - **PROG-012 [M3]** Without a lead book its topics are shown as unavailable, with the action to add the book; they count as not passed. Without a supplementary book its exercises are shown as available after adding the book and do not count towards the topic's requirement. Why: a learner with only the grammar course must still be able to progress.
 - **PROG-016 [M3]** A topic passed on the lead unit alone, because a supplementary book is not added, is marked as passed without drills. The topic, Today and Topics carry a note recommending the drills in that book for consolidation. When the book is added later the topic stays passed, and its drills are offered as recommended work.
-- **PROG-013 [M2]** Exactly one program is active at a time. With no active program, Today offers the units of the added books directly.
+- **PROG-013 [M2]** Exactly one program is active at a time. With no active program, Today offers the units of the added books directly. With no books added there is no program and Today shows only the offers of `PROD-002`.
 - **PROG-014 [M1]** Today lists the units of each added book in order with their done counts and links to Study; while a program is active, below it.
-- **PROG-015 [M2]** The demo program runs over two demo books, a short course and a short drill book, so that the public demo shows the joining of books.
+- **PROG-015 [M1]** The demo program runs over two demo books, a short course and a short drill book, so that the public demo shows the joining of books.
 - **PROG-017 [M3]** The first real program: English grammar on the Murphy courses with Golitsynsky as the supplementary book.
 
 ## Later

@@ -21,14 +21,14 @@ The app is for Russian speakers learning English: the interface is in Russian, t
 | Today | goal and current level, today's topic with its exercises, daily checklist |
 | Topics | the whole program in order, grouped by level, with status per topic |
 | Study | one unit: the book's pages on one side, exercises on the other |
-| Mistakes | items whose latest result is wrong |
+| Mistakes | items whose latest result is wrong (after 1.0) |
 | Library | installed packs and programs; import, update, remove; export and import of progress |
 | Settings | theme |
 
 ## Requirements
 
 - **PROD-001 [M1]** The app is a single-page application. All study happens in one window; no screen opens another window or tab.
-- **PROD-002 [M1]** On first launch with no data the app opens Today, which offers to try the demo book with one action and to add the learner's own books. Why: a visitor must see a working product without reading instructions.
+- **PROD-002 [M2]** On first launch with no data the app opens Today, which offers equally, each with one action, «Попробовать демо» and «Добавить свою книгу». Once an own book is added, the demo is never offered again. A demo added earlier stays beside own books and can be removed (`PACK-007`). While only the demo is added, «Добавить свою книгу» stays visible. Why: a visitor must see a working product without reading instructions, and a learner with their own book must not be pushed to the demo.
 - **PROD-003 [M1]** After its first successful load the app works without a network connection for every book added from the learner's own files. The demo book is the exception (`PACK-003`).
 - **PROD-004 [M1]** The interface is in Russian. Pack content is shown as authored and is not translated. Interface text and pack content are each marked with their language (`lang`), so that screen readers pronounce both correctly.
 - **PROD-005 [M1]** Light and dark themes follow the system setting and can be overridden.
@@ -36,10 +36,10 @@ The app is for Russian speakers learning English: the interface is in Russian, t
 - **PROD-007 [M1]** Every action is available from the keyboard. In Study, Enter checks the current exercise and Tab moves through its fields in order.
 - **PROD-008 [M1]** Each screen and each unit has its own URL. Reloading or sharing a URL restores the same view.
 - **PROD-009 [M1]** The app never shows a blocking browser dialog (`alert`, `confirm`, `prompt`). Destructive actions use an inline two-step confirmation.
-- **PROD-010 [M2]** The app can be installed as a PWA and, once installed, starts offline.
+- **PROD-010 [later]** The app can be installed as a PWA and, once installed, starts offline.
 - **PROD-011 [M1]** A failure in one part (a corrupt pack, a storage error) shows a message in that part and leaves the rest of the app usable. No failure produces a blank page.
 - **PROD-012 [M1]** On a narrow screen (below 1024 px) the navigation is a compact bar fixed to the top of the screen, in place of the top bar of the page: it hides when the learner scrolls down and comes back when they scroll up, so that it takes no room while reading and is one gesture away. In Study it carries the unit's navigation. A unit whose exercises are all done is marked in the navigation in green with a check mark, drawn in, in addition to its count; a book whose units are all done, the same. Why: on a phone the top bar costs a fifth of the screen, and a learner should see at a glance what is finished. Asked for by the owner on 2026-11-16 after the first release; for slice 1.8.
 
 ## Non-goals for milestones 1–3
 
-Accounts and sync between devices (planned as milestone 5, see decision 0001), spaced repetition, speech, gamification beyond levels, AI-generated feedback, an in-app pack editor.
+Accounts and sync between devices (planned as milestone 5, see decision 0001), spaced repetition, speech, gamification beyond levels, AI-generated feedback, an in-app pack editor. The repository holds no converter from a book to a pack (the pack author's own tool, outside the repository) and no migration of progress from other apps.
