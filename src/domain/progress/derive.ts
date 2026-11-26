@@ -1,7 +1,7 @@
-// What the screens show about an exercise, derived from its attempts (DATA-003, design D3 of the
-// change `storage`; PLAY-008 – PLAY-010). The state is a fold over the attempts in time order, so a
-// state derived from the earlier attempts and continued with the later ones equals the state of
-// all of them: a cached state can be brought up to date without reading the whole log again.
+// What the screens show about an exercise, derived from its attempts. The state is a fold over the
+// attempts in time order, so a state derived from the earlier attempts and continued with the later
+// ones equals the state of all of them: a cached state can be brought up to date without reading
+// the whole log again.
 //
 // Every override joins the check it corrects (`corrects`). In such a group the latest attempt
 // speaks for the check: its `complete` says whether the check, with the learner's changes, has
@@ -35,9 +35,8 @@ export interface ItemState {
 
 export interface ExerciseState {
   /**
-   * Some check is complete, with the learner's changes to it, or the exercise was marked done
-   * (PLAY-009). A later wrong answer does not undo it (PLAY-010); counting as wrong an item of the
-   * completing check does.
+   * Some check is complete, with the learner's changes to it, or the exercise was marked done. A
+   * later wrong answer does not undo it; counting as wrong an item of the completing check does.
    */
   readonly done: boolean;
   /** When done: the time of the first check that is complete, or of the first mark as done. */

@@ -1,5 +1,5 @@
-// The check of built-in programs in CI (PROG-010; design D2 of `demo-program`). It lives here and
-// not in src: nothing in the running app validates a built-in program.
+// The check of built-in programs in CI. It lives here and not in src: nothing in the running app
+// validates a built-in program.
 import Ajv2020 from "ajv/dist/2020";
 import { describe, expect, it } from "vitest";
 import programSchema from "../../../contracts/program.schema.json";

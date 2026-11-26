@@ -6,8 +6,8 @@ import { addressOf } from "./views";
 type StorageState = Awaited<ReturnType<import("@playwright/test").BrowserContext["storageState"]>>;
 
 /**
- * Study's tests start with the demo added (design of `study-screen`, C-19): each worker adds it
- * once, through the start screen, and every test starts from a copy of that browser's storage.
+ * Study's tests start with the demo added (constitution C-19): each worker adds it once, through
+ * the start screen, and every test starts from a copy of that browser's storage.
  */
 export const test = base.extend<object, { demoAdded: StorageState }>({
   demoAdded: [
@@ -193,8 +193,8 @@ export async function storedSetting(page: Page, name: string): Promise<unknown> 
 }
 
 /**
- * The states of Study for the accessibility check and the screenshots (design of `study-screen`,
- * C-07): each starts from the demo added and ends in Study, or on Topics.
+ * The states of Study for the accessibility check and the screenshots (constitution C-07): each
+ * starts from the demo added and ends in Study, or on Topics.
  */
 export const studyStates = [
   {
@@ -232,7 +232,7 @@ export const studyStates = [
     },
   },
   {
-    // A check the browser refused to keep (PLAY-006, DATA-004).
+    // A check the browser refused to keep.
     name: "study-not-kept",
     reach: async (page: Page) => {
       await refuseAttempts(page);
@@ -245,7 +245,7 @@ export const studyStates = [
     },
   },
   {
-    // The pages did not arrive: the demo needs a connection (DOC-008).
+    // The pages did not arrive: the demo needs a connection.
     name: "study-pages-offline",
     reach: async (page: Page, allowConsoleError: (pattern: RegExp) => void) => {
       allowConsoleError(failedLoad);
@@ -255,8 +255,7 @@ export const studyStates = [
     },
   },
   {
-    // The pages at 150 % with one page before the unit's first and the split moved (DOC-002,
-    // DOC-003, DOC-006).
+    // The pages at 150 % with one page before the unit's first and the split moved.
     name: "study-pages-zoomed",
     reach: async (page: Page) => {
       await page.setViewportSize({ width: 1280, height: 800 });
@@ -273,7 +272,7 @@ export const studyStates = [
     },
   },
   {
-    // The pages panel hidden: a strip with «Показать страницы» (DOC-006).
+    // The pages panel hidden: a strip with «Показать страницы».
     name: "study-pages-collapsed",
     reach: async (page: Page) => {
       await page.setViewportSize({ width: 1280, height: 800 });
@@ -283,7 +282,7 @@ export const studyStates = [
     },
   },
   {
-    // Unit 1 of the drill book with the course's pages shown in its place (PLAY-018).
+    // Unit 1 of the drill book with the course's pages shown in its place.
     name: "study-drills-course",
     reach: async (page: Page) => {
       await openUnit(page, "1", "demo-drills");
@@ -292,7 +291,7 @@ export const studyStates = [
     },
   },
   {
-    // Every exercise of course unit 1 done: the next step is offered (PLAY-017).
+    // Every exercise of course unit 1 done: the next step is offered.
     name: "study-course-done",
     reach: async (page: Page) => {
       await page.goto(addressOf("/"));
@@ -304,8 +303,8 @@ export const studyStates = [
     },
   },
   {
-    // Topics with the demo: topic 1 passed, topic 2 in progress (PROG-008). Not Study, but it needs
-    // the demo added, as Study does.
+    // Topics with the demo: topic 1 passed, topic 2 in progress. Not Study, but it needs the demo
+    // added, as Study does.
     name: "topics-demo",
     reach: async (page: Page) => {
       await page.goto(addressOf("/"));
@@ -353,7 +352,7 @@ export function failNextPut(page: Page, store: "settings" | "days") {
   }, store);
 }
 
-/** The goal card and the today card of Today (PROG-006). */
+/** The goal card and the today card of Today. */
 export const goalCard = (page: Page) => page.getByRole("region", { name: "Цель" });
 export const todayCard = (page: Page) => page.getByRole("region", { name: "Сегодня" });
 

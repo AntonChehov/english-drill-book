@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-// Checks 3 and 4 of the evidence check, run locally (workflow-retro-2 V3): the form of
-// openspec/changes/<name>/review.md and whether its last round read the content of the
-// committed branch, without the GitHub API. The reviewer runs it before finishing a round,
-// the mechanic before every push.
+// Checks 3 and 4 of the evidence check, run locally: the form of openspec/changes/<name>/review.md
+// and whether its last round read the content of the committed branch, without the GitHub API. The
+// reviewer runs it before finishing a round, the mechanic before every push.
 // Usage: pnpm review:check <change>   prints each problem, exits 1 on any
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";

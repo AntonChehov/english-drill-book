@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// The border between the pages and the exercises from 1024 px (DOC-006; design D5 of
-// `pages-panel-tools`): dragged with the pointer, moved with the arrow keys, Home and End. It
-// stands in the row it divides and says where it is as the pages' share of that row.
+// The border between the pages and the exercises from 1024 px: dragged with the pointer, moved with
+// the arrow keys, Home and End. It stands in the row it divides and says where it is as the pages'
+// share of that row.
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
 import { clampSplit, MIN_SPLIT, maxSplit, splitAfterKey } from "./layout";
 

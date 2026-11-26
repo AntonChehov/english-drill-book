@@ -1,5 +1,5 @@
-// The text layer of a PDF as pages of lines (design D3). The one place that reads what pdf.js
-// reports; the library itself is passed in, so tests in Node can give the build made for Node.
+// The text layer of a PDF as pages of lines. The one place that reads what pdf.js reports; the
+// library itself is passed in, so tests in Node can give the build made for Node.
 
 import { linesFromRuns, type TextRun } from "../../domain/books/lines";
 import type { PageText } from "../../domain/books/types";

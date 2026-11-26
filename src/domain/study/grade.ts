@@ -1,4 +1,4 @@
-// Grading an exercise on screen (PLAY-003, PLAY-004; design D5 of the change `study-screen`).
+// Grading an exercise on screen.
 
 import { checkAnswer, compileKey, type Key, type Verdict } from "../checking";
 import type { ItemsExercise } from "../packs/types";
@@ -11,7 +11,7 @@ export type Keys = ReadonlyMap<string, Key>;
 
 /**
  * The keys of every item, prepared once when the unit opens. `undefined` when some key cannot be
- * prepared, which a validated pack never has: the exercise is then shown as an open one (D5).
+ * prepared, which a validated pack never has: the exercise is then shown as an open one.
  */
 export function prepareKeys(exercise: ItemsExercise): Keys | undefined {
   const keys = new Map<string, Key>();
@@ -30,7 +30,7 @@ export interface Grading {
   readonly complete: boolean;
 }
 
-/** Grades every item of `exercise` that has an answer; a blank item gets no verdict (PLAY-003). */
+/** Grades every item of `exercise` that has an answer; a blank item gets no verdict. */
 export function gradeExercise(exercise: ItemsExercise, keys: Keys, answers: Answers): Grading {
   const results: Record<string, Verdict> = {};
   for (const item of exercise.items) {

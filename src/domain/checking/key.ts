@@ -1,4 +1,4 @@
-// The prepared key of an item (design D4).
+// The prepared key of an item.
 
 import { readings, type Reading } from "./normalise";
 import { expandPattern, type PatternErrorReason } from "./pattern";
@@ -28,8 +28,8 @@ export const MAX_KEY_ERRORS = 20;
 export type KeyErrorReason = PatternErrorReason | "key-too-large";
 
 /**
- * Why a key cannot be built (CHK-002): an invalid pattern, with its index in `accept`, or a key
- * too large as a whole, with the index `null`.
+ * Why a key cannot be built: an invalid pattern, with its index in `accept`, or a key too large as
+ * a whole, with the index `null`.
  */
 export interface KeyError {
   readonly index: number | null;
@@ -42,7 +42,7 @@ export interface Key {
   readonly readings: ReadonlyMap<string, ReadonlySet<number>>;
   /** Number of words → length of the text → the texts, for the search of `near`. */
   readonly byWordsAndLength: ReadonlyMap<number, ReadonlyMap<number, readonly string[]>>;
-  /** Some variant reads as empty text, so a blank answer is correct (CHK-001, CHK-008). */
+  /** Some variant reads as empty text, so a blank answer is correct. */
   readonly acceptsBlank: boolean;
 }
 

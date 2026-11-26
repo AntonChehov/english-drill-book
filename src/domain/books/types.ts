@@ -1,4 +1,4 @@
-// What a reader gets from a PDF and what it gives back (design D3 of the change `demo-books`).
+// What a reader gets from a PDF and what it gives back.
 
 import type { Pack } from "../packs/types";
 

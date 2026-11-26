@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The hash of the diff a review reads (review-rounds design D1): one SHA-256 over the text of
+// The hash of the diff a review reads: one SHA-256 over the text of
 // `git diff` between the merge base with main and the head commit (three lines of context,
 // renames as delete and add, binary files in full), with what depends on where the change sits
 // taken out: the numbers of the hunk headers `@@ -a,b +c,d @@` and the `index` lines with the
@@ -7,7 +7,7 @@
 // that leaves the change's lines and their neighbours alone keeps the hash, and any other
 // edit changes it. `review.md` and `tasks.md` of the change's own directory are left out: the
 // record cannot hold its own hash, and ticking a task is not a change to review. When the head
-// commit is the archive commit of the change (workflow-retro D2), the change is hashed at that
+// commit is the archive commit of the change, the change is hashed at that
 // commit's parent, where it is still in flight, so the hash is the one the reviewer recorded.
 // The reviewer runs this module as `pnpm review:hash`;
 // scripts/pr-evidence.mjs imports it in CI, where the checkout has just fetched main.

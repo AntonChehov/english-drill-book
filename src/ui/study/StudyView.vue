@@ -1,9 +1,8 @@
 <script setup lang="ts">
-// Study (PLAY-001; design D3 of `study-screen`): the unit's pages beside its exercises, side by side
-// from 1024 px and stacked below that, with the unit's navigation in its header, or in the bar of
-// the frame below 1024 px (PROD-012). Before the exercises, the unit's explanation from the pack,
-// foldable and open on every opening (PLAY-020; design D3 of `russian-demo`). From 1024 px the
-// border between the two is draggable and either can be collapsed to a strip (DOC-006).
+// Study: the unit's pages beside its exercises, side by side from 1024 px and stacked below that,
+// with the unit's navigation in its header, or in the bar of the frame below 1024 px. Before the
+// exercises, the unit's explanation from the pack, foldable and open on every opening. From 1024 px
+// the border between the two is draggable and either can be collapsed to a strip.
 import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import type { Pack } from "../../domain/packs/types";
@@ -119,7 +118,7 @@ async function showPage(entry: ExerciseEntry) {
   panel.value?.scrollToPage(first);
 }
 
-/** The jump links of a narrow screen, where the pages and the exercises are stacked (D3). */
+/** The jump links of a narrow screen, where the pages and the exercises are stacked. */
 function jump(target: HTMLElement | null) {
   target?.scrollIntoView({ block: "start" });
   target?.focus({ preventScroll: true });
@@ -136,7 +135,7 @@ function scrollToExercise(): boolean {
   return target !== null;
 }
 
-/** The demo was added from this screen: the unit that opens takes the focus (PROD-007). */
+/** The demo was added from this screen: the unit that opens takes the focus. */
 let addedHere = false;
 
 watch(phase, async (now) => {
@@ -601,12 +600,12 @@ watch(
   text-decoration: underline;
 }
 
-/* Two columns from 1024 px (PROD-006): the pages take the remaining width and scroll with the
+/* Two columns from 1024 px: the pages take the remaining width and scroll with the
    window; the exercises keep a comfortable width and scroll on their own beside them. Below that
    everything scrolls with the window, so the on-screen keyboard never hides the field typed in. */
 @media (min-width: 1024px) {
   /* The pages take the share of the row that `--pages` says, the exercises the rest and at least
-     22rem, and the border between them is 0.75rem wide (DOC-006). A collapsed panel is a strip. */
+     22rem, and the border between them is 0.75rem wide. A collapsed panel is a strip. */
   .body {
     align-items: start;
     display: grid;

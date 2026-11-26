@@ -1,6 +1,6 @@
-// The demo books of the start screen (design D8 of `demo-books`, D7 of `storage`). The state lives
-// in memory and survives going to another view and back; what survives a reload is the packs in
-// the store, which the start screen reads when it opens.
+// The demo books of the start screen. The state lives in memory and survives going to another view
+// and back; what survives a reload is the packs in the store, which the start screen reads when it
+// opens.
 
 import { shallowRef } from "vue";
 import type { UnreadableBook } from "../../domain/books/demo/kept";
@@ -25,7 +25,7 @@ export type DemoState =
   | { readonly phase: "idle" }
   /** `retry` when an earlier attempt failed, so the button keeps saying so. */
   | { readonly phase: "reading"; readonly message: string; readonly retry: boolean }
-  /** The books are stored: only then are they shown as added (DATA-004). */
+  /** The books are stored: only then are they shown as added. */
   | { readonly phase: "added"; readonly books: readonly DemoBookSummary[] }
   /**
    * Adding failed. `packs` when the books were read and could not be kept: trying again only
@@ -36,9 +36,8 @@ export type DemoState =
 export const demoState = shallowRef<DemoState>({ phase: "loading" });
 
 /**
- * The demo books stored while they are not all usable (PROD-011): those that read, as cards, and
- * those whose stored pack fails validation, whose cards say so. Empty when the demo is whole or
- * not stored.
+ * The demo books stored while they are not all usable: those that read, as cards, and those whose
+ * stored pack fails validation, whose cards say so. Empty when the demo is whole or not stored.
  */
 export const partialDemo = shallowRef<{
   readonly books: readonly DemoBookSummary[];

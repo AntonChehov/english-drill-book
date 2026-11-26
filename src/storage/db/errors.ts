@@ -1,5 +1,5 @@
-// The failures of the store (DATA-004, design D4 of the change `storage`). Every function of the
-// store rejects with a `StorageError` of one of these kinds; the screens say each in Russian.
+// The failures of the store. Every function of the store rejects with a `StorageError` of one of
+// these kinds; the screens say each in Russian.
 
 export type StorageErrorKind =
   /** No IndexedDB, or the browser refuses this site storage (settings, some private windows). */

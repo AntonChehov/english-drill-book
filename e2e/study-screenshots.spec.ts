@@ -5,8 +5,7 @@ import { themes } from "./views";
 
 /**
  * One PNG per state of Study, theme and width, named as in e2e/screenshots.spec.ts. The pages are
- * masked: a canvas drawn by the PDF library differs between machines (design of `study-screen`,
- * Risks).
+ * masked: a canvas drawn by the PDF library differs between machines.
  */
 const directory = process.env["SCREENSHOTS_DIR"] ?? "screenshots";
 const widths = [1280, 390] as const;

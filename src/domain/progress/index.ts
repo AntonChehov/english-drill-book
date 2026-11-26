@@ -1,4 +1,4 @@
-// The progress log and what is derived from it (capability `progress-data`): pure functions.
+// The progress log and what is derived from it: pure functions.
 
 export {
   AttemptError,

@@ -1,16 +1,16 @@
-// The app's one connection to the store (design D4 – D6 of the change `storage`), opened when the
-// app starts, and the state the whole app shows when the data belongs to a newer version.
+// The app's one connection to the store, opened when the app starts, and the state the whole app
+// shows when the data belongs to a newer version.
 
 import { shallowRef } from "vue";
 import { openStore, StorageError, type Store } from "../storage/db";
 
 /**
  * The data in this browser was written by a newer version of the app, found on opening or because
- * a newer tab upgraded it: the app shows only the message that says so, and writes nothing (D5).
+ * a newer tab upgraded it: the app shows only the message that says so, and writes nothing.
  */
 export const newerVersion = shallowRef(false);
 
-/** Tells other tabs of the app of each write (design D6). */
+/** Tells other tabs of the app of each write. */
 const channel = "english-drill-book";
 
 let opening: Promise<Store> | undefined;
@@ -23,7 +23,7 @@ export function noteStorageFailure(error: unknown): void {
 /**
  * The store, opened on first use. Neither a failure to open nor a connection the browser closed
  * (the site's data cleared, a disk failure) is remembered: the next call opens the database
- * again, so a visitor can retry without reloading (DATA-004).
+ * again, so a visitor can retry without reloading.
  */
 export function getStore(): Promise<Store> {
   opening ??= openStore({
@@ -45,8 +45,8 @@ export function getStore(): Promise<Store> {
 
 /**
  * Calls `listener` when what is stored may have been changed by another tab: when this page
- * becomes visible or its window gains focus, and at once when another tab says it wrote (D6).
- * Returns a function that stops it.
+ * becomes visible or its window gains focus, and at once when another tab says it wrote. Returns a
+ * function that stops it.
  */
 export function onStoredDataChange(listener: () => void): () => void {
   const controller = new AbortController();

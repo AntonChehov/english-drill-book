@@ -1,6 +1,6 @@
-// Done counts of units and books (PLAY-011, PROG-014; design D2, D3 of `study-screen`).
+// Done counts of units and books.
 
-/** How many exercises of a unit are done (PLAY-011, PROG-014). */
+/** How many exercises of a unit are done. */
 export interface Progress {
   readonly done: number;
   readonly total: number;
@@ -14,12 +14,12 @@ export function progressOf(
   return { done: exercises.filter(isDone).length, total: exercises.length };
 }
 
-/** The index of the first unit not finished, where the learner continues (PROG-014); -1 if none. */
+/** The index of the first unit not finished, where the learner continues; -1 if none. */
 export function continueAt(units: readonly Progress[]): number {
   return units.findIndex(({ done, total }) => done < total);
 }
 
-/** Every exercise is done, and there is at least one (PROD-012). */
+/** Every exercise is done, and there is at least one. */
 export function isFinished({ done, total }: Progress): boolean {
   return total > 0 && done === total;
 }

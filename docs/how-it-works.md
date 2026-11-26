@@ -1,11 +1,11 @@
 # How it works
 
-English Drill Book is built by one owner and several agents, each with a fixed role and a fixed view of the repository. The owner decides and accepts; agents write, review and validate. Nothing reaches `main` without the owner's approval of the pull request.
+English Drill Book is built by one owner and several agents, each with a fixed role and a fixed view of the repository. The owner decides, writes the core of each slice and accepts; agents write the rest of the code, review and validate. Nothing reaches `main` without the owner's approval of the pull request.
 
 ```mermaid
 flowchart LR
-  O["Owner: specification, architecture, process, acceptance"]
-  I["Implementing agent: code and tests"]
+  O["Owner: specification, architecture, core of each slice, process, acceptance"]
+  I["Implementing agent: the rest of the code and tests"]
   R["Reviewing agent: review rounds"]
   V["Validating agent: holdout scenarios"]
   O -- "approves proposal, design, tasks" --> I

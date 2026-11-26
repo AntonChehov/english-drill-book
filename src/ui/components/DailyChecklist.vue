@@ -1,8 +1,7 @@
 <script setup lang="ts">
-// The checklist of the day on Today (PROG-006, PROG-009; design D4 of `topics-and-checklist`): the
-// program's daily blocks, ticked for the device's calendar day. A tick is shown only once it is
-// kept (DATA-004); the day is taken again whenever the store may have changed, so a page left open
-// overnight starts the new day empty when it is looked at again.
+// The checklist of the day on Today: the program's daily blocks, ticked for the device's calendar
+// day. A tick is shown only once it is kept; the day is taken again whenever the store may have
+// changed, so a page left open overnight starts the new day empty when it is looked at again.
 import { onMounted, onUnmounted, ref } from "vue";
 import { demoProgram as program } from "../../domain/programs";
 import { localDay } from "../demo/day";

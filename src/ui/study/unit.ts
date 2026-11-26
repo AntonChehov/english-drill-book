@@ -1,7 +1,6 @@
-// The state of Study (design D6, D10 of `study-screen`): `useUnit` loads the pack, prepares the
-// keys, reads the states, attempts and drafts of the unit, and exposes the views of the domain and
-// the actions that append attempts. Components show what it gives and call its actions; none of
-// them reaches the store.
+// The state of Study: `useUnit` loads the pack, prepares the keys, reads the states, attempts and
+// drafts of the unit, and exposes the views of the domain and the actions that append attempts.
+// Components show what it gives and call its actions; none of them reaches the store.
 
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
 import type { Exercise, Pack, Unit } from "../../domain/packs/types";
@@ -41,7 +40,7 @@ import {
   type KeptAction,
 } from "./messages";
 
-/** Drafts are written this long after the last keystroke (design D6). */
+/** Drafts are written this long after the last keystroke. */
 export const DRAFT_DELAY = 400;
 
 /** An exercise of the unit as Study holds it. */
@@ -53,7 +52,7 @@ export interface ExerciseEntry {
   attempts: Attempt[];
   /** The answers in the fields; text and open exercises use `text`. */
   answers: Record<string, string>;
-  /** The result of an action could not be kept: what to say, and how to repeat it (D6). */
+  /** The result of an action could not be kept: what to say, and how to repeat it. */
   failure: { readonly message: string; readonly retry: () => void } | null;
   /** A quiet word next to Проверить, such as that there is nothing to check. */
   notice: string | null;
@@ -69,7 +68,7 @@ export type UnitPhase =
   | "loading"
   | "ready"
   | "not-found"
-  /** The address is a unit of a demo book, and the demo is not added in this browser (PROD-008). */
+  /** The address is a unit of a demo book, and the demo is not added in this browser. */
   | "demo-missing"
   | "failed";
 
@@ -85,7 +84,7 @@ export interface UnitLink {
   readonly progress: Progress;
 }
 
-/** The topic a unit belongs to, with the links of its two steps and the course unit (PLAY-017). */
+/** The topic a unit belongs to, with the links of its two steps and the course unit. */
 export interface TopicOfUnit {
   readonly title: string;
   readonly step: TopicStep["step"];
@@ -122,7 +121,7 @@ const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
 
 /**
  * The topic of `shown` in the demo program, when both of its books are stored and valid and hold
- * its course unit and its first supplement (design D2 of `two-step-study`); else none.
+ * its course unit and its first supplement; else none.
  */
 function topicOf(packs: readonly unknown[], from: Pack, shown: Unit): TopicOfUnit | undefined {
   const found = topicStep(
@@ -229,7 +228,7 @@ export function useUnit(packId: string, unitId: string) {
     );
   }
 
-  /** Says `message` through the polite live region, again even if it is the same (D7). */
+  /** Says `message` through the polite live region, again even if it is the same. */
   async function announce(message: string) {
     announcement.value = "";
     await nextTick();
@@ -275,11 +274,11 @@ export function useUnit(packId: string, unitId: string) {
   }
 
   /**
-   * Reads the unit again, as another tab may have changed it (DATA-012, design D6). An exercise is
-   * left as it is when what the screen holds is newer than what was read: its answers are not
-   * stored yet, an action on it is being written, or one was kept after the read began. In the
-   * exercise being typed in, the focused field keeps its text; the rest is read again only when
-   * another tab added to its log. A draft whose write failed is written again.
+   * Reads the unit again, as another tab may have changed it. An exercise is left as it is when
+   * what the screen holds is newer than what was read: its answers are not stored yet, an action on
+   * it is being written, or one was kept after the read began. In the exercise being typed in, the
+   * focused field keeps its text; the rest is read again only when another tab added to its log. A
+   * draft whose write failed is written again.
    */
   async function reread() {
     const from = pack.value;
@@ -384,7 +383,7 @@ export function useUnit(packId: string, unitId: string) {
     }
   }
 
-  /** Puts `text` in a field and writes the draft once typing pauses (PLAY-005). */
+  /** Puts `text` in a field and writes the draft once typing pauses. */
   function setAnswer(entry: ExerciseEntry, item: string, text: string) {
     entry.answers[item] = text;
     entry.edits += 1;
@@ -411,7 +410,7 @@ export function useUnit(packId: string, unitId: string) {
 
   /**
    * Appends the attempt `build` makes and shows its result only once it is kept; if it is not,
-   * the exercise says so and offers to repeat (PLAY-006, DATA-004, design D6).
+   * the exercise says so and offers to repeat.
    */
   async function keep(
     entry: ExerciseEntry,
@@ -495,8 +494,8 @@ export function useUnit(packId: string, unitId: string) {
   }
 
   /**
-   * Adds the demo books, as the start screen does, and opens the unit the address names (PROD-008):
-   * a copied address of a demo unit leads to it in a browser where the demo was never added.
+   * Adds the demo books, as the start screen does, and opens the unit the address names: a copied
+   * address of a demo unit leads to it in a browser where the demo was never added.
    */
   async function addDemoAndOpen() {
     if (adding.value.phase === "adding") return;

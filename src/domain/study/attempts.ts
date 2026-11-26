@@ -1,5 +1,5 @@
-// The attempts Study appends to the log (PLAY-006 – PLAY-010; design D5 of `study-screen`). The id
-// and the time come from the caller: the domain has no clock and no randomness (C-08).
+// The attempts Study appends to the log. The id and the time come from the caller: the domain has
+// no clock and no randomness (C-08).
 
 import type { ItemsExercise, Pack } from "../packs/types";
 import { compareAttempts, newAttempt, type Attempt, type OverrideVerdict } from "../progress";
@@ -24,7 +24,7 @@ function typed(answers: Answers): Record<string, string> {
 
 /**
  * The check of `answers`: every item that is not blank graded, its answer and verdict recorded,
- * `complete` when every item is `ok` (PLAY-003, PLAY-006, PLAY-009).
+ * `complete` when every item is `ok`.
  */
 export function checkAttempt(
   context: AttemptContext,
@@ -39,7 +39,7 @@ export function checkAttempt(
   return newAttempt({ ...context, action: "check", answers: judged, results, complete });
 }
 
-/** The reveal of one item's key, or of the sample of an open exercise (`TEXT`) (PLAY-007). */
+/** The reveal of one item's key, or of the sample of an open exercise (`TEXT`). */
 export function revealAttempt(context: AttemptContext, item: string, answers: Answers): Attempt {
   return newAttempt({
     ...context,
@@ -52,8 +52,7 @@ export function revealAttempt(context: AttemptContext, item: string, answers: An
 }
 
 /**
- * Any exercise marked as done by the learner, with the answers typed so far and no verdict
- * (PLAY-013, PLAY-021).
+ * Any exercise marked as done by the learner, with the answers typed so far and no verdict.
  */
 export function markDoneAttempt(context: AttemptContext, answers: Answers): Attempt {
   return newAttempt({
@@ -90,12 +89,12 @@ export function overriddenOf(
 }
 
 /**
- * A change by hand of the verdict of `item` in the latest check (PLAY-008): `verdict` sets it,
- * `null` undoes the change. The override names that check, carries the whole set of its items set
- * by hand with this change applied, and is `complete` when the check with these changes has every
- * item `ok` (PLAY-009). Its time is never earlier than its check's or the check's latest override,
- * one millisecond after it if the clock says otherwise, so that the derivation keeps it in order.
- * `undefined` when there is no check or the latest one did not judge `item`.
+ * A change by hand of the verdict of `item` in the latest check: `verdict` sets it, `null` undoes
+ * the change. The override names that check, carries the whole set of its items set by hand with
+ * this change applied, and is `complete` when the check with these changes has every item `ok`. Its
+ * time is never earlier than its check's or the check's latest override, one millisecond after it
+ * if the clock says otherwise, so that the derivation keeps it in order. `undefined` when there is
+ * no check or the latest one did not judge `item`.
  */
 export function overrideAttempt(
   context: AttemptContext,

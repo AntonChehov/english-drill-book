@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// The two steps of the unit's topic (PLAY-017; design D3 of `two-step-study`): the current one is
-// text marked «сейчас», the other a link. The order is a guide, both are one action away.
+// The two steps of the unit's topic: the current one is text marked «сейчас», the other a link. The
+// order is a guide, both are one action away.
 import { RouterLink } from "vue-router";
 import type { TopicOfUnit } from "./unit";
 

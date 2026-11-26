@@ -1,4 +1,4 @@
-// Lines of a page from the runs of text a PDF library reports (design D3).
+// Lines of a page from the runs of text a PDF library reports.
 
 import type { Line } from "./types";
 
