@@ -8,19 +8,19 @@
 
 ### D1 Composables by owner, one wiring
 
-`unit-read.ts` is plain functions from the store to data (no Vue). `useDrafts(pack)`, `useAttempts(...)` and `useReread(...)` each own their refs and timers; `useUnit` creates them, passes what one needs from another, and returns the same object as now. Types (`ExerciseEntry`, `UnitLink`, `TopicOfUnit`) are re-exported from `unit.ts`, so importers do not change. Fewer, larger modules over many small ones: each is a reason to change.
+`unit-read.ts` is plain functions from the store to data (no Vue). `useDrafts(pack, entries)` (flushing goes over every entry), `useAttempts(...)` and `useReread(...)` each own their refs and timers; `useUnit` creates them, passes what one needs from another, and returns the same object as now. Types (`ExerciseEntry`, `UnitLink`, `TopicOfUnit`) are re-exported from `unit.ts`, so importers do not change. Fewer, larger modules over many small ones: each is a reason to change.
 
 ### D2 The view answers "what is being edited"
 
-`useUnit(packId, unitId, { editing })` with `editing: () => { exercise, item } | undefined`. `StudyView` passes `() => fieldBeingEdited(root)` from `focus.ts`. The reread compares exercise ids, not element ids. Tracking focus and blur events in the state instead would change behaviour: a test sends `blur` and then focuses a field that already has focus, so no event fires and the field would be overwritten. Asking at the moment of the reread avoids that.
+`useUnit(packId, unitId, { editing })` with `editing: () => { exercise, item } | undefined`. `StudyView` passes `() => fieldBeingEdited(ids)` from `focus.ts`, with the unit's exercise ids: an element id cannot be turned back into an exercise id, so the focused block is matched against them. The reread compares exercise ids, not element ids. Tracking focus and blur events in the state instead would change behaviour: a test sends `blur` and then focuses a field that already has focus, so no event fires and the field would be overwritten. Asking at the moment of the reread avoids that. The listeners for a hidden page and `pagehide`, which flush the drafts, move to `StudyView` with the other browser events.
 
 ### D3 Focus queries in one view module
 
-`focus.ts`: `fieldBeingEdited(root)` and `focusIfLost(element)`; the check in `ExerciseBlock.vue` moves there. Components keep calling `focus()` on their own elements.
+`focus.ts`: `fieldBeingEdited(ids)` and `focusIfLost(element)`; the check in `ExerciseBlock.vue` moves there. Components keep calling `focus()` on their own elements.
 
 ### D4 Components keep the DOM order and classes
 
-`UnitHeader` stays the first `h1` and exposes `focusTitle()`; `UnitUnavailable` keeps the first link of not-found; `SourcePages` exposes `scrollToPage` and `focusHide`. The sticky and grid classes stay on direct children of the body, no wrapper is added, `--pages-head-top` still reaches `PagesPanel`. `usePageDrawing` creates its observers in `onMounted`, as now.
+`UnitHeader` stays the first `h1` and exposes `focusTitle()`; `UnitUnavailable` keeps the first link of not-found; `SourcePages` exposes `scrollToPage` and `focusHide`, takes `zoomOf` and emits `zoom`, so the preferences are read once, in `StudyView`; a second read could overwrite a change just made. The sticky and grid classes stay on direct children of the body, no wrapper is added, `--pages-head-top` still reaches `PagesPanel`. `usePageDrawing` creates its observers in `onMounted`, as now.
 
 ### D5 Commits small and green
 
