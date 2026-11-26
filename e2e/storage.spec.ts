@@ -242,7 +242,7 @@ test.describe("DATA-012 Two tabs", () => {
     { tag: "@demo" },
     async ({ page, context }) => {
       const second = await context.newPage();
-      // Without the message between tabs, only regaining focus can show the demo here (design D6).
+      // Without the message between tabs, only regaining focus can show the demo here.
       await second.addInitScript(() => {
         Reflect.deleteProperty(window, "BroadcastChannel");
       });

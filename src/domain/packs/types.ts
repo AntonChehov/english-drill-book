@@ -33,7 +33,7 @@ export interface Migration {
 export interface Item {
   readonly id: string;
   readonly prompt?: string;
-  /** Key patterns (CHK-001). */
+  /** Key patterns. */
   readonly accept: readonly string[];
   readonly choices?: readonly string[];
 }
@@ -43,7 +43,7 @@ export interface ItemsExercise {
   readonly type: "items";
   /** What the book prints. */
   readonly task: string;
-  /** What to do, in the language of the interface (PACK-004). */
+  /** What to do, in the language of the interface. */
   readonly help?: string;
   readonly pages?: readonly PageRef[];
   readonly items: readonly Item[];
@@ -75,7 +75,7 @@ export interface Unit {
   readonly id: string;
   readonly title: string;
   /**
-   * The explanation of the unit's grammar, in the language of the interface (PACK-004): plain
+   * The explanation of the unit's grammar, in the language of the interface: plain
    * paragraphs separated by a blank line; a span between two `*` is in the language being learned.
    */
   readonly theory?: string;

@@ -325,7 +325,7 @@ function staleClone(repo) {
   return { clone, git };
 }
 
-describe("round 1 of the review of review-rounds", () => {
+describe("round 1 of a review", () => {
   it("F6: the hash changes when only the mode of a changed file changes", () => {
     const repo = repository();
     const before = repo.hash();
@@ -382,7 +382,7 @@ function archiveCommit(repo) {
   repo.commit(`chore: archive ${change}`);
 }
 
-describe("the archive commit (workflow-retro D2)", () => {
+describe("the archive commit", () => {
   it("is found by what it adds under the archive: the change, its directory and its parent", () => {
     const repo = repository();
     expect(archiveOf(repo.root)).toBeUndefined();

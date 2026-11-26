@@ -158,7 +158,7 @@ export const demoStates = [
       failDemo(page, allowConsoleError),
   },
   {
-    // The demo added in an earlier visit, shown from the store after a reload (design D7).
+    // The demo added in an earlier visit, shown from the store after a reload.
     name: "start-demo-kept",
     reach: async (page: Page) => {
       await addDemo(page);
@@ -166,10 +166,10 @@ export const demoStates = [
       await expect(addedHeading(page)).toBeVisible();
     },
   },
-  // Read, and refused by the browser's storage (DATA-004).
+  // Read, and refused by the browser's storage.
   { name: "start-demo-not-kept", reach: (page: Page) => addDemoNotKept(page) },
   {
-    // Data of a newer version of the app: the full-screen message (DATA-005).
+    // Data of a newer version of the app: the full-screen message.
     name: "newer-version",
     reach: async (page: Page) => {
       await writeNewerData(page);

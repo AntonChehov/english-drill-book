@@ -1,4 +1,4 @@
-// The theme of the app (PROD-005; design D2 of `shell-offline-themes`): «Как в системе» leaves the
+// The theme of the app: «Как в системе» leaves the
 // colours to the system setting, the other two override it. The page carries the choice in
 // `data-theme`, which base.css reads.
 

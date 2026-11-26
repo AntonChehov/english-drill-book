@@ -1,6 +1,5 @@
-// The demo program over the stored demo books (PROG-013): its progress, today's topic with the
-// focus, and the reading of both from the store, shared by Today and Topics (design D2 of
-// `topics-and-checklist`).
+// The demo program over the stored demo books: its progress, today's topic with the
+// focus, and the reading of both from the store, shared by Today and Topics.
 
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import {
@@ -14,7 +13,7 @@ import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
 import { doneExercises, doneKey, readDone } from "./progress";
 import { demoState, type DemoBookSummary } from "./state";
 
-/** The stored focus topic (PROG-005, PROG-008); read again whenever the store may have changed. */
+/** The stored focus topic; read again whenever the store may have changed. */
 const focusTopic = ref<string | undefined>();
 
 async function readFocus(): Promise<void> {
@@ -38,7 +37,7 @@ export const demoBooks = computed(() =>
 
 /**
  * Reads the done states and the focus while the demo is added: on mount, when the books change
- * and whenever the store may have changed (DATA-012).
+ * and whenever the store may have changed.
  */
 export function useStoredProgress(): void {
   function read() {
@@ -58,7 +57,7 @@ export const isDone = (pack: string, exercise: string) =>
 /** Progress over the demo program for the stored `books`. */
 export function useProgram(books: () => readonly DemoBookSummary[]) {
   // The program's packs, units and exercises exist in the stored demo books: CI checks the program
-  // against the books' profiles (PROG-010), and the program is shown only while both are stored.
+  // against the books' profiles, and the program is shown only while both are stored.
   const bookOf = (pack: string) => books().find((book) => book.id === pack)!;
   const leadUnit = (topic: Topic) =>
     bookOf(topic.lead.pack).units.find((unit) => unit.id === topic.lead.unit)!;

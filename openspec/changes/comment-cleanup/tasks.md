@@ -2,8 +2,8 @@
 
 ## 1. Comments
 
-- [ ] 1.1 `src/`: no comment cites a design document, decision (`D7`) or section; reasons kept in words; outside tests no comment names a requirement ID; verify with `git grep` for both patterns, no hits
-- [ ] 1.2 `e2e/` and `scripts/`: no design references; verify with `git grep`, no hits
+- [x] 1.1 `src/`: no comment cites a design document, decision (`D7`) or section; reasons kept in words; outside tests no comment names a requirement ID; verify with `git grep` for both patterns, no hits
+- [x] 1.2 `e2e/` and `scripts/`: no design references; verify with `git grep`, no hits
 
 ## 2. Roles
 
@@ -15,4 +15,4 @@
 
 ## 4. Gates
 
-- [ ] 4.1 `pnpm check`, `pnpm test`, `pnpm e2e` on Chromium pass
+- [x] 4.1 `pnpm check`, `pnpm test`, `pnpm e2e` on Chromium pass

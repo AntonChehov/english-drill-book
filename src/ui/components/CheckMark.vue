@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The green check mark of a finished unit or book (PROD-012). It is drawn in when `done` changes
+// The green check mark of a finished unit or book. It is drawn in when `done` changes
 // from false to true, and shown already drawn when it is true from the start or when the learner
 // asks for reduced motion (the animation is in a media query). A screen reader hears «выполнено».
 // `still` is for a screen that reads its data after it is shown, where a change is not a finish.

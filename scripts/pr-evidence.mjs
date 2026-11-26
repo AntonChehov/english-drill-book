@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-// The evidence check of constitution C-18 (design D9, workflow-retro D2 and D4). Fails a
+// The evidence check of constitution C-18. Fails a
 // pull request unless, for its head commit:
 //   1. the description has the sections Problem, Solution, Requirements and Self-review and a
 //      line `Change: <name>` naming a directory under openspec/changes/;
 //   2. every ID under Requirements is defined in docs/product/ and named by a test;
 //   3. openspec/changes/<name>/review.md (or the archived one) is a record in rounds whose
 //      last round is approved, with every finding fixed or declined with a reason and a
-//      severity (review-rounds design D2, D3; workflow-retro D6);
-//   4. the hash the last round reviewed equals the hash of this commit's content (D1, D3);
+//      severity;
+//   4. the hash the last round reviewed equals the hash of this commit's content;
 //   5. the screenshot comment is for this commit, and a change under src/ui shows a visual
 //      difference or the description says `Visual changes: none`;
 //   6. metrics.json is for this commit and the comment shows every number;
 //   7. the head commit is the archive commit of the change.
 // Checks 5 and 6 do not apply to a pull request that changes no file a build or test reads.
-// The release pull request implements no change and is exempt (bootstrap design D9).
+// The release pull request implements no change and is exempt.
 // Usage: node scripts/pr-evidence.mjs [--metrics metrics.json] [--comparison comparison.json]
 // Environment: GITHUB_REPOSITORY, PR_NUMBER, EVIDENCE_TOKEN, BOT_LOGIN, GITHUB_API_URL (optional).
 import { execFileSync } from "node:child_process";
@@ -64,7 +64,7 @@ const archiveRoot = "openspec/changes/archive/";
 const untickedTask = /^\s*(?:[-*+]|\d+[.)])\s+\[ \]/gm;
 
 /**
- * Check 7: the head commit is the archive commit of the change (workflow-retro D1, D2).
+ * Check 7: the head commit is the archive commit of the change.
  * Returns the conditions it does not meet.
  * @param {object} input
  * @param {string} input.change  the change the description names
@@ -166,7 +166,7 @@ export function reviewOf(input, change) {
 
 const productId = /\*\*([A-Z][A-Z0-9]*-\d{3})\b/g;
 
-/** The requirement IDs a file of docs/product/ defines, written `**CHK-005` (D8). */
+/** The requirement IDs a file of docs/product/ defines, written `**CHK-005`. */
 export function parseProductIds(markdown) {
   return [...markdown.matchAll(productId)].map((match) => match[1]);
 }
@@ -228,7 +228,7 @@ export function checkEvidence(input) {
 
   // 5. Screenshots, and 6. Numbers: not for a pull request that changes no file a build or
   // test reads, whose build and numbers are those of main. The check decides this itself and
-  // does not trust the workflow (workflow-retro D4). Only a newer commit still fails check 5.
+  // does not trust the workflow. Only a newer commit still fails check 5.
   if (input.latestSha && !sameCommit(input.latestSha, input.headSha)) {
     fail(
       5,
@@ -293,7 +293,7 @@ export function checkEvidence(input) {
 /** Why a pull request is exempt from the checks, or undefined when it is not. */
 export function exemption(input) {
   return input.release
-    ? "the release pull request of release-please (bootstrap design D9) implements no change"
+    ? "the release pull request of release-please implements no change"
     : undefined;
 }
 

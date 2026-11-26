@@ -1,6 +1,6 @@
-// The book a pages panel draws from (design D8 of `study-screen`): the demo PDF is fetched from the
+// The book a pages panel draws from: the demo PDF is fetched from the
 // app's own origin once and opened once, then reused by every unit. A failure is not kept, so
-// repeating fetches it again, without reloading the page (DOC-008).
+// repeating fetches it again, without reloading the page.
 
 import { demoBooks } from "../../domain/books/demo/profiles";
 import type { Pack, PageRef } from "../../domain/packs/types";
@@ -12,7 +12,7 @@ export type { PdfPages };
 
 /** Why the pages cannot be shown. */
 export type PagesFailure =
-  /** The book or the PDF library did not arrive: no connection (DOC-008). */
+  /** The book or the PDF library did not arrive: no connection. */
   | "offline"
   /** The file arrived and could not be drawn. */
   | "failed"

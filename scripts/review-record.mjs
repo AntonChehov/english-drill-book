@@ -1,6 +1,5 @@
-// The review record of constitution C-18 item 2, kept in rounds (review-rounds design D2,
-// reduced by workflow-retro D6), and the messages of the evidence check about it. Each message states the fact, then
-// the action, and stands on its own in one cell of the job summary. No message names a
+// The review record of constitution C-18 item 2, kept in rounds, and the messages of the evidence check about it.
+// Each message states the fact, then the action, and stands on its own in one cell of the job summary. No message names a
 // particular skill: the reader may use any, so they say "the review skill".
 import { shownLength } from "./review-hash.mjs";
 
@@ -83,7 +82,7 @@ export const messages = {
     `No content was compared: the last round, round ${round}, has no line \`Reviewed: <hash>\` (see check 3), and the content of this commit is \`${current}\`. Add to round ${round} the hash of the content it read; if that was not this content, run the review again with the review skill and add round ${round + 1} with the hash that \`pnpm review:hash ${change}\` prints.`,
 };
 
-/** An unindented line of the record that is read by its form (workflow-retro D6). */
+/** An unindented line of the record that is read by its form. */
 const roundHeading = /^##[ \t]+Round[ \t]+(\d+)[ \t]*$/i;
 const findingHeading = /^###[ \t]+F(\d+)[:.]?[ \t]+(\S.*?)[ \t]*$/;
 const anyHeading = /^#{2,3}(?:[ \t]|$)/;
@@ -93,7 +92,7 @@ const severityLine = /^Severity\s*:\s*(.*?)\s*$/i;
 
 /**
  * The numbers of the lines that hold an HTML comment's opening `<!--`, wherever it stands,
- * fenced blocks included (review-follow-ups D2): found in the raw text, so that no reading of
+ * fenced blocks included: found in the raw text, so that no reading of
  * fences or line endings can hide one. Lines are counted as the parser counts them, by `\n`;
  * a lone `\r` ends no line, so a comment after one is on the line that holds that `\r`.
  */
@@ -105,7 +104,7 @@ function commentLines(markdown) {
   return lines;
 }
 
-/** An outcome exactly as D6 writes it, or undefined. */
+/** An outcome exactly as the grammar of the record writes it, or undefined. */
 function parseOutcome(text) {
   if (/^fixed\.?$/i.test(text)) return { outcome: "fixed", note: "" };
   const match = /^(not fixed|declined)(?:\s*[—–-]\s*(.*))?$/i.exec(text);
@@ -114,11 +113,11 @@ function parseOutcome(text) {
 }
 
 /**
- * Reads a review record in rounds, line by line, by the grammar of workflow-retro D6: an
+ * Reads a review record in rounds, line by line, by the grammar of the record: an
  * unindented line is read by its form wherever it stands in a round (`## Round <n>`,
  * `Reviewed:`, `Verdict:`, `- F<n>: <outcome>`, `### F<n> <title>`, `Severity:`); every other
  * line, and everything before the first round, is free text. `problems` lists, as messages
- * of check 3, what breaks a rule of design D2, D3 or D6.
+ * of check 3, what breaks a rule of the record.
  * @returns {{ rounds: object[], last: object | undefined, open: string[], problems: string[] }}
  */
 export function parseRecord(markdown) {
@@ -238,7 +237,7 @@ export function parseRecord(markdown) {
       for (const id of openBefore)
         if (!stated.has(id)) problems.push(messages.notStated(round.number, id));
     }
-    // The verdict follows from the round (D2): approved when it raises nothing and marks
+    // The verdict follows from the round: approved when it raises nothing and marks
     // nothing not fixed.
     const raised = round.raised.map((entry) => entry.id);
     if (round.verdict === "approved") {
@@ -249,7 +248,7 @@ export function parseRecord(markdown) {
     }
   }
 
-  // Rule 4 of D3, on its own: the last round approves (F1).
+  // The last round approves (F1).
   const last = rounds.at(-1);
   const open = [...findings.values()].filter((f) => f.open).map((f) => f.id);
   if (last?.verdict === "changes requested") {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Lays out the demo books as PDFs (design D2 of the change `demo-books`). Reads demo/<book>.json,
+// Lays out the demo books as PDFs. Reads demo/<book>.json,
 // writes public/demo/<book>.pdf and demo/<book>.pack.json, the pack the reader must find in it,
 // and src/domain/books/demo/documents.json, the hash and page count by which the app knows each PDF.
 // The layout is the one demo/LAYOUT.md states; the reader in src/domain/books/demo relies on it.
@@ -678,14 +678,14 @@ function layOut(book, fonts, starts = new Map(), keyPage = 0) {
   return { layout, starts, keyPage: key };
 }
 
-/** The limits of contracts/pack.schema.json on what the pack says to the learner (PACK-004). */
+/** The limits of contracts/pack.schema.json on what the pack says to the learner. */
 const learnerLimits = { title: 200, theory: 20000, help: 1000 };
 
 /**
  * What demo/LAYOUT.md promises about the text, checked before anything is laid out: answers have
  * no digits, use `;` only between whole answers and `/` only between single words; prompts have
  * no square brackets and do not start with a number; no text has a line break or a double space.
- * Also what the pack promises about the `learner` texts (design D2 of `russian-demo`): every unit
+ * Also what the pack promises about the `learner` texts: every unit
  * has a `title` and a `theory`, every exercise a `help`, none empty or over the schema's limit; a
  * `theory` is paragraphs separated by one blank line, with every `*` span closed and not empty.
  * Returns the problems found.
@@ -891,7 +891,7 @@ function draw(pdf, layout, book, fonts) {
 
 /**
  * The pack the app must produce from the book: what the reader finds in the pages, joined with
- * the `learner` texts of the source (design D2 of `russian-demo`), page ranges and document
+ * the `learner` texts of the source, page ranges and document
  * included.
  */
 export function expectedPack(book, ranges, document) {
@@ -1018,7 +1018,7 @@ export function learnerPath(root) {
 }
 
 /**
- * What each demo pack says to the learner (design D2 of `russian-demo`), from the packs built:
+ * What each demo pack says to the learner, from the packs built:
  * per book, per unit ID its `title` and `theory`, per exercise ID its `help`.
  */
 export function learnerOf(packs) {

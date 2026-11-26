@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // The one message the app shows when the data in this browser was written by a newer version of
-// the app (DATA-005, design D5 of `storage`): nothing else is shown, so nothing that writes is
+// the app: nothing else is shown, so nothing that writes is
 // offered. Reloading loads the newer version where it is published.
 import { onMounted, useTemplateRef } from "vue";
 import { appName } from "../router";

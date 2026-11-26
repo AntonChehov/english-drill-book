@@ -1,6 +1,6 @@
-// The profiles of the two demo books (design D1). Their text is in public/demo/*.pdf, written for
+// The profiles of the two demo books. Their text is in public/demo/*.pdf, written for
 // this project; a profile holds only what names the pack and the structure the book must have.
-// What the packs say to the learner in Russian is the demo's own and sits beside (PACK-004).
+// What the packs say to the learner in Russian is the demo's own and sits beside.
 
 import type { BookProfile, DocumentInfo } from "../types";
 import documents from "./documents.json";
@@ -14,12 +14,12 @@ export interface DemoBook {
   readonly file: string;
   /**
    * The SHA-256 and page count of the PDF published with the app, written by `pnpm demo:build`.
-   * A fetched file that differs is not read (design D5).
+   * A fetched file that differs is not read.
    */
   readonly document: DocumentInfo;
   /**
    * The Russian title and `theory` of each unit and the `help` of each exercise, written by
-   * `pnpm demo:build` from the demo sources and joined to the pack once read (PACK-004).
+   * `pnpm demo:build` from the demo sources and joined to the pack once read.
    */
   readonly learner: LearnerTexts;
 }
@@ -27,7 +27,7 @@ export interface DemoBook {
 const fourUnitsOfThree = ["1", "2", "3", "4"].map((id) => ({ id, exercises: 3 }));
 
 const common = {
-  // 1.1.0: the packs carry the Russian texts; a pack stored at 1.0.0 is read again (PACK-004).
+  // 1.1.0: the packs carry the Russian texts; a pack stored at 1.0.0 is read again.
   version: "1.1.0",
   language: "en",
   instructionLanguage: "en",

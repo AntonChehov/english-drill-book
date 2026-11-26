@@ -1,4 +1,4 @@
-// The schema of the database and its migrations (design D1, D5 of the change `storage`). The
+// The schema of the database and its migrations. The
 // schema version is IndexedDB's own version of the database. A migration, once released, is never
 // changed: data of every earlier version is upgraded by running the migrations after it in turn,
 // and a fixture of every earlier version proves it (C-05).
@@ -9,9 +9,9 @@ export const DATABASE_NAME = "english-drill-book";
 
 /** The stores of version 1, and `days` of version 2. */
 export const STORES = {
-  /** The attempt log: added to, never changed (DATA-002). Key `id`. */
+  /** The attempt log: added to, never changed. Key `id`. */
   attempts: "attempts",
-  /** The cached state of an exercise, rebuilt from the log when it does not match (DATA-003). */
+  /** The cached state of an exercise, rebuilt from the log when it does not match. */
   derived: "derived",
   /** Answers typed and not yet checked. Key `[pack, exercise]`. */
   drafts: "drafts",
@@ -19,7 +19,7 @@ export const STORES = {
   packs: "packs",
   /** Theme and later settings. Key `name`. */
   settings: "settings",
-  /** The daily blocks ticked on each day (PROG-009), from version 2. Key `day`. */
+  /** The daily blocks ticked on each day, from version 2. Key `day`. */
   days: "days",
 } as const;
 
@@ -42,7 +42,7 @@ const version1: Migration = (database) => {
   database.createObjectStore(STORES.settings, { keyPath: "name" });
 };
 
-/** Version 2: the ticks of the daily checklist (design D4 of `topics-and-checklist`). */
+/** Version 2: the ticks of the daily checklist. */
 const version2: Migration = (database) => {
   database.createObjectStore(STORES.days, { keyPath: "day" });
 };

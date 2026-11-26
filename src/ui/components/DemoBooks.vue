@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// The demo section of the start screen (PACK-003, design D8 of `demo-books`): one button adds the
+// The demo section of the start screen: one button adds the
 // two demo books, progress and failure are said in place, and a failure offers to try again without
 // a reload. The button stays where it is while the books are read, inactive, so the focus stays on
 // it. The books are shown as added only once they are stored, and stay added after a reload and in
-// other tabs (DATA-001, DATA-004, DATA-012; design D4, D6, D7 of `storage`).
+// other tabs.
 import { computed, nextTick, onMounted, onUnmounted, useTemplateRef } from "vue";
 import type { Pack } from "../../domain/packs/types";
 import {

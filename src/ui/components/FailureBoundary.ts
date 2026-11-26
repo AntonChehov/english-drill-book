@@ -1,4 +1,4 @@
-// A failure stays in its part (PROD-011; design D3 of `shell-offline-themes`): when what is drawn
+// A failure stays in its part: when what is drawn
 // inside throws, the part says so with a way to try again, and the rest of the page, the top bar
 // included, goes on. Trying again draws the part anew. It catches errors of the components drawn
 // inside it. An error in an expression of the slot itself (a binding in the parent's template) is

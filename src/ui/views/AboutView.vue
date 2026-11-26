@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// About the app and «Оформление» (PROD-005; design D2 of `shell-offline-themes`): the theme is
+// About the app and «Оформление»: the theme is
 // applied at once and kept; a choice the store refuses is said beside the group, and still holds
 // until the page is closed.
 import { ref } from "vue";

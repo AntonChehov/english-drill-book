@@ -1,8 +1,7 @@
-// The store of the learner's data (capability `progress-data`, design D1 – D6 of the change
-// `storage`): packs, the attempt log with the cached state of each exercise, drafts, settings and
-// the ticks of each day, behind functions that hide IndexedDB from the screens. Attempts are only ever added (D2); an
-// attempt and the state derived with it are written in one transaction (D3); every function
-// settles when its transaction has committed or not, and rejects with a `StorageError` (D4).
+// The store of the learner's data: packs, the attempt log with the cached state of each exercise, drafts, settings and
+// the ticks of each day, behind functions that hide IndexedDB from the screens. Attempts are only
+// ever added; an attempt and the state derived with it are written in one transaction; every function
+// settles when its transaction has committed or not, and rejects with a `StorageError`.
 
 import type { Pack } from "../../domain/packs/types";
 import {
@@ -29,11 +28,11 @@ export interface Settings {
   readonly theme: "system" | "light" | "dark";
   readonly activeProgram: string;
   readonly focusTopic: string;
-  /** The zoom of the pages panel, 0.5 to 3, by pack (DOC-002). */
+  /** The zoom of the pages panel, 0.5 to 3, by pack. */
   readonly pageZoom: Readonly<Record<string, number>>;
-  /** The pages' share of the Study row from 1024 px, 0.3 to 0.75 (DOC-006). */
+  /** The pages' share of the Study row from 1024 px, 0.3 to 0.75. */
   readonly studySplit: number;
-  /** The collapsed panel of Study; the setting is deleted when neither is (DOC-006). */
+  /** The collapsed panel of Study; the setting is deleted when neither is. */
   readonly collapsedPanel: "pages" | "exercises";
 }
 
@@ -48,7 +47,7 @@ interface DayRecord {
 
 /**
  * The cached state of an exercise and what it was built from: how many attempts and the last of
- * them in time order. A record that does not match the log is rebuilt from it (design D3).
+ * them in time order. A record that does not match the log is rebuilt from it.
  */
 export interface DerivedRecord {
   readonly pack: string;
@@ -62,7 +61,7 @@ export interface DerivedRecord {
 }
 
 export interface Store {
-  /** Every stored pack, as stored: the caller validates each before it uses it (design D7). */
+  /** Every stored pack, as stored: the caller validates each before it uses it. */
   getPacks(): Promise<unknown[]>;
   /** Puts the packs, replacing those with the same id, all or none. */
   putPacks(packs: readonly Pack[]): Promise<void>;
@@ -90,10 +89,10 @@ export interface Store {
   deleteSetting(name: keyof Settings): Promise<void>;
   /** The daily blocks ticked on `day` (`YYYY-MM-DD`, the device's day); none for a day not stored. */
   getDayTicks(day: string): Promise<string[]>;
-  /** Replaces the blocks ticked on `day` (PROG-009). */
+  /** Replaces the blocks ticked on `day`. */
   putDayTicks(day: string, blocks: readonly string[]): Promise<void>;
   /**
-   * Calls `listener` when another tab of the app has written (design D6); returns a function that
+   * Calls `listener` when another tab of the app has written; returns a function that
    * stops it. Only with the option `channel` and where the browser has `BroadcastChannel`.
    */
   onOtherTabWrite(listener: () => void): () => void;
@@ -107,14 +106,14 @@ export interface StoreOptions {
   readonly name?: string;
   /** For the tests of migrations only: the app always opens the schema it was built with. */
   readonly migrations?: readonly (Migration | undefined)[];
-  /** Another tab opened the database with a newer version; this store is closed (design D5). */
+  /** Another tab opened the database with a newer version; this store is closed. */
   readonly onVersionChange?: () => void;
   /**
    * The browser closed the connection (the site's data was cleared, or the disk failed): this
-   * store refuses everything from now on, and a store opened again may work (DATA-004).
+   * store refuses everything from now on, and a store opened again may work.
    */
   readonly onClose?: () => void;
-  /** The `BroadcastChannel` that tells other tabs of each write (design D6). */
+  /** The `BroadcastChannel` that tells other tabs of each write. */
   readonly channel?: string;
 }
 
@@ -260,7 +259,7 @@ export async function openStore(options: StoreOptions = {}): Promise<Store> {
     appendAttempt: (attempt) =>
       write([STORES.attempts, STORES.derived], (tx) => {
         let state: ExerciseState = emptyExerciseState;
-        // `add`, never `put`: an attempt with an id already in the log is refused (design D2).
+        // `add`, never `put`: an attempt with an id already in the log is refused.
         tx.after(tx.store(STORES.attempts).add(attempt), () =>
           currentState(tx, [attempt.pack, attempt.exercise], attempt, (next) => {
             state = next;

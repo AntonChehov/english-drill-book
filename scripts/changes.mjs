@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Which pull requests need the build (workflow-retro D3). A pull request whose files no
+// Which pull requests need the build. A pull request whose files no
 // build, unit test or end-to-end test reads, and the release pull request, run only the
 // static checks and the evidence check. The workflow `checks.yml` runs this as the first step
 // of its `unit` and `build` jobs and reads the step output `code`. The evidence check decides again on its own diff
@@ -9,7 +9,7 @@
 import { isMain, requireEnv, setOutput } from "./common.mjs";
 import { createGithub } from "./github.mjs";
 
-/** What the release pull request of release-please changes (bootstrap design D10). */
+/** What the release pull request of release-please changes. */
 export const releaseFiles = ["CHANGELOG.md", "package.json", ".release-please-manifest.json"];
 
 const directories = ["docs/", "openspec/", ".claude/"];

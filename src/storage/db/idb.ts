@@ -1,11 +1,10 @@
-// IndexedDB as promises (design D1 of the change `storage`): opening with migrations, and
-// transactions that settle only when IndexedDB says the whole transaction committed or not
-// (design D4). The one module, with the store, that touches IndexedDB (C-08).
+// IndexedDB as promises: opening with migrations, and
+// transactions that settle only when IndexedDB says the whole transaction committed or not. The one module, with the store, that touches IndexedDB (C-08).
 
 import { StorageError, storageErrorOf } from "./errors";
 
 /**
- * Upgrades the schema from version `n − 1` to `n` inside the upgrade transaction (design D5).
+ * Upgrades the schema from version `n − 1` to `n` inside the upgrade transaction.
  * It issues its requests on `transaction` and must not wait for anything else.
  */
 export type Migration = (database: IDBDatabase, transaction: IDBTransaction) => void;

@@ -1,11 +1,11 @@
-// Progress over a program (PROG-001 – PROG-005; design D3 of `demo-program`).
+// Progress over a program.
 
 import { progressOf, type Progress } from "../study/progress";
 import type { Topic } from "./types";
 
 type TopicState = "new" | "started" | "passed";
 
-/** What a topic's progress says; Today and Topics show it (PROG-001, PROG-008). */
+/** What a topic's progress says; Today and Topics show it. */
 export interface TopicProgress {
   /** The exercises of the lead unit. */
   readonly lead: Progress;
@@ -22,8 +22,8 @@ export interface TopicProgress {
 
 /**
  * A topic is passed when every exercise of its lead unit is done and at least
- * `min(supplementMin, supplements)` of its supplements are done (PROG-001). Every supplement
- * counts as available: the program is active only with all its books (design D5).
+ * `min(supplementMin, supplements)` of its supplements are done. Every supplement
+ * counts as available: the program is active only with all its books.
  */
 export function topicProgress(
   topic: Topic,
@@ -50,11 +50,11 @@ interface LevelShare {
   readonly level: string;
   readonly passed: number;
   readonly total: number;
-  /** Passed topics of the level over all of them; 1 for a level with no topics (PROG-002). */
+  /** Passed topics of the level over all of them; 1 for a level with no topics. */
   readonly share: number;
 }
 
-/** The share of each level of the scale, lowest first (PROG-002). */
+/** The share of each level of the scale, lowest first. */
 export function levelShares(
   scale: readonly string[],
   topics: readonly Topic[],
@@ -68,9 +68,9 @@ export function levelShares(
 }
 
 interface CurrentLevel {
-  /** The index on the scale of the current level; -1 for "below" the lowest (PROG-003). */
+  /** The index on the scale of the current level; -1 for "below" the lowest. */
   readonly index: number;
-  /** The share of the next level is at least `plusThreshold` (PROG-004). */
+  /** The share of the next level is at least `plusThreshold`. */
   readonly plus: boolean;
 }
 
@@ -87,7 +87,7 @@ export function currentLevel(
 }
 
 /**
- * Today's topic (PROG-005): the index of the topic whose id is `focus` when it is not passed, else
+ * Today's topic: the index of the topic whose id is `focus` when it is not passed, else
  * of the first topic not passed; -1 when every topic is passed. A `focus` that names no topic is
  * ignored.
  */
@@ -107,7 +107,7 @@ export interface TopicStep {
 }
 
 /**
- * The topic a unit belongs to, and which of its two steps the unit is (PLAY-017): the first topic
+ * The topic a unit belongs to, and which of its two steps the unit is: the first topic
  * in program order that the unit leads is `course`, else the first with a supplement among
  * `exercises` of the pack is `drills`. A topic without supplements has one step and is skipped.
  */

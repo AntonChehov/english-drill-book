@@ -524,7 +524,7 @@ const withFile = (status, path) => ({
 const withTask = (task) => (path) =>
   path.endsWith("tasks.md") ? `${ticked}${task} 1.3 Later\n` : "# Review\n";
 
-describe("7. archive (workflow-retro D2)", () => {
+describe("7. archive", () => {
   it("passes for the archive commit of the change", () => {
     expect(problemsWith({})).toEqual([]);
     expect(checksOf({})).toEqual([]);
@@ -621,7 +621,7 @@ describe("7. archive (workflow-retro D2)", () => {
   });
 });
 
-describe("a pull request without code (workflow-retro D4)", () => {
+describe("a pull request without code", () => {
   const docsOnly = {
     changedFiles: ["docs/process.md", `${archived}/review.md`],
     comment: undefined,

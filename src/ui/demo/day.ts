@@ -1,4 +1,4 @@
-// The calendar day of the daily checklist (PROG-009): the device's own, in its time zone. Here and
+// The calendar day of the daily checklist: the device's own, in its time zone. Here and
 // not in the domain, which has no clock (C-08).
 
 const two = (value: number) => String(value).padStart(2, "0");

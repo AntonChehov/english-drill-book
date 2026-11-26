@@ -12,7 +12,7 @@ import StartView from "./views/StartView.vue";
 export const appName = "English Drill Book";
 
 /**
- * Every view of the app. Addresses live after the hash (design D2): GitHub Pages
+ * Every view of the app. Addresses live after the hash: GitHub Pages
  * cannot rewrite unknown paths to index.html, the hash survives reload on any static host.
  */
 /** Study and what it imports: a chunk of its own, loaded when a unit is opened (C-06). */
@@ -20,7 +20,7 @@ const studyView = () => import("./study/StudyView.vue");
 
 /**
  * Loads Study before it is opened, once the demo is added, so a unit can be opened when the
- * connection is lost afterwards (DOC-008). Failing here is said nowhere: opening tries again.
+ * connection is lost afterwards. Failing here is said nowhere: opening tries again.
  */
 export function prefetchStudy(): void {
   studyView().catch(() => undefined);

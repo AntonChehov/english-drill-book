@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// Today with the demo program (PROG-005, PROG-006, PROG-013, PROG-018; design D5, D6 of
-// `demo-program`, D3, D5 of `topics-and-checklist`): the goal with the current level and the share
+// Today with the demo program: the goal with the current level and the share
 // of each level, and today's topic with its course unit and drill exercises as links into Study.
 // The done states and the focus are read by the start screen.
 import { computed, useTemplateRef } from "vue";
@@ -40,7 +39,7 @@ const today = computed(() => {
   if (topic === undefined) return undefined;
   const unit = leadUnit(topic);
   const current = progress.value.get(topic)!;
-  // A topic not passed has an exercise not done (PROG-001).
+  // A topic not passed has an exercise not done.
   const next = current.next!;
   return {
     topic,
@@ -305,7 +304,7 @@ p {
   margin-top: 0.5rem;
 }
 
-/* PROG-018: the item under the pointer is highlighted; no tooltip. */
+/* The item under the pointer is highlighted; no tooltip. */
 @media (hover: hover) {
   .step:hover,
   .rung:hover {

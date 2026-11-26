@@ -1,8 +1,7 @@
-// A built-in study program as the app reads it (contracts/program.schema.json; design D1 of
-// `demo-program`). Only the fields the app uses are typed; CI checks the whole file (PROG-010).
+// A built-in study program as the app reads it (contracts/program.schema.json). Only the fields the app uses are typed; CI checks the whole file.
 
 export interface Topic {
-  /** Unique in the program; the focus names a topic by it (PROG-008). */
+  /** Unique in the program; the focus names a topic by it. */
   readonly id: string;
   readonly title: string;
   readonly level: string;
@@ -22,6 +21,6 @@ export interface Program {
     readonly supplementMin: number;
   };
   readonly topics: readonly Topic[];
-  /** The checklist of the day: activities outside the app (PROG-009). */
+  /** The checklist of the day: activities outside the app. */
   readonly dailyBlocks: readonly { readonly id: string; readonly title: string }[];
 }

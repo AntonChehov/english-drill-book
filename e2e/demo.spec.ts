@@ -17,7 +17,7 @@ import {
 import { expect, test } from "./fixtures";
 import { addressOf } from "./views";
 
-/** Reading both books may take at most this long (constitution C-06, design of `demo-books`). */
+/** Reading both books may take at most this long (constitution C-06). */
 const readingBudget = 2000;
 
 test.describe("PACK-003 The demo book", () => {

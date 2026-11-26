@@ -1,5 +1,5 @@
 {
-  "comment": "A database as version 1 of the schema wrote it, for the migration tests (design D5 of the change `storage`). The cached state of exercise 1.1 was built before its second attempt, as an older app might leave it. Version 1 is not released yet, so this file and the schema of version 1 were changed in place once (review round 1 of `storage`: the cached record gained `derivation`); once it is released, never change this file: add a fixture of each later version beside it. The data is invented.",
+  "comment": "A database as version 1 of the schema wrote it, for the migration tests. The cached state of exercise 1.1 was built before its second attempt, as an older app might leave it. Version 1 is not released yet, so this file and the schema of version 1 were changed in place once (the cached record gained `derivation`); once it is released, never change this file: add a fixture of each later version beside it. The data is invented.",
   "version": 1,
   "stores": {
     "attempts": {

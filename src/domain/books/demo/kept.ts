@@ -1,4 +1,4 @@
-// Whether the demo books are kept (design D7 of the change `storage`): the stored packs are
+// Whether the demo books are kept: the stored packs are
 // validated again when read, and a pack that fails, or that was read from another edition of a
 // demo book or by an older profile, is read again from the PDF.
 
@@ -13,8 +13,7 @@ export type KeptDemo =
   | { readonly kind: "none" }
   /**
    * A demo pack is missing or cannot be used as it is: the books must be read again. `readable`
-   * are the packs that can be used, `unreadable` the books whose stored pack fails validation
-   * (PROD-011).
+   * are the packs that can be used, `unreadable` the books whose stored pack fails validation.
    */
   | {
       readonly kind: "stale";

@@ -1,5 +1,4 @@
-// What the start screen says while the demo is added and when adding or keeping it fails (design
-// D8 of `demo-books`, D4 of `storage`).
+// What the start screen says while the demo is added and when adding or keeping it fails.
 
 import { StorageError } from "../../storage/db/errors";
 import type { DemoFailure, DemoProgress } from "./add-demo";
@@ -42,7 +41,7 @@ export function failureMessage(failure: DemoFailure | "network" | undefined): st
 export const keepingMessage = "Сохраняем демо-книги…";
 
 /**
- * Why the books, read and checked, could not be kept in this browser (DATA-004), in words with no
+ * Why the books, read and checked, could not be kept in this browser, in words with no
  * technical terms.
  */
 export function keepFailureMessage(error: unknown): string {

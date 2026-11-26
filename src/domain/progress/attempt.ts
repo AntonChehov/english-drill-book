@@ -1,4 +1,4 @@
-// An attempt of the progress log (DATA-002, decision 0003, design D2 of the change `storage`): the
+// An attempt of the progress log: the
 // attempt of contracts/export.schema.json, so that an export is the log as it is. The id and the
 // time are passed in by the caller: the domain has no clock and no randomness (C-08).
 
@@ -8,7 +8,7 @@ import type { Pack } from "../packs/types";
 /** What the learner did: the actions of the export format. */
 export type AttemptAction = "check" | "override" | "reveal" | "mark-done" | "dismiss-mistake";
 
-/** A verdict the learner sets by hand (PLAY-008). */
+/** A verdict the learner sets by hand. */
 export type OverrideVerdict = "ok" | "bad";
 
 /** `$defs.attempt` of contracts/export.schema.json. */
@@ -34,7 +34,7 @@ export interface Attempt {
   readonly corrects?: string;
   /** Items whose answer was revealed. */
   readonly revealed?: readonly string[];
-  /** True when this attempt makes the exercise done (PLAY-009). */
+  /** True when this attempt makes the exercise done. */
   readonly complete: boolean;
 }
 

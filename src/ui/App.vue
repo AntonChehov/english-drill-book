@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// The frame of every screen (design D1 of `study-screen`): a top bar with the app's name, leading
+// The frame of every screen: a top bar with the app's name, leading
 // to the start screen, and the sections, the current one marked; the screen below it. Below 1024 px
-// the bar is compact and slides out of view on a scroll down and back on a scroll up (PROD-012);
+// the bar is compact and slides out of view on a scroll down and back on a scroll up;
 // Study puts the unit's navigation into `#bar-unit`.
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
@@ -116,7 +116,7 @@ onUnmounted(() => window.removeEventListener("scroll", follow));
   display: none;
 }
 
-/* The compact bar below 1024 px (PROD-012): it stays at the top of the screen as the page scrolls
+/* The compact bar below 1024 px: it stays at the top of the screen as the page scrolls
    and slides out of view above it; the page keeps its place under it, as it is in the flow. */
 @media (max-width: 1023.98px) {
   .topbar {

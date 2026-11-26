@@ -1,4 +1,4 @@
-// The logic of Study (capability `study`, design D5 of `study-screen`): pure functions over a
+// The logic of Study: pure functions over a
 // pack's exercise, its derived state, the answers in its fields and its attempts.
 
 export {

@@ -6,7 +6,7 @@ import { expect, test } from "./fixtures";
 import { addressOf, plainViews as views, themes } from "./views";
 
 /**
- * One PNG per view, theme and width, made from the production build (design D8), and one per
+ * One PNG per view, theme and width, made from the production build, and one per
  * state of the start screen's demo section after the first (`start-demo-added`,
  * `start-demo-failed`, `start-demo-kept`, `start-demo-not-kept`) and of the message about data of a
  * newer version (`newer-version`), from `demoStates` in e2e/demo.ts.
@@ -44,7 +44,7 @@ for (const view of views) {
 }
 
 // The start screen with the demo added, kept, failed and not kept, and the message about newer
-// data (design D8 of `demo-books`, D4, D5, D7 of `storage`).
+// data.
 for (const state of demoStates) {
   for (const theme of themes) {
     for (const width of widths) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Constitution C-06: the JavaScript and CSS the first screen loads, gzipped, against
-// the budgets. Writes the result under `size` in metrics.json (design D6).
+// the budgets. Writes the result under `size` in metrics.json.
 // Usage: node scripts/size.mjs [--dist dist] [--metrics metrics.json] [--js-budget kB] [--css-budget kB]
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

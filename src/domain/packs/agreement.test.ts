@@ -1,4 +1,4 @@
-// The hand-written validator and contracts/pack.schema.json agree (design D6): on every example of
+// The hand-written validator and contracts/pack.schema.json agree: on every example of
 // the contract and on packs with one random defect, a general JSON Schema validator refuses a pack
 // exactly when the app's validator reports an error of the schema. The semantic rules of PACK-002
 // are beyond any schema, so they are left out of the comparison and tested on their own.

@@ -1,4 +1,4 @@
-// When the compact bar of a narrow screen is shown (PROD-012): the rule is a function of the
+// When the compact bar of a narrow screen is shown: the rule is a function of the
 // scroll position, so it is tested without a browser; `App.vue` feeds it from the page.
 
 import { onUnmounted, ref } from "vue";

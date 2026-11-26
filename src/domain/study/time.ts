@@ -72,7 +72,7 @@ export function instantOf(milliseconds: number): string {
 
 /**
  * `at`, unless it is not later than `floor`: then one millisecond after `floor`. So an attempt
- * written when the clock says an earlier time still comes after the one it follows (design D5).
+ * written when the clock says an earlier time still comes after the one it follows.
  */
 export function notEarlierThan(at: string, floor: string): string {
   const time = millisecondsOf(at);

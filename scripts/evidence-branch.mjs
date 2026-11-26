@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // The orphan branch `evidence` holds what CI made for each commit of a pull request
 // (`pr-<number>/<sha>/`) and for `main` (`main/`): screenshots, metrics.json and the
-// comparison. Its raw URLs render in pull request comments (design D8).
+// comparison. Its raw URLs render in pull request comments.
 //
 // Usage:
 //   node scripts/evidence-branch.mjs fetch   --path main --into <dir>
@@ -36,8 +36,7 @@ const defaultIdentity = {
 const readme = `# Evidence
 
 Made by CI, not by hand: screenshots and numbers of each pull request commit
-(\`pr-<number>/<sha>/\`) and of \`main\` (\`main/\`). See design D8 of the change
-\`bootstrap-app-and-ci\`. Directories of closed pull requests are pruned on a schedule.
+(\`pr-<number>/<sha>/\`) and of \`main\` (\`main/\`). Directories of closed pull requests are pruned on a schedule.
 `;
 
 /** Extra environment of every git command: the credentials, set by `useToken`. */

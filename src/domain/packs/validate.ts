@@ -1,4 +1,4 @@
-// Validation of packs (PACK-001, PACK-002; design D6 of the change `demo-books`): the rules of
+// Validation of packs: the rules of
 // contracts/pack.schema.json written out by hand, then the semantic rules. A general JSON Schema
 // validator would cost about 40 kB gzip; the agreement of the two is tested with one.
 
@@ -303,7 +303,7 @@ function unique(found: [string, JsonObject][], rule: SemanticRule, errors: Error
   }
 }
 
-/** PACK-002 (2) and (3): the key of an item builds, and accepts one of its choices. */
+/** The key of an item builds, and accepts one of its choices. */
 function checkKey(path: string, entry: JsonObject, errors: Errors): void {
   const accept = entry["accept"];
   if (!Array.isArray(accept) || !accept.every((pattern) => typeof pattern === "string")) return;
@@ -321,7 +321,7 @@ function checkKey(path: string, entry: JsonObject, errors: Errors): void {
   }
 }
 
-/** The semantic rules of PACK-002, on whatever parts of the value have the shape they need. */
+/** The semantic rules of a pack, on whatever parts of the value have the shape they need. */
 function semantics(value: unknown, errors: Errors): void {
   const units = entries(value, "units");
   unique(units, "unique-unit-id", errors);

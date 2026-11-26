@@ -1,5 +1,5 @@
 // Helpers of the storage tests: databases in memory (fake-indexeddb), fixtures of earlier schema
-// versions, the shape of a schema, and a next version that exists only in tests (design D5).
+// versions, the shape of a schema, and a next version that exists only in tests.
 
 import { IDBFactory } from "fake-indexeddb";
 import { newAttempt, type Attempt } from "../../domain/progress";

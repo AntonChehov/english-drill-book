@@ -1,6 +1,6 @@
-// Key patterns (CHK-001, CHK-002; design D2).
+// Key patterns.
 
-/** Why a pattern cannot be used (CHK-002). */
+/** Why a pattern cannot be used. */
 export type PatternErrorReason =
   | "pattern-too-long"
   | "unclosed-group"
@@ -14,7 +14,7 @@ export type Expansion =
       readonly ok: true;
       /** The variants without duplicates, in the order they are first produced. */
       readonly variants: readonly string[];
-      /** How many times each variant was produced, duplicates included (CHK-002, D4). */
+      /** How many times each variant was produced, duplicates included. */
       readonly produced: readonly number[];
     }
   | { readonly ok: false; readonly error: PatternErrorReason };
@@ -125,7 +125,7 @@ function countOf(words: readonly Word[]): number {
 }
 
 /**
- * Resolves the loose alternatives of `tokens` from left to right (design D2) and passes each
+ * Resolves the loose alternatives of `tokens` from left to right and passes each
  * candidate, a list of words without slashes, to `leaf`; stops as soon as `leaf` returns false.
  */
 function resolve(tokens: readonly Token[], leaf: (words: readonly Word[]) => boolean): boolean {

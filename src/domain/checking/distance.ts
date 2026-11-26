@@ -1,8 +1,8 @@
-// The typo test of CHK-006: a Levenshtein distance of exactly 1, without computing the distance.
+// The typo test: a Levenshtein distance of exactly 1, without computing the distance.
 
 /**
  * Up to this many characters are compared one at a time. Longer stretches are compared as whole
- * strings, which the engine does several times faster than a loop in code (design D5).
+ * strings, which the engine does several times faster than a loop in code.
  */
 const SCAN = 32;
 

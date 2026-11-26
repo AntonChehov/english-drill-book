@@ -1,4 +1,4 @@
-// The verdict on an answer (CHK-005 – CHK-009; design D5).
+// The verdict on an answer.
 
 import { isOneEditApart } from "./distance";
 import type { Key } from "./key";
@@ -7,17 +7,17 @@ import { readings, wordsOf } from "./normalise";
 export type Verdict = "ok" | "near" | "bad";
 
 export interface CheckOptions {
-  /** The options of an item with choices: then `near` does not apply (CHK-009). */
+  /** The options of an item with choices: then `near` does not apply. */
   readonly choices?: readonly string[];
 }
 
-/** The shortest reading of an answer that can be `near` (CHK-006). */
+/** The shortest reading of an answer that can be `near`. */
 export const NEAR_MIN_LENGTH = 4;
 
-/** The shortest word of the key a slip inside which is `near`: shorter ones are grammar (CHK-006). */
+/** The shortest word of the key a slip inside which is `near`: shorter ones are grammar. */
 export const NEAR_MIN_WORD_LENGTH = 4;
 
-/** Endings of English verbs and nouns: a word differing only in one of them is grammar (CHK-006). */
+/** Endings of English verbs and nouns: a word differing only in one of them is grammar. */
 const ENDINGS = ["", "s", "es", "d", "ed"] as const;
 
 /** Whether `a` and `b` are one stem with two different endings of `ENDINGS`. */
@@ -29,7 +29,7 @@ function differInEnding(a: string, b: string): boolean {
   );
 }
 
-/** The ways a word ending in `'s` or `'d` is read: as written, or as two words (CHK-003). */
+/** The ways a word ending in `'s` or `'d` is read: as written, or as two words. */
 function wordReadings(word: string): readonly (readonly string[])[] {
   const base = word.slice(0, -2);
   if (word.endsWith("'s")) return [[word], [base, "is"], [base, "has"]];
@@ -68,7 +68,7 @@ function wordEnds(words: readonly string[], text: string): number[] | undefined 
 
 /**
  * Whether `text`, a reading of the answer whose words end at `ends`, one edit from `candidate`
- * with as many words, is a slip of the pen (CHK-006; design D1–D3 of `near-grammar`): the edit
+ * with as many words, is a slip of the pen: the edit
  * falls inside a word of the key that is long enough, and is not the difference of an ending.
  * A letter inserted or removed next to the same letter can be placed at any of them: the edit is
  * a slip only if it is one in every word it could fall in, and where two words meet, in both.
@@ -107,7 +107,7 @@ function isSlip(ends: readonly number[], text: string, candidate: string): boole
 
 /**
  * The longest answer that is read, in UTF-16 code units as typed. A longer one is `bad` without
- * being normalised or compared (CHK-007), so a check stays within the time of CHK-014.
+ * being normalised or compared, so a check stays within its time limit.
  */
 export const MAX_ANSWER_LENGTH = 1000;
 
@@ -115,7 +115,7 @@ const BLANK = /^\s*$/u;
 
 /**
  * Checks an answer against a prepared key. `null` is no verdict: a blank answer to a key that
- * does not accept a blank (CHK-008).
+ * does not accept a blank.
  */
 export function checkAnswer(key: Key, answer: string, options: CheckOptions = {}): Verdict | null {
   if (BLANK.test(answer)) return key.acceptsBlank ? "ok" : null;
