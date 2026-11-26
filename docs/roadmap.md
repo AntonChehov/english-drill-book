@@ -87,3 +87,4 @@ Technical debt is in [`docs/tech-debt.md`](tech-debt.md).
 - 2026-11-26 — `ci-stability` (pull request #43): WebKit end-to-end tests get a 60 s timeout and one retry in CI, the review hash is taken from the change's diff, and a pull request stays a draft until its review approves. Archived.
 - 2026-11-26 — `comment-cleanup` (pull request #45): comments state reasons in words, with no design or requirement references outside tests; the speed test runs alone after a warm-up; the owner writes the core of each slice. Archived.
 - 2026-11-26 — `ui-coverage` (pull request #46): tests for `src/ui` and `src/storage`, thresholds of 70 percent of lines and branches beside 95 percent. Archived.
+- 2026-11-26 — `study-split` (pull request #47): `useUnit` splits into reading, drafts, attempts and the reread, the state no longer reads the DOM, and the study and pages views split into components. Archived.
