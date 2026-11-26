@@ -20,4 +20,4 @@
 
 ## 5. Gates
 
-- [ ] 5.1 `pnpm check`, `pnpm test`, `pnpm test:coverage`, `pnpm e2e` on Chromium pass; no test file over 5 s
+- [x] 5.1 `pnpm check`, `pnpm test`, `pnpm test:coverage`, `pnpm e2e` on Chromium pass; no test file over 5 s
