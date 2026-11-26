@@ -5,10 +5,10 @@
 // lets its text be copied.
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from "vue";
 import type { Pack } from "../../domain/packs/types";
-import { MAX_ZOOM, MIN_ZOOM, stepZoom, zoomLabel } from "./layout";
 import { pagesFailed, pagesMissing, pagesOffline } from "./messages";
 import type { PagesFailure } from "./pages";
 import { usePageDrawing } from "./pages-drawing";
+import ZoomBar from "./ZoomBar.vue";
 
 const headingId = useId();
 const props = defineProps<{
@@ -61,14 +61,6 @@ const hasNext = computed(
   () =>
     book.value !== undefined && shown.value.length > 0 && shown.value.at(-1)! < book.value.count,
 );
-
-const atFewest = computed(() => props.zoom <= MIN_ZOOM);
-const atMost = computed(() => props.zoom >= MAX_ZOOM);
-
-function zoomBy(direction: 1 | -1) {
-  const next = stepZoom(props.zoom, direction);
-  if (next !== props.zoom) emit("zoom", next);
-}
 
 /**
  * Runs `change`, which resizes or adds pages, and keeps the page at the top of the window where it
@@ -139,35 +131,7 @@ watch(
   <section class="pages" :aria-labelledby="headingId">
     <div class="head">
       <h2 :id="headingId" ref="heading" class="visually-hidden" tabindex="-1">Страницы книги</h2>
-      <div v-if="!failure" class="zoom" role="toolbar" aria-label="Масштаб">
-        <button
-          type="button"
-          class="secondary tool"
-          aria-label="Уменьшить"
-          :aria-disabled="atFewest ? 'true' : undefined"
-          @click="zoomBy(-1)"
-        >
-          <span aria-hidden="true">−</span>
-        </button>
-        <span class="level" role="status">{{ zoomLabel(zoom) }}</span>
-        <button
-          type="button"
-          class="secondary tool"
-          aria-label="Увеличить"
-          :aria-disabled="atMost ? 'true' : undefined"
-          @click="zoomBy(1)"
-        >
-          <span aria-hidden="true">+</span>
-        </button>
-        <button
-          type="button"
-          class="secondary tool"
-          :aria-pressed="zoom === 1"
-          @click="emit('zoom', 1)"
-        >
-          По ширине
-        </button>
-      </div>
+      <ZoomBar v-if="!failure" :zoom="zoom" @zoom="(next) => emit('zoom', next)" />
       <button
         v-if="collapsible"
         ref="hideButton"
@@ -237,34 +201,10 @@ watch(
   margin: 0 0 0.75rem;
 }
 
-.zoom {
-  align-items: center;
-  display: flex;
-  gap: 0.375rem;
-}
-
 .tool {
   min-height: 2.25rem;
   min-width: 2.25rem;
   padding: 0.25rem 0.625rem;
-}
-
-.tool[aria-disabled="true"] {
-  border-color: var(--color-border);
-  color: var(--color-muted);
-  cursor: default;
-}
-
-.tool[aria-pressed="true"] {
-  background: var(--color-surface-muted);
-  border-color: var(--color-text);
-  font-weight: 600;
-}
-
-.level {
-  font-variant-numeric: tabular-nums;
-  min-width: 3.5rem;
-  text-align: center;
 }
 
 .hide {
