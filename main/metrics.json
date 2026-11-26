@@ -63,11 +63,11 @@
       }
     ]
   },
-  "sha": "48b38652b15a4bb78da93ad5771339e9eca5b1f3",
+  "sha": "7384ce01fb3abd87cd95466774892fd450ac3eea",
   "tests": {
     "unit": {
-      "tests": 860,
-      "passed": 860,
+      "tests": 996,
+      "passed": 996,
       "failed": 0,
       "skipped": 0
     },
@@ -79,10 +79,10 @@
     }
   },
   "coverage": {
-    "lines": 99.65,
-    "branches": 98.56,
-    "functions": 100,
-    "statements": 99.61
+    "lines": 96.15,
+    "branches": 90.35,
+    "functions": 95.68,
+    "statements": 95.08
   },
   "lighthouse": {
     "performance": 100,
@@ -91,6 +91,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 179
+    "seconds": 161
   }
 }
