@@ -137,3 +137,18 @@ Fix of F5: M3 is renamed, BOOK-002 and BOOK-012 defer to PACK-005, and the editi
 Task 1.5: the coordinator relays that the owner approved the CLAUDE.md comment rule in chat on 2026-11-26. I cannot see that from the repository and accept it as relayed.
 
 Still accepted for slice 1: `contracts/export.schema.json` has no field for key corrections.
+
+## Round 3
+
+Reviewed: b27498a58c3b
+Verdict: approved
+
+- F8: fixed
+
+### Notes
+
+Same reviewer as rounds 1 and 2. I reviewed the whole diff `origin/main...HEAD` again at f09db4e.
+
+Fix of F8: the proposal is "Small, documentation only" again, matching `schema: lite`, at about 289 words of prose without headings (300 by `wc`), within the ceiling. It still matches the roadmap and `docs/product/`: it lists the same slices, IDs, editions, demo rules and requirement list. The code work of slice 0 is deferred to its own change, as `tasks.md` already said.
+
+`pnpm check` passes. Carried to slice 1: the export schema field for key corrections, a correction that holds no text (an accept), and how a key correction meets a verdict changed by hand.
