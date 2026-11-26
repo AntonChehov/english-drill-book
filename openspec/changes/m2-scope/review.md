@@ -108,3 +108,32 @@ PROD-002 and PROG-013 are binding in `openspec/specs` with their M1 wording, whi
 PACK-006 refuses any PDF whose hash differs from the profile's. That is stricter than the old README line about copies with shifted pages, and that line is removed, consistently.
 
 The CLAUDE.md comment rule reads clearly. Whether the owner approved its wording, as task 1.5 says, is not visible from the diff.
+
+## Round 2
+
+Reviewed: 4330277f2862
+Verdict: changes requested
+
+- F1: fixed
+- F2: fixed
+- F3: fixed
+- F4: fixed
+- F5: fixed
+- F6: fixed
+- F7: fixed
+- F8: not fixed — the proposal now calls itself "Large", but `.openspec.yaml` is still `schema: lite` with `skip_specs: true`, and `docs/process.md` and `CLAUDE.md` equate lite with small and give a large change delta specs; at about 381 words it is still over the 300 of a small change, so trim it to 300 or decline the finding with the owner's reason
+- F9: fixed
+
+### Notes
+
+Same reviewer as round 1. I reviewed the whole diff `origin/main...HEAD` again at dfd014a, and `pnpm check` passes.
+
+Fix of F1: PACK-008 now records an accept or an edit as a PLAY-022 correction. It is kept, survives a rebuild of the pack and is exported, and DATA-007 names PACK-008. An accept holds no text of the learner's, so a correction may hold only the item and its state. The schema work of slice 1 should allow that, besides the learner's own text.
+
+Fix of F7: PLAY-022 now grades earlier checks again against the corrected key. Slice 1 should still settle one case: what wins when a check had a verdict changed by hand (PLAY-008) and its key is corrected afterwards. That is for the design of slice 1, not this change.
+
+Fix of F5: M3 is renamed, BOOK-002 and BOOK-012 defer to PACK-005, and the edition lists now agree in the proposal, the roadmap and PACK-005.
+
+Task 1.5: the coordinator relays that the owner approved the CLAUDE.md comment rule in chat on 2026-11-26. I cannot see that from the repository and accept it as relayed.
+
+Still accepted for slice 1: `contracts/export.schema.json` has no field for key corrections.
