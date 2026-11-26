@@ -8,7 +8,7 @@
 
 - [x] 2.1 `StudyView`: opening a unit, steps, pages panel, theory, unit menu, failure boundary
 - [x] 2.2 `ExerciseBlock` and `ItemRow`: typing, checking, verdicts, kept draft, focus after a check
-- [ ] 2.3 `unit.ts`, `preferences.ts`, `pages.ts`, `messages.ts` through their exports
+- [x] 2.3 `unit.ts`, `preferences.ts`, `pages.ts`, `messages.ts` through their exports
 
 ## 3. Rest of `src/ui` and `src/storage`
 
