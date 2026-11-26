@@ -7,21 +7,17 @@ import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch 
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import type { Pack } from "../../domain/packs/types";
 import { documentTitle } from "../../domain/document-title";
-import { isFinished, theoryParagraphs } from "../../domain/study";
+import { theoryParagraphs } from "../../domain/study";
 import { useNarrow } from "../bar";
-import CheckMark from "../components/CheckMark.vue";
 import FailureBoundary from "../components/FailureBoundary";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
 import { fieldBeingEdited } from "./focus";
-import { doneOf, draftNotKept } from "./messages";
 import { pageNumbers } from "./pages";
 import PagesPanel from "./PagesPanel.vue";
 import { useStudyPreferences, type Panel } from "./preferences";
 import SplitSeparator from "./SplitSeparator.vue";
-import StepButton from "./StepButton.vue";
-import TopicSteps from "./TopicSteps.vue";
-import UnitMenu from "./UnitMenu.vue";
+import UnitHeader from "./UnitHeader.vue";
 import UnitUnavailable from "./UnitUnavailable.vue";
 import { useUnit, type ExerciseEntry } from "./unit";
 
@@ -67,9 +63,8 @@ const narrow = useNarrow();
 const preferences = useStudyPreferences();
 /** The collapsed panel; none below 1024 px, where the panels are stacked. */
 const collapsed = computed(() => (narrow.value ? undefined : preferences.collapsed.value));
-const finished = computed(() => progress.value !== undefined && isFinished(progress.value));
 
-const heading = useTemplateRef<HTMLElement>("heading");
+const header = useTemplateRef<InstanceType<typeof UnitHeader>>("header");
 const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
 const exercisesHeading = useTemplateRef<HTMLElement>("exercisesHeading");
 const exercisesColumn = useTemplateRef<HTMLElement>("exercisesColumn");
@@ -113,10 +108,6 @@ async function restore(side: Panel) {
   await nextTick();
   if (side === "exercises") hideExercisesButton.value?.focus();
   else (showCourse.value ? coursePanel : panel).value?.focusHide();
-}
-
-function go(to: string | undefined) {
-  if (to !== undefined) void router.push(`/study/${packId}/${to}`);
 }
 
 async function showPage(entry: ExerciseEntry) {
@@ -168,7 +159,7 @@ watch(phase, async (now) => {
   // starts at the unit's title.
   if (router.options.history.state["back"] !== null || addedHere) {
     addedHere = false;
-    heading.value?.focus({ preventScroll: scrolled });
+    header.value?.focusTitle({ preventScroll: scrolled });
   }
 });
 
@@ -193,36 +184,18 @@ watch(
   />
 
   <div v-else-if="pack && unit" class="study">
-    <Teleport v-if="narrow" to="#bar-unit">
-      <StepButton direction="previous" :to="previous" @go="go" />
-      <p class="bar-title">
-        Раздел {{ unit.id }}
-        <CheckMark :done="finished" />
-      </p>
-      <StepButton direction="next" :to="next" @go="go" />
-      <UnitMenu :pack="pack.id" :current="unit.id" :units="units" />
-    </Teleport>
-    <header class="unit-bar card">
-      <div class="unit-main">
-        <p class="book" lang="en">{{ pack.title }}</p>
-        <div class="unit-line">
-          <StepButton v-if="!narrow" direction="previous" :to="previous" @go="go" />
-          <h1 ref="heading" class="unit-title" tabindex="-1">
-            Раздел {{ unit.id }}.&nbsp;{{ unit.title }}
-          </h1>
-          <StepButton v-if="!narrow" direction="next" :to="next" @go="go" />
-        </div>
-      </div>
-      <div class="unit-meta">
-        <p v-if="progress" class="progress">
-          {{ doneOf(progress.done, progress.total) }}
-          <span class="visually-hidden">упражнений этого раздела</span>
-        </p>
-        <p v-if="draftFailed" class="draft-failed">{{ draftNotKept }}</p>
-        <UnitMenu v-if="!narrow" :pack="pack.id" :current="unit.id" :units="units" />
-      </div>
-      <TopicSteps v-if="topic" :topic="topic" />
-    </header>
+    <UnitHeader
+      ref="header"
+      :pack="pack"
+      :unit="unit"
+      :topic="topic"
+      :units="units"
+      :progress="progress"
+      :previous="previous"
+      :next="next"
+      :draft-failed="draftFailed"
+      :narrow="narrow"
+    />
 
     <div
       class="body"
@@ -386,71 +359,6 @@ watch(
 <style scoped>
 .loading {
   color: var(--color-muted);
-}
-
-.unit-bar {
-  align-items: flex-end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-}
-
-.unit-main {
-  min-width: 0;
-}
-
-.book {
-  color: var(--color-muted);
-  font-size: 0.875rem;
-  margin: 0 0 0.25rem;
-}
-
-.unit-line {
-  align-items: center;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.unit-title {
-  font-size: 1.375rem;
-  margin: 0;
-  min-width: 0;
-}
-
-.bar-title {
-  flex: 1 1 auto;
-  font-weight: 600;
-  margin: 0;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.unit-meta {
-  align-items: center;
-  display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  justify-content: flex-end;
-}
-
-.unit-meta p {
-  margin: 0;
-}
-
-.progress {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-.draft-failed {
-  color: var(--color-error);
-  font-size: 0.875rem;
 }
 
 .body {
