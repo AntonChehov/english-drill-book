@@ -2,36 +2,15 @@
 // exposes the views of the domain and the actions that append attempts. Components show what it
 // gives and call its actions; none of them reaches the store.
 
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
 import type { Pack, Unit } from "../../domain/packs/types";
 import { demoBooks } from "../../domain/books/demo/profiles";
-import type { Attempt, ExerciseState } from "../../domain/progress";
-import {
-  checkAttempt,
-  markDoneAttempt,
-  overrideAttempt,
-  revealAttempt,
-  TEXT,
-  viewOfExercise,
-  type AttemptContext,
-  type ExerciseView,
-  type RowChange,
-} from "../../domain/study";
+import { TEXT } from "../../domain/study";
 import { failureMessage, failureOf, keepFailureMessage, progressMessage } from "../demo/messages";
 import { demoState, summaryOf } from "../demo/state";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
+import { useAttempts, viewOf } from "./attempts";
 import { unsaved, useDrafts } from "./drafts";
-import { newId, now } from "./ids";
-import {
-  changedMessage,
-  checkedMessage,
-  markedDoneMessage,
-  notKeptMessage,
-  nothingToCheck,
-  revealedMessage,
-  sampleMessage,
-  type KeptAction,
-} from "./messages";
 import { openUnit, readUnit, unitLinks, type ExerciseEntry, type TopicOfUnit } from "./unit-read";
 
 export type { ExerciseEntry, TopicOfUnit, UnitLink } from "./unit-read";
@@ -70,17 +49,6 @@ const elementIdOf = (entry: ExerciseEntry) => `ex-${entry.exercise.id.replaceAll
 /** Nothing of `entry` is on its way to the store: what is stored is what the screen holds. */
 const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
 
-/** What the domain shows of `entry`. */
-function viewOf(entry: ExerciseEntry): ExerciseView {
-  return viewOfExercise(
-    entry.exercise,
-    entry.state,
-    entry.answers,
-    entry.attempts,
-    entry.keys === undefined,
-  );
-}
-
 export function useUnit(packId: string, unitId: string) {
   const phase = ref<UnitPhase>("loading");
   const pack = shallowRef<Pack>();
@@ -89,12 +57,12 @@ export function useUnit(packId: string, unitId: string) {
   const entries = ref<ExerciseEntry[]>([]);
   /** Exercise id → done, for every exercise of the pack (the unit list counts them). */
   const done = reactive(new Map<string, boolean>());
-  const announcement = ref("");
   const adding = shallowRef<DemoAdding>({ phase: "idle" });
   /** The demo book the address names, if it names one. */
   const demoBook = demoBooks.find((book) => book.profile.id === packId);
 
   const { draftFailed, setAnswer, flush, writeUnsaved } = useDrafts(pack, entries);
+  const { announcement, check, reveal, change, markDone } = useAttempts(pack, done, flush);
 
   const unitIndex = computed(() =>
     pack.value && unit.value ? pack.value.units.indexOf(unit.value) : -1,
@@ -105,13 +73,6 @@ export function useUnit(packId: string, unitId: string) {
   const next = computed(() =>
     unitIndex.value < 0 ? undefined : pack.value?.units[unitIndex.value + 1]?.id,
   );
-
-  /** Says `message` through the polite live region, again even if it is the same. */
-  async function announce(message: string) {
-    announcement.value = "";
-    await nextTick();
-    announcement.value = message;
-  }
 
   async function load() {
     phase.value = "loading";
@@ -216,96 +177,6 @@ export function useUnit(packId: string, unitId: string) {
     } finally {
       rereading = false;
     }
-  }
-
-  function contextOf(entry: ExerciseEntry): AttemptContext {
-    const { id, version } = pack.value!;
-    return { id: newId(), at: now(), pack: { id, version }, exercise: entry.exercise.id };
-  }
-
-  /**
-   * Appends the attempt `build` makes and shows its result only once it is kept; if it is not,
-   * the exercise says so and offers to repeat.
-   */
-  async function keep(
-    entry: ExerciseEntry,
-    action: KeptAction,
-    build: () => Attempt | undefined,
-    said: (state: ExerciseState) => string,
-  ) {
-    if (entry.busy) return;
-    const attempt = build();
-    if (attempt === undefined) return;
-    entry.busy = true;
-    entry.notice = null;
-    try {
-      const state = await (await getStore()).appendAttempt(attempt);
-      entry.failure = null;
-      entry.attempts = [...entry.attempts, attempt];
-      entry.state = state;
-      done.set(entry.exercise.id, state.done);
-      void announce(said(state));
-    } catch (error) {
-      noteStorageFailure(error);
-      entry.failure = {
-        message: notKeptMessage(action, error),
-        retry: () => void keep(entry, action, build, said),
-      };
-    } finally {
-      entry.busy = false;
-    }
-  }
-
-  function check(entry: ExerciseEntry) {
-    const { exercise, keys } = entry;
-    if (exercise.type !== "items" || keys === undefined || entry.busy) return;
-    flush(entry);
-    if (Object.values(entry.answers).every((text) => text.trim() === "")) {
-      entry.notice = nothingToCheck;
-      void announce(nothingToCheck);
-      return;
-    }
-    void keep(
-      entry,
-      "check",
-      () => checkAttempt(contextOf(entry), exercise, keys, { ...entry.answers }),
-      (state) => {
-        const view = viewOf(entry);
-        const score = view.kind === "items" ? view.score : null;
-        return checkedMessage(exercise.id, score?.ok ?? 0, score?.total ?? 0, state.done);
-      },
-    );
-  }
-
-  function reveal(entry: ExerciseEntry, item: string) {
-    void keep(
-      entry,
-      item === TEXT ? "sample" : "reveal",
-      () => revealAttempt(contextOf(entry), item, entry.answers),
-      () => (item === TEXT ? sampleMessage(entry.exercise.id) : revealedMessage(item)),
-    );
-  }
-
-  function change(entry: ExerciseEntry, item: string, how: RowChange) {
-    const { exercise } = entry;
-    if (exercise.type !== "items") return;
-    const verdict = how === "count" ? "ok" : how === "uncount" ? "bad" : null;
-    void keep(
-      entry,
-      "change",
-      () => overrideAttempt(contextOf(entry), exercise, entry.attempts, item, verdict),
-      () => changedMessage(item, how),
-    );
-  }
-
-  function markDone(entry: ExerciseEntry) {
-    flush(entry);
-    void keep(
-      entry,
-      "mark-done",
-      () => markDoneAttempt(contextOf(entry), { ...entry.answers }),
-      () => markedDoneMessage(entry.exercise.id),
-    );
   }
 
   /**
