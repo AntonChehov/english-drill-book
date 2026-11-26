@@ -3,24 +3,21 @@
 // with the unit's navigation in its header, or in the bar of the frame below 1024 px. Before the
 // exercises, the unit's explanation from the pack, foldable and open on every opening. From 1024 px
 // the border between the two is draggable and either can be collapsed to a strip.
-import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
-import type { Pack } from "../../domain/packs/types";
 import { documentTitle } from "../../domain/document-title";
-import { isFinished, theoryParagraphs } from "../../domain/study";
+import { theoryParagraphs } from "../../domain/study";
 import { useNarrow } from "../bar";
-import CheckMark from "../components/CheckMark.vue";
 import FailureBoundary from "../components/FailureBoundary";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
-import { doneOf, draftNotKept } from "./messages";
-import { pageNumbers } from "./pages";
-import PagesPanel from "./PagesPanel.vue";
+import { blockIdOf, fieldBeingEdited } from "./focus";
+import { pagesOf } from "./pages";
 import { useStudyPreferences, type Panel } from "./preferences";
+import SourcePages from "./SourcePages.vue";
 import SplitSeparator from "./SplitSeparator.vue";
-import StepButton from "./StepButton.vue";
-import TopicSteps from "./TopicSteps.vue";
-import UnitMenu from "./UnitMenu.vue";
+import UnitHeader from "./UnitHeader.vue";
+import UnitUnavailable from "./UnitUnavailable.vue";
 import { useUnit, type ExerciseEntry } from "./unit";
 
 const route = useRoute();
@@ -28,7 +25,9 @@ const router = useRouter();
 const packId = String(route.params["pack"]);
 const unitId = String(route.params["unit"]);
 
-const study = useUnit(packId, unitId);
+const study = useUnit(packId, unitId, {
+  editing: () => fieldBeingEdited(study.entries.value.map(({ exercise }) => exercise.id)),
+});
 const {
   phase,
   pack,
@@ -45,37 +44,39 @@ const {
   demoTitle,
 } = study;
 
+// A draft that waits for typing to pause is written at once when the page is hidden or left.
+const flushIfHidden = () => {
+  if (document.visibilityState === "hidden") study.flush();
+};
+const flushAll = () => study.flush();
+onMounted(() => {
+  document.addEventListener("visibilitychange", flushIfHidden);
+  window.addEventListener("pagehide", flushAll);
+});
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", flushIfHidden);
+  window.removeEventListener("pagehide", flushAll);
+});
+
 const narrow = useNarrow();
 const preferences = useStudyPreferences();
 /** The collapsed panel; none below 1024 px, where the panels are stacked. */
 const collapsed = computed(() => (narrow.value ? undefined : preferences.collapsed.value));
-const finished = computed(() => progress.value !== undefined && isFinished(progress.value));
 
-const heading = useTemplateRef<HTMLElement>("heading");
-const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
+const header = useTemplateRef<InstanceType<typeof UnitHeader>>("header");
+const sources = useTemplateRef<InstanceType<typeof SourcePages>>("sources");
 const exercisesHeading = useTemplateRef<HTMLElement>("exercisesHeading");
 const exercisesColumn = useTemplateRef<HTMLElement>("exercisesColumn");
 const pagesTop = useTemplateRef<HTMLElement>("pagesTop");
 const pagesColumn = useTemplateRef<HTMLElement>("pagesColumn");
-const coursePanel = useTemplateRef<InstanceType<typeof PagesPanel>>("coursePanel");
 const showPagesButton = useTemplateRef<HTMLButtonElement>("showPagesButton");
 const showExercisesButton = useTemplateRef<HTMLButtonElement>("showExercisesButton");
 const hideExercisesButton = useTemplateRef<HTMLButtonElement>("hideExercisesButton");
 
-const roleOf = (of: Pack | undefined) => of?.source?.documents?.[0]?.role ?? "book";
-const pages = computed(() => pageNumbers(unit.value?.pages, roleOf(pack.value)));
-const coursePages = computed(() =>
-  pageNumbers(topic.value?.course.unit.pages, roleOf(topic.value?.course.pack)),
-);
+const pages = computed(() => pagesOf(unit.value?.pages, pack.value));
 
-/** Step 2 shows the course's pages in place of the drill book's; the course panel is made once. */
-const showCourse = ref(false);
-const courseOpened = ref(false);
-
-async function showSource(course: boolean) {
-  showCourse.value = course;
-  courseOpened.value ||= course;
-  await nextTick();
+/** The pages switched to the other source: their column is scrolled back if its top went by. */
+function keepPagesInView() {
   if (pagesColumn.value && pagesColumn.value.getBoundingClientRect().top < 0) {
     pagesColumn.value.scrollIntoView({ block: "start" });
   }
@@ -94,15 +95,11 @@ async function restore(side: Panel) {
   preferences.setCollapsed(undefined);
   await nextTick();
   if (side === "exercises") hideExercisesButton.value?.focus();
-  else (showCourse.value ? coursePanel : panel).value?.focusHide();
-}
-
-function go(to: string | undefined) {
-  if (to !== undefined) void router.push(`/study/${packId}/${to}`);
+  else sources.value?.focusHide();
 }
 
 async function showPage(entry: ExerciseEntry) {
-  const first = pageNumbers(entry.exercise.pages, roleOf(pack.value)).find((page) =>
+  const first = pagesOf(entry.exercise.pages, pack.value).find((page) =>
     pages.value.includes(page),
   );
   if (first === undefined) return;
@@ -111,11 +108,7 @@ async function showPage(entry: ExerciseEntry) {
     preferences.setCollapsed(undefined);
     await nextTick();
   }
-  if (showCourse.value) {
-    showCourse.value = false;
-    await nextTick();
-  }
-  panel.value?.scrollToPage(first);
+  await sources.value?.scrollToPage(first);
 }
 
 /** The jump links of a narrow screen, where the pages and the exercises are stacked. */
@@ -127,10 +120,7 @@ function jump(target: HTMLElement | null) {
 /** Scrolls to the exercise the address names (`?ex=1.2`); whether it did. */
 function scrollToExercise(): boolean {
   const exercise = route.query["ex"];
-  const target =
-    typeof exercise === "string"
-      ? document.getElementById(`ex-${exercise.replaceAll(".", "-")}`)
-      : null;
+  const target = typeof exercise === "string" ? document.getElementById(blockIdOf(exercise)) : null;
   target?.scrollIntoView({ block: "start" });
   return target !== null;
 }
@@ -150,7 +140,7 @@ watch(phase, async (now) => {
   // starts at the unit's title.
   if (router.options.history.state["back"] !== null || addedHere) {
     addedHere = false;
-    heading.value?.focus({ preventScroll: scrolled });
+    header.value?.focusTitle({ preventScroll: scrolled });
   }
 });
 
@@ -165,78 +155,28 @@ watch(
 <template>
   <p v-if="phase === 'loading'" class="loading" role="status">Открываем раздел…</p>
 
-  <section v-else-if="phase === 'not-found'" class="narrow">
-    <h1>Раздел не найден</h1>
-    <p>Такого раздела нет среди книг в этом браузере.</p>
-    <p><RouterLink to="/">На главную</RouterLink></p>
-  </section>
-
-  <section v-else-if="phase === 'demo-missing'" class="narrow">
-    <h1>Демо-книги ещё не добавлены</h1>
-    <p>
-      Это ссылка на раздел демо-книги «<span lang="en">{{ demoTitle }}</span
-      >». В этом браузере демо-книги ещё не добавлены. Добавьте их — раздел откроется сразу. Файлы
-      загружаются с этого сайта, выбирать ничего не нужно.
-    </p>
-    <p v-if="adding.phase === 'adding'" role="status">{{ adding.message }}</p>
-    <p v-if="adding.phase === 'failed'" class="failure" role="alert">{{ adding.message }}</p>
-    <p class="row">
-      <button
-        type="button"
-        class="action"
-        :aria-disabled="adding.phase === 'adding' ? 'true' : undefined"
-        @click="study.addDemoAndOpen()"
-      >
-        {{
-          adding.phase === "failed" ? "Попробовать ещё раз" : "Добавить демо-книги и открыть раздел"
-        }}
-      </button>
-      <RouterLink to="/">На главную</RouterLink>
-    </p>
-  </section>
-
-  <section v-else-if="phase === 'failed'" class="narrow">
-    <h1>Не удалось открыть раздел</h1>
-    <p role="alert">
-      Не удалось прочитать данные, сохранённые в этом браузере. Попробуйте ещё раз.
-    </p>
-    <p class="row">
-      <button type="button" class="action" @click="study.load()">Повторить</button>
-      <RouterLink to="/">На главную</RouterLink>
-    </p>
-  </section>
+  <UnitUnavailable
+    v-else-if="phase !== 'ready'"
+    :phase="phase"
+    :demo-title="demoTitle"
+    :adding="adding"
+    @add-demo="study.addDemoAndOpen()"
+    @retry="study.load()"
+  />
 
   <div v-else-if="pack && unit" class="study">
-    <Teleport v-if="narrow" to="#bar-unit">
-      <StepButton direction="previous" :to="previous" @go="go" />
-      <p class="bar-title">
-        Раздел {{ unit.id }}
-        <CheckMark :done="finished" />
-      </p>
-      <StepButton direction="next" :to="next" @go="go" />
-      <UnitMenu :pack="pack.id" :current="unit.id" :units="units" />
-    </Teleport>
-    <header class="unit-bar card">
-      <div class="unit-main">
-        <p class="book" lang="en">{{ pack.title }}</p>
-        <div class="unit-line">
-          <StepButton v-if="!narrow" direction="previous" :to="previous" @go="go" />
-          <h1 ref="heading" class="unit-title" tabindex="-1">
-            Раздел {{ unit.id }}.&nbsp;{{ unit.title }}
-          </h1>
-          <StepButton v-if="!narrow" direction="next" :to="next" @go="go" />
-        </div>
-      </div>
-      <div class="unit-meta">
-        <p v-if="progress" class="progress">
-          {{ doneOf(progress.done, progress.total) }}
-          <span class="visually-hidden">упражнений этого раздела</span>
-        </p>
-        <p v-if="draftFailed" class="draft-failed">{{ draftNotKept }}</p>
-        <UnitMenu v-if="!narrow" :pack="pack.id" :current="unit.id" :units="units" />
-      </div>
-      <TopicSteps v-if="topic" :topic="topic" />
-    </header>
+    <UnitHeader
+      ref="header"
+      :pack="pack"
+      :unit="unit"
+      :topic="topic"
+      :units="units"
+      :progress="progress"
+      :previous="previous"
+      :next="next"
+      :draft-failed="draftFailed"
+      :narrow="narrow"
+    />
 
     <div
       class="body"
@@ -260,44 +200,16 @@ watch(
             </button>
           </p>
           <span ref="pagesTop" tabindex="-1" class="visually-hidden">Страницы книги</span>
-          <div v-if="topic?.step === 'drills'" class="source" role="group" aria-label="Страницы">
-            <button
-              type="button"
-              class="source-button"
-              :aria-pressed="!showCourse"
-              @click="showSource(false)"
-            >
-              Сборник упражнений
-            </button>
-            <button
-              type="button"
-              class="source-button"
-              :aria-pressed="showCourse"
-              @click="showSource(true)"
-            >
-              Курс: раздел {{ topic.course.unit.id }}
-            </button>
-          </div>
-          <PagesPanel
-            v-show="!showCourse"
-            ref="panel"
+          <SourcePages
+            ref="sources"
             :pack="pack"
             :pages="pages"
-            :zoom="preferences.zoomOf(pack.id)"
+            :topic="topic"
+            :zoom-of="preferences.zoomOf"
             :collapsible="!narrow"
-            @zoom="(zoom) => preferences.setZoom(pack!.id, zoom)"
+            @zoom="preferences.setZoom"
             @hide="collapse('pages')"
-          />
-          <PagesPanel
-            v-if="topic && courseOpened"
-            v-show="showCourse"
-            ref="coursePanel"
-            :pack="topic.course.pack"
-            :pages="coursePages"
-            :zoom="preferences.zoomOf(topic.course.pack.id)"
-            :collapsible="!narrow"
-            @zoom="(zoom) => preferences.setZoom(topic!.course.pack.id, zoom)"
-            @hide="collapse('pages')"
+            @switched="keepPagesInView"
           />
         </FailureBoundary>
       </div>
@@ -398,90 +310,8 @@ watch(
 </template>
 
 <style scoped>
-.failure {
-  border-left: 4px solid var(--color-error);
-  padding: 0.25rem 0 0.25rem 0.75rem;
-}
-
 .loading {
   color: var(--color-muted);
-}
-
-.narrow {
-  margin: 0 auto;
-  max-width: 46rem;
-}
-
-.row {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.unit-bar {
-  align-items: flex-end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-}
-
-.unit-main {
-  min-width: 0;
-}
-
-.book {
-  color: var(--color-muted);
-  font-size: 0.875rem;
-  margin: 0 0 0.25rem;
-}
-
-.unit-line {
-  align-items: center;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.unit-title {
-  font-size: 1.375rem;
-  margin: 0;
-  min-width: 0;
-}
-
-.bar-title {
-  flex: 1 1 auto;
-  font-weight: 600;
-  margin: 0;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.unit-meta {
-  align-items: center;
-  display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  justify-content: flex-end;
-}
-
-.unit-meta p {
-  margin: 0;
-}
-
-.progress {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-.draft-failed {
-  color: var(--color-error);
-  font-size: 0.875rem;
 }
 
 .body {
@@ -549,28 +379,6 @@ watch(
 
 .jump {
   margin: 0 0 0.75rem;
-}
-
-.source {
-  display: flex;
-  gap: 0.5rem;
-  margin: 0 0 0.75rem;
-}
-
-.source-button {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.375rem;
-  color: var(--color-text);
-  cursor: pointer;
-  font: inherit;
-  padding: 0.375rem 0.75rem;
-}
-
-.source-button[aria-pressed="true"] {
-  background: var(--color-surface-muted);
-  border-color: var(--color-text);
-  font-weight: 600;
 }
 
 .offer {
@@ -650,16 +458,6 @@ watch(
   /* The header of the pages hangs under the switch, which is as high as `--pages-head-top`. */
   .with-source {
     --pages-head-top: 2.75rem;
-  }
-
-  .source {
-    align-items: center;
-    background: var(--color-bg);
-    height: 2.75rem;
-    margin: 0;
-    position: sticky;
-    top: 0;
-    z-index: 1;
   }
 }
 </style>

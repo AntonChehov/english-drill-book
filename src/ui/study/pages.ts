@@ -70,3 +70,8 @@ export function pageNumbers(pages: readonly PageRef[] | undefined, role = "book"
   }
   return [...numbers].toSorted((a, b) => a - b);
 }
+
+/** The page numbers of `pages` in the document the pages of `pack` are drawn from. */
+export function pagesOf(pages: readonly PageRef[] | undefined, pack: Pack | undefined): number[] {
+  return pageNumbers(pages, pack?.source?.documents?.[0]?.role ?? "book");
+}
