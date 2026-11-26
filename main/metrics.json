@@ -63,19 +63,19 @@
       }
     ]
   },
-  "sha": "3d7ec9c8921624e6e067d9559e345db5bdb90efe",
+  "sha": "3378d1bc53ca7011e3e99fa8eaca9d8d8b9e5b24",
   "tests": {
     "unit": {
-      "tests": 856,
-      "passed": 856,
+      "tests": 860,
+      "passed": 860,
       "failed": 0,
       "skipped": 0
     },
     "e2e": {
-      "tests": 379,
-      "passed": 377,
+      "tests": 382,
+      "passed": 379,
       "failed": 0,
-      "skipped": 2
+      "skipped": 3
     }
   },
   "coverage": {
@@ -91,6 +91,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 160
+    "seconds": 161
   }
 }
