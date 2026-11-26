@@ -32,7 +32,7 @@ Finish the base, then study by one's own books. The old M2 (programs, levels, To
 | Slice | Contents |
 | --- | --- |
 | 0 Base | README current (status, demo link, a screenshot, the roles); `docs/how-it-works.md`, one page; code comments cite no design documents and requirement IDs appear only in tests; smaller units (`useUnit`, `StudyView.vue`, `PagesPanel.vue`) and no `document.activeElement` in the state layer; coverage thresholds of at least 70 % on `src/ui` and `src/storage`, component tests for `StudyView` and `ExerciseBlock`; headroom in timing tests (CHK-014) |
-| 1 Own book | the learner picks an edition and gives their own PDF; the app builds the pack, keys included, on the device with a parser for this Murphy and Golitsynsky set and a per-edition profile of numbers, regular expressions and flags only, never book text (C-01); a review queue of extracted answers, «N ответов проверить», each beside its PDF page; a key corrected locally behind an icon on the item's result, kept and exported with progress; the library state in a Pinia store; the demo and own books side by side; editions: *Essential Grammar in Use* 4th, *English Grammar in Use* 4th (red and blue), Golitsynsky 9th (book, keys), other sets later; PACK-005 – PACK-008, PLAY-022, PROD-002, PROG-013 |
+| 1 Own book | the learner picks an edition and gives their own PDF; the app builds the pack, keys included, on the device with a parser for this Murphy and Golitsynsky set and a per-edition profile of numbers, regular expressions and flags only, never book text (C-01); a review queue of extracted answers, «N ответов проверить», each beside its PDF page; a key corrected locally behind an icon on the item's result, kept and exported with progress; the library state in a Pinia store; the demo and own books side by side; editions: *Essential Grammar in Use*, 4th; *English Grammar in Use*, 4th; Golitsynsky, 9th (the book and its keys); other sets later; PACK-005 – PACK-008, PLAY-022, PROD-002, PROG-013 |
 | 2 Text exercises | PLAY-012, CHK-010, CHK-011 |
 | 3 Export, import, storage | DATA-007 – DATA-009, DATA-013, DATA-011, DATA-014 |
 
@@ -42,9 +42,9 @@ Demo and own books: a clean browser offers «Попробовать демо» a
 
 After 1.0, not scheduled: DATA-006 Mistakes, DATA-010 erase all data, PLAY-014 clear answers, PROD-010 PWA install. Audio, recognition and the catalogue stay in M3. Unscheduled: opt-in translation help by an external service, after sign-in.
 
-### M3 — The learner's own books
+### M3 — Catalogue, recognition, audio
 
-The catalogue, adding a book by pointing to its file, recognition, profiles for Murphy and Golitsynsky, audio, key pages, the real program.
+The catalogue, adding a book by pointing to its file, recognition by content, more profiles, audio, key pages, the real program.
 BOOK-001 – BOOK-016, PROG-011, PROG-012, PROG-016, PROG-017, PLAY-016, PLAY-019, DOC-007.
 
 ### M4 — Review
