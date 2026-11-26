@@ -32,7 +32,7 @@ Finish the base, then study by one's own books. The old M2 (programs, levels, To
 | Slice | Contents |
 | --- | --- |
 | 0 Base | README current (status, demo link, a screenshot, the roles); `docs/how-it-works.md`, one page; code comments cite no design documents and requirement IDs appear only in tests; smaller units (`useUnit`, `StudyView.vue`, `PagesPanel.vue`) and no `document.activeElement` in the state layer; coverage thresholds of at least 70 % on `src/ui` and `src/storage`, component tests for `StudyView` and `ExerciseBlock`; headroom in timing tests (CHK-014) |
-| 1 Own book | a pack per `contracts/pack.schema.json` and its own PDF, checked by `sha256`, added in the app with its program, the library state in a Pinia store; the demo and own books side by side; PACK-005 – PACK-007, PROD-002, PROG-013 |
+| 1 Own book | the learner picks an edition and gives their own PDF; the app builds the pack, keys included, on the device with a parser for this Murphy and Golitsynsky set and a per-edition profile of numbers, regular expressions and flags only, never book text (C-01); a review queue of extracted answers, «N ответов проверить», each beside its PDF page; a key corrected locally behind an icon on the item's result, kept and exported with progress; the library state in a Pinia store; the demo and own books side by side; editions: *Essential Grammar in Use* 4th, *English Grammar in Use* 4th (red and blue), Golitsynsky 9th (book, keys), other sets later; PACK-005 – PACK-008, PLAY-022, PROD-002, PROG-013 |
 | 2 Text exercises | PLAY-012, CHK-010, CHK-011 |
 | 3 Export, import, storage | DATA-007 – DATA-009, DATA-013, DATA-011, DATA-014 |
 
@@ -40,7 +40,7 @@ No converter from a book to a pack in this repository (the owner's tool, outside
 
 Demo and own books: a clean browser offers «Попробовать демо» and «Добавить свою книгу» equally. Once an own book is added, the demo is never offered. A demo added earlier stays beside own books with «Убрать демо», which erases the demo and its progress.
 
-After 1.0, not scheduled: DATA-006 Mistakes, DATA-010 erase all data, PLAY-014 clear answers, PROD-010 PWA install. Audio, recognition and the catalogue stay in M3.
+After 1.0, not scheduled: DATA-006 Mistakes, DATA-010 erase all data, PLAY-014 clear answers, PROD-010 PWA install. Audio, recognition and the catalogue stay in M3. Unscheduled: opt-in translation help by an external service, after sign-in.
 
 ### M3 — The learner's own books
 
@@ -57,7 +57,7 @@ Accounts and sync of the attempt log between devices. To be specified, with its 
 
 ### Later, unscheduled
 
-After version 1.0: Mistakes (DATA-006), erase all data (DATA-010), clear answers (PLAY-014), PWA install (PROD-010). Placement test (find the learner's level and the topics to skip). Own exercise bank (original drills per topic, built in). See `docs/product/05-program-and-levels.md`, section Later.
+After version 1.0: Mistakes (DATA-006), erase all data (DATA-010), clear answers (PLAY-014), PWA install (PROD-010). Opt-in translation help by an external service, after sign-in. Placement test (find the learner's level and the topics to skip). Own exercise bank (original drills per topic, built in). See `docs/product/05-program-and-levels.md`, section Later.
 
 Technical debt is in [`docs/tech-debt.md`](tech-debt.md).
 
