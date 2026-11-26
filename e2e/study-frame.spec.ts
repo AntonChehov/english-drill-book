@@ -1,5 +1,14 @@
 import { addedHeading, drillsPdf, failedLoad } from "./demo";
-import { exerciseOf, expect, finishUnit1, openUnit, test, unitAddress, unitHeading } from "./study";
+import {
+  drawnPages,
+  exerciseOf,
+  expect,
+  finishUnit1,
+  openUnit,
+  test,
+  unitAddress,
+  unitHeading,
+} from "./study";
 import { addressOf } from "./views";
 
 test.describe("PROD-001 and PROD-008 hold for Study", () => {
@@ -147,6 +156,8 @@ test.describe("PROG-014 The units of the added books", () => {
     async ({ page }) => {
       await openUnit(page, "1");
       await finishUnit1(page, false);
+      // The page draws on after the result: leaving before it is drawn stalls WebKit.
+      await expect(drawnPages(page).first()).toBeVisible();
       await page.getByRole("link", { name: "Сегодня" }).click();
 
       const course = page.getByRole("listitem").filter({
@@ -159,6 +170,7 @@ test.describe("PROG-014 The units of the added books", () => {
 
       await unit(1).getByRole("link").click();
       await finishUnit1(page);
+      await expect(drawnPages(page).first()).toBeVisible();
       await page.getByRole("link", { name: "Сегодня" }).click();
       await expect(unit(1)).toContainText("выполнено сделано 3 из 3");
       await expect(unit(1)).not.toContainText("продолжить");

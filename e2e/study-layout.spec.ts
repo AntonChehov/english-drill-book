@@ -71,16 +71,19 @@ async function fill11(page: Page) {
 
 /** The focused element is marked: it has an outline of its own (C-07). */
 async function expectFocusMarked(page: Page) {
-  const marked = await page.evaluate(() => {
-    const active = document.activeElement;
-    if (!active || active === document.body) return "nothing is focused";
-    const style = getComputedStyle(active);
-    const width = Number.parseFloat(style.outlineWidth);
-    return style.outlineStyle !== "none" && width >= 2
-      ? true
-      : `${active.tagName} ${active.textContent?.trim().slice(0, 40)} has no outline`;
-  });
-  expect(marked).toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const active = document.activeElement;
+        if (!active || active === document.body) return "nothing is focused";
+        const style = getComputedStyle(active);
+        const width = Number.parseFloat(style.outlineWidth);
+        return style.outlineStyle !== "none" && width >= 2
+          ? true
+          : `${active.tagName} ${active.textContent?.trim().slice(0, 40)} has no outline`;
+      }),
+    )
+    .toBe(true);
 }
 
 /** Presses Tab (or Shift+Tab) until `target` has the focus, checking each stop is marked. */

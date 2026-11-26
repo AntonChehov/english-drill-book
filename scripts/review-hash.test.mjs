@@ -10,7 +10,6 @@ import {
   changedPaths,
   defaultBase,
   excludedFiles,
-  hashEntries,
   reviewHash,
   shownLength,
 } from "./review-hash.mjs";
@@ -69,15 +68,32 @@ function repository() {
   return { root, git, write, commit, hash };
 }
 
+/** Twelve lines of a file, with the given lines (by number) replaced. */
+const linesOf = (edits = {}) =>
+  [
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+  ]
+    .map((line, at) => edits[at + 1] ?? line)
+    .join("\n")
+    .concat("\n");
+
 describe("the review hash", () => {
-  it("covers the changed files only, sorted, with their blob IDs, and is 12 characters long", () => {
+  it("is a SHA-256 of the changed files' diff only, and shows 12 characters of it", () => {
     const repo = repository();
     const { files, short, hash } = reviewHash(repo.root, { change, base: "main" });
-    expect(files.map((file) => file.path)).toEqual([
-      `openspec/changes/${change}/design.md`,
-      "scripts/a.mjs",
-    ]);
-    expect(files[1]?.blob).toBe(repo.git("rev-parse", "HEAD:scripts/a.mjs"));
+    expect(files).toEqual([`openspec/changes/${change}/design.md`, "scripts/a.mjs"]);
+    expect(hash).toMatch(/^[0-9a-f]{64}$/);
     expect(short).toHaveLength(shownLength);
     expect(hash.startsWith(short)).toBe(true);
     expect(changedPaths(repo.root, { base: "main" })).toContain(record);
@@ -105,8 +121,7 @@ describe("the review hash", () => {
     repo.git("rm", "--quiet", "scripts/b.mjs");
     repo.commit("refactor: drop b");
     expect(repo.hash()).not.toBe(before);
-    const { files } = reviewHash(repo.root, { change, base: "main" });
-    expect(files).toContainEqual({ path: "scripts/b.mjs", mode: "", blob: "deleted" });
+    expect(reviewHash(repo.root, { change, base: "main" }).files).toContain("scripts/b.mjs");
   });
 
   it("changes when another change's record is edited", () => {
@@ -151,6 +166,90 @@ describe("the review hash", () => {
     expect(repo.hash()).toBe(before);
   });
 
+  it("does not change on a rebase onto a main with an unrelated commit, and changes on an edit of a line of the change", () => {
+    const repo = repository();
+    repo.write("scripts/a.mjs", "a changed\nsecond line\n");
+    repo.commit("feat: more of a");
+    const before = repo.hash();
+    repo.git("switch", "--quiet", "main");
+    repo.write("scripts/d.mjs", "d\n");
+    repo.commit("feat: unrelated");
+    repo.git("switch", "--quiet", "feature");
+    repo.git("rebase", "--quiet", "main");
+    expect(repo.hash()).toBe(before);
+    repo.write("scripts/a.mjs", "a changed\nsecond line, edited\n");
+    repo.commit("fix: a line");
+    expect(repo.hash()).not.toBe(before);
+  });
+
+  it("does not change when main edits a line far from the change's, and changes for a line within its context", () => {
+    const repo = repository();
+    repo.git("switch", "--quiet", "main");
+    repo.write("scripts/m.mjs", linesOf());
+    repo.commit("feat: m");
+    repo.git("switch", "--quiet", "feature");
+    repo.git("merge", "--quiet", "--no-edit", "--no-verify", "main");
+    repo.write("scripts/m.mjs", linesOf({ 6: "six, changed" }));
+    repo.commit("feat: change m");
+    const before = repo.hash();
+    const reviewed = repo.git("rev-parse", "HEAD");
+    for (const [name, edits, kept] of [
+      ["far", { 12: "twelve, edited on main" }, true],
+      ["context", { 8: "eight, edited on main" }, false],
+    ]) {
+      repo.git("switch", "--quiet", "main");
+      repo.write("scripts/m.mjs", linesOf(edits));
+      repo.commit(`fix: m, ${name}`);
+      repo.git("switch", "--quiet", "-c", `rebased-${name}`, reviewed);
+      repo.git("rebase", "--quiet", "main");
+      expect(`${name}: ${repo.hash() === before}`).toBe(`${name}: ${kept}`);
+      repo.git("switch", "--quiet", "main");
+      repo.git("reset", "--quiet", "--hard", "HEAD~1");
+    }
+  });
+
+  it("changes when a line moves, when only whitespace changes, and when a string changes inside", () => {
+    const repo = repository();
+    repo.write("scripts/m.mjs", "function a() {\n}\nfunction b() {\n}\n");
+    repo.commit("feat: m");
+    repo.write("scripts/m.mjs", "function a() {\n  if (x) throw 1;\n}\nfunction b() {\n}\n");
+    repo.commit("feat: throw in a");
+    const first = repo.hash();
+    const edits = {
+      moved: "function a() {\n}\nfunction b() {\n  if (x) throw 1;\n}\n",
+      whitespace: "function a() {\n  if(x)throw 1;\n}\nfunction b() {\n}\n",
+      string: 'function a() {\n  if (x) throw "a b";\n}\nfunction b() {\n}\n',
+    };
+    const seen = new Set([first]);
+    for (const [name, text] of Object.entries(edits)) {
+      repo.write("scripts/m.mjs", text);
+      repo.commit(`fix: ${name}`);
+      seen.add(repo.hash());
+    }
+    expect(seen.size).toBe(4);
+  });
+
+  it("does not depend on the diff settings of the repository", () => {
+    const repo = repository();
+    repo.write("scripts/m.mjs", linesOf());
+    repo.commit("feat: m");
+    repo.write("scripts/m.mjs", linesOf({ 6: "six, changed" }));
+    repo.commit("feat: change m");
+    const before = repo.hash();
+    repo.git("config", "diff.context", "1");
+    repo.git("config", "diff.noprefix", "true");
+    expect(repo.hash()).toBe(before);
+  });
+
+  it("is `none` for a diff of nothing", () => {
+    const repo = repository();
+    repo.git("switch", "--quiet", "main");
+    repo.git("switch", "--quiet", "-c", "empty");
+    repo.write(`openspec/changes/${change}/tasks.md`, "- [ ] 1.1 Do\n");
+    repo.commit("docs: start");
+    expect(reviewHash(repo.root, { change, base: "main" }).hash).toBe("none");
+  });
+
   it("changes when the branch is brought up to date with a main that changed the same file", () => {
     const repo = repository();
     const before = repo.hash();
@@ -163,13 +262,15 @@ describe("the review hash", () => {
     const reviewed = repo.hash();
     expect(reviewed).not.toBe(before);
     repo.git("merge", "--quiet", "--no-edit", "--no-verify", "-X", "ours", "main");
-    expect(repo.hash()).toBe(reviewed);
+    // The diff now removes main's line, not the old one: the lines of the change differ.
+    const merged = repo.hash();
+    expect(merged).not.toBe(reviewed);
     repo.git("switch", "--quiet", "main");
     repo.write("scripts/a.mjs", "a, edited on main\n");
     repo.commit("fix: a");
     repo.git("switch", "--quiet", "feature");
     repo.git("merge", "--quiet", "--no-edit", "--no-verify", "-X", "theirs", "main");
-    expect(repo.hash()).not.toBe(reviewed);
+    expect(repo.hash()).not.toBe(merged);
   });
 
   it("is the same for any commit with the same content", () => {
@@ -186,17 +287,6 @@ describe("the review hash", () => {
     repo.git("branch", "--quiet", "-m", "main", "trunk");
     repo.git("update-ref", "-d", "refs/remotes/origin/main");
     expect(() => defaultBase(repo.root)).toThrow("Fetch main");
-  });
-});
-
-describe("hashEntries", () => {
-  it("does not depend on the order of the entries", () => {
-    const entries = [
-      { path: "b", blob: "1" },
-      { path: "a", blob: "deleted" },
-    ];
-    expect(hashEntries(entries)).toBe(hashEntries(entries.toReversed()));
-    expect(hashEntries(entries)).toMatch(/^[0-9a-f]{64}$/);
   });
 });
 
@@ -242,10 +332,6 @@ describe("round 1 of the review of review-rounds", () => {
     repo.git("update-index", "--chmod=+x", "scripts/a.mjs");
     repo.git("commit", "--quiet", "--no-verify", "-m", "chore: make a executable");
     expect(repo.hash()).not.toBe(before);
-    const { files } = reviewHash(repo.root, { change, base: "main" });
-    expect(files).toContainEqual(
-      expect.objectContaining({ path: "scripts/a.mjs", mode: "100755" }),
-    );
   });
 
   it("F4: a change that does not exist is refused, naming the ones that do", () => {
