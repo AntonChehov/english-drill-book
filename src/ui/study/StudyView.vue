@@ -3,9 +3,8 @@
 // with the unit's navigation in its header, or in the bar of the frame below 1024 px. Before the
 // exercises, the unit's explanation from the pack, foldable and open on every opening. From 1024 px
 // the border between the two is draggable and either can be collapsed to a strip.
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
-import type { Pack } from "../../domain/packs/types";
 import { documentTitle } from "../../domain/document-title";
 import { theoryParagraphs } from "../../domain/study";
 import { useNarrow } from "../bar";
@@ -13,9 +12,9 @@ import FailureBoundary from "../components/FailureBoundary";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
 import { fieldBeingEdited } from "./focus";
-import { pageNumbers } from "./pages";
-import PagesPanel from "./PagesPanel.vue";
+import { pagesOf } from "./pages";
 import { useStudyPreferences, type Panel } from "./preferences";
+import SourcePages from "./SourcePages.vue";
 import SplitSeparator from "./SplitSeparator.vue";
 import UnitHeader from "./UnitHeader.vue";
 import UnitUnavailable from "./UnitUnavailable.vue";
@@ -65,30 +64,19 @@ const preferences = useStudyPreferences();
 const collapsed = computed(() => (narrow.value ? undefined : preferences.collapsed.value));
 
 const header = useTemplateRef<InstanceType<typeof UnitHeader>>("header");
-const panel = useTemplateRef<InstanceType<typeof PagesPanel>>("panel");
+const sources = useTemplateRef<InstanceType<typeof SourcePages>>("sources");
 const exercisesHeading = useTemplateRef<HTMLElement>("exercisesHeading");
 const exercisesColumn = useTemplateRef<HTMLElement>("exercisesColumn");
 const pagesTop = useTemplateRef<HTMLElement>("pagesTop");
 const pagesColumn = useTemplateRef<HTMLElement>("pagesColumn");
-const coursePanel = useTemplateRef<InstanceType<typeof PagesPanel>>("coursePanel");
 const showPagesButton = useTemplateRef<HTMLButtonElement>("showPagesButton");
 const showExercisesButton = useTemplateRef<HTMLButtonElement>("showExercisesButton");
 const hideExercisesButton = useTemplateRef<HTMLButtonElement>("hideExercisesButton");
 
-const roleOf = (of: Pack | undefined) => of?.source?.documents?.[0]?.role ?? "book";
-const pages = computed(() => pageNumbers(unit.value?.pages, roleOf(pack.value)));
-const coursePages = computed(() =>
-  pageNumbers(topic.value?.course.unit.pages, roleOf(topic.value?.course.pack)),
-);
+const pages = computed(() => pagesOf(unit.value?.pages, pack.value));
 
-/** Step 2 shows the course's pages in place of the drill book's; the course panel is made once. */
-const showCourse = ref(false);
-const courseOpened = ref(false);
-
-async function showSource(course: boolean) {
-  showCourse.value = course;
-  courseOpened.value ||= course;
-  await nextTick();
+/** The pages switched to the other source: their column is scrolled back if its top went by. */
+function keepPagesInView() {
   if (pagesColumn.value && pagesColumn.value.getBoundingClientRect().top < 0) {
     pagesColumn.value.scrollIntoView({ block: "start" });
   }
@@ -107,11 +95,11 @@ async function restore(side: Panel) {
   preferences.setCollapsed(undefined);
   await nextTick();
   if (side === "exercises") hideExercisesButton.value?.focus();
-  else (showCourse.value ? coursePanel : panel).value?.focusHide();
+  else sources.value?.focusHide();
 }
 
 async function showPage(entry: ExerciseEntry) {
-  const first = pageNumbers(entry.exercise.pages, roleOf(pack.value)).find((page) =>
+  const first = pagesOf(entry.exercise.pages, pack.value).find((page) =>
     pages.value.includes(page),
   );
   if (first === undefined) return;
@@ -120,11 +108,7 @@ async function showPage(entry: ExerciseEntry) {
     preferences.setCollapsed(undefined);
     await nextTick();
   }
-  if (showCourse.value) {
-    showCourse.value = false;
-    await nextTick();
-  }
-  panel.value?.scrollToPage(first);
+  await sources.value?.scrollToPage(first);
 }
 
 /** The jump links of a narrow screen, where the pages and the exercises are stacked. */
@@ -219,44 +203,16 @@ watch(
             </button>
           </p>
           <span ref="pagesTop" tabindex="-1" class="visually-hidden">Страницы книги</span>
-          <div v-if="topic?.step === 'drills'" class="source" role="group" aria-label="Страницы">
-            <button
-              type="button"
-              class="source-button"
-              :aria-pressed="!showCourse"
-              @click="showSource(false)"
-            >
-              Сборник упражнений
-            </button>
-            <button
-              type="button"
-              class="source-button"
-              :aria-pressed="showCourse"
-              @click="showSource(true)"
-            >
-              Курс: раздел {{ topic.course.unit.id }}
-            </button>
-          </div>
-          <PagesPanel
-            v-show="!showCourse"
-            ref="panel"
+          <SourcePages
+            ref="sources"
             :pack="pack"
             :pages="pages"
-            :zoom="preferences.zoomOf(pack.id)"
+            :topic="topic"
+            :zoom-of="preferences.zoomOf"
             :collapsible="!narrow"
-            @zoom="(zoom) => preferences.setZoom(pack!.id, zoom)"
+            @zoom="preferences.setZoom"
             @hide="collapse('pages')"
-          />
-          <PagesPanel
-            v-if="topic && courseOpened"
-            v-show="showCourse"
-            ref="coursePanel"
-            :pack="topic.course.pack"
-            :pages="coursePages"
-            :zoom="preferences.zoomOf(topic.course.pack.id)"
-            :collapsible="!narrow"
-            @zoom="(zoom) => preferences.setZoom(topic!.course.pack.id, zoom)"
-            @hide="collapse('pages')"
+            @switched="keepPagesInView"
           />
         </FailureBoundary>
       </div>
@@ -428,28 +384,6 @@ watch(
   margin: 0 0 0.75rem;
 }
 
-.source {
-  display: flex;
-  gap: 0.5rem;
-  margin: 0 0 0.75rem;
-}
-
-.source-button {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.375rem;
-  color: var(--color-text);
-  cursor: pointer;
-  font: inherit;
-  padding: 0.375rem 0.75rem;
-}
-
-.source-button[aria-pressed="true"] {
-  background: var(--color-surface-muted);
-  border-color: var(--color-text);
-  font-weight: 600;
-}
-
 .offer {
   padding: 1rem;
 }
@@ -527,16 +461,6 @@ watch(
   /* The header of the pages hangs under the switch, which is as high as `--pages-head-top`. */
   .with-source {
     --pages-head-top: 2.75rem;
-  }
-
-  .source {
-    align-items: center;
-    background: var(--color-bg);
-    height: 2.75rem;
-    margin: 0;
-    position: sticky;
-    top: 0;
-    z-index: 1;
   }
 }
 </style>
