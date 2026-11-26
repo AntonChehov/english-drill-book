@@ -1,4 +1,4 @@
-// The answer checker (capability `answer-checking`): pure functions, no dependency on the UI.
+// The answer checker: pure functions, no dependency on the UI.
 
 export {
   checkAnswer,

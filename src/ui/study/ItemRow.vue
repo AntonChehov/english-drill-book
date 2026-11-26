@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// A row of an exercise (design D4 of `study-screen`): its number, its prompt, a field or its options,
-// the verdict under it in a sign and words, and a small menu of what the learner may do with it.
+// A row of an exercise: its number, its prompt, a field or its options, the verdict under it in a
+// sign and words, and a small menu of what the learner may do with it.
 import { computed, nextTick, ref, useTemplateRef } from "vue";
 import type { RowView } from "../../domain/study";
 import { byHandLabel, changeLabel, verdictLabel } from "./messages";

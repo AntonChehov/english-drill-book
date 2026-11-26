@@ -1,6 +1,6 @@
-// The speed of CHK-014 (design D7). The only test of the checker that reads a clock.
+// The speed of CHK-014. The only test of the checker that reads a clock.
 /* oxlint-disable no-restricted-properties -- measuring time is what this test is for */
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   checkAnswer,
   compileKey,
@@ -73,7 +73,7 @@ function measure(name: string, accept: readonly string[], answer: string): numbe
   );
   const checking = Array.from({ length: CHECKS }, () => timed(() => checkAnswer(key, answer)));
   const checkMedian = median(checking);
-  // oxlint-disable-next-line no-console -- design D7 asks for the medians in the test output
+  // oxlint-disable-next-line no-console -- the medians are part of the test output
   console.info(
     `CHK-014 ${name}: median of ${CHECKS} checks ${checkMedian.toFixed(3)} ms; ` +
       `median of ${PREPARATIONS} preparations ${median(preparing).toFixed(2)} ms`,
@@ -84,12 +84,18 @@ function measure(name: string, accept: readonly string[], answer: string): numbe
 /** The median of three preparations of `accept`, printed under `name`. */
 function timePreparing(name: string, accept: readonly string[]): number {
   const time = median(Array.from({ length: 3 }, () => timed(() => compileKey(accept))));
-  // oxlint-disable-next-line no-console -- design D7 asks for the medians in the test output
+  // oxlint-disable-next-line no-console -- the medians are part of the test output
   console.info(`CHK-014 preparing ${name}: median of 3 ${time.toFixed(2)} ms`);
   return time;
 }
 
 describe("speed", () => {
+  // The first runs of a function are slower, until the engine has compiled it.
+  beforeAll(() => {
+    const key = keyOf(["he's [a|b] c", "d e f"]);
+    for (let run = 0; run < 2000; run += 1) checkAnswer(key, "he is a c");
+  });
+
   for (const count of [1, 4, 8]) {
     it(`@req CHK-014 checks a bad answer of 81 readings against ${count} long ending(s) in under 5 ms`, () => {
       const { accept, answer } = sharedBeginning(count);
@@ -170,7 +176,7 @@ describe("speed", () => {
         "40 patterns of 500 marks",
         Array.from({ length: 40 }, (_, index) => `${index % 10}${marks.repeat(63).slice(0, 499)}`),
       ],
-      // Counting of design D2: eleven words in a chain of loose alternatives, and a group.
+      // Eleven words in a chain of loose alternatives, and a group.
       [
         "a chain of ten loose alternatives",
         [`${Array.from({ length: 11 }, (_, index) => `w${index}`).join(" / ")} (q)`],

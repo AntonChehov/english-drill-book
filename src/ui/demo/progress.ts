@@ -1,5 +1,5 @@
-// How many exercises of each demo book and unit are done, for the cards of the start screen
-// (PROG-014; design D2 of `study-screen`), read from the derived state in the store.
+// How many exercises of each demo book and unit are done, for the cards of the start screen, read
+// from the derived state in the store.
 
 import { reactive } from "vue";
 import { getStore, noteStorageFailure } from "../storage";

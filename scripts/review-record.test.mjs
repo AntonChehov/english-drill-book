@@ -111,7 +111,7 @@ describe("a record that passes", () => {
   });
 });
 
-describe("design D3, each rule failing alone", () => {
+describe("each rule of the record failing alone", () => {
   it("1. the record has at least one round", () => {
     expect(parseRecord("# Review\n\n## Findings\n\nnone\n").problems).toEqual([messages.noRound()]);
   });
@@ -270,7 +270,7 @@ const one = (...severity) =>
     ),
   ).problems;
 
-describe("the severity of a finding (workflow-retro D6)", () => {
+describe("the severity of a finding", () => {
   it("is critical or minor, once", () => {
     expect(one("Severity: critical")).toEqual([]);
     expect(one("Severity: Minor")).toEqual([]);
@@ -350,7 +350,7 @@ describe("changeNamedIn", () => {
   });
 });
 
-describe("HTML comments (review-follow-ups D2)", () => {
+describe("HTML comments", () => {
   it("reports a comment anywhere, with its line, and still reads the lines of the record", () => {
     const text = record(
       ["<!-- before the review -->", ""],

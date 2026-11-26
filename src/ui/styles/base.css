@@ -1,6 +1,6 @@
 /* Colours follow the system setting unless «О приложении» chose a theme, which `applyTheme` puts in
-   `data-theme` of the page (PROD-005). One accent colour; states are shown by a word or a sign as
-   well as by colour (PLAY-003, 08-interface-reference). */
+   `data-theme` of the page. One accent colour; states are shown by a word or a sign as
+   well as by colour. */
 :root {
   color-scheme: light dark;
   --color-bg: #f4f5f7;
@@ -93,7 +93,7 @@
   box-sizing: border-box;
 }
 
-/* The sticky bar of a screen below 1024 px (PROD-012) must not cover a focused element that the browser
+/* The sticky bar of a screen below 1024 px must not cover a focused element that the browser
    scrolls to the top edge: the bar is up to two rows high in Study. */
 @media (max-width: 1023.98px) {
   html {
@@ -146,7 +146,7 @@ a {
   background: var(--color-button-hover);
 }
 
-/* A part of a screen that could not be drawn (PROD-011), in place of that part. */
+/* A part of a screen that could not be drawn, in place of that part. */
 .part-failed {
   border-left: 4px solid var(--color-error);
   padding: 0.25rem 0 0.25rem 0.75rem;

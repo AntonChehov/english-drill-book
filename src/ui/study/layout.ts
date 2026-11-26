@@ -1,5 +1,4 @@
-// The numbers of Study's layout (DOC-002, DOC-006; design D2 and D5 of `pages-panel-tools`), pure
-// so that they are tested without a browser.
+// The numbers of Study's layout, pure so that they are tested without a browser.
 
 /** The zooms, as multiples of the panel's width, that «Уменьшить» and «Увеличить» step through. */
 const ZOOM_STEPS: readonly number[] = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3];
@@ -35,7 +34,7 @@ export function zoomLabel(zoom: number): string {
 
 /**
  * The most of a row of `rowWidth` px the pages can take: the exercises keep 22 rem and the
- * separator is 0.75 rem wide, whatever `rem` is in px (design D5).
+ * separator is 0.75 rem wide, whatever `rem` is in px.
  */
 export function maxSplit(rowWidth: number, rem: number): number {
   if (!(rowWidth > 0)) return MAX_SPLIT;

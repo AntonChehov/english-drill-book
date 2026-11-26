@@ -1,9 +1,8 @@
 <script setup lang="ts">
-// The pages of the unit beside its exercises (DOC-001, DOC-008; design D8 of `study-screen`):
-// one under another, each drawn on a canvas at the panel's width and the device's pixel ratio when
-// it comes near the viewport, its place held before that so the scroll bar is honest. Its header
-// zooms them (DOC-002) and hides the panel (DOC-006); a page before the first and one after the
-// last can be added (DOC-003); a text layer over each page lets its text be copied (DOC-009).
+// The pages of the unit beside its exercises: one under another, each drawn on a canvas at the
+// panel's width and the device's pixel ratio when it comes near the viewport, its place held before
+// that so the scroll bar is honest. Its header zooms them and hides the panel; a page before the
+// first and one after the last can be added; a text layer over each page lets its text be copied.
 import {
   computed,
   nextTick,
@@ -24,9 +23,9 @@ const headingId = useId();
 const props = defineProps<{
   pack: Pack;
   pages: readonly number[];
-  /** The zoom, as a multiple of the panel's width (DOC-002). */
+  /** The zoom, as a multiple of the panel's width. */
   zoom: number;
-  /** The panel can be hidden: from 1024 px (DOC-006). */
+  /** The panel can be hidden: from 1024 px. */
   collapsible: boolean;
 }>();
 const emit = defineEmits<{ zoom: [zoom: number]; hide: [] }>();
@@ -41,7 +40,7 @@ const book = shallowRef<PdfPages>();
 const failure = ref<PagesFailure>();
 const ratios = ref(new Map<number, number>());
 const drawn = ref(new Set<number>());
-/** How many pages were added before the unit's first and after its last (DOC-003). */
+/** How many pages were added before the unit's first and after its last. */
 const addedBefore = ref(0);
 const addedAfter = ref(0);
 const view = useTemplateRef<HTMLDivElement>("view");
@@ -102,18 +101,18 @@ async function draw(page: number) {
   const controller = new AbortController();
   drawing.set(page, controller);
   // On a dense screen a page not shown yet is drawn twice: first at one pixel per CSS pixel, a
-  // quarter of the work, so it appears at once (DOC-001), then sharp over it.
+  // quarter of the work, so it appears at once, then sharp over it.
   const ratio = window.devicePixelRatio || 1;
   const passes = ratio > 1 && !drawn.value.has(page) ? [1, ratio] : [ratio];
   try {
     for (const pass of passes) {
-      // The text is laid once, with the sharp pass: it is the last (DOC-009).
+      // The text is laid once, with the sharp pass: it is the last.
       const text = pass === passes.at(-1) ? layers.get(page) : undefined;
       await pdf.draw(page, canvas, Math.round(width * props.zoom), pass, controller.signal, text);
       if (controller.signal.aborted) return;
       if (!drawn.value.has(page)) {
         drawn.value = new Set(drawn.value).add(page);
-        // What the first page of a unit is timed by (DOC-004).
+        // What the first page of a unit is timed by.
         if (page === props.pages[0]) performance.mark("first-page");
       }
     }
@@ -190,7 +189,7 @@ async function holdPlace(change: () => void) {
   window.scrollBy({ top: after.top - wanted, behavior: "instant" });
 }
 
-/** Adds the page before the first shown, or after the last (DOC-003). */
+/** Adds the page before the first shown, or after the last. */
 async function extend(side: "before" | "after") {
   const pdf = book.value;
   if (pdf === undefined || adding) return;
@@ -223,7 +222,7 @@ function setLayer(page: number, element: unknown) {
   else layers.delete(page);
 }
 
-/** Scrolls the pages to `page` (DOC-001). */
+/** Scrolls the pages to `page`. */
 function scrollToPage(page: number) {
   const target = list.value?.querySelector<HTMLElement>(`[data-page="${page}"]`);
   const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -239,7 +238,7 @@ onMounted(() => {
     const first = width === 0;
     width = next;
     // Drawn for another width: drawn again when near the viewport, once a drag of the border has
-    // settled (DOC-006).
+    // settled.
     clearTimeout(redrawTimer);
     if (first) redraw();
     else redrawTimer = setTimeout(redraw, REDRAW_DELAY);
@@ -253,7 +252,7 @@ watch(
   () => void holdPlace(redraw),
 );
 
-// Another unit or another source: its own pages only (DOC-003).
+// Another unit or another source: its own pages only.
 watch(
   () => props.pages.join(),
   () => {
@@ -413,7 +412,7 @@ onUnmounted(() => {
 }
 
 /* The pages are as wide as the zoom says and the panel scrolls sideways when they are wider; the
-   window never does (PROD-006). */
+   window never does. */
 .view {
   overflow-x: auto;
 }
@@ -446,7 +445,7 @@ onUnmounted(() => {
   width: 100%;
 }
 
-/* The text of a page, transparent over its canvas (DOC-009): the rules of pdf.js's text layer that
+/* The text of a page, transparent over its canvas: the rules of pdf.js's text layer that
    place the spans and size them by `--total-scale-factor`, which `render.ts` sets. */
 .text-layer {
   inset: 0;

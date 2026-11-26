@@ -1,7 +1,7 @@
-// The hand-written validator and contracts/pack.schema.json agree (design D6): on every example of
-// the contract and on packs with one random defect, a general JSON Schema validator refuses a pack
-// exactly when the app's validator reports an error of the schema. The semantic rules of PACK-002
-// are beyond any schema, so they are left out of the comparison and tested on their own.
+// The hand-written validator and contracts/pack.schema.json agree: on every example of the contract
+// and on packs with one random defect, a general JSON Schema validator refuses a pack exactly when
+// the app's validator reports an error of the schema. The semantic rules of PACK-002 are beyond any
+// schema, so they are left out of the comparison and tested on their own.
 import Ajv2020 from "ajv/dist/2020";
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";

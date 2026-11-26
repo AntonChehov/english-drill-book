@@ -1,4 +1,4 @@
-// Normalisation of answers and variants (CHK-003, CHK-004; design D3).
+// Normalisation of answers and variants.
 
 /** One way of reading a text: its kept characters without spaces, and its number of words. */
 export interface Reading {
@@ -43,12 +43,12 @@ const WORD_CHARACTER = /[\p{L}\p{M}\p{N}]/u;
 const WHITE_SPACE = /\s/u;
 
 /**
- * Step 3 of CHK-003, second half: removes the apostrophes that work as single quotation marks.
- * One between two letters or digits is always kept. One after a letter or digit and before
- * anything else closes an open quote, or is kept as the apostrophe of a plural possessive
- * (`the boys' room`) when no quote is open. One after anything else opens a quote when a letter
- * or digit follows, closes one when white space or the end follows, and between punctuation
- * (`'...yes'`) closes an open quote or else opens one. Every quotation mark is removed.
+ * The second half of step 3: removes the apostrophes that work as single quotation marks. One
+ * between two letters or digits is always kept. One after a letter or digit and before anything
+ * else closes an open quote, or is kept as the apostrophe of a plural possessive (`the boys' room`)
+ * when no quote is open. One after anything else opens a quote when a letter or digit follows,
+ * closes one when white space or the end follows, and between punctuation (`'...yes'`) closes an
+ * open quote or else opens one. Every quotation mark is removed.
  */
 function removeSingleQuotes(text: string): string {
   if (!text.includes("'")) return text;
@@ -77,7 +77,7 @@ function removeSingleQuotes(text: string): string {
   return result;
 }
 
-/** Steps 1 – 4 of CHK-003, on the text with its spaces. */
+/** Normalisation steps 1 – 4, on the text with its spaces. */
 function prepare(text: string): string {
   const marks = text
     .normalize("NFC")
@@ -93,9 +93,9 @@ function prepare(text: string): string {
 }
 
 /**
- * The words of a text after steps 1 – 4 and 6 of CHK-003: its runs between white space, each with
- * its kept characters only, the empty ones left out. `'s` and `'d` are kept as written, so joined
- * they equal the text of a reading only when the text has neither.
+ * The words of a text after normalisation steps 1 – 4 and 6: its runs between white space, each
+ * with its kept characters only, the empty ones left out. `'s` and `'d` are kept as written, so
+ * joined they equal the text of a reading only when the text has neither.
  */
 export function wordsOf(text: string): string[] {
   return prepare(text)
@@ -106,8 +106,8 @@ export function wordsOf(text: string): string[] {
 
 /**
  * A stretch of a text, read once however many readings it takes part in: its kept characters
- * (step 6 of CHK-003) and its runs between white space, of which only the first and the last
- * can join a neighbouring stretch. `single` is a stretch of one run, which is then both.
+ * (step 6) and its runs between white space, of which only the first and the last can join a
+ * neighbouring stretch. `single` is a stretch of one run, which is then both.
  */
 interface Part {
   readonly kept: string;
@@ -161,10 +161,10 @@ const S_PARTS = S_READINGS.map(part);
 const D_PARTS = D_READINGS.map(part);
 
 /**
- * Every reading of a text after normalisation (CHK-003). `'s` is read three ways and `'d` two,
- * independently for the first four occurrences; each later one takes the reading of the fourth.
- * At most 81 readings, without duplicates. The text after the fourth occurrence is joined once
- * for each reading of the fourth, so the work of a reading does not grow with the occurrences.
+ * Every reading of a text after normalisation. `'s` is read three ways and `'d` two, independently
+ * for the first four occurrences; each later one takes the reading of the fourth. At most 81
+ * readings, without duplicates. The text after the fourth occurrence is joined once for each
+ * reading of the fourth, so the work of a reading does not grow with the occurrences.
  */
 export function readings(text: string): readonly Reading[] {
   const prepared = prepare(text);

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // The list of the book's units in the header of Study (in the bar below 1024 px), each with its
-// done count, and a check mark when it is finished (design D3; PROD-012).
+// done count, and a check mark when it is finished.
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { isFinished } from "../../domain/study";

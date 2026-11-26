@@ -1,4 +1,4 @@
-// The store of the learner's data: the only way into IndexedDB (C-08, design D1 of `storage`).
+// The store of the learner's data: the only way into IndexedDB (C-08).
 
 export { StorageError, type StorageErrorKind } from "./errors";
 export { SCHEMA_VERSION } from "./schema";

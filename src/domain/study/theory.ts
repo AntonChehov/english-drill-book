@@ -1,6 +1,6 @@
-// The explanation of a unit (PLAY-020; design D3 of `russian-demo`): the `theory` of a pack is
-// plain paragraphs separated by a blank line, with spans in the language being learned between
-// two `*` (PACK-004). Split here, pure, so that Study only shows it.
+// The explanation of a unit: the `theory` of a pack is plain paragraphs separated by a blank line,
+// with spans in the language being learned between two `*`. Split here, pure, so that Study only
+// shows it.
 
 /** A run of a paragraph: `learned` when it is in the language being learned. */
 export interface TheoryRun {

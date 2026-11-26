@@ -1,7 +1,7 @@
 /// <reference types="node" />
 // The reader's tests read demo/<book>.text.json, the text pdf.js takes from the committed PDFs.
 // This test takes it again with the pinned pdf.js and fails when the two differ, so the fixture
-// cannot drift from the files (design, Risks). `pnpm demo:build` rewrites the fixtures.
+// cannot drift from the files. `pnpm demo:build` rewrites the fixtures.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";

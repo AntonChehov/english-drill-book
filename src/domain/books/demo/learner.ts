@@ -1,7 +1,7 @@
-// What a demo pack says to the learner in the language of the interface (PACK-004; design D2 of
-// `russian-demo`): the Russian title and `theory` of each unit and the `help` of each exercise,
-// written in the demo sources beside the English of the pages and bundled as learner.json by
-// `pnpm demo:build`. The reader finds the English on the pages; the join happens here, after it.
+// What a demo pack says to the learner in the language of the interface: the Russian title and
+// `theory` of each unit and the `help` of each exercise, written in the demo sources beside the
+// English of the pages and bundled as learner.json by `pnpm demo:build`. The reader finds the
+// English on the pages; the join happens here, after it.
 
 import type { Exercise, Pack, Unit } from "../../packs/types";
 

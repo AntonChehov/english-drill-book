@@ -1,5 +1,4 @@
-// What Study shows of an exercise (PLAY-003 – PLAY-011, PLAY-013; design D4, D5 of
-// `study-screen`): pure, so the components only show it.
+// What Study shows of an exercise: pure, so the components only show it.
 
 import type { Verdict } from "../checking";
 import type { Exercise, ItemsExercise } from "../packs/types";
@@ -7,10 +6,10 @@ import type { Attempt, ExerciseState } from "../progress";
 import { latestCheck, TEXT } from "./attempts";
 import type { Answers } from "./grade";
 
-/** The state an exercise names (PLAY-011). */
+/** The state an exercise names. */
 export type ExerciseStatus = "untouched" | "in-progress" | "done";
 
-/** A change by hand the learner may make to a row (PLAY-008). */
+/** A change by hand the learner may make to a row. */
 export type RowChange =
   /** Count a wrong or almost answer as correct. */
   | "count"
@@ -23,11 +22,11 @@ export interface RowView {
   readonly id: string;
   readonly prompt?: string;
   readonly choices?: readonly string[];
-  /** The verdict shown: only while the field holds exactly the answer that was judged (D4). */
+  /** The verdict shown: only while the field holds exactly the answer that was judged. */
   readonly verdict: Verdict | null;
   /** The verdict shown was set by hand. */
   readonly byHand: boolean;
-  /** The key, its accepted patterns joined by "или", once revealed (PLAY-007). */
+  /** The key, its accepted patterns joined by "или", once revealed. */
   readonly key: string | null;
   /** The change by hand the row offers, if any. */
   readonly change: RowChange | null;
@@ -41,7 +40,7 @@ export interface ItemsView {
   readonly rows: readonly RowView[];
 }
 
-/** An open exercise, a connected text for now, or an exercise whose key cannot be read (PLAY-013). */
+/** An open exercise, a connected text for now, or an exercise whose key cannot be read. */
 export interface FreeView {
   readonly kind: "free";
   readonly status: ExerciseStatus;
@@ -70,7 +69,7 @@ export function judgedAnswers(
 
 /**
  * What the fields of an exercise hold when its unit opens: the answers of its latest verdicts,
- * replaced by the draft where there is one (PLAY-005).
+ * replaced by the draft where there is one.
  */
 export function initialAnswers(
   state: ExerciseState,
@@ -143,8 +142,8 @@ function sampleOf(exercise: Exercise): string | null {
 
 /**
  * What each row of `exercise` shows, given its derived state, the answers in its fields and its
- * attempts (design D4, D5). `open` shows an `items` exercise as an open one, as when its key
- * cannot be prepared; text and open exercises are always shown so.
+ * attempts. `open` shows an `items` exercise as an open one, as when its key cannot be prepared;
+ * text and open exercises are always shown so.
  */
 export function viewOfExercise(
   exercise: Exercise,

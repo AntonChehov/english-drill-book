@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ‹ and › of Study: to the previous or the next unit, in the unit's header and, on a narrow
-// screen, in the bar (PROD-012).
+// screen, in the bar.
 defineProps<{ direction: "previous" | "next"; to: string | undefined }>();
 defineEmits<{ go: [to: string | undefined] }>();
 

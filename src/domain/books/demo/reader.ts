@@ -1,5 +1,5 @@
-// The reader of the demo layout (design D5). It relies only on what demo/LAYOUT.md states and
-// finds everything by what the pages say, never by page numbers fixed in advance.
+// The reader of the demo layout. It relies only on what demo/LAYOUT.md states and finds everything
+// by what the pages say, never by page numbers fixed in advance.
 
 import type { Exercise, Item, Pack, PageRef, Unit } from "../../packs/types";
 import type { BookProfile, DocumentInfo, Line, PageText, ReadProblem, ReadResult } from "../types";
@@ -222,7 +222,7 @@ function exerciseOf(
 
 /**
  * Reads a book of the demo layout into a pack. The result is the pack, or every problem found:
- * for a demo book anything missing is a failure (design D5), so no partial pack is returned.
+ * for a demo book anything missing is a failure, so no partial pack is returned.
  */
 export function readDemoBook(
   profile: BookProfile,

@@ -13,7 +13,7 @@ import {
   unitHeading,
 } from "./study";
 
-/** The window regains the focus: Study reads the unit again (design D6 of `study-screen`). */
+/** The window regains the focus: Study reads the unit again. */
 const regainFocus = (page: Page) => page.evaluate(() => window.dispatchEvent(new Event("focus")));
 
 const draftsOf = async (page: Page) => (await databaseOf(page)).stores["drafts"]?.length ?? 0;

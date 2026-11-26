@@ -1,7 +1,7 @@
-// What Study remembers of its layout (DOC-002, DOC-006; design D1 of `pages-panel-tools`): the zoom
-// of each book, the split between the panels and the collapsed panel. Each is read once, when
-// Study opens, and written when it changes. A failed read gives the defaults and a failed write is
-// not shown: the setting applies for the visit, and a lost layout costs little.
+// What Study remembers of its layout: the zoom of each book, the split between the panels and the
+// collapsed panel. Each is read once, when Study opens, and written when it changes. A failed read
+// gives the defaults and a failed write is not shown: the setting applies for the visit, and a lost
+// layout costs little.
 
 import { onScopeDispose, ref } from "vue";
 import type { Store } from "../../storage/db";

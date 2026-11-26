@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// The demo books as cards (PROG-014; design D2 of `study-screen`): each with how many of its
-// exercises are done and its units as links to Study with their counts, the first unit not finished
-// marked as the one to continue. The start screen reads the counts (design D4 of `demo-program`).
+// The demo books as cards: each with how many of its exercises are done and its units as links to
+// Study with their counts, the first unit not finished marked as the one to continue. The start
+// screen reads the counts.
 import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import type { UnreadableBook } from "../../domain/books/demo/kept";
@@ -13,7 +13,7 @@ import CheckMark from "./CheckMark.vue";
 
 const props = defineProps<{
   books: readonly DemoBookSummary[];
-  /** Books whose stored pack fails validation: a card that says so (PROD-011). */
+  /** Books whose stored pack fails validation: a card that says so. */
   unreadable?: readonly UnreadableBook[];
 }>();
 

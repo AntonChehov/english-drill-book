@@ -27,7 +27,7 @@ There is no textbook material in the app. It is a companion for textbooks a lear
 
 Specification-first, with [OpenSpec](https://github.com/Fission-AI/OpenSpec): every piece of work is a change with a proposal, a design (omitted when the work is only texts or only documentation), tasks and delta specs that the owner approves before any code is written. Coding agents implement the change as a bot identity, a separate reviewing agent, normally the same one in every round, reviews the diff in rounds until it approves the latest content, and CI refuses a pull request that lacks the evidence. Another agent then tests the built app against acceptance scenarios that the implementing agent has never seen.
 
-The owner is responsible for the specification, the architecture, the process and acceptance; agents do the implementation, the review and the validation. [`docs/how-it-works.md`](docs/how-it-works.md) is a one-page summary.
+The owner is responsible for the specification, the architecture, the core of each slice, the process and acceptance; agents do the rest of the implementation, the review and the validation. [`docs/how-it-works.md`](docs/how-it-works.md) is a one-page summary.
 
 The full process, the roles and its honest limits are in [`docs/process.md`](docs/process.md); the invariants enforced on every change are in [`docs/constitution.md`](docs/constitution.md).
 

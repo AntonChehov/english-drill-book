@@ -1,6 +1,6 @@
-// Draws the pages of a PDF on canvases (DOC-001, DOC-005; design D8 of `study-screen`). pdf.js is
-// loaded on demand, as for reading text, and its worker is started by the app (`text.ts`), so a
-// worker that did not arrive fails only this attempt and a later one can succeed.
+// Draws the pages of a PDF on canvases. pdf.js is loaded on demand, as for reading text, and its
+// worker is started by the app (`text.ts`), so a worker that did not arrive fails only this attempt
+// and a later one can succeed.
 
 import type { PDFPageProxy } from "pdfjs-dist";
 import { loadPdfLibrary, startWorker } from "./text";
@@ -20,7 +20,7 @@ export interface PdfPages {
   /**
    * Draws page `number` on `canvas`, `width` CSS pixels wide at the device's `ratio` of pixels.
    * With `text`, the page's text is laid in it, transparent over the canvas, for selecting and
-   * copying (DOC-009). Settles when the page is drawn; rejects when `signal` aborts first.
+   * copying. Settles when the page is drawn; rejects when `signal` aborts first.
    */
   draw(
     number: number,

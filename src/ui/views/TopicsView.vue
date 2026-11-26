@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Topics (PROG-008; design D3 of `topics-and-checklist`): every topic of the demo program in order,
-// grouped by level, with its state and counts. Choosing a topic not passed makes it the focus and
-// returns to Today; a passed topic cannot be chosen (owner's decision).
+// Topics: every topic of the demo program in order, grouped by level, with its state and counts.
+// Choosing a topic not passed makes it the focus and returns to Today; a passed topic cannot be
+// chosen (owner's decision).
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import type { Topic } from "../../domain/programs";

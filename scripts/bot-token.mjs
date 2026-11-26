@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Prints a one-hour installation token of the project's GitHub App (design D11),
+// Prints a one-hour installation token of the project's GitHub App,
 // so that agents commit and open pull requests as the bot.
 // Environment:
 //   BOT_APP_ID                the App's ID

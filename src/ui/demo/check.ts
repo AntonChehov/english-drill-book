@@ -1,5 +1,5 @@
-// Whether the demo books are stored (design D7 of `storage`), shared by the start screen and
-// Topics, which can be the first screen opened (design D3 of `topics-and-checklist`).
+// Whether the demo books are stored, shared by the start screen and Topics, which can be the first
+// screen opened.
 
 import { getStore, noteStorageFailure } from "../storage";
 import { demoState, partialDemo, summaryOf, type DemoState } from "./state";
@@ -9,11 +9,11 @@ const phaseNow = (): DemoState["phase"] => demoState.value.phase;
 
 /**
  * Shows the demo as added exactly when its packs are stored, on start and whenever another tab may
- * have changed the store (design D6 of `storage`): a demo shown as added whose packs are gone, as
- * when the site's data was cleared, is shown as not added. On start, stored packs that cannot be
- * used are passed to `readAgain`, which the start screen gives to read them again from the PDFs;
- * without it the state stays `loading`, so that the start screen still does so when it opens.
- * Nothing changes while the books are being added.
+ * have changed the store: a demo shown as added whose packs are gone, as when the site's data was
+ * cleared, is shown as not added. On start, stored packs that cannot be used are passed to
+ * `readAgain`, which the start screen gives to read them again from the PDFs; without it the state
+ * stays `loading`, so that the start screen still does so when it opens. Nothing changes while the
+ * books are being added.
  */
 export async function checkDemo(readAgain?: () => Promise<void>): Promise<void> {
   const phase = demoState.value.phase;

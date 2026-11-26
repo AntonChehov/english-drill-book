@@ -73,7 +73,7 @@ describe("contract examples", () => {
     });
   }
 
-  it("lets an original pack name the documents it was read from (design D7)", () => {
+  it("lets an original pack name the documents it was read from", () => {
     expect(schemas["pack"]!(examples["pack.documents.valid.json"])).toBe(true);
   });
 });

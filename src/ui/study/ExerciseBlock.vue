@@ -1,8 +1,7 @@
 <script setup lang="ts">
-// An exercise of the unit (design D4 of `study-screen`): its number, which shows its page, its
-// task, its state and score, its rows and **Проверить**; or, for an open exercise and for now a
-// connected text, one field and the sample on request (PLAY-013). Every exercise not done offers
-// «Выполнить упражнение», which marks it done (PLAY-021).
+// An exercise of the unit: its number, which shows its page, its task, its state and score, its
+// rows and **Проверить**; or, for an open exercise and for now a connected text, one field and the
+// sample on request. Every exercise not done offers «Выполнить упражнение», which marks it done.
 import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { TEXT, type ExerciseView, type RowView } from "../../domain/study";
 import ItemRow from "./ItemRow.vue";
@@ -32,7 +31,7 @@ const full = computed(
 const answerOf = (item: string) => props.entry.answers[item] ?? "";
 
 // «Выполнить упражнение» goes away once the exercise is done: the focus it had, left on the page's
-// body, goes to the exercise's number, so that the learner stays in the exercise (PLAY-021).
+// body, goes to the exercise's number, so that the learner stays in the exercise.
 const number = useTemplateRef<HTMLButtonElement>("number");
 let marking = false;
 function markDone() {
@@ -248,7 +247,7 @@ watch(
   margin: 0.625rem 0 0.5rem;
 }
 
-/* What to do, in the learner's language (PLAY-020): the bold task stays the block's heading. */
+/* What to do, in the learner's language: the bold task stays the block's heading. */
 .help {
   color: var(--color-muted);
   font-size: 0.9375rem;
