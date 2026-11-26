@@ -7,7 +7,7 @@
 
 ## 2. Roles
 
-- [ ] 2.1 `README.md` and `docs/how-it-works.md` (text and diagram): the owner's role includes the core of each slice; agents do the rest of the implementation, review and validation; verify the two texts agree
+- [x] 2.1 `README.md` and `docs/how-it-works.md` (text and diagram): the owner's role includes the core of each slice; agents do the rest of the implementation, review and validation; verify the two texts agree
 
 ## 3. Speed test
 
