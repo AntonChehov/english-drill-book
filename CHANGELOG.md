@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/AntonChehov/english-drill-book/compare/v0.2.0...v0.2.1) (2026-11-26)
+
+
+### Bug Fixes
+
+* **ci:** deploy pages from a job of its own, with one retry ([#39](https://github.com/AntonChehov/english-drill-book/issues/39)) ([e99cfaa](https://github.com/AntonChehov/english-drill-book/commit/e99cfaadfe92b4094a238eb27232ee3644c6ff27))
+
 ## [0.2.0](https://github.com/AntonChehov/english-drill-book/compare/v0.1.0...v0.2.0) (2026-11-24)
 
 
