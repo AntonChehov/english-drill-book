@@ -2,7 +2,7 @@
 
 ## 1. Setup
 
-- [ ] 1.1 Add `@vue/test-utils` and `happy-dom` as development dependencies; a mounting helper with router, demo pack and `fake-indexeddb`; a `PdfPages` stub; verify one mounted test passes
+- [x] 1.1 Add `@vue/test-utils` and `happy-dom` as development dependencies; a mounting helper with router, demo pack and `fake-indexeddb`; a `PdfPages` stub; verify one mounted test passes
 
 ## 2. Study screen
 
