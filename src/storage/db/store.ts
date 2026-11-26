@@ -1,7 +1,8 @@
-// The store of the learner's data: packs, the attempt log with the cached state of each exercise, drafts, settings and
-// the ticks of each day, behind functions that hide IndexedDB from the screens. Attempts are only
-// ever added; an attempt and the state derived with it are written in one transaction; every function
-// settles when its transaction has committed or not, and rejects with a `StorageError`.
+// The store of the learner's data: packs, the attempt log with the cached state of each exercise,
+// drafts, settings and the ticks of each day, behind functions that hide IndexedDB from the
+// screens. Attempts are only ever added; an attempt and the state derived with it are written in
+// one transaction; every function settles when its transaction has committed or not, and rejects
+// with a `StorageError`.
 
 import type { Pack } from "../../domain/packs/types";
 import {
@@ -92,8 +93,8 @@ export interface Store {
   /** Replaces the blocks ticked on `day`. */
   putDayTicks(day: string, blocks: readonly string[]): Promise<void>;
   /**
-   * Calls `listener` when another tab of the app has written; returns a function that
-   * stops it. Only with the option `channel` and where the browser has `BroadcastChannel`.
+   * Calls `listener` when another tab of the app has written; returns a function that stops it.
+   * Only with the option `channel` and where the browser has `BroadcastChannel`.
    */
   onOtherTabWrite(listener: () => void): () => void;
   close(): void;

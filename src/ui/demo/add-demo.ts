@@ -1,8 +1,8 @@
-// Adding the demo books: each PDF is fetched from the app's own origin and
-// checked to be the file published with the app; its text is read with pdf.js, read into a pack
-// by the reader of the demo layout, joined with what the pack says to the learner in Russian
-// and validated before it is shown. This module is loaded only when the
-// visitor asks for the demo, so neither it nor what it imports weighs on the first screen.
+// Adding the demo books: each PDF is fetched from the app's own origin and checked to be the file
+// published with the app; its text is read with pdf.js, read into a pack by the reader of the demo
+// layout, joined with what the pack says to the learner in Russian and validated before it is
+// shown. This module is loaded only when the visitor asks for the demo, so neither it nor what it
+// imports weighs on the first screen.
 
 import { withLearnerTexts } from "../../domain/books/demo/learner";
 import { demoBooks, type DemoBook } from "../../domain/books/demo/profiles";

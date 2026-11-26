@@ -6,8 +6,8 @@ import { addressOf } from "./views";
 type StorageState = Awaited<ReturnType<import("@playwright/test").BrowserContext["storageState"]>>;
 
 /**
- * Study's tests start with the demo added (constitution C-19): each worker adds it
- * once, through the start screen, and every test starts from a copy of that browser's storage.
+ * Study's tests start with the demo added (constitution C-19): each worker adds it once, through
+ * the start screen, and every test starts from a copy of that browser's storage.
  */
 export const test = base.extend<object, { demoAdded: StorageState }>({
   demoAdded: [
@@ -193,8 +193,8 @@ export async function storedSetting(page: Page, name: string): Promise<unknown> 
 }
 
 /**
- * The states of Study for the accessibility check and the screenshots (constitution
- * C-07): each starts from the demo added and ends in Study, or on Topics.
+ * The states of Study for the accessibility check and the screenshots (constitution C-07): each
+ * starts from the demo added and ends in Study, or on Topics.
  */
 export const studyStates = [
   {
@@ -303,8 +303,8 @@ export const studyStates = [
     },
   },
   {
-    // Topics with the demo: topic 1 passed, topic 2 in progress. Not Study, but it needs
-    // the demo added, as Study does.
+    // Topics with the demo: topic 1 passed, topic 2 in progress. Not Study, but it needs the demo
+    // added, as Study does.
     name: "topics-demo",
     reach: async (page: Page) => {
       await page.goto(addressOf("/"));

@@ -1,6 +1,6 @@
-// The demo books of the start screen. The state lives
-// in memory and survives going to another view and back; what survives a reload is the packs in
-// the store, which the start screen reads when it opens.
+// The demo books of the start screen. The state lives in memory and survives going to another view
+// and back; what survives a reload is the packs in the store, which the start screen reads when it
+// opens.
 
 import { shallowRef } from "vue";
 import type { UnreadableBook } from "../../domain/books/demo/kept";
@@ -36,9 +36,8 @@ export type DemoState =
 export const demoState = shallowRef<DemoState>({ phase: "loading" });
 
 /**
- * The demo books stored while they are not all usable: those that read, as cards, and
- * those whose stored pack fails validation, whose cards say so. Empty when the demo is whole or
- * not stored.
+ * The demo books stored while they are not all usable: those that read, as cards, and those whose
+ * stored pack fails validation, whose cards say so. Empty when the demo is whole or not stored.
  */
 export const partialDemo = shallowRef<{
   readonly books: readonly DemoBookSummary[];

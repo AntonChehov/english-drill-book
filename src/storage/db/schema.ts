@@ -1,7 +1,7 @@
-// The schema of the database and its migrations. The
-// schema version is IndexedDB's own version of the database. A migration, once released, is never
-// changed: data of every earlier version is upgraded by running the migrations after it in turn,
-// and a fixture of every earlier version proves it (C-05).
+// The schema of the database and its migrations. The schema version is IndexedDB's own version of
+// the database. A migration, once released, is never changed: data of every earlier version is
+// upgraded by running the migrations after it in turn, and a fixture of every earlier version
+// proves it (C-05).
 
 import type { Migration } from "./idb";
 

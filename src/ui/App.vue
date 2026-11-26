@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// The frame of every screen: a top bar with the app's name, leading
-// to the start screen, and the sections, the current one marked; the screen below it. Below 1024 px
-// the bar is compact and slides out of view on a scroll down and back on a scroll up;
-// Study puts the unit's navigation into `#bar-unit`.
+// The frame of every screen: a top bar with the app's name, leading to the start screen, and the
+// sections, the current one marked; the screen below it. Below 1024 px the bar is compact and
+// slides out of view on a scroll down and back on a scroll up; Study puts the unit's navigation
+// into `#bar-unit`.
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
 import { nextBar, unitListOpen, type BarState } from "./bar";

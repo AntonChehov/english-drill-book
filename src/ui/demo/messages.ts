@@ -41,8 +41,8 @@ export function failureMessage(failure: DemoFailure | "network" | undefined): st
 export const keepingMessage = "Сохраняем демо-книги…";
 
 /**
- * Why the books, read and checked, could not be kept in this browser, in words with no
- * technical terms.
+ * Why the books, read and checked, could not be kept in this browser, in words with no technical
+ * terms.
  */
 export function keepFailureMessage(error: unknown): string {
   const start = "Демо-книги прочитаны, но сохранить их в этом браузере не удалось";

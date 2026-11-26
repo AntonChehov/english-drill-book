@@ -22,8 +22,8 @@ export interface TopicProgress {
 
 /**
  * A topic is passed when every exercise of its lead unit is done and at least
- * `min(supplementMin, supplements)` of its supplements are done. Every supplement
- * counts as available: the program is active only with all its books.
+ * `min(supplementMin, supplements)` of its supplements are done. Every supplement counts as
+ * available: the program is active only with all its books.
  */
 export function topicProgress(
   topic: Topic,
@@ -87,9 +87,8 @@ export function currentLevel(
 }
 
 /**
- * Today's topic: the index of the topic whose id is `focus` when it is not passed, else
- * of the first topic not passed; -1 when every topic is passed. A `focus` that names no topic is
- * ignored.
+ * Today's topic: the index of the topic whose id is `focus` when it is not passed, else of the
+ * first topic not passed; -1 when every topic is passed. A `focus` that names no topic is ignored.
  */
 export function todayTopic(
   topics: readonly Topic[],
@@ -107,9 +106,9 @@ export interface TopicStep {
 }
 
 /**
- * The topic a unit belongs to, and which of its two steps the unit is: the first topic
- * in program order that the unit leads is `course`, else the first with a supplement among
- * `exercises` of the pack is `drills`. A topic without supplements has one step and is skipped.
+ * The topic a unit belongs to, and which of its two steps the unit is: the first topic in program
+ * order that the unit leads is `course`, else the first with a supplement among `exercises` of the
+ * pack is `drills`. A topic without supplements has one step and is skipped.
  */
 export function topicStep(
   topics: readonly Topic[],

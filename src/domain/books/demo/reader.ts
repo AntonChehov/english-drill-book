@@ -1,5 +1,5 @@
-// The reader of the demo layout. It relies only on what demo/LAYOUT.md states and
-// finds everything by what the pages say, never by page numbers fixed in advance.
+// The reader of the demo layout. It relies only on what demo/LAYOUT.md states and finds everything
+// by what the pages say, never by page numbers fixed in advance.
 
 import type { Exercise, Item, Pack, PageRef, Unit } from "../../packs/types";
 import type { BookProfile, DocumentInfo, Line, PageText, ReadProblem, ReadResult } from "../types";

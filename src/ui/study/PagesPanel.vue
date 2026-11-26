@@ -1,9 +1,8 @@
 <script setup lang="ts">
-// The pages of the unit beside its exercises:
-// one under another, each drawn on a canvas at the panel's width and the device's pixel ratio when
-// it comes near the viewport, its place held before that so the scroll bar is honest. Its header
-// zooms them and hides the panel; a page before the first and one after the
-// last can be added; a text layer over each page lets its text be copied.
+// The pages of the unit beside its exercises: one under another, each drawn on a canvas at the
+// panel's width and the device's pixel ratio when it comes near the viewport, its place held before
+// that so the scroll bar is honest. Its header zooms them and hides the panel; a page before the
+// first and one after the last can be added; a text layer over each page lets its text be copied.
 import {
   computed,
   nextTick,

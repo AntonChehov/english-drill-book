@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// The demo books as cards: each with how many of its
-// exercises are done and its units as links to Study with their counts, the first unit not finished
-// marked as the one to continue. The start screen reads the counts.
+// The demo books as cards: each with how many of its exercises are done and its units as links to
+// Study with their counts, the first unit not finished marked as the one to continue. The start
+// screen reads the counts.
 import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import type { UnreadableBook } from "../../domain/books/demo/kept";

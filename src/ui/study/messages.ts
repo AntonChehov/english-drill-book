@@ -62,8 +62,7 @@ const subject: Record<KeptAction, string> = {
 };
 
 /**
- * Why the result of an action was not kept: it is not shown as kept, and
- * the learner can repeat it.
+ * Why the result of an action was not kept: it is not shown as kept, and the learner can repeat it.
  */
 export function notKeptMessage(action: KeptAction, error: unknown): string {
   const start =

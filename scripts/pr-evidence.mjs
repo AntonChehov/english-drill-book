@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-// The evidence check of constitution C-18. Fails a
-// pull request unless, for its head commit:
+// The evidence check of constitution C-18. Fails a pull request unless, for its head commit:
 //   1. the description has the sections Problem, Solution, Requirements and Self-review and a
 //      line `Change: <name>` naming a directory under openspec/changes/;
 //   2. every ID under Requirements is defined in docs/product/ and named by a test;

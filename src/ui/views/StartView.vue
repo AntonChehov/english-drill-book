@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// The start screen, which is Today. While the demo books
-// are added the demo program is active and shown above them with the checklist of the day; the done states
-// and the focus are read on start, when the books change and whenever the store may have changed.
+// The start screen, which is Today. While the demo books are added the demo program is active and
+// shown above them with the checklist of the day; the done states and the focus are read on start,
+// when the books change and whenever the store may have changed.
 import { useTemplateRef } from "vue";
 import DailyChecklist from "../components/DailyChecklist.vue";
 import DemoBooks from "../components/DemoBooks.vue";

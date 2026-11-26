@@ -142,8 +142,8 @@ function sampleOf(exercise: Exercise): string | null {
 
 /**
  * What each row of `exercise` shows, given its derived state, the answers in its fields and its
- * attempts. `open` shows an `items` exercise as an open one, as when its key
- * cannot be prepared; text and open exercises are always shown so.
+ * attempts. `open` shows an `items` exercise as an open one, as when its key cannot be prepared;
+ * text and open exercises are always shown so.
  */
 export function viewOfExercise(
   exercise: Exercise,

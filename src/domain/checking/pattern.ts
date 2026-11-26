@@ -125,8 +125,8 @@ function countOf(words: readonly Word[]): number {
 }
 
 /**
- * Resolves the loose alternatives of `tokens` from left to right and passes each
- * candidate, a list of words without slashes, to `leaf`; stops as soon as `leaf` returns false.
+ * Resolves the loose alternatives of `tokens` from left to right and passes each candidate, a list
+ * of words without slashes, to `leaf`; stops as soon as `leaf` returns false.
  */
 function resolve(tokens: readonly Token[], leaf: (words: readonly Word[]) => boolean): boolean {
   const slash = tokens.indexOf(SLASH);

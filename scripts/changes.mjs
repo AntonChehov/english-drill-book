@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Which pull requests need the build. A pull request whose files no
-// build, unit test or end-to-end test reads, and the release pull request, run only the
-// static checks and the evidence check. The workflow `checks.yml` runs this as the first step
-// of its `unit` and `build` jobs and reads the step output `code`. The evidence check decides again on its own diff
-// (scripts/pr-evidence.mjs), so a wrong `false` here can make it fail but never pass.
+// Which pull requests need the build. A pull request whose files no build, unit test or end-to-end
+// test reads, and the release pull request, run only the static checks and the evidence check. The
+// workflow `checks.yml` runs this as the first step of its `unit` and `build` jobs and reads the
+// step output `code`. The evidence check decides again on its own diff (scripts/pr-evidence.mjs),
+// so a wrong `false` here can make it fail but never pass.
 // Environment: GITHUB_REPOSITORY, PR_NUMBER, HEAD_REF, GITHUB_TOKEN, GITHUB_API_URL (optional).
 // Without PR_NUMBER (the main workflow) the answer is `true` without a request.
 import { isMain, requireEnv, setOutput } from "./common.mjs";

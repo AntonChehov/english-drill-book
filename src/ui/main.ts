@@ -14,9 +14,8 @@ applyTheme(await storedTheme(async () => (await getStore()).getSetting("theme"))
 
 createApp(App).use(createAppRouter()).mount("#app");
 
-// The service worker keeps the app for offline use.
-// It is registered after the first screen, in the built app only; a browser that cannot or will
-// not run it leaves the app as it was.
+// The service worker keeps the app for offline use. It is registered after the first screen, in the
+// built app only; a browser that cannot or will not run it leaves the app as it was.
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
   navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined);
 }

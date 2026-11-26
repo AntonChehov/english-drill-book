@@ -1,6 +1,5 @@
-// The theme of the app: «Как в системе» leaves the
-// colours to the system setting, the other two override it. The page carries the choice in
-// `data-theme`, which base.css reads.
+// The theme of the app: «Как в системе» leaves the colours to the system setting, the other two
+// override it. The page carries the choice in `data-theme`, which base.css reads.
 
 import { ref } from "vue";
 import type { Settings } from "../storage/db";

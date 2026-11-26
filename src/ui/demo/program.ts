@@ -1,5 +1,5 @@
-// The demo program over the stored demo books: its progress, today's topic with the
-// focus, and the reading of both from the store, shared by Today and Topics.
+// The demo program over the stored demo books: its progress, today's topic with the focus, and the
+// reading of both from the store, shared by Today and Topics.
 
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import {

@@ -1,4 +1,5 @@
-// A built-in study program as the app reads it (contracts/program.schema.json). Only the fields the app uses are typed; CI checks the whole file.
+// A built-in study program as the app reads it (contracts/program.schema.json). Only the fields the
+// app uses are typed; CI checks the whole file.
 
 export interface Topic {
   /** Unique in the program; the focus names a topic by it. */

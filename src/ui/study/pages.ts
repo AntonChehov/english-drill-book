@@ -1,6 +1,6 @@
-// The book a pages panel draws from: the demo PDF is fetched from the
-// app's own origin once and opened once, then reused by every unit. A failure is not kept, so
-// repeating fetches it again, without reloading the page.
+// The book a pages panel draws from: the demo PDF is fetched from the app's own origin once and
+// opened once, then reused by every unit. A failure is not kept, so repeating fetches it again,
+// without reloading the page.
 
 import { demoBooks } from "../../domain/books/demo/profiles";
 import type { Pack, PageRef } from "../../domain/packs/types";

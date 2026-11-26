@@ -75,8 +75,8 @@ export interface Unit {
   readonly id: string;
   readonly title: string;
   /**
-   * The explanation of the unit's grammar, in the language of the interface: plain
-   * paragraphs separated by a blank line; a span between two `*` is in the language being learned.
+   * The explanation of the unit's grammar, in the language of the interface: plain paragraphs
+   * separated by a blank line; a span between two `*` is in the language being learned.
    */
   readonly theory?: string;
   readonly pages?: readonly PageRef[];

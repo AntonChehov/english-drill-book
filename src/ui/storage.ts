@@ -1,5 +1,5 @@
-// The app's one connection to the store, opened when the
-// app starts, and the state the whole app shows when the data belongs to a newer version.
+// The app's one connection to the store, opened when the app starts, and the state the whole app
+// shows when the data belongs to a newer version.
 
 import { shallowRef } from "vue";
 import { openStore, StorageError, type Store } from "../storage/db";
@@ -45,8 +45,8 @@ export function getStore(): Promise<Store> {
 
 /**
  * Calls `listener` when what is stored may have been changed by another tab: when this page
- * becomes visible or its window gains focus, and at once when another tab says it wrote.
- * Returns a function that stops it.
+ * becomes visible or its window gains focus, and at once when another tab says it wrote. Returns a
+ * function that stops it.
  */
 export function onStoredDataChange(listener: () => void): () => void {
   const controller = new AbortController();

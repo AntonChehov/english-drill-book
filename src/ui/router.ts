@@ -12,8 +12,8 @@ import StartView from "./views/StartView.vue";
 export const appName = "English Drill Book";
 
 /**
- * Every view of the app. Addresses live after the hash: GitHub Pages
- * cannot rewrite unknown paths to index.html, the hash survives reload on any static host.
+ * Every view of the app. Addresses live after the hash: GitHub Pages cannot rewrite unknown paths
+ * to index.html, the hash survives reload on any static host.
  */
 /** Study and what it imports: a chunk of its own, loaded when a unit is opened (C-06). */
 const studyView = () => import("./study/StudyView.vue");

@@ -1,6 +1,6 @@
-// An attempt of the progress log: the
-// attempt of contracts/export.schema.json, so that an export is the log as it is. The id and the
-// time are passed in by the caller: the domain has no clock and no randomness (C-08).
+// An attempt of the progress log: the attempt of contracts/export.schema.json, so that an export is
+// the log as it is. The id and the time are passed in by the caller: the domain has no clock and no
+// randomness (C-08).
 
 import type { Verdict } from "../checking";
 import type { Pack } from "../packs/types";

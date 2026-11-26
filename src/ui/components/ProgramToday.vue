@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Today with the demo program: the goal with the current level and the share
-// of each level, and today's topic with its course unit and drill exercises as links into Study.
-// The done states and the focus are read by the start screen.
+// Today with the demo program: the goal with the current level and the share of each level, and
+// today's topic with its course unit and drill exercises as links into Study. The done states and
+// the focus are read by the start screen.
 import { computed, useTemplateRef } from "vue";
 import { RouterLink } from "vue-router";
 import { countOf } from "../../domain/plural";

@@ -6,11 +6,11 @@ import { expect, test } from "./fixtures";
 import { addressOf, plainViews as views, themes } from "./views";
 
 /**
- * One PNG per view, theme and width, made from the production build, and one per
- * state of the start screen's demo section after the first (`start-demo-added`,
- * `start-demo-failed`, `start-demo-kept`, `start-demo-not-kept`) and of the message about data of a
- * newer version (`newer-version`), from `demoStates` in e2e/demo.ts.
- * File names are `<view or state>-<theme>-<width>.png`; scripts/screenshots.mjs relies on them.
+ * One PNG per view, theme and width, made from the production build, and one per state of the start
+ * screen's demo section after the first (`start-demo-added`, `start-demo-failed`,
+ * `start-demo-kept`, `start-demo-not-kept`) and of the message about data of a newer version
+ * (`newer-version`), from `demoStates` in e2e/demo.ts. File names are
+ * `<view or state>-<theme>-<width>.png`; scripts/screenshots.mjs relies on them.
  */
 const directory = process.env["SCREENSHOTS_DIR"] ?? "screenshots";
 const widths = [1280, 390] as const;

@@ -1,7 +1,6 @@
-// The state of Study: `useUnit` loads the pack, prepares the
-// keys, reads the states, attempts and drafts of the unit, and exposes the views of the domain and
-// the actions that append attempts. Components show what it gives and call its actions; none of
-// them reaches the store.
+// The state of Study: `useUnit` loads the pack, prepares the keys, reads the states, attempts and
+// drafts of the unit, and exposes the views of the domain and the actions that append attempts.
+// Components show what it gives and call its actions; none of them reaches the store.
 
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
 import type { Exercise, Pack, Unit } from "../../domain/packs/types";
@@ -275,11 +274,11 @@ export function useUnit(packId: string, unitId: string) {
   }
 
   /**
-   * Reads the unit again, as another tab may have changed it. An exercise is
-   * left as it is when what the screen holds is newer than what was read: its answers are not
-   * stored yet, an action on it is being written, or one was kept after the read began. In the
-   * exercise being typed in, the focused field keeps its text; the rest is read again only when
-   * another tab added to its log. A draft whose write failed is written again.
+   * Reads the unit again, as another tab may have changed it. An exercise is left as it is when
+   * what the screen holds is newer than what was read: its answers are not stored yet, an action on
+   * it is being written, or one was kept after the read began. In the exercise being typed in, the
+   * focused field keeps its text; the rest is read again only when another tab added to its log. A
+   * draft whose write failed is written again.
    */
   async function reread() {
     const from = pack.value;
@@ -495,8 +494,8 @@ export function useUnit(packId: string, unitId: string) {
   }
 
   /**
-   * Adds the demo books, as the start screen does, and opens the unit the address names:
-   * a copied address of a demo unit leads to it in a browser where the demo was never added.
+   * Adds the demo books, as the start screen does, and opens the unit the address names: a copied
+   * address of a demo unit leads to it in a browser where the demo was never added.
    */
   async function addDemoAndOpen() {
     if (adding.value.phase === "adding") return;

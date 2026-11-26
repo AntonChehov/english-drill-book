@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Compares the screenshots of a pull request with those of `main`, pixel by pixel.
-// Files are `<view>-<theme>-<width>.png`, made by e2e/screenshots.spec.ts.
+// Compares the screenshots of a pull request with those of `main`, pixel by pixel. Files are
+// `<view>-<theme>-<width>.png`, made by e2e/screenshots.spec.ts.
 // Usage: node scripts/screenshots.mjs <pull request dir> <main dir> [--out comparison.json]
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -9,9 +9,9 @@ import { inflateSync } from "node:zlib";
 import { isMain } from "./common.mjs";
 
 /**
- * Share of differing pixels above which a view counts as changed: 0.01 %. A threshold of 0.1 %
- * was too coarse: a changed link colour alters only 0.07 % of a 1280 px screenshot, while
- * two runs of the same build differ in no pixel at all.
+ * Share of differing pixels above which a view counts as changed: 0.01 %. A threshold of 0.1 % was
+ * too coarse: a changed link colour alters only 0.07 % of a 1280 px screenshot, while two runs of
+ * the same build differ in no pixel at all.
  */
 export const changedThreshold = 0.0001;
 

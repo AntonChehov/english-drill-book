@@ -1,6 +1,6 @@
-// Whether the demo books are kept: the stored packs are
-// validated again when read, and a pack that fails, or that was read from another edition of a
-// demo book or by an older profile, is read again from the PDF.
+// Whether the demo books are kept: the stored packs are validated again when read, and a pack that
+// fails, or that was read from another edition of a demo book or by an older profile, is read again
+// from the PDF.
 
 import type { Pack } from "../../packs/types";
 import { validatePack } from "../../packs/validate";

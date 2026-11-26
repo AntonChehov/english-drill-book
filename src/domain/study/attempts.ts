@@ -1,5 +1,5 @@
-// The attempts Study appends to the log. The id
-// and the time come from the caller: the domain has no clock and no randomness (C-08).
+// The attempts Study appends to the log. The id and the time come from the caller: the domain has
+// no clock and no randomness (C-08).
 
 import type { ItemsExercise, Pack } from "../packs/types";
 import { compareAttempts, newAttempt, type Attempt, type OverrideVerdict } from "../progress";
@@ -89,12 +89,12 @@ export function overriddenOf(
 }
 
 /**
- * A change by hand of the verdict of `item` in the latest check: `verdict` sets it,
- * `null` undoes the change. The override names that check, carries the whole set of its items set
- * by hand with this change applied, and is `complete` when the check with these changes has every
- * item `ok`. Its time is never earlier than its check's or the check's latest override,
- * one millisecond after it if the clock says otherwise, so that the derivation keeps it in order.
- * `undefined` when there is no check or the latest one did not judge `item`.
+ * A change by hand of the verdict of `item` in the latest check: `verdict` sets it, `null` undoes
+ * the change. The override names that check, carries the whole set of its items set by hand with
+ * this change applied, and is `complete` when the check with these changes has every item `ok`. Its
+ * time is never earlier than its check's or the check's latest override, one millisecond after it
+ * if the clock says otherwise, so that the derivation keeps it in order. `undefined` when there is
+ * no check or the latest one did not judge `item`.
  */
 export function overrideAttempt(
   context: AttemptContext,

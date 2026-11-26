@@ -1,6 +1,6 @@
-// Validation of packs: the rules of
-// contracts/pack.schema.json written out by hand, then the semantic rules. A general JSON Schema
-// validator would cost about 40 kB gzip; the agreement of the two is tested with one.
+// Validation of packs: the rules of contracts/pack.schema.json written out by hand, then the
+// semantic rules. A general JSON Schema validator would cost about 40 kB gzip; the agreement of the
+// two is tested with one.
 
 import { checkAnswer, compileKey } from "../checking";
 import type { Pack } from "./types";

@@ -36,7 +36,8 @@ const defaultIdentity = {
 const readme = `# Evidence
 
 Made by CI, not by hand: screenshots and numbers of each pull request commit
-(\`pr-<number>/<sha>/\`) and of \`main\` (\`main/\`). Directories of closed pull requests are pruned on a schedule.
+(\`pr-<number>/<sha>/\`) and of \`main\` (\`main/\`). Directories of closed pull requests are pruned on a
+schedule.
 `;
 
 /** Extra environment of every git command: the credentials, set by `useToken`. */

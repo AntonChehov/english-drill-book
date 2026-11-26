@@ -1,6 +1,7 @@
-// The review record of constitution C-18 item 2, kept in rounds, and the messages of the evidence check about it.
-// Each message states the fact, then the action, and stands on its own in one cell of the job summary. No message names a
-// particular skill: the reader may use any, so they say "the review skill".
+// The review record of constitution C-18 item 2, kept in rounds, and the messages of the evidence
+// check about it. Each message states the fact, then the action, and stands on its own in one cell
+// of the job summary. No message names a particular skill: the reader may use any, so they say "the
+// review skill".
 import { shownLength } from "./review-hash.mjs";
 
 /** The line of a pull request description that names its change. */
@@ -92,9 +93,9 @@ const severityLine = /^Severity\s*:\s*(.*?)\s*$/i;
 
 /**
  * The numbers of the lines that hold an HTML comment's opening `<!--`, wherever it stands,
- * fenced blocks included: found in the raw text, so that no reading of
- * fences or line endings can hide one. Lines are counted as the parser counts them, by `\n`;
- * a lone `\r` ends no line, so a comment after one is on the line that holds that `\r`.
+ * fenced blocks included: found in the raw text, so that no reading of fences or line endings can
+ * hide one. Lines are counted as the parser counts them, by `\n`; a lone `\r` ends no line, so a
+ * comment after one is on the line that holds that `\r`.
  */
 function commentLines(markdown) {
   const lines = new Set();
@@ -237,8 +238,8 @@ export function parseRecord(markdown) {
       for (const id of openBefore)
         if (!stated.has(id)) problems.push(messages.notStated(round.number, id));
     }
-    // The verdict follows from the round: approved when it raises nothing and marks
-    // nothing not fixed.
+    // The verdict follows from the round: approved when it raises nothing and marks nothing not
+    // fixed.
     const raised = round.raised.map((entry) => entry.id);
     if (round.verdict === "approved") {
       if (raised.length > 0) problems.push(messages.approvedButRaises(round.number, raised));

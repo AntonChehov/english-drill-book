@@ -1,9 +1,8 @@
 <script setup lang="ts">
-// Study: the unit's pages beside its exercises, side by side
-// from 1024 px and stacked below that, with the unit's navigation in its header, or in the bar of
-// the frame below 1024 px. Before the exercises, the unit's explanation from the pack,
-// foldable and open on every opening. From 1024 px the
-// border between the two is draggable and either can be collapsed to a strip.
+// Study: the unit's pages beside its exercises, side by side from 1024 px and stacked below that,
+// with the unit's navigation in its header, or in the bar of the frame below 1024 px. Before the
+// exercises, the unit's explanation from the pack, foldable and open on every opening. From 1024 px
+// the border between the two is draggable and either can be collapsed to a strip.
 import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import type { Pack } from "../../domain/packs/types";

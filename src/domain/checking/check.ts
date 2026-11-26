@@ -68,10 +68,10 @@ function wordEnds(words: readonly string[], text: string): number[] | undefined 
 
 /**
  * Whether `text`, a reading of the answer whose words end at `ends`, one edit from `candidate`
- * with as many words, is a slip of the pen: the edit
- * falls inside a word of the key that is long enough, and is not the difference of an ending.
- * A letter inserted or removed next to the same letter can be placed at any of them: the edit is
- * a slip only if it is one in every word it could fall in, and where two words meet, in both.
+ * with as many words, is a slip of the pen: the edit falls inside a word of the key that is long
+ * enough, and is not the difference of an ending. A letter inserted or removed next to the same
+ * letter can be placed at any of them: the edit is a slip only if it is one in every word it could
+ * fall in, and where two words meet, in both.
  */
 function isSlip(ends: readonly number[], text: string, candidate: string): boolean {
   const longer = candidate.length - text.length;

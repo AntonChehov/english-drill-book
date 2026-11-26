@@ -28,8 +28,8 @@ export const MAX_KEY_ERRORS = 20;
 export type KeyErrorReason = PatternErrorReason | "key-too-large";
 
 /**
- * Why a key cannot be built: an invalid pattern, with its index in `accept`, or a key
- * too large as a whole, with the index `null`.
+ * Why a key cannot be built: an invalid pattern, with its index in `accept`, or a key too large as
+ * a whole, with the index `null`.
  */
 export interface KeyError {
   readonly index: number | null;

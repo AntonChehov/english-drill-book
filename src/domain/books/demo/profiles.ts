@@ -1,6 +1,6 @@
-// The profiles of the two demo books. Their text is in public/demo/*.pdf, written for
-// this project; a profile holds only what names the pack and the structure the book must have.
-// What the packs say to the learner in Russian is the demo's own and sits beside.
+// The profiles of the two demo books. Their text is in public/demo/*.pdf, written for this project;
+// a profile holds only what names the pack and the structure the book must have. What the packs say
+// to the learner in Russian is the demo's own and sits beside.
 
 import type { BookProfile, DocumentInfo } from "../types";
 import documents from "./documents.json";

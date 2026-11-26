@@ -1,8 +1,7 @@
 <script setup lang="ts">
-// An exercise of the unit: its number, which shows its page, its
-// task, its state and score, its rows and **Проверить**; or, for an open exercise and for now a
-// connected text, one field and the sample on request. Every exercise not done offers
-// «Выполнить упражнение», which marks it done.
+// An exercise of the unit: its number, which shows its page, its task, its state and score, its
+// rows and **Проверить**; or, for an open exercise and for now a connected text, one field and the
+// sample on request. Every exercise not done offers «Выполнить упражнение», which marks it done.
 import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { TEXT, type ExerciseView, type RowView } from "../../domain/study";
 import ItemRow from "./ItemRow.vue";

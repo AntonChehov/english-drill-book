@@ -1,5 +1,5 @@
 {
-  "comment": "A database as version 2 of the schema wrote it, for the migration tests: the data of version 1 and a day of the checklist. Once released, never change this file: add a fixture of each later version beside it. The data is invented.",
+  "comment": "A database as version 2 of the schema wrote it, for the migration tests (design D4 of the change `topics-and-checklist`): the data of version 1 and a day of the checklist. Once released, never change this file: add a fixture of each later version beside it. The data is invented.",
   "version": 2,
   "stores": {
     "attempts": {

@@ -1,6 +1,6 @@
-// Draws the pages of a PDF on canvases. pdf.js is
-// loaded on demand, as for reading text, and its worker is started by the app (`text.ts`), so a
-// worker that did not arrive fails only this attempt and a later one can succeed.
+// Draws the pages of a PDF on canvases. pdf.js is loaded on demand, as for reading text, and its
+// worker is started by the app (`text.ts`), so a worker that did not arrive fails only this attempt
+// and a later one can succeed.
 
 import type { PDFPageProxy } from "pdfjs-dist";
 import { loadPdfLibrary, startWorker } from "./text";
