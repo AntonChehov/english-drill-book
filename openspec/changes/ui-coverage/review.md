@@ -63,3 +63,18 @@ Fix of F1: only `Date` is faked in the checklist block, and the day is fixed at 
 The private handles that remain, as the coordinator asked: the `header` element in `statusOf` is semantic markup of the exercise block and moves with it in any split. `#bar-unit` is the frame's own target in `App.vue`, which the study screen teleports into. It is a contract between the frame and the screen, not something inside the screen, so the split keeps it. `isHidden` reads the inline `display: none` that `v-show` writes. If the split hides a panel with `v-if` instead, the button is gone and `buttonNamed` throws, so the test fails loudly and does not pass by mistake. All three sit in one helper each in the fixture, and nothing more is needed for `study-split`. `TopicsView.test.ts` still selects `.topic`, `.state` and `.counts`. That screen is not part of the split, and I raise no finding on it.
 
 Gates on this commit: `pnpm check` passes, `pnpm test:coverage` passes with the thresholds, and three shuffled runs of `pnpm vitest run` pass, apart from the `speed.test.ts` flake on `main` noted in round 1. That flake failed 1 run of 3 again and is outside this diff.
+
+## Round 3
+
+Reviewed: d33c82b21d06
+Verdict: approved
+
+### Notes
+
+I am the same reviewer as in rounds 1 and 2, resumed. The hash changed because `main` was merged in after comment-cleanup (#45) and the archive commit was reverted. The content of this change against `main` is the same as in round 2, and I read the whole diff again.
+
+`vitest.config.ts` after the merge: the `projects` split from #45 (`unit`, and `speed` run alone after the others) sits beside this change's `coverage` block and does not conflict with it. The coverage include and exclusions keep their reasons, and the thresholds are still 95/95 for `src/domain` and 70/70 for `src/ui` and for `src/storage`. `pnpm test:coverage` still leaves out `speed.test.ts`. That is sane: the speed test only reads a clock, adds no line to the coverage of the domain, and runs in `pnpm test` and `pnpm test:speed`.
+
+Overlap with #45: it changed only comments in the files that these tests mount or import, among them `db.fixture.ts`, whose `rawOpen` the study fixture uses. No interface or string that the tests read changed. The comments added by this change cite no design decision and no requirement ID.
+
+Gates on this commit: `pnpm test:coverage` passes 78 files and 982 tests with the thresholds met, `pnpm test` passes 79 files, the speed project included, and `pnpm check` passes. The speed flake noted in rounds 1 and 2 did not appear now that #45 runs it alone.
