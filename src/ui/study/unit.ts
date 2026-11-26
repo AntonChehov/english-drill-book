@@ -20,6 +20,7 @@ import {
 import { failureMessage, failureOf, keepFailureMessage, progressMessage } from "../demo/messages";
 import { demoState, summaryOf } from "../demo/state";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
+import { unsaved, useDrafts } from "./drafts";
 import { newId, now } from "./ids";
 import {
   changedMessage,
@@ -34,9 +35,6 @@ import {
 import { openUnit, readUnit, unitLinks, type ExerciseEntry, type TopicOfUnit } from "./unit-read";
 
 export type { ExerciseEntry, TopicOfUnit, UnitLink } from "./unit-read";
-
-/** Drafts are written this long after the last keystroke. */
-export const DRAFT_DELAY = 400;
 
 export type UnitPhase =
   | "loading"
@@ -69,9 +67,6 @@ function editedField(): { readonly block: string; readonly item: string } | unde
 
 const elementIdOf = (entry: ExerciseEntry) => `ex-${entry.exercise.id.replaceAll(".", "-")}`;
 
-/** The answers in the fields of `entry` are newer than its stored draft. */
-const unsaved = (entry: ExerciseEntry) => entry.stored !== entry.edits;
-
 /** Nothing of `entry` is on its way to the store: what is stored is what the screen holds. */
 const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
 
@@ -94,16 +89,12 @@ export function useUnit(packId: string, unitId: string) {
   const entries = ref<ExerciseEntry[]>([]);
   /** Exercise id → done, for every exercise of the pack (the unit list counts them). */
   const done = reactive(new Map<string, boolean>());
-  const draftFailed = ref(false);
   const announcement = ref("");
   const adding = shallowRef<DemoAdding>({ phase: "idle" });
   /** The demo book the address names, if it names one. */
   const demoBook = demoBooks.find((book) => book.profile.id === packId);
 
-  const timers = new Map<string, ReturnType<typeof setTimeout>>();
-  const writing = new Set<string>();
-  /** The exercises whose last draft write failed. */
-  const failed = new Set<string>();
+  const { draftFailed, setAnswer, flush, writeUnsaved } = useDrafts(pack, entries);
 
   const unitIndex = computed(() =>
     pack.value && unit.value ? pack.value.units.indexOf(unit.value) : -1,
@@ -154,10 +145,7 @@ export function useUnit(packId: string, unitId: string) {
     const from = pack.value;
     const shown = unit.value;
     if (phase.value !== "ready" || from === undefined || shown === undefined) return;
-    for (const entry of entries.value) {
-      const id = entry.exercise.id;
-      if (unsaved(entry) && !timers.has(id) && !writing.has(id)) void writeDraft(entry);
-    }
+    writeUnsaved();
     const before = entries.value.map((entry) =>
       settled(entry) ? { edits: entry.edits, attempts: entry.attempts } : undefined,
     );
@@ -227,49 +215,6 @@ export function useUnit(packId: string, unitId: string) {
       } while (rereadAgain);
     } finally {
       rereading = false;
-    }
-  }
-
-  async function writeDraft(entry: ExerciseEntry) {
-    const id = entry.exercise.id;
-    clearTimeout(timers.get(id));
-    timers.delete(id);
-    if (pack.value === undefined) return;
-    writing.add(id);
-    const edits = entry.edits;
-    try {
-      await (
-        await getStore()
-      ).putDraft({ pack: pack.value.id, exercise: id, answers: { ...entry.answers } });
-      entry.stored = edits;
-      failed.delete(id);
-      draftFailed.value = failed.size > 0;
-    } catch (error) {
-      noteStorageFailure(error);
-      failed.add(id);
-      draftFailed.value = true;
-    } finally {
-      writing.delete(id);
-    }
-  }
-
-  /** Puts `text` in a field and writes the draft once typing pauses. */
-  function setAnswer(entry: ExerciseEntry, item: string, text: string) {
-    entry.answers[item] = text;
-    entry.edits += 1;
-    entry.notice = null;
-    clearTimeout(timers.get(entry.exercise.id));
-    timers.set(
-      entry.exercise.id,
-      setTimeout(() => void writeDraft(entry), DRAFT_DELAY),
-    );
-  }
-
-  /** Writes a waiting draft at once: when a field loses focus or the page is hidden. */
-  function flush(entry?: ExerciseEntry) {
-    for (const each of entry ? [entry] : entries.value) {
-      const id = each.exercise.id;
-      if (timers.has(id) || (failed.has(id) && !writing.has(id))) void writeDraft(each);
     }
   }
 
@@ -401,7 +346,6 @@ export function useUnit(packId: string, unitId: string) {
     stopWatching = onStoredDataChange(() => void refresh());
   });
   onUnmounted(() => {
-    flush();
     document.removeEventListener("visibilitychange", onHidden);
     window.removeEventListener("pagehide", onPageHide);
     stopWatching?.();
