@@ -1,30 +1,22 @@
-// The state of Study: `useUnit` loads the pack, prepares the keys, reads the states, attempts and
-// drafts of the unit, and exposes the views of the domain and the actions that append attempts.
-// Components show what it gives and call its actions; none of them reaches the store.
+// The state of Study: `useUnit` opens the unit the address names, holds its exercises and
+// exposes the views of the domain and the actions that append attempts. Components show what it
+// gives and call its actions; none of them reaches the store.
 
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
-import type { Exercise, Pack, Unit } from "../../domain/packs/types";
+import type { Pack, Unit } from "../../domain/packs/types";
 import { demoBooks } from "../../domain/books/demo/profiles";
-import { validatePack } from "../../domain/packs/validate";
-import { demoProgram, topicStep, type TopicStep } from "../../domain/programs";
-import { deriveExercise, type Attempt, type ExerciseState } from "../../domain/progress";
+import type { Attempt, ExerciseState } from "../../domain/progress";
 import {
   checkAttempt,
-  initialAnswers,
   markDoneAttempt,
   overrideAttempt,
-  prepareKeys,
-  progressOf,
   revealAttempt,
   TEXT,
   viewOfExercise,
   type AttemptContext,
   type ExerciseView,
-  type Keys,
-  type Progress,
   type RowChange,
 } from "../../domain/study";
-import type { Store } from "../../storage/db";
 import { failureMessage, failureOf, keepFailureMessage, progressMessage } from "../demo/messages";
 import { demoState, summaryOf } from "../demo/state";
 import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
@@ -39,30 +31,12 @@ import {
   sampleMessage,
   type KeptAction,
 } from "./messages";
+import { openUnit, readUnit, unitLinks, type ExerciseEntry, type TopicOfUnit } from "./unit-read";
+
+export type { ExerciseEntry, TopicOfUnit, UnitLink } from "./unit-read";
 
 /** Drafts are written this long after the last keystroke. */
 export const DRAFT_DELAY = 400;
-
-/** An exercise of the unit as Study holds it. */
-export interface ExerciseEntry {
-  readonly exercise: Exercise;
-  /** The prepared keys; none for an exercise shown as open. */
-  readonly keys: Keys | undefined;
-  state: ExerciseState;
-  attempts: Attempt[];
-  /** The answers in the fields; text and open exercises use `text`. */
-  answers: Record<string, string>;
-  /** The result of an action could not be kept: what to say, and how to repeat it. */
-  failure: { readonly message: string; readonly retry: () => void } | null;
-  /** A quiet word next to Проверить, such as that there is nothing to check. */
-  notice: string | null;
-  /** An action is being written. */
-  busy: boolean;
-  /** How many edits the fields have had: a reload does not overwrite newer edits. */
-  edits: number;
-  /** The value of `edits` the stored draft holds: answers not stored are never read over. */
-  stored: number;
-}
 
 export type UnitPhase =
   | "loading"
@@ -77,24 +51,6 @@ export type DemoAdding =
   | { readonly phase: "idle" }
   | { readonly phase: "adding"; readonly message: string }
   | { readonly phase: "failed"; readonly message: string };
-
-export interface UnitLink {
-  readonly id: string;
-  readonly title: string;
-  readonly progress: Progress;
-}
-
-/** The topic a unit belongs to, with the links of its two steps and the course unit. */
-export interface TopicOfUnit {
-  readonly title: string;
-  readonly step: TopicStep["step"];
-  readonly courseLink: string;
-  readonly drillsLink: string;
-  readonly course: { readonly pack: Pack; readonly unit: Unit };
-}
-
-const idOf = (value: unknown): unknown =>
-  typeof value === "object" && value !== null && "id" in value ? value.id : undefined;
 
 /**
  * The field that has the focus, if one has: the element id of its exercise block (`ex-` and the
@@ -119,65 +75,15 @@ const unsaved = (entry: ExerciseEntry) => entry.stored !== entry.edits;
 /** Nothing of `entry` is on its way to the store: what is stored is what the screen holds. */
 const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
 
-/**
- * The topic of `shown` in the demo program, when both of its books are stored and valid and hold
- * its course unit and its first supplement; else none.
- */
-function topicOf(packs: readonly unknown[], from: Pack, shown: Unit): TopicOfUnit | undefined {
-  const found = topicStep(
-    demoProgram.topics,
-    from.id,
-    shown.id,
-    shown.exercises.map((exercise) => exercise.id),
+/** What the domain shows of `entry`. */
+function viewOf(entry: ExerciseEntry): ExerciseView {
+  return viewOfExercise(
+    entry.exercise,
+    entry.state,
+    entry.answers,
+    entry.attempts,
+    entry.keys === undefined,
   );
-  if (found === undefined) return;
-  const { topic, step } = found;
-  const first = topic.supplements[0]!;
-  const packOf = (id: string) => {
-    if (id === from.id) return from;
-    const stored = packs.find((value) => idOf(value) === id);
-    const validation = stored === undefined ? undefined : validatePack(stored);
-    return validation?.ok ? validation.pack : undefined;
-  };
-  const coursePack = packOf(topic.lead.pack);
-  const course = coursePack?.units.find(({ id }) => id === topic.lead.unit);
-  const drills = packOf(first.pack)?.units.find(({ exercises }) =>
-    exercises.some(({ id }) => id === first.exercise),
-  );
-  if (coursePack === undefined || course === undefined || drills === undefined) return;
-  return {
-    title: topic.title,
-    step,
-    courseLink: `/study/${coursePack.id}/${course.id}`,
-    drillsLink: `/study/${first.pack}/${drills.id}?ex=${first.exercise}`,
-    course: { pack: coursePack, unit: course },
-  };
-}
-
-/** The states of every exercise of the pack, and what the store holds for the exercises of `shown`. */
-async function readUnit(store: Store, from: Pack, shown: Unit) {
-  const ids = from.units.flatMap((each) => each.exercises.map((exercise) => exercise.id));
-  const read = await store.getExerciseStates(from.id, ids);
-  const stateOf = new Map(ids.map((id, index) => [id, read[index]!] as const));
-  const exercises = await Promise.all(
-    shown.exercises.map(async (exercise) => {
-      const [attempts, draft] = await Promise.all([
-        store.getAttempts(from.id, exercise.id),
-        store.getDraft(from.id, exercise.id),
-      ]);
-      // Derived from the log just read, not taken from the cache read before it: a check that
-      // another tab writes between the two reads would give a new log with an old state.
-      const state = attempts.length === 0 ? stateOf.get(exercise.id)! : deriveExercise(attempts);
-      stateOf.set(exercise.id, state);
-      return {
-        exercise,
-        state,
-        attempts,
-        answers: initialAnswers(state, attempts, draft?.answers),
-      };
-    }),
-  );
-  return { states: [...stateOf], exercises };
 }
 
 export function useUnit(packId: string, unitId: string) {
@@ -202,31 +108,12 @@ export function useUnit(packId: string, unitId: string) {
   const unitIndex = computed(() =>
     pack.value && unit.value ? pack.value.units.indexOf(unit.value) : -1,
   );
-  const units = computed<UnitLink[]>(() =>
-    (pack.value?.units ?? []).map((each) => ({
-      id: each.id,
-      title: each.title,
-      progress: progressOf(
-        each.exercises.map((exercise) => exercise.id),
-        (id) => done.get(id) === true,
-      ),
-    })),
-  );
+  const units = computed(() => unitLinks(pack.value, (id) => done.get(id) === true));
   const progress = computed(() => units.value[unitIndex.value]?.progress);
   const previous = computed(() => pack.value?.units[unitIndex.value - 1]?.id);
   const next = computed(() =>
     unitIndex.value < 0 ? undefined : pack.value?.units[unitIndex.value + 1]?.id,
   );
-
-  function viewOf(entry: ExerciseEntry): ExerciseView {
-    return viewOfExercise(
-      entry.exercise,
-      entry.state,
-      entry.answers,
-      entry.attempts,
-      entry.keys === undefined,
-    );
-  }
 
   /** Says `message` through the polite live region, again even if it is the same. */
   async function announce(message: string) {
@@ -238,34 +125,17 @@ export function useUnit(packId: string, unitId: string) {
   async function load() {
     phase.value = "loading";
     try {
-      const store = await getStore();
-      const packs = await store.getPacks();
-      const found = packs.find((value) => idOf(value) === packId);
-      const validation = found === undefined ? undefined : validatePack(found);
-      const shown = validation?.ok
-        ? validation.pack.units.find(({ id }) => id === unitId)
-        : undefined;
-      if (!validation?.ok || shown === undefined) {
-        phase.value = found === undefined && demoBook !== undefined ? "demo-missing" : "not-found";
+      const opened = await openUnit(await getStore(), packId, unitId);
+      if ("missing" in opened) {
+        phase.value =
+          opened.missing === "pack" && demoBook !== undefined ? "demo-missing" : "not-found";
         return;
       }
-      const read = await readUnit(store, validation.pack, shown);
-      pack.value = validation.pack;
-      unit.value = shown;
-      topic.value = topicOf(packs, validation.pack, shown);
-      for (const [id, state] of read.states) done.set(id, state.done);
-      entries.value = read.exercises.map(({ exercise, state, attempts, answers }) => ({
-        exercise,
-        keys: exercise.type === "items" ? prepareKeys(exercise) : undefined,
-        state,
-        attempts,
-        answers,
-        failure: null,
-        notice: null,
-        busy: false,
-        edits: 0,
-        stored: 0,
-      }));
+      pack.value = opened.pack;
+      unit.value = opened.unit;
+      topic.value = opened.topic;
+      for (const [id, state] of opened.states) done.set(id, state.done);
+      entries.value = opened.entries;
       phase.value = "ready";
     } catch (error) {
       noteStorageFailure(error);
