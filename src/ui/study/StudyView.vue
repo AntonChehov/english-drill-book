@@ -22,6 +22,7 @@ import SplitSeparator from "./SplitSeparator.vue";
 import StepButton from "./StepButton.vue";
 import TopicSteps from "./TopicSteps.vue";
 import UnitMenu from "./UnitMenu.vue";
+import UnitUnavailable from "./UnitUnavailable.vue";
 import { useUnit, type ExerciseEntry } from "./unit";
 
 const route = useRoute();
@@ -182,46 +183,14 @@ watch(
 <template>
   <p v-if="phase === 'loading'" class="loading" role="status">Открываем раздел…</p>
 
-  <section v-else-if="phase === 'not-found'" class="narrow">
-    <h1>Раздел не найден</h1>
-    <p>Такого раздела нет среди книг в этом браузере.</p>
-    <p><RouterLink to="/">На главную</RouterLink></p>
-  </section>
-
-  <section v-else-if="phase === 'demo-missing'" class="narrow">
-    <h1>Демо-книги ещё не добавлены</h1>
-    <p>
-      Это ссылка на раздел демо-книги «<span lang="en">{{ demoTitle }}</span
-      >». В этом браузере демо-книги ещё не добавлены. Добавьте их — раздел откроется сразу. Файлы
-      загружаются с этого сайта, выбирать ничего не нужно.
-    </p>
-    <p v-if="adding.phase === 'adding'" role="status">{{ adding.message }}</p>
-    <p v-if="adding.phase === 'failed'" class="failure" role="alert">{{ adding.message }}</p>
-    <p class="row">
-      <button
-        type="button"
-        class="action"
-        :aria-disabled="adding.phase === 'adding' ? 'true' : undefined"
-        @click="study.addDemoAndOpen()"
-      >
-        {{
-          adding.phase === "failed" ? "Попробовать ещё раз" : "Добавить демо-книги и открыть раздел"
-        }}
-      </button>
-      <RouterLink to="/">На главную</RouterLink>
-    </p>
-  </section>
-
-  <section v-else-if="phase === 'failed'" class="narrow">
-    <h1>Не удалось открыть раздел</h1>
-    <p role="alert">
-      Не удалось прочитать данные, сохранённые в этом браузере. Попробуйте ещё раз.
-    </p>
-    <p class="row">
-      <button type="button" class="action" @click="study.load()">Повторить</button>
-      <RouterLink to="/">На главную</RouterLink>
-    </p>
-  </section>
+  <UnitUnavailable
+    v-else-if="phase !== 'ready'"
+    :phase="phase"
+    :demo-title="demoTitle"
+    :adding="adding"
+    @add-demo="study.addDemoAndOpen()"
+    @retry="study.load()"
+  />
 
   <div v-else-if="pack && unit" class="study">
     <Teleport v-if="narrow" to="#bar-unit">
@@ -415,25 +384,8 @@ watch(
 </template>
 
 <style scoped>
-.failure {
-  border-left: 4px solid var(--color-error);
-  padding: 0.25rem 0 0.25rem 0.75rem;
-}
-
 .loading {
   color: var(--color-muted);
-}
-
-.narrow {
-  margin: 0 auto;
-  max-width: 46rem;
-}
-
-.row {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .unit-bar {
