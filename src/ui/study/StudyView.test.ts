@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-import { flushPromises } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getStore } from "../storage";
 import {
@@ -7,6 +6,7 @@ import {
   buttonsNamed,
   click,
   exerciseOf,
+  flushPromises,
   freshStorage,
   markDoneElsewhere,
   mountStudy,
@@ -260,9 +260,9 @@ describe("the theory of a unit", () => {
   });
 
   it("@req PLAY-020 a unit of the drills opens with its explanation open again each time", async () => {
-    const { wrapper } = await mountStudy(drills);
+    const { app } = await mountStudy(drills);
     document.querySelector("details")!.open = false;
-    wrapper.unmount();
+    app.unmount();
     document.body.innerHTML = "";
 
     await mountStudy(drills);
@@ -277,7 +277,7 @@ const level = () => textOf(document.querySelector("[aria-label='Масштаб']
 describe("the panels", () => {
   it("@req DOC-002 zooms the pages in and out, to the width, and remembers the zoom of the book", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
-    const { wrapper } = await mountStudy(drills);
+    const { app } = await mountStudy(drills);
     expect(level()).toBe("100 %");
 
     await click(buttonNamed("Увеличить"));
@@ -289,7 +289,7 @@ describe("the panels", () => {
     await vi.waitFor(async () =>
       expect(await (await getStore()).getSetting("pageZoom")).toEqual({ "demo-drills": 1.25 }),
     );
-    wrapper.unmount();
+    app.unmount();
     document.body.innerHTML = "";
     await mountStudy(drills);
     await vi.waitFor(() => expect(level()).toBe("125 %"));
@@ -365,12 +365,12 @@ describe("the panels", () => {
   });
 
   it("@req DOC-006 the collapsed panel is remembered for the next time", async () => {
-    const { wrapper } = await mountStudy(drills);
+    const { app } = await mountStudy(drills);
     await click(buttonNamed("Скрыть страницы"));
     await vi.waitFor(async () =>
       expect(await (await getStore()).getSetting("collapsedPanel")).toBe("pages"),
     );
-    wrapper.unmount();
+    app.unmount();
     document.body.innerHTML = "";
 
     await mountStudy(drills);

@@ -1,39 +1,72 @@
 // Helpers of the tests that mount screens in a DOM: a browser's storage in memory holding the demo
 // books, the browser objects the DOM of the tests lacks, and the study screen mounted at an address.
 
-import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { forceCloseDatabase, IDBFactory } from "fake-indexeddb";
 import { expect, vi } from "vitest";
-import { createMemoryHistory, createRouter, type Router } from "vue-router";
+import { createApp, h, type Component } from "vue";
+import { createMemoryHistory, createRouter, RouterView, type Router } from "vue-router";
 import coursePack from "../../../demo/course.pack.json";
 import drillsPack from "../../../demo/drills.pack.json";
 import type { Pack } from "../../domain/packs/types";
 import { markDoneAttempt } from "../../domain/study";
 import type { Store } from "../../storage/db";
-import { getStore } from "../storage";
+import { rawOpen } from "../../storage/db/db.fixture";
+import { SCHEMA_VERSION } from "../../storage/db/schema";
+import App from "../App.vue";
+import { doneExercises } from "../demo/progress";
+import { demoState, partialDemo } from "../demo/state";
+import { createAppRouter } from "../router";
+import { getStore, newerVersion } from "../storage";
 import StudyView from "../study/StudyView.vue";
+import { applyTheme } from "../theme";
 
 /** The two demo books as the app keeps them once added. */
 export const demoPacks = [coursePack, drillsPack] as unknown as Pack[];
 
 let connections: IDBOpenDBRequest[] = [];
+let factory: IDBFactory = new IDBFactory();
+
+/** The screens mounted and not yet closed: one left running would write into a later test's storage. */
+const apps: { unmount(): void }[] = [];
 
 /**
- * An empty storage for one test. The connection of the test before is closed, so the app opens a
- * new one on the new storage instead of reusing it.
+ * An empty storage for a test that starts. The screens of the test before are closed first: they
+ * still have timers and writes of their own, which would end in the new storage.
  */
 export async function freshStorage(): Promise<void> {
+  for (const app of apps.splice(0)) app.unmount();
+  await clearSiteData();
+}
+
+/**
+ * The storage emptied, as when the browser's data of the site is cleared: the connections are
+ * closed, so the app opens a new one on the new storage instead of reusing the old.
+ */
+export async function clearSiteData(): Promise<void> {
+  await new Promise((resolve) => setImmediate(resolve));
   // A connection with a write still running closes when it ends; the app forgets it on the close.
   await Promise.all(
     connections.map(
       (connection) =>
         new Promise<void>((resolve) => {
-          connection.result.addEventListener("close", () => resolve(), { once: true });
-          forceCloseDatabase(connection.result as never);
+          const close = () => {
+            // An open that failed, as one of a version too old, has no connection to close.
+            const database = (connection.result ?? undefined) as IDBDatabase | undefined;
+            if (database === undefined) return resolve();
+            database.addEventListener("close", () => resolve(), { once: true });
+            forceCloseDatabase(database as never);
+          };
+          // A test can end while the app is still opening the database: it is closed once the app
+          // has finished opening it.
+          if (connection.readyState === "done") close();
+          else {
+            connection.addEventListener("success", () => setImmediate(close), { once: true });
+            connection.addEventListener("error", () => resolve(), { once: true });
+          }
         }),
     ),
   );
-  const factory = new IDBFactory();
+  factory = new IDBFactory();
   const open = factory.open.bind(factory);
   connections = [];
   vi.spyOn(factory, "open").mockImplementation((name, version) => {
@@ -42,6 +75,14 @@ export async function freshStorage(): Promise<void> {
     return request;
   });
   vi.stubGlobal("indexedDB", factory);
+}
+
+/**
+ * A newer version of the app opens the database and upgrades it, as another tab or an earlier visit
+ * with a newer app does. It waits until the app's own connection, if it has one, has let go.
+ */
+export async function upgradeFromNewerVersion(): Promise<void> {
+  (await rawOpen(factory, SCHEMA_VERSION + 1)).close();
 }
 
 /** The storage of the app, with the demo books added when `packs` is not given. */
@@ -76,9 +117,23 @@ export function stubScreen(narrow: boolean): void {
   );
 }
 
-export interface Mounted {
-  readonly wrapper: VueWrapper;
+interface Mounted {
+  /** The screen drawn in the document; `unmount` closes it. */
+  readonly app: { unmount(): void };
   readonly router: Router;
+}
+
+/** Lets what is waiting on a promise or a timer of the storage run. */
+export const flushPromises = () => new Promise<void>((resolve) => setImmediate(resolve));
+
+/** Draws `root` with the router in a new element of the document. */
+function draw(root: Component, router: Router): { unmount(): void } {
+  const element = document.createElement("div");
+  document.body.append(element);
+  const app = createApp(root).use(router);
+  app.mount(element);
+  apps.push(app);
+  return app;
 }
 
 /** Mounts the study screen at `address`, in the document so that focus can be seen, and settles it. */
@@ -92,23 +147,53 @@ export async function mountStudy(address: string): Promise<Mounted> {
   });
   await router.push(address);
   await router.isReady();
-  const root = document.createElement("div");
-  document.body.append(root);
-  const wrapper = mount(
-    {
-      // A unit is a screen of its own, as the app's frame draws it.
-      template:
-        '<RouterView v-slot="{ Component, route }"><component :is="Component" :key="route.path" /></RouterView>',
-    },
-    { attachTo: root, global: { plugins: [router] } },
+  // A unit is a screen of its own, as the app's frame draws it.
+  const app = draw(
+    () =>
+      h(RouterView, null, {
+        default: ({ Component, route }: { Component: Component; route: { path: string } }) =>
+          h(Component, { key: route.path }),
+      }),
+    router,
   );
-  await settle(wrapper);
-  return { wrapper, router };
+  await settle();
+  return { app, router };
+}
+
+/** Mounts the whole app at `address`, in the document, and waits for the screen to be drawn. */
+export async function mountApp(address: string): Promise<Mounted> {
+  const router = createAppRouter(createMemoryHistory());
+  await router.push(address);
+  await router.isReady();
+  const app = draw(App, router);
+  await settle();
+  return { app, router };
+}
+
+/**
+ * Waits until the start screen or Topics has read the store for the demo. A test that ends sooner
+ * would leave the reading to run into the next one.
+ */
+export async function demoChecked(): Promise<void> {
+  await vi.waitFor(() => expect(demoState.value.phase).not.toBe("loading"), { interval: 5 });
+  await flushPromises();
+}
+
+/** Closes the app and clears what it keeps in memory between screens, as when a page is opened. */
+export function resetApp(): void {
+  for (const app of apps.splice(0)) app.unmount();
+  demoState.value = { phase: "loading" };
+  partialDemo.value = { books: [], unreadable: [] };
+  newerVersion.value = false;
+  doneExercises.clear();
+  applyTheme("system");
+  document.title = "";
+  document.body.innerHTML = "";
 }
 
 /** Waits until the screen has stopped loading. */
-export async function settle(wrapper: VueWrapper): Promise<void> {
-  await vi.waitFor(() => expect(wrapper.find(".loading").exists()).toBe(false), { interval: 5 });
+async function settle(): Promise<void> {
+  await vi.waitFor(() => expect(document.querySelector(".loading")).toBeNull(), { interval: 5 });
   await flushPromises();
 }
 
