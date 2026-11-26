@@ -42,3 +42,24 @@ Checked: no file outside tests, the fixture, `vitest.config.ts`, `package.json` 
 Outside this diff: `src/domain/checking/speed.test.ts` "refuses large keys in well under 100 ms" failed in 3 of 6 full runs on this branch (114 ms and 111 ms), and in 1 of 5 runs with the new test files excluded, so it is flaky on `main` already; the added happy-dom files raise the load it runs under. Not a finding of this change, but worth its own fix before CI shows it.
 
 Fix of F2 changes no behaviour of the app; the tests only change what they hold on to.
+
+## Round 2
+
+Reviewed: 4b3ad64ef58f
+Verdict: approved
+
+- F1: fixed
+- F2: fixed
+- F3: fixed
+- F4: fixed
+- F5: fixed
+
+### Notes
+
+I am the same reviewer as in round 1, resumed, and I read the whole diff again.
+
+Fix of F1: only `Date` is faked in the checklist block, and the day is fixed at noon, so the fake storage's `setImmediate` and the real timers are untouched. Fix of F2: `settle` now waits for an `h1` and for the "Открываем раздел…" status to be gone, so it fails when no screen is drawn, instead of passing at once. Exercises are found through `aria-labelledby` and their heading, the list of units through `aria-controls` and the progress of the unit through its visually hidden words.
+
+The private handles that remain, as the coordinator asked: the `header` element in `statusOf` is semantic markup of the exercise block and moves with it in any split. `#bar-unit` is the frame's own target in `App.vue`, which the study screen teleports into. It is a contract between the frame and the screen, not something inside the screen, so the split keeps it. `isHidden` reads the inline `display: none` that `v-show` writes. If the split hides a panel with `v-if` instead, the button is gone and `buttonNamed` throws, so the test fails loudly and does not pass by mistake. All three sit in one helper each in the fixture, and nothing more is needed for `study-split`. `TopicsView.test.ts` still selects `.topic`, `.state` and `.counts`. That screen is not part of the split, and I raise no finding on it.
+
+Gates on this commit: `pnpm check` passes, `pnpm test:coverage` passes with the thresholds, and three shuffled runs of `pnpm vitest run` pass, apart from the `speed.test.ts` flake on `main` noted in round 1. That flake failed 1 run of 3 again and is outside this diff.
