@@ -12,7 +12,7 @@ Files that mount components declare `// @vitest-environment happy-dom`; the defa
 
 ### D2 Tests through the learner's view
 
-Queries by role, label and text (`@vue/test-utils` `find` on roles via attributes, or a small helper), events as the learner makes them (`setValue`, `trigger("keydown")`). No test reads a component's internal state or calls an unexported function. This is what lets the same tests pass before and after `study-split`.
+Queries by role, label and text through a small helper over the DOM, events as the learner makes them (typing, clicks, keys). No test reads a component's internal state or calls an unexported function. This is what lets the same tests pass before and after `study-split`.
 
 ### D3 Real packs, real storage
 

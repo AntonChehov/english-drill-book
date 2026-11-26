@@ -8,7 +8,7 @@ Slice 0 of M2 (the base). Coverage is measured only for `src/domain`; `src/ui` a
 
 Large: tests and test configuration only, no change in the app.
 
-- Component tests mount in a DOM (`@vue/test-utils`, `happy-dom`, development dependencies only), with IndexedDB from `fake-indexeddb` as in the storage tests.
+- Component tests mount in a DOM with Vue's own `createApp` and `happy-dom` (a development dependency only; `@vue/test-utils` fails `pnpm audit` through `js-beautify`), with IndexedDB from `fake-indexeddb` as in the storage tests.
 - Tests of the study screen through what the learner sees and does: `StudyView` with a demo pack (opening a unit, the steps, the pages panel, the theory, the unit menu, a failure shown by the boundary) and `ExerciseBlock` with `ItemRow` (typing, checking, verdicts, a kept draft, focus after a check). They use roles, labels and text, not the inside of a component, so they hold across `study-split`.
 - Tests of the parts the screen uses: `unit.ts`, `preferences.ts`, `pages.ts`, `messages.ts`, the demo adding and checking in `src/ui/demo/`, `src/ui/storage.ts`.
 - Coverage thresholds in CI: lines and branches ≥ 70 % for `src/ui` and for `src/storage`, beside 95 % for `src/domain`. Excluded, each with its reason in the configuration: the entry `main.ts`, type declarations, styles, and drawing on a canvas in `src/storage/pdf/render.ts`, which `happy-dom` does not have and the end-to-end tests cover.
