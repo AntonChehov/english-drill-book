@@ -85,4 +85,3 @@ Technical debt is in [`docs/tech-debt.md`](tech-debt.md).
 - 2026-11-25 — `workflow-retro-2` (pull request #41): the pipeline budget of C-19 is 4 minutes; `pnpm review:check` checks a review record before a push; validation covers the scenarios a change touches, the full set before a release; the archive commit follows green CI; only the mechanic watches CI; word limits are a ceiling. Archived.
 - 2026-11-26 — M2 is planned as version 1.0 in four slices (change `m2-scope`).
 - 2026-11-26 — `ci-stability` (pull request #43): WebKit end-to-end tests get a 60 s timeout and one retry in CI, the review hash is taken from the change's diff, and a pull request stays a draft until its review approves. Archived.
-- 2026-11-26 — `ui-coverage` (pull request #46): tests for `src/ui` and `src/storage`, thresholds of 70 percent of lines and branches beside 95 percent. Archived.
