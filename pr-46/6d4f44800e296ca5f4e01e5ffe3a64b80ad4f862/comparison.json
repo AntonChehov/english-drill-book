@@ -222,7 +222,7 @@
   {
     "file": "study-not-kept-dark-1280.png",
     "status": "changed",
-    "share": 1
+    "share": 0.07319460630320226
   },
   {
     "file": "study-not-kept-dark-390.png",
@@ -231,8 +231,8 @@
   },
   {
     "file": "study-not-kept-light-1280.png",
-    "status": "unchanged",
-    "share": 0
+    "status": "changed",
+    "share": 1
   },
   {
     "file": "study-not-kept-light-390.png",
