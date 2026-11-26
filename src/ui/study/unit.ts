@@ -2,16 +2,16 @@
 // exposes the views of the domain and the actions that append attempts. Components show what it
 // gives and call its actions; none of them reaches the store.
 
-import { computed, onMounted, onUnmounted, reactive, ref, shallowRef } from "vue";
+import { computed, onMounted, reactive, ref, shallowRef } from "vue";
 import type { Pack, Unit } from "../../domain/packs/types";
 import { demoBooks } from "../../domain/books/demo/profiles";
-import { TEXT } from "../../domain/study";
 import { failureMessage, failureOf, keepFailureMessage, progressMessage } from "../demo/messages";
 import { demoState, summaryOf } from "../demo/state";
-import { getStore, noteStorageFailure, onStoredDataChange } from "../storage";
+import { getStore, noteStorageFailure } from "../storage";
 import { useAttempts, viewOf } from "./attempts";
-import { unsaved, useDrafts } from "./drafts";
-import { openUnit, readUnit, unitLinks, type ExerciseEntry, type TopicOfUnit } from "./unit-read";
+import { useDrafts } from "./drafts";
+import { useReread, type EditedField } from "./reread";
+import { openUnit, unitLinks, type ExerciseEntry, type TopicOfUnit } from "./unit-read";
 
 export type { ExerciseEntry, TopicOfUnit, UnitLink } from "./unit-read";
 
@@ -30,26 +30,14 @@ export type DemoAdding =
   | { readonly phase: "failed"; readonly message: string };
 
 /**
- * The field that has the focus, if one has: the element id of its exercise block (`ex-` and the
- * exercise id with dashes) and its item. A reread keeps what is typed in that field.
+ * The state of the unit `unitId` of the pack `packId`. `editing` tells which field is being typed
+ * in, so that reading the unit again keeps its text.
  */
-function editedField(): { readonly block: string; readonly item: string } | undefined {
-  const active = document.activeElement;
-  if (!(active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement)) return;
-  const block = active.closest("article[id^='ex-']")?.id;
-  if (block === undefined) return;
-  // Fields are `<block>-<item>-field`, or `<block>-text` for an open exercise (ExerciseBlock).
-  const rest = active.id.slice(block.length + 1);
-  const item = rest === "text" ? TEXT : rest.replace(/-field$/u, "");
-  return { block, item };
-}
-
-const elementIdOf = (entry: ExerciseEntry) => `ex-${entry.exercise.id.replaceAll(".", "-")}`;
-
-/** Nothing of `entry` is on its way to the store: what is stored is what the screen holds. */
-const settled = (entry: ExerciseEntry) => !unsaved(entry) && !entry.busy;
-
-export function useUnit(packId: string, unitId: string) {
+export function useUnit(
+  packId: string,
+  unitId: string,
+  { editing }: { readonly editing: () => EditedField | undefined },
+) {
   const phase = ref<UnitPhase>("loading");
   const pack = shallowRef<Pack>();
   const unit = shallowRef<Unit>();
@@ -63,6 +51,17 @@ export function useUnit(packId: string, unitId: string) {
 
   const { draftFailed, setAnswer, flush, writeUnsaved } = useDrafts(pack, entries);
   const { announcement, check, reveal, change, markDone } = useAttempts(pack, done, flush);
+  useReread({
+    shown: () =>
+      phase.value === "ready" && pack.value !== undefined && unit.value !== undefined
+        ? { pack: pack.value, unit: unit.value }
+        : undefined,
+    entries,
+    done,
+    editing,
+    setAnswer,
+    writeUnsaved,
+  });
 
   const unitIndex = computed(() =>
     pack.value && unit.value ? pack.value.units.indexOf(unit.value) : -1,
@@ -96,90 +95,6 @@ export function useUnit(packId: string, unitId: string) {
   }
 
   /**
-   * Reads the unit again, as another tab may have changed it. An exercise is left as it is when
-   * what the screen holds is newer than what was read: its answers are not stored yet, an action on
-   * it is being written, or one was kept after the read began. In the exercise being typed in, the
-   * focused field keeps its text; the rest is read again only when another tab added to its log. A
-   * draft whose write failed is written again.
-   */
-  async function reread() {
-    const from = pack.value;
-    const shown = unit.value;
-    if (phase.value !== "ready" || from === undefined || shown === undefined) return;
-    writeUnsaved();
-    const before = entries.value.map((entry) =>
-      settled(entry) ? { edits: entry.edits, attempts: entry.attempts } : undefined,
-    );
-    try {
-      const read = await readUnit(await getStore(), from, shown);
-      const edited = editedField();
-      const kept = new Set<string>();
-      read.exercises.forEach((fresh, index) => {
-        const entry = entries.value[index];
-        const was = before[index];
-        if (entry === undefined) return;
-        if (
-          was === undefined ||
-          !settled(entry) ||
-          entry.edits !== was.edits ||
-          entry.attempts !== was.attempts
-        ) {
-          kept.add(entry.exercise.id);
-          return;
-        }
-        const typing = edited?.block === elementIdOf(entry) ? edited.item : undefined;
-        if (typing !== undefined) {
-          // Another tab added to the log, or changed what it derives to.
-          const changed =
-            fresh.attempts.length !== entry.attempts.length ||
-            JSON.stringify(fresh.state) !== JSON.stringify(entry.state);
-          if (!changed) {
-            kept.add(entry.exercise.id);
-            return;
-          }
-          const text = entry.answers[typing];
-          entry.state = fresh.state;
-          entry.attempts = fresh.attempts;
-          entry.answers = { ...fresh.answers };
-          // The text kept in the field is newer than what was read: an edit, saved as a draft.
-          if (text !== undefined && text !== fresh.answers[typing]) setAnswer(entry, typing, text);
-          else if (text !== undefined) entry.answers[typing] = text;
-          return;
-        }
-        entry.state = fresh.state;
-        entry.attempts = fresh.attempts;
-        entry.answers = fresh.answers;
-      });
-      for (const [id, state] of read.states) if (!kept.has(id)) done.set(id, state.done);
-    } catch (error) {
-      noteStorageFailure(error);
-    }
-  }
-
-  let rereading = false;
-  let rereadAgain = false;
-
-  /**
-   * One reread at a time: a reread asked for while one runs is made after it, so that what another
-   * tab wrote meanwhile is not read by a reread that the running one makes look stale.
-   */
-  async function refresh() {
-    if (rereading) {
-      rereadAgain = true;
-      return;
-    }
-    rereading = true;
-    try {
-      do {
-        rereadAgain = false;
-        await reread();
-      } while (rereadAgain);
-    } finally {
-      rereading = false;
-    }
-  }
-
-  /**
    * Adds the demo books, as the start screen does, and opens the unit the address names: a copied
    * address of a demo unit leads to it in a browser where the demo was never added.
    */
@@ -205,22 +120,7 @@ export function useUnit(packId: string, unitId: string) {
     }
   }
 
-  const onHidden = () => {
-    if (document.visibilityState === "hidden") flush();
-  };
-  const onPageHide = () => flush();
-  let stopWatching: (() => void) | undefined;
-  onMounted(() => {
-    void load();
-    document.addEventListener("visibilitychange", onHidden);
-    window.addEventListener("pagehide", onPageHide);
-    stopWatching = onStoredDataChange(() => void refresh());
-  });
-  onUnmounted(() => {
-    document.removeEventListener("visibilitychange", onHidden);
-    window.removeEventListener("pagehide", onPageHide);
-    stopWatching?.();
-  });
+  onMounted(() => void load());
 
   return {
     phase,

@@ -3,7 +3,7 @@
 // with the unit's navigation in its header, or in the bar of the frame below 1024 px. Before the
 // exercises, the unit's explanation from the pack, foldable and open on every opening. From 1024 px
 // the border between the two is draggable and either can be collapsed to a strip.
-import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import type { Pack } from "../../domain/packs/types";
 import { documentTitle } from "../../domain/document-title";
@@ -13,6 +13,7 @@ import CheckMark from "../components/CheckMark.vue";
 import FailureBoundary from "../components/FailureBoundary";
 import { appName } from "../router";
 import ExerciseBlock from "./ExerciseBlock.vue";
+import { fieldBeingEdited } from "./focus";
 import { doneOf, draftNotKept } from "./messages";
 import { pageNumbers } from "./pages";
 import PagesPanel from "./PagesPanel.vue";
@@ -28,7 +29,9 @@ const router = useRouter();
 const packId = String(route.params["pack"]);
 const unitId = String(route.params["unit"]);
 
-const study = useUnit(packId, unitId);
+const study = useUnit(packId, unitId, {
+  editing: () => fieldBeingEdited(study.entries.value.map(({ exercise }) => exercise.id)),
+});
 const {
   phase,
   pack,
@@ -44,6 +47,20 @@ const {
   adding,
   demoTitle,
 } = study;
+
+// A draft that waits for typing to pause is written at once when the page is hidden or left.
+const flushIfHidden = () => {
+  if (document.visibilityState === "hidden") study.flush();
+};
+const flushAll = () => study.flush();
+onMounted(() => {
+  document.addEventListener("visibilitychange", flushIfHidden);
+  window.addEventListener("pagehide", flushAll);
+});
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", flushIfHidden);
+  window.removeEventListener("pagehide", flushAll);
+});
 
 const narrow = useNarrow();
 const preferences = useStudyPreferences();
