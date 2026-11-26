@@ -2,7 +2,7 @@
 
 ## 1. Setup
 
-- [x] 1.1 Add `@vue/test-utils` and `happy-dom` as development dependencies; a mounting helper with router, demo pack and `fake-indexeddb`; a `PdfPages` stub; verify one mounted test passes
+- [x] 1.1 Add `happy-dom` as a development dependency (mounting uses Vue's own `createApp`: `@vue/test-utils` fails `pnpm audit` through `js-beautify`); a mounting helper with router, demo pack and `fake-indexeddb`; a `PdfPages` stub; verify one mounted test passes
 
 ## 2. Study screen
 
@@ -12,11 +12,11 @@
 
 ## 3. Rest of `src/ui` and `src/storage`
 
-- [ ] 3.1 `src/ui/demo/`, `src/ui/storage.ts`, `DemoBooks`, `DailyChecklist`, `TopicsView`, `AboutView`, `src/storage/static-files.ts`
+- [x] 3.1 `src/ui/demo/`, `src/ui/storage.ts`, `DemoBooks`, `DailyChecklist`, `TopicsView`, `AboutView`, `src/storage/static-files.ts`
 
 ## 4. Thresholds
 
-- [ ] 4.1 `vitest.config.ts`: include `src/ui` and `src/storage`, thresholds 70/70 beside 95/95, exclusions with reasons; verify `pnpm test:coverage` passes and fails when a threshold is raised above the measured value
+- [x] 4.1 `vitest.config.ts`: include `src/ui` and `src/storage`, thresholds 70/70 beside 95/95, exclusions with reasons; verify `pnpm test:coverage` passes and fails when a threshold is raised above the measured value
 
 ## 5. Gates
 
