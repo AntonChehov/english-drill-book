@@ -2,34 +2,34 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-9QPVLifG.js",
+        "assets/index-BVQvjNX9.js",
         "assets/preload-helper-7y9sWmk5.js",
         "assets/program-CHajSZWO.js",
-        "assets/router-0Amq0Hm3.js"
+        "assets/router-CTUL9Byk.js"
       ],
       "bytes": 129507,
-      "gzip": 50311,
+      "gzip": 50309,
       "budget": 120000
     },
     "css": {
       "files": [
-        "assets/index-BHaWx-yU.css",
-        "assets/router-CE3lI3Kv.css"
+        "assets/index-CWlZKIeg.css",
+        "assets/router-CXaOT7KF.css"
       ],
       "bytes": 11035,
-      "gzip": 2916,
+      "gzip": 2913,
       "budget": 20000
     },
     "later": [
       {
-        "file": "assets/StudyView-D7_xIIma.js",
+        "file": "assets/StudyView-DqLK_5w2.js",
         "bytes": 48079,
         "gzip": 17210
       },
       {
-        "file": "assets/TopicsView-D15CoufP.js",
+        "file": "assets/TopicsView-FqFmjWZb.js",
         "bytes": 2623,
-        "gzip": 1454
+        "gzip": 1456
       },
       {
         "file": "assets/add-demo-D0q_73LW.js",
@@ -63,7 +63,7 @@
       }
     ]
   },
-  "sha": "3378d1bc53ca7011e3e99fa8eaca9d8d8b9e5b24",
+  "sha": "48b38652b15a4bb78da93ad5771339e9eca5b1f3",
   "tests": {
     "unit": {
       "tests": 860,
@@ -91,6 +91,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 161
+    "seconds": 179
   }
 }
