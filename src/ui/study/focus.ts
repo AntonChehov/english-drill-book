@@ -1,4 +1,4 @@
-// Where the focus is on the study screen: the one place that asks the document.
+// Where the focus is on the study screen: the one place that asks the document about it.
 
 import { TEXT } from "../../domain/study";
 import type { EditedField } from "./reread";
@@ -19,4 +19,11 @@ export function fieldBeingEdited(exercises: readonly string[]): EditedField | un
   // Fields are `<block>-<item>-field`, or `<block>-text` for an open exercise.
   const rest = active.id.slice(block.length + 1);
   return { exercise, item: rest === "text" ? TEXT : rest.replace(/-field$/u, "") };
+}
+
+/** Focuses `element` when the focus is on nothing, as after the element that had it went away. */
+export function focusIfLost(element: HTMLElement | null) {
+  if (document.activeElement === null || document.activeElement === document.body) {
+    element?.focus();
+  }
 }
