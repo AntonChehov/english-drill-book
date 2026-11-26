@@ -2,13 +2,13 @@
   "size": {
     "js": {
       "files": [
-        "assets/index-BVQvjNX9.js",
+        "assets/index-DbsGARI-.js",
         "assets/preload-helper-7y9sWmk5.js",
         "assets/program-CHajSZWO.js",
-        "assets/router-CTUL9Byk.js"
+        "assets/router-mSgKG2Ce.js"
       ],
       "bytes": 129507,
-      "gzip": 50309,
+      "gzip": 50310,
       "budget": 120000
     },
     "css": {
@@ -22,9 +22,9 @@
     },
     "later": [
       {
-        "file": "assets/StudyView-DqLK_5w2.js",
-        "bytes": 48079,
-        "gzip": 17210
+        "file": "assets/StudyView-Bzs-cKXq.js",
+        "bytes": 51029,
+        "gzip": 18131
       },
       {
         "file": "assets/TopicsView-FqFmjWZb.js",
@@ -63,7 +63,7 @@
       }
     ]
   },
-  "sha": "7384ce01fb3abd87cd95466774892fd450ac3eea",
+  "sha": "b9780e23c253c5620a0395c926098f3adc05caab",
   "tests": {
     "unit": {
       "tests": 996,
@@ -79,10 +79,10 @@
     }
   },
   "coverage": {
-    "lines": 96.15,
-    "branches": 90.35,
-    "functions": 95.68,
-    "statements": 95.08
+    "lines": 96.17,
+    "branches": 90.4,
+    "functions": 95.69,
+    "statements": 95.12
   },
   "lighthouse": {
     "performance": 100,
@@ -91,6 +91,6 @@
     "seo": 91
   },
   "pipeline": {
-    "seconds": 161
+    "seconds": 166
   }
 }
